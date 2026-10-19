@@ -50,7 +50,7 @@ async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
         ctx, page, errs = await open_page(b)
-        await page.click("#btn-new"); await page.wait_for_timeout(250)
+        await page.click("#btn-sermon"); await page.click("#btn-new"); await page.wait_for_timeout(250)
         m = await page.evaluate(META)
         check("a new sermon starts with one presentation", (m["when"], m["service"], await page.evaluate(ROWS)), ("2026-10-21T19:00", "Wednesday Bible Study", []))
         check("one presentation keeps the usual three chips", [c for c in await page.evaluate(CHIPS) if c.startswith(("WHEN", "WHERE", "SERVICE", "When", "Where", "Service"))] != [], True)
@@ -143,7 +143,7 @@ async def main():
         # phone and dark looks of the form
         for name, scheme, vp, mob in [("deliv_phone", "light", (390, 844), True), ("deliv_dark", "dark", (1400, 900), False)]:
             ctx, page, errs = await open_page(b, scheme, vp, mob)
-            await page.click("#btn-new"); await page.wait_for_timeout(200); await page.click("#m-add-delivery"); await page.click("#m-add-delivery"); await page.wait_for_timeout(200)
+            await page.click("#btn-sermon"); await page.click("#btn-new"); await page.wait_for_timeout(200); await page.click("#m-add-delivery"); await page.click("#m-add-delivery"); await page.wait_for_timeout(200)
             await page.screenshot(path=str(OUT / (name + ".png")))
             if mob: check("phone: no sideways scroll", await page.evaluate("document.documentElement.scrollWidth"), 390)
             await ctx.close()

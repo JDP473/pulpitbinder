@@ -39,6 +39,7 @@ python3 tests/browser/md.py       # Markdown typing, paste, import, and the Mark
 python3 tests/browser/deliveries.py # a sermon presented at several times and places
 python3 tests/browser/folder.py   # importing a folder of files as sermons
 python3 tests/browser/study.py    # Text Study: translation overlay, cross references, saved answers, pictures
+python3 tests/browser/ui.py       # control sizes, header and Sermon menu, keyboard use, dialog focus, phone bottom bar
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.

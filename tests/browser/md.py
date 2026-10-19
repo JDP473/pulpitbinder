@@ -126,7 +126,7 @@ async def main():
         ctx, page, errs = await open_page(b)
 
         # 1. Markdown file with a details block
-        await page.click("#btn-new"); await page.click("#tab-edit"); await page.wait_for_timeout(300)
+        await page.click("#btn-sermon"); await page.click("#btn-new"); await page.click("#tab-edit"); await page.wait_for_timeout(300)
         await load(page, "walking.md", FRONT, "text/markdown")
         m = await page.evaluate(META)
         check("front matter: title, text", (m["title"], m["text"]), ("Walking in the Light", "Psalm 119:105-112"))
@@ -180,7 +180,7 @@ async def main():
         check("docx: only the manuscript left", await page.evaluate("document.querySelector('#editor').textContent.trim()"), "The manuscript text begins right here in a normal paragraph of the document.")
 
         # 6. typing shortcuts
-        await page.click("#btn-new"); await page.click("#tab-edit"); await page.wait_for_timeout(300)
+        await page.click("#btn-sermon"); await page.click("#btn-new"); await page.click("#tab-edit"); await page.wait_for_timeout(300)
         await page.evaluate("document.querySelector('#editor').innerHTML = '<p><br></p>'")
         await page.click("#editor"); await page.keyboard.press("Control+End")
         async def line(txt, enter=True):

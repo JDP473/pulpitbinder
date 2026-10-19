@@ -69,8 +69,8 @@ async def main():
         async with async_playwright() as p:
             b = await p.chromium.launch()
             ctx, page, errs = await open_page(b)
-            check("import button is in the header", await page.is_visible("#btn-import"), True)
-            await page.click("#btn-import"); await page.wait_for_timeout(200)
+            await page.click("#btn-sermon"); check("import is in the Sermon menu", await page.is_visible("#btn-import"), True); await page.keyboard.press("Escape")
+            await page.click("#btn-sermon"); await page.click("#btn-import"); await page.wait_for_timeout(200)
             await page.screenshot(path=str(OUT / "folder_pick.png"))
             await page.set_input_files("#imp-in-folder", str(root)); await page.wait_for_selector("#imp-done:not([hidden])", timeout=60000); await page.wait_for_timeout(300)
             head = await page.text_content("#imp-done .imp-head")
@@ -104,7 +104,7 @@ async def main():
             check("clicking one opens it", (await page.input_value("#m-title"), await page.is_visible("#import-modal")), ("Romans 12", False))
 
             # the same folder again adds nothing
-            await page.click("#btn-import"); await page.wait_for_timeout(150)
+            await page.click("#btn-sermon"); await page.click("#btn-import"); await page.wait_for_timeout(150)
             await page.set_input_files("#imp-in-folder", str(root)); await page.wait_for_selector("#imp-done:not([hidden])", timeout=60000); await page.wait_for_timeout(300)
             again = await page.inner_text("#imp-done")
             check("importing again skips what is already in", ("Nothing new was imported" in again, "6 already imported" in again), (True, True))
@@ -112,7 +112,7 @@ async def main():
             await page.click("#imp-ok")
 
             # a dropped folder, with a subfolder
-            await page.click("#btn-import"); await page.wait_for_timeout(150)
+            await page.click("#btn-sermon"); await page.click("#btn-import"); await page.wait_for_timeout(150)
             await page.evaluate("""() => {
               const file = (name, text) => ({ isFile: true, isDirectory: false, name, file: ok => ok(new File([text], name, { lastModified: Date.parse('2026-10-18T12:00:00') })) });
               const dir = (name, kids) => ({ isFile: false, isDirectory: true, name, createReader: () => { let done = false; return { readEntries: ok => { if (done) ok([]); else { done = true; ok(kids); } } }; } });
@@ -127,7 +127,7 @@ async def main():
 
             for name, scheme, vp, mob in [("folder_phone", "light", (390, 844), True), ("folder_dark", "dark", (1400, 900), False)]:
                 ctx, page, errs = await open_page(b, scheme, vp, mob)
-                await page.click("#btn-import"); await page.wait_for_timeout(200)
+                await page.click("#btn-sermon"); await page.click("#btn-import"); await page.wait_for_timeout(200)
                 await page.screenshot(path=str(OUT / (name + "_pick.png")))
                 await page.set_input_files("#imp-in-folder", str(root)); await page.wait_for_selector("#imp-done:not([hidden])", timeout=60000); await page.wait_for_timeout(300)
                 await page.screenshot(path=str(OUT / (name + "_done.png")))

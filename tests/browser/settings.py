@@ -36,7 +36,7 @@ async def main():
         opts = await page.evaluate("[...document.querySelectorAll('#m-service option')].map(o => o.textContent)")
         check("service options from settings", opts[:3] + opts[-1:], ["Sunday AM", "Sunday PM", "Wednesday Bible Study", "Add a service…"])
 
-        await page.click("#btn-new"); await page.wait_for_timeout(200)
+        await page.click("#btn-sermon"); await page.click("#btn-new"); await page.wait_for_timeout(200)
         m = await page.evaluate(meta)
         check("new sermon starts on next service", (m["when"], m["service"]), ("2026-10-21T19:00", "Wednesday Bible Study"))
         check("new sermon default place", m["place"], "Bridge Creek church of Christ")
@@ -76,7 +76,7 @@ async def main():
         await page.fill("#set-speaker", "Guest Speaker"); await page.fill("#set-wpm", "150")
         await page.screenshot(path=str(OUT / "set_defaults.png"))
         await page.click("#settings-form button[type=submit]"); await page.wait_for_timeout(200)
-        await page.click("#btn-new"); await page.wait_for_timeout(200)
+        await page.click("#btn-sermon"); await page.click("#btn-new"); await page.wait_for_timeout(200)
         m = await page.evaluate(meta)
         check("new sermon uses defaults", (m["place"], m["speaker"], m["wpm"]), ("Oak Grove", "Guest Speaker", "150"))
 
