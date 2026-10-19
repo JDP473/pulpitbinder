@@ -318,6 +318,15 @@ mark.hl-yellow{background:var(--hl-yellow)} mark.hl-green{background:var(--hl-gr
 .ed-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;gap:5px;align-items:center}
+.md-wrap{display:flex;flex-direction:column;gap:8px}
+.md-wrap[hidden]{display:none}
+.md-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.md-bar .btn[hidden]{display:none}
+.md-src{width:100%;min-height:62vh;font:13.5px/1.7 var(--f-mono);padding:18px clamp(14px,3vw,32px);border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);tab-size:2;resize:vertical}
+.tb-group{display:inline-flex;gap:4px;align-items:center}
+.md-on #ed-toolbar > :not(.keep){display:none}
+.md-on .ed-wrap,.md-on .ed-foot,.md-on #ed-hint{display:none}
+.hint code{font-family:var(--f-mono);font-size:11.5px;background:var(--sunk);padding:1px 4px;border-radius:4px}
 .sg-col{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) + 8px);max-height:calc(100vh - var(--hdr-h,110px) - 30px);overflow:auto}
 @media (max-width:980px){.sg-col{position:static;max-height:none}}
 .sg-list{display:flex;flex-direction:column;gap:10px}
@@ -764,17 +773,21 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
           <button class="tb wide tb-sc" id="tb-scripture" title="Insert a Scripture section. Or type a reference and press Tab.">+ Scripture</button>
           <select id="ed-slide" aria-label="Insert slide cue"></select>
           <span class="sep"></span>
-          <button class="tb" data-cmd="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
-          <button class="tb" data-cmd="redo" title="Redo" aria-label="Redo">↷</button>
-          <div class="spacer"></div>
-          <button class="btn" id="btn-load-text">Open a file</button>
-          <input type="file" id="file-text" accept=".txt,.md,.docx,.html,.htm,text/plain" hidden>
+          <span class="tb-group"><button class="tb" data-cmd="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button><button class="tb" data-cmd="redo" title="Redo" aria-label="Redo">↷</button></span>
+          <div class="spacer keep"></div>
+          <span class="tb-group keep"><button class="btn keep" id="btn-md" aria-pressed="false" title="Read and edit the whole manuscript, with its details, as Markdown">Markdown</button>
+          <button class="btn keep" id="btn-load-text">Open a file</button></span>
+          <input type="file" id="file-text" accept=".txt,.md,.markdown,.docx,.html,.htm,text/plain,text/markdown" hidden>
         </div>
         <form class="sc-pop" id="sc-pop" hidden autocomplete="off">
           <label for="sc-pop-ref">Scripture reference</label>
           <div class="sc-pop-row"><input type="text" id="sc-pop-ref" placeholder="Romans 8:28-30" enterkeyhint="done"><select id="sc-pop-ver" aria-label="Translation"></select></div>
           <div class="sc-pop-row"><span class="hint" id="sc-pop-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="sc-pop-x">Cancel</button><button type="submit" class="btn primary">Insert</button></div>
         </form>
+        <div class="md-wrap" id="md-wrap" hidden>
+          <div class="md-bar"><span class="hint" id="md-note">The details block at the top fills in the sermon's title, date, service, and place. Changes apply as you type.</span><div class="spacer"></div><button type="button" class="btn" id="btn-md-copy">Copy</button><button type="button" class="btn" id="btn-md-save">Save .md</button></div>
+          <textarea id="md-src" class="md-src" spellcheck="true" aria-label="Manuscript as Markdown" autocapitalize="off"></textarea>
+        </div>
         <div class="ed-wrap">
           <div class="gutter" id="gutter" aria-label="Slides beside the text"></div>
         <div class="editor" id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Sermon manuscript"></div>
@@ -783,7 +796,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
           <span id="ed-stats" class="hint"></span>
           <span class="legend"><span><i class="sw hl-yellow"></i>Key point</span><span><i class="sw hl-green"></i>Application</span><span><i class="sw hl-blue"></i>Scripture</span><span><i class="sw hl-pink"></i>Story</span></span>
         </div>
-        <div class="hint">Each paragraph is a section in Present. A main point or sub-point heading travels with the paragraph under it. Slide cues go before the paragraph that should bring up that slide. Paste from Word or Logos keeps bold, italics, and highlights.</div>
+        <div class="hint" id="ed-hint">Each paragraph is a section in Present. A main point or sub-point heading travels with the paragraph under it. Slide cues go before the paragraph that should bring up that slide. Paste from Word or Logos keeps bold, italics, and highlights. Markdown works as you type: <code>##</code> and a space for a heading, <code>&gt;</code> for a quotation, <code>-</code> or <code>1.</code> for a list, <code>**bold**</code>, <code>*italic*</code>, <code>==highlight==</code>, and <code>[slide 3]</code> then Enter for a slide cue.</div>
       </div>
       <aside class="panel sg-col">
         <div class="bind-head side-head">
@@ -1815,6 +1828,7 @@ $("#btn-del").onclick = async () => {
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta };
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent();
+  if (mdOn) $("#md-src").value = mdDocument();
   watchCurrent();
 }
 
@@ -2154,21 +2168,267 @@ const HL = { yellow: [255, 240, 166], green: [212, 242, 208], blue: [214, 230, 2
 const HL_MEANING = { yellow: "Key point", green: "Application", blue: "Scripture", pink: "Story or illustration" };
 const slideCueHtml = (n, k) => `<div class="pb-slide" contenteditable="false" data-n="${n ? +n : ""}"${n && +k > 1 ? ` data-k="${+k}"` : ""}>${n ? (+k > 1 ? `SLIDES ${+n}–${+n + +k - 1}` : "SLIDE " + +n) : "NEXT SLIDE"}</div>`;
 const pauseHtml = '<span class="pb-cue" contenteditable="false">PAUSE</span>';
-const mdInline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>").replace(/==(.+?)==/g, '<mark class="hl-yellow">$1</mark>');
-function textToHtml(t) {
-  const out = [];
-  for (const block of String(t || "").replace(/\r/g, "").split(/\n\s*\n/)) {
-    let buf = [];
-    const flush = () => { if (buf.length) { out.push(`<p>${buf.map(mdInline).join("<br>")}</p>`); buf = []; } };
-    for (const line of block.split("\n")) {
-      const mk = line.match(MARKER_RE); if (mk) { flush(); out.push(slideCueHtml(mk[1])); continue; }
-      const h = line.match(/^(#{1,4})\s+(.*)$/); if (h) { flush(); const lv = Math.min(4, h[1].length); out.push(`<h${lv}>${mdInline(h[2])}</h${lv}>`); continue; }
-      const q = line.match(/^>\s?(.*)$/); if (q) { flush(); out.push(`<blockquote>${mdInline(q[1])}</blockquote>`); continue; }
-      if (line.trim()) buf.push(line.trim());
+/* ---------------- Markdown ---------------- */
+/* The manuscript is stored as HTML but reads and writes Markdown: # headings, > quotations, - and 1. lists, **bold**,
+   *italic*, ++underline++, ==highlight== (=={green}text== for the other colors), [pause], [slide 3] and [slides 3-5]
+   cues, and ::: scripture blocks for Scripture sections. A leading --- block holds the sermon details. */
+const MD_CUE_RE = /^\s*(?:\*\*|__)?\s*\[\s*slides?\s*(?:(\d+)(?:\s*[-–]\s*(\d+))?)?\s*(?::[^\]]*)?\]\s*(?:\*\*|__)?\s*$/i;
+const escRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function mdInline(s) {
+  const keep = [];
+  let t = String(s)
+    .replace(/\\([\\`*_{}\[\]()#+\-.!>=|~<:])/g, (m, c) => "\uE000" + (keep.push(c) - 1) + "\uE001")   // escaped characters are set aside first
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\[([^\]]+)\]\((?:[^)\s]+)(?:\s+"[^"]*")?\)/g, "$1")
+    .replace(/<\/?[a-z][^>]*>/gi, "")
+    .replace(/`([^`]+)`/g, "$1");
+  t = esc(t).replace(/\[pause\]/gi, "\uE002");
+  t = t.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/g, "<strong>$1</strong>")
+    .replace(/(^|[^\w])__([^_\s](?:[^_]*?[^_\s])?)__(?=[^\w]|$)/g, "$1<strong>$2</strong>")
+    .replace(/(^|[^*])\*([^*\s](?:[^*]*?[^*\s])?)\*(?!\*)/g, "$1<em>$2</em>")
+    .replace(/(^|[^\w])_([^_\s](?:[^_]*?[^_\s])?)_(?=[^\w]|$)/g, "$1<em>$2</em>")
+    .replace(/\+\+([^+\s](?:[^+]*?[^+\s])?)\+\+/g, "<u>$1</u>")
+    .replace(/==(?:\{(yellow|green|blue|pink)\})?([^=\s](?:[^=]*?[^=\s])?)==/g, (m, c, x) => `<mark class="hl-${c || "yellow"}">${x}</mark>`);
+  return t.replace(/\uE000(\d+)\uE001/g, (m, i) => esc(keep[+i])).replace(/\uE002/g, pauseHtml);
+}
+const LI_RE = /^(\s*)([-*+]|\d{1,3}[.)])\s+(.*)$/;
+const HR_RE = /^([-*_])(?:\s*\1){2,}\s*$/;
+/* Markdown (or plain text) to the manuscript's HTML. With soft, a line break inside a paragraph is a space, as in Markdown
+   files wrapped at 80 columns; without it, every line break is kept, as in a typed or pasted sermon. */
+function mdToHtml(src, opts = {}) {
+  const lines = String(src || "").replace(/\r/g, "").replace(/^\uFEFF/, "").split("\n");
+  const out = []; let para = [];
+  const joinLines = ls => {
+    const segs = []; let cur = "";
+    ls.forEach((ln, i) => {
+      const hard = /(\\| {2,})$/.test(ln), t = ln.replace(/(\\| {2,})$/, "").trim();
+      cur = cur ? cur + " " + t : t;
+      if (i < ls.length - 1 && (hard || !opts.soft)) { segs.push(cur); cur = ""; }
+    });
+    segs.push(cur);
+    return segs.map(mdInline).join("<br>");
+  };
+  const flush = () => { if (para.length) { out.push(`<p>${joinLines(para)}</p>`); para = []; } };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i], tr = line.trim();
+    if (!tr) { flush(); continue; }
+    let m;
+    if (tr.startsWith("<!--")) { while (!lines[i].includes("-->") && i < lines.length - 1) i++; continue; }
+    if (/^(```|~~~)/.test(tr)) { flush(); const fence = tr.slice(0, 3); i++; while (i < lines.length && !lines[i].trim().startsWith(fence)) { if (lines[i].trim()) out.push(`<p>${esc(lines[i].trim())}</p>`); i++; } continue; }
+    if ((m = tr.match(/^:::\s*scripture\s+(.+?)\s*$/i))) {
+      const hm = m[1].match(/^(.*?)(?:\s+#([\w-]{1,24}))?$/); let head = hm[1], id = hm[2] || "", ver = null;
+      const vm = head.match(/^(.*\S)\s+([A-Z][A-Z0-9]{1,9})$/); if (vm && VER_NAME[vm[2]]) { head = vm[1]; ver = vm[2]; }
+      const ref = normalizeRef(head);
+      if (ref) {
+        const body = []; i++; while (i < lines.length && lines[i].trim() !== ":::") body.push(lines[i++]);
+        flush();
+        const used = (opts._used = opts._used || new Set());   // a block already in the manuscript is reused (by id, else by reference) so its fetched translations stay
+        const ex = opts.keepIds ? (id && edSc(id) && !used.has(id) ? edSc(id) : [...ed.querySelectorAll(".pb-scripture")].find(e => !used.has(e.getAttribute("data-id")) && readSc(e).ref === ref)) || null : null;
+        if (ex) used.add(ex.getAttribute("data-id"));
+        const d = ex ? readSc(ex) : { id: uid(), ref, ver: ver || settings.defVer, texts: {} };
+        if (ex && d.ref !== ref) d.texts = {};
+        d.ref = ref; if (ver) d.ver = ver;
+        const text = body.join("\n").trim();
+        if (text) { const cur = d.texts[d.ver]; if (!cur || cur.t !== text) d.texts[d.ver] = { t: text, s: "typed" }; }
+        out.push(scElement(d).outerHTML); continue;
+      }
     }
-    flush();
+    if ((m = tr.match(MD_CUE_RE))) { flush(); out.push(slideCueHtml(m[1], m[2] ? Math.max(1, +m[2] - +m[1] + 1) : 1)); continue; }
+    if ((m = tr.match(MARKER_RE))) { flush(); out.push(slideCueHtml(m[1])); continue; }
+    if ((m = tr.match(/^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$/))) { flush(); const lv = Math.min(4, m[1].length); out.push(`<h${lv}>${mdInline(m[2])}</h${lv}>`); continue; }
+    if (para.length === 1 && /^(={2,}|-{2,})\s*$/.test(tr)) { const lv = tr[0] === "=" ? 1 : 2; out.push(`<h${lv}>${mdInline(para[0].trim())}</h${lv}>`); para = []; continue; }
+    if (HR_RE.test(tr)) { flush(); continue; }
+    if (tr.startsWith("|") && tr.endsWith("|")) { flush(); if (!/^\|?[\s:|-]+\|?$/.test(tr)) out.push(`<p>${mdInline(tr.slice(1, -1).split("|").map(c => c.trim()).filter(Boolean).join(" | "))}</p>`); continue; }
+    if (/^\s*>/.test(line)) {
+      flush(); const qs = [[]];
+      while (i < lines.length && /^\s*>/.test(lines[i])) { const t = lines[i].replace(/^\s*(?:>\s?)+/, ""); if (t.trim()) qs[qs.length - 1].push(t); else if (qs[qs.length - 1].length) qs.push([]); i++; }
+      i--; qs.filter(q => q.length).forEach(q => out.push(`<blockquote>${joinLines(q)}</blockquote>`)); continue;
+    }
+    if ((m = line.match(LI_RE))) {
+      flush(); const ordered = /\d/.test(m[2]), items = [];
+      while (i < lines.length) {
+        const mm = lines[i].match(LI_RE);
+        if (mm && !HR_RE.test(lines[i].trim())) { if (/\d/.test(mm[2]) !== ordered) break; items.push(mm[3]); i++; continue; }
+        if (!lines[i].trim()) { let j = i; while (j < lines.length && !lines[j].trim()) j++; const nx = lines[j] && lines[j].match(LI_RE); if (nx && /\d/.test(nx[2]) === ordered) { i = j; continue; } break; }
+        if (/^\s+\S/.test(lines[i]) && items.length) { items[items.length - 1] += " " + lines[i].trim(); i++; continue; }
+        break;
+      }
+      i--; const tag = ordered ? "ol" : "ul";
+      out.push(`<${tag}>${items.map(x => `<li>${mdInline(x.replace(/^\[[ xX]\]\s+/, ""))}</li>`).join("")}</${tag}>`); continue;
+    }
+    para.push(line);
   }
+  flush();
   return out.join("") || "<p><br></p>";
+}
+function textToHtml(t, opts) { return mdToHtml(t, opts); }
+
+/* the manuscript's HTML back to Markdown */
+function htmlToMd(html) {
+  const box = document.createElement("div"); box.innerHTML = html || "";
+  const lit = s => s.replace(/\u00a0/g, " ").replace(/\\/g, "\\\\")
+    .replace(/([*`~<]|_)/g, (c, _, off, str) => c === "_" && /\w/.test(str[off - 1] || "") && /\w/.test(str[off + 1] || "") ? c : "\\" + c)
+    .replace(/\+\+/g, "\\+\\+").replace(/==/g, "\\=\\=").replace(/\[(?=(?:slides?|pause)\b)/gi, "\\[");
+  const wrap = (open, close, inner) => { const m = inner.match(/^(\s*)([\s\S]*?)(\s*)$/); return m[2] ? m[1] + open + m[2] + close + m[3] : inner; };
+  const inline = node => {
+    let s = "";
+    for (const c of node.childNodes) {
+      if (c.nodeType === 3) { s += lit(c.textContent); continue; }
+      if (c.nodeType !== 1) continue;
+      const t = c.tagName;
+      if (c.classList.contains("pb-cue")) { s += "[pause]"; continue; }
+      if (t === "BR") { s += "\\\n"; continue; }
+      const inner = inline(c);
+      if (t === "STRONG" || t === "B") s += wrap("**", "**", inner);
+      else if (t === "EM" || t === "I") s += wrap("*", "*", inner);
+      else if (t === "U") s += wrap("++", "++", inner);
+      else if (t === "MARK") { const k = ([...c.classList].find(x => /^hl-/.test(x)) || "hl-yellow").slice(3); s += wrap(k === "yellow" ? "==" : `=={${k}}`, "==", inner); }
+      else s += inner;
+    }
+    return s;
+  };
+  const blocks = [];
+  for (const n of box.children) {
+    if (n.classList.contains("pb-slide")) { const nn = +n.dataset.n, k = +n.dataset.k || 1; blocks.push(nn ? (k > 1 ? `[slides ${nn}-${nn + k - 1}]` : `[slide ${nn}]`) : "[slide]"); continue; }
+    if (n.classList.contains("pb-scripture")) { const d = readSc(n), t = d.texts[d.ver]; blocks.push(`::: scripture ${d.ref} ${d.ver} #${d.id}\n${t ? t.t.trim() + "\n" : ""}:::`); continue; }
+    const tag = n.tagName;
+    if (/^H[1-4]$/.test(tag)) { blocks.push("#".repeat(+tag[1]) + " " + inline(n).trim()); continue; }
+    if (tag === "UL" || tag === "OL") { blocks.push([...n.children].map((li, i) => (tag === "OL" ? `${i + 1}. ` : "- ") + inline(li).trim()).join("\n")); continue; }
+    let text = inline(n).trim(); if (!text) continue;
+    if (tag === "BLOCKQUOTE") { blocks.push(text.split("\n").map(l => "> " + l).join("\n")); continue; }
+    text = text.replace(/^(#{1,6}\s|>|[-+]\s|:::|[-=]{3,})/, "\\$1").replace(/^(\d{1,3})([.)])(\s)/, "$1\\$2$3");
+    blocks.push(text);
+  }
+  return blocks.join("\n\n") + "\n";
+}
+
+/* the details block at the top of a Markdown file */
+const DETAIL_KEYS = { title: "title", sermon: "title", sermon_title: "title", subject: "title",
+  text: "text", texts: "text", scripture: "text", passage: "text", reading: "text", primary_text: "text", scripture_reading: "text", scripture_text: "text",
+  date: "when", when: "when", date_and_time: "when", date_time: "when", datetime: "when", preached: "when", delivered: "when",
+  time: "time", service: "service", service_type: "service", occasion: "service", event: "service", service_occasion: "service",
+  place: "place", where: "place", location: "place", venue: "place", congregation: "place", church: "place",
+  speaker: "speaker", preacher: "speaker", author: "speaker", by: "speaker", minister: "speaker", preached_by: "speaker",
+  series: "series", tags: "series", tag: "series", keywords: "series", pace: "wpm", wpm: "wpm" };
+const detailKey = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+function splitFrontMatter(src) {
+  src = String(src || "").replace(/^\uFEFF/, "");
+  const m = src.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|$)/);
+  if (!m) return { fm: null, body: src };
+  const unq = v => { v = v.trim(); if (/^".*"$/.test(v)) { try { return JSON.parse(v); } catch {} } return /^'.*'$/.test(v) || /^".*"$/.test(v) ? v.slice(1, -1) : v; };
+  const fm = {}; let last = null;
+  for (const raw of m[1].split(/\r?\n/)) {
+    if (!raw.trim() || /^\s*#/.test(raw)) continue;
+    const li = raw.match(/^\s*-\s+(.*)$/);
+    if (li && last) { fm[last] = (Array.isArray(fm[last]) ? fm[last] : fm[last] ? [fm[last]] : []).concat(unq(li[1])); continue; }
+    const kv = raw.match(/^([A-Za-z][\w \-/]*?)\s*:\s*(.*)$/); if (!kv) continue;
+    last = detailKey(kv[1]); const v = kv[2].trim();
+    fm[last] = v === "" ? "" : /^\[.*\]$/.test(v) ? v.slice(1, -1).split(",").map(unq).filter(Boolean) : unq(v);
+  }
+  if (!Object.keys(fm).some(k => DETAIL_KEYS[k])) return { fm: null, body: src };
+  return { fm, body: src.slice(m[0].length) };
+}
+function mdFrontMatter() {
+  const m = S.meta, q = v => /^[A-Za-z0-9(][^#"'\\\n]*$/.test(v) && !/:(\s|$)/.test(v) && !/\s$/.test(v) ? v : JSON.stringify(v);
+  const rows = [["title", m.title], ["text", m.text], ["date", (m.when || "").replace("T", " ")], ["service", m.service], ["place", m.place], ["speaker", m.speaker], ["tags", m.series], ["pace", m.wpm]];
+  return "---\n" + rows.filter(([, v]) => v !== "" && v != null).map(([k, v]) => `${k}: ${q(String(v))}`).join("\n") + "\n---\n\n";
+}
+const mdDocument = () => mdFrontMatter() + htmlToMd(S.html);
+
+/* dates and times, read from a line of a file; frags are the pieces matched so the caller can tell what is left over */
+const MON_ABBR = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+function parseDateTime(s, opts = {}) {
+  let rest = String(s), date = null, time = null; const frags = [];
+  const take = (re, fn) => { const m = rest.match(re); if (!m || !fn(m)) return false; frags.push(m[0]); rest = rest.replace(m[0], " "); return true; };
+  const ymd = (y, mo, d) => { y = +y; if (y < 100) y += 2000; const dt = new Date(y, +mo - 1, +d); return dt.getFullYear() === y && dt.getMonth() === +mo - 1 && dt.getDate() === +d ? `${y}-${pad(+mo)}-${pad(+d)}` : null; };
+  const mon = x => MON_ABBR.indexOf(x.slice(0, 3).toLowerCase()) + 1;
+  const WD = "(?:(?:mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)[a-z]*\\.?,?\\s+)?", MN = "(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?";
+  take(/\b(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}):(\d{2}))?\b/, m => { date = ymd(m[1], m[2], m[3]); if (date && m[4] && +m[4] < 24) time = `${pad(+m[4])}:${m[5]}`; return !!date; });
+  if (!date) take(/\b(\d{1,2})\/(\d{1,2})\/(\d{2,4})\b/, m => { date = ymd(m[3], m[1], m[2]); return !!date; });
+  if (!date) take(new RegExp(`\\b${WD}${MN}\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?\\b`, "i"), m => { date = ymd(m[3] || new Date().getFullYear(), mon(m[1]), m[2]); return !!date; });
+  if (!date) take(new RegExp(`\\b${WD}(\\d{1,2})(?:st|nd|rd|th)?\\s+${MN},?\\s+(\\d{4})\\b`, "i"), m => { date = ymd(m[3], mon(m[2]), m[1]); return !!date; });
+  if (!time) take(/\b(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s?m\b\.?/i, m => { const h = +m[1]; if (h < 1 || h > 12 || (m[2] && +m[2] > 59)) return false; time = `${pad(h % 12 + (m[3].toLowerCase() === "p" ? 12 : 0))}:${m[2] || "00"}`; return true; });
+  if (!time) take(/\bnoon\b/i, () => { time = "12:00"; return true; });
+  if (!time && (opts.loose24 || !findRefs(s).length)) take(/\b([01]?\d|2[0-3]):([0-5]\d)\b/, m => { if (!opts.loose24 && +m[1] < 13) return false; time = `${pad(+m[1])}:${m[2]}`; return true; });
+  return { date, time, frags };
+}
+function matchService(s) {
+  const names = settings.services.map(x => x.name).filter(n => n.length > 3 && !/^other$/i.test(n)).sort((a, b) => b.length - a.length);
+  for (const n of names) { const m = s.match(new RegExp(`\\b${escRe(n)}\\b`, "i")); if (m) return { name: svcByName(n).name, frag: m[0] }; }
+  const by = (re, a) => { const m = s.match(a); const sv = m && settings.services.find(x => re.test(x.name)); return sv ? { name: sv.name, frag: m[0] } : null; };
+  return by(/sunday.*(am|morning)/i, /\bsunday\s+(?:am|a\.m\.|morning)\b/i) || by(/sunday.*(pm|evening|night)/i, /\bsunday\s+(?:pm|p\.m\.|evening|night)\b/i) || by(/wednesday/i, /\bwednesday\b/i);
+}
+function matchPlace(s) {
+  for (const p of [...settings.places].sort((a, b) => b.length - a.length)) { const m = s.match(new RegExp(`\\b${escRe(p)}\\b`, "i")); if (m) return { name: p, frag: m[0] }; }
+  return null;
+}
+/* Reads the top of a manuscript for sermon details: a front matter block, labeled lines ("Date: ...", "- **Where:** ..."),
+   and short lines that hold only a date, time, service, place, "by" name, or Scripture reference. items are the opening
+   lines or blocks as {t: plain text, h: heading level}. Returns what was found and which items held nothing else. */
+function detectDetails(items, fm) {
+  const found = {}, used = new Set();
+  const set = (field, v, i) => {
+    v = typeof v === "string" ? v.replace(/\s+/g, " ").trim() : v; if (v == null || v === "") return false;
+    if (field === "when" || field === "time") {
+      const p = parseDateTime(v, { loose24: true }); if (!p.date && !p.time) return false;
+      if (p.date && !found._date) found._date = p.date; if (p.time && !found._time) found._time = p.time;
+    } else if (field === "wpm") { const w = cleanWpm(v); if (!w) return false; found.wpm = found.wpm || w; }
+    else if (field === "text") found.text = found.text || v.slice(0, 120);
+    else if (found[field] == null) found[field] = String(v).slice(0, 160);
+    if (i != null) used.add(i); return true;
+  };
+  for (const [key, v] of Object.entries(fm || {})) { const f = DETAIL_KEYS[key]; if (f) set(f, Array.isArray(v) ? v.join(", ") : v); }
+  const first = items.findIndex(x => (x.t || "").trim()), h1s = items.filter(x => x.h === 1).length;
+  let seen = 0, sawMeta = false, titleAt = -1;
+  for (let i = 0; i < items.length; i++) {
+    const s = (items[i].t || "").trim(); if (!s) continue;
+    if (++seen > 14) break;
+    const lab = s.match(/^([A-Za-z][A-Za-z ./&]{1,28}?)\s*[:：]\s*(.+)$/), fld = lab && DETAIL_KEYS[detailKey(lab[1])];
+    if (fld && set(fld, lab[2], i)) { sawMeta = true; continue; }
+    if (i === first && items[i].h === 1 && s.length < 120) { titleAt = i; continue; }
+    if (i === first && !items[i].h && !fm && s.length < 90 && !/[.!?]$/.test(s)) { titleAt = i; continue; }
+    let rest = s; const got = {};
+    const dt = parseDateTime(rest); if (dt.date || dt.time) { got.dt = dt; dt.frags.forEach(fr => { rest = rest.replace(fr, " "); }); }
+    const sv = matchService(rest); if (sv) { got.sv = sv; rest = rest.replace(new RegExp(escRe(sv.frag), "i"), " "); }
+    const pl = matchPlace(rest); if (pl) { got.pl = pl; rest = rest.replace(new RegExp(escRe(pl.frag), "i"), " "); }
+    const refs = findRefs(rest); if (refs.length) { got.ref = refs.map(r => r.ref).join("; "); for (const r of [...refs].reverse()) rest = rest.slice(0, r.index) + " " + rest.slice(r.index + r.length); }
+    const by = rest.match(/^\s*(?:preached\s+|delivered\s+|presented\s+)?by\s+(.{3,60}?)\s*$/i); if (by) { got.by = by[1]; rest = ""; }
+    const left = rest.replace(/\b(at|on|the|in|from|for|and|of|a|an|sermon|service|worship|preached|delivered|date|time|scripture|text)\b/gi, " ").replace(/[\s,.;:|·•–—\-@()[\]]+/g, "");
+    if (!(got.dt || got.sv || got.pl || got.ref || got.by) || s.length > 140 || left.length > 14) break;
+    if (got.dt) { if (dt.date && !found._date) found._date = dt.date; if (dt.time && !found._time) found._time = dt.time; }
+    if (got.sv && !found.service) found.service = got.sv.name;
+    if (got.pl && !found.place) found.place = got.pl.name;
+    if (got.ref && !found.text) found.text = got.ref.slice(0, 120);
+    if (got.by && !found.speaker) found.speaker = got.by;
+    sawMeta = true; if (!left) used.add(i);
+  }
+  if (titleAt >= 0 && !found.title && (sawMeta || (items[titleAt].h === 1 && h1s === 1))) { found.title = items[titleAt].t.trim(); used.add(titleAt); }
+  return { found, used };
+}
+/* Puts details found in a file into the sermon, and says which ones changed. */
+function applyDetails(f) {
+  const m = S.meta, done = [];
+  const put = (k, v, label) => { if (v == null || v === "" || m[k] === v) return; m[k] = v; done.push(label); };
+  put("title", f.title, "title"); put("text", f.text, "primary text");
+  const sv = f.service ? svcByName(f.service) : null, svcName = f.service ? (sv ? sv.name : f.service) : "";
+  const cur = (m.when || "").match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+  let date = f._date, time = f._time;
+  if (!date && !time && sv && sv.time) time = sv.time;
+  if (date && !time) time = (sv && sv.time) || (cur && cur[2]) || localNow().slice(11);
+  if (time && !date) date = (cur && cur[1]) || localNow().slice(0, 10);
+  let inferred = "";
+  if (!svcName && date && f._time) {
+    const dow = new Date(date + "T12:00").getDay(), [th, tm] = f._time.split(":").map(Number); let best = null;
+    for (const s of settings.services) { if (s.day !== dow || !s.time) continue; const [h, mi] = s.time.split(":").map(Number), diff = Math.abs(h * 60 + mi - (th * 60 + tm)); if (diff <= 120 && (!best || diff < best.diff)) best = { name: s.name, diff }; }
+    if (best) inferred = best.name;
+  }
+  put("when", date && time ? `${date}T${time}` : "", "date and time");
+  put("service", svcName || inferred, "service");
+  put("place", f.place ? (settings.places.find(p => sameName(p, f.place)) || f.place) : "", "place");
+  put("speaker", f.speaker, "speaker"); put("series", f.series, "tags"); put("wpm", f.wpm, "pace");
+  if (done.length) { loadForm(); renderTags(); save(); if (done.includes("title")) refreshLibrary(); }
+  return done;
 }
 function nearestHl(css) {
   const m = String(css || "").match(/\d+(\.\d+)?/g); if (!m) return "yellow";
@@ -2331,9 +2591,14 @@ ed.addEventListener("input", () => { if (S.example) { S.example = false; renderT
 ed.addEventListener("paste", e => {
   const dt = e.clipboardData; if (!dt) return;
   e.preventDefault();
-  const html = dt.getData("text/html"), text = dt.getData("text/plain");
-  if (html) document.execCommand("insertHTML", false, sanitize(html));
-  else if (/\n/.test(text)) document.execCommand("insertHTML", false, textToHtml(text));
+  const html = dt.getData("text/html"); let text = dt.getData("text/plain");
+  const fmd = splitFrontMatter(text);   // pasted Markdown that starts with a details block fills in the sermon's details
+  if (fmd.fm) { text = fmd.body; const done = applyDetails(detectDetails([], fmd.fm).found); if (done.length) toast(`Filled in ${done.join(", ")} from the details block.`); }
+  const fromCode = /monospace|consolas|menlo|courier|<pre\b|<code\b/i.test(html);   // an editor shows Markdown source as styled HTML; the plain text is the truth
+  const blockish = /^\s{0,3}(#{1,6}\s|>|[-*+]\s|\d{1,3}[.)]\s|:::\s*scripture|\[slides?\b)/m.test(text);
+  if (html && !(fromCode && text) && !fmd.fm) document.execCommand("insertHTML", false, sanitize(html));
+  else if (/\n/.test(text) || blockish) document.execCommand("insertHTML", false, sanitize(mdToHtml(text)));
+  else if (/[*_=+`]|\[pause\]/.test(text)) document.execCommand("insertHTML", false, mdInline(text));
   else document.execCommand("insertText", false, text);
   normalizeEditor(); onEdit();
 });
@@ -2362,27 +2627,149 @@ $("#ed-slide").onchange = () => {
   if (b) ed.insertBefore(tpl.content, b); else ed.append(tpl.content);
   refreshCueLabels(); onEdit(true); toast("Slide cue placed before the paragraph with the cursor");
 };
-function snapshot() { undoStack.push({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual } }); if (undoStack.length > 40) undoStack.shift(); $("#sg-undo").disabled = false; }
+function snapshot(opts) { undoStack.push({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: opts && opts.meta ? { ...S.meta } : null }); if (undoStack.length > 40) undoStack.shift(); $("#sg-undo").disabled = false; }
 $("#sg-undo").onclick = () => {
   const u = undoStack.pop(); if (u == null) return;
   ed.innerHTML = typeof u === "string" ? u : u.h;
   if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
+  if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
   refreshCueLabels(); onEdit(true); $("#sg-undo").disabled = !undoStack.length; toast("Undid the last change");
 };
 $("#btn-load-text").onclick = () => $("#file-text").click();
 $("#btn-open-build").onclick = () => $("#file-text").click();
 $("#file-text").onchange = async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
-  try {
-    let html;
-    if (/\.docx$/i.test(f.name)) html = await parseDocxHtml(f);
-    else if (/\.html?$/i.test(f.name)) html = sanitize(await f.text());
-    else html = textToHtml(await f.text());
-    if (ed.textContent.trim()) snapshot();
-    S.html = sanitize(html); S.example = false; if (!S.meta.title) S.meta.title = f.name.replace(/\.[^.]+$/, "");
-    loadEditor(); loadForm(); onEdit(true); renderTags(); toast("Manuscript loaded");
-  } catch (err) { toast("Could not read that file: " + (err.message || err)); }
+  try { await importManuscript(f); } catch (err) { toast("Could not read that file: " + (err.message || err)); }
 };
+/* Opens a file as the manuscript, and fills the sermon's details from whatever the file says about them. Undo puts back both. */
+async function importManuscript(f) {
+  let html, found = null;
+  if (/\.(docx|html?)$/i.test(f.name)) {
+    let fm = null, raw;
+    if (/\.docx$/i.test(f.name)) raw = await parseDocxHtml(f);
+    else {
+      const text = await f.text(), doc = new DOMParser().parseFromString(text, "text/html");
+      fm = {}; if (doc.title) fm.title = doc.title; for (const k of ["author", "date"]) { const m = doc.querySelector(`meta[name="${k}"]`); if (m && m.content) fm[k] = m.content; }
+      raw = sanitize(text);
+    }
+    const box = document.createElement("div"); box.innerHTML = sanitize(raw);
+    const els = [...box.children], d = detectDetails(els.map(x => ({ t: x.classList.contains("pb-scripture") || x.classList.contains("pb-slide") ? "§" : blockText(x), h: levelOf(x) })), fm);
+    d.used.forEach(i => els[i].remove()); html = box.innerHTML; found = d.found;
+  } else {
+    const isMd = /\.(md|markdown)$/i.test(f.name);
+    let { fm, body } = splitFrontMatter(await f.text()), md;
+    const mm = body.match(/^##\s+Manuscript with slide cues[ \t]*$/m);   // a file this app exported: the details are above the manuscript
+    const items = l => l.map(x => ({ t: x.trim().replace(/^#{1,6}\s+/, "").replace(/\*\*|__/g, "").replace(/^[-*+]\s+/, "").replace(/^>\s?/, ""), h: (x.match(/^(#{1,6})\s/) || ["", ""])[1].length }));
+    if (mm) { found = detectDetails(items(body.slice(0, mm.index).split("\n")), fm).found; md = body.slice(mm.index + mm[0].length); }
+    else { const lines = body.split("\n"), d = detectDetails(items(lines), fm); found = d.found; md = lines.filter((_, i) => !d.used.has(i)).join("\n"); }
+    html = mdToHtml(md, { soft: isMd });
+  }
+  snapshot({ meta: true });
+  if (S.example) { S.meta.title = ""; S.meta.text = ""; S.meta.series = ""; }
+  S.html = sanitize(html); S.example = false;
+  loadEditor();
+  const done = applyDetails(found || {});
+  if (!S.meta.title) { S.meta.title = f.name.replace(/\.[^.]+$/, ""); done.push("title (from the file name)"); }
+  loadForm(); onEdit(true); renderTags(); refreshLibrary(); fillScriptures();
+  if (mdOn) $("#md-src").value = mdDocument();
+  toast("Manuscript loaded." + (done.length ? ` Filled in ${done.join(", ")}.` : " The file had no sermon details to fill in."));
+}
+/* A Scripture section that came from a file or from Markdown without its text gets it fetched. */
+function fillScriptures() { ed.querySelectorAll(".pb-scripture").forEach(e => { const d = readSc(e); if (!d.texts[d.ver]) loadSc(d.id, d.ver); }); }
+
+/* the Markdown view: the whole manuscript, with its details, as text. Edits apply to the manuscript as you type. */
+let mdOn = false, mdT = 0;
+function mdApply(report) {
+  const src = $("#md-src").value, { fm, body } = splitFrontMatter(src);
+  const html = sanitize(mdToHtml(fm ? body : src, { keepIds: true }));
+  if (html !== sanitize(ed.innerHTML)) { ed.innerHTML = html; refreshCueLabels(); onEdit(true); fillScriptures(); }
+  if (fm) { const done = applyDetails(detectDetails([], fm).found); if (report && done.length) toast(`Updated from the details block: ${done.join(", ")}`); }
+}
+function mdShow(on) {
+  mdOn = on; $(".ed-col").classList.toggle("md-on", on); $("#md-wrap").hidden = !on;
+  const b = $("#btn-md"); b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "Back to editor" : "Markdown";
+  if (on) { onEdit(true); const t = $("#md-src"); t.value = mdDocument(); $("#btn-md-save").hidden = !downloads; t.focus({ preventScroll: true }); }
+  else { clearTimeout(mdT); mdApply(true); queueGutter(); }
+}
+$("#btn-md").onclick = () => mdShow(!mdOn);
+$("#md-src").addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } clearTimeout(mdT); mdT = setTimeout(() => mdApply(false), 700); });
+$("#btn-md-copy").onclick = () => copyText($("#md-src").value, $("#md-src"));
+$("#btn-md-save").onclick = async () => {
+  const name = ((S.meta.title || "sermon").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "sermon") + (S.meta.when ? "-" + S.meta.when.slice(0, 10) : "") + ".md";
+  try { await downloads.save({ filename: name, data: $("#md-src").value }); } catch (e) { if (e && e.code !== "declined") toast("Saving is not available here"); }
+};
+
+/* typing Markdown: "## " starts a heading, "> " a quotation, "- " or "1. " a list; **bold**, *italic*, ++underline++ and
+   ==highlight== turn into formatting when the next space or punctuation follows the closing mark; "[slide 3]" or
+   "[pause]" become cues */
+const MD_INLINE = [
+  [/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*$/, "strong", 2],
+  [/(?:^|[^*])\*([^*\s](?:[^*]*?[^*\s])?)\*$/, "em", 1],
+  [/(?:^|[^\w])_([^_\s](?:[^_]*?[^_\s])?)_$/, "em", 1],
+  [/\+\+([^+\s](?:[^+]*?[^+\s])?)\+\+$/, "u", 2],
+  [/==([^=\s](?:[^=]*?[^=\s])?)==$/, "mark", 2]
+];
+function setCaret(node, off) { const c = document.createRange(); c.setStart(node, off); c.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(c); }
+// Turns the Markdown just before the caret into an element, and puts the typed character after it so typing continues outside it.
+function mdCloseInline(ch) {
+  const sel = getSelection(); if (!sel.rangeCount || !sel.isCollapsed) return false;
+  const r = sel.getRangeAt(0), node = r.startContainer;
+  if (node.nodeType !== 3 || !ed.contains(node) || node.parentElement.closest(".pb-scripture,.pb-slide")) return false;
+  const full = node.textContent, txt = full.slice(0, r.startOffset);
+  for (const [re, tag, w] of MD_INLINE) {
+    const m = txt.match(re); if (!m) continue;
+    const start = txt.length - (m[1].length + w * 2);
+    const host = document.createElement(tag); if (tag === "mark") host.className = "hl-yellow"; host.textContent = m[1];
+    const rest = full.slice(r.startOffset), tail = document.createTextNode((ch === " " && !rest ? "\u00a0" : ch) + rest);   // a plain space ending a block is invisible to the caret, so it is held as a non-breaking space
+    node.textContent = full.slice(0, start);
+    node.after(host, tail); if (!node.textContent) node.remove();
+    setCaret(tail, ch.length); return true;
+  }
+  return false;
+}
+ed.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  const sel = getSelection(); if (!sel.rangeCount || !sel.isCollapsed) return;
+  const r = sel.getRangeAt(0); if (!ed.contains(r.startContainer)) return;
+  const b = topBlock(r.startContainer), para = b && b.tagName === "P";
+  const before = () => { const pre = document.createRange(); pre.setStart(b, 0); pre.setEnd(r.startContainer, r.startOffset); return pre; };
+  if (e.key === " " && para) {
+    const pre = before(), t = pre.toString(), h = t.match(/^(#{1,4})$/);
+    const kind = h ? "h" : t === ">" ? "q" : /^[-*+]$/.test(t) ? "ul" : /^\d{1,2}[.)]$/.test(t) ? "ol" : null;
+    if (kind) {
+      e.preventDefault(); snapshot();
+      pre.deleteContents();
+      const host = document.createElement(kind === "h" ? "h" + h[1].length : kind === "q" ? "blockquote" : kind);
+      let into = host;
+      if (kind === "ul" || kind === "ol") { into = document.createElement("li"); host.append(into); }
+      into.append(...b.childNodes); if (!into.textContent) { into.textContent = ""; into.append(document.createElement("br")); }
+      b.replaceWith(host); setCaret(into, 0);
+      normalizeEditor(); onEdit(true); return;
+    }
+  }
+  if (e.key === "Enter" && b && b.tagName === "BLOCKQUOTE" && !b.textContent.trim()) {   // Enter on an empty line leaves the quotation
+    e.preventDefault(); const p = document.createElement("p"); p.append(document.createElement("br")); b.replaceWith(p); setCaret(p, 0); onEdit(true); return;
+  }
+  if (e.key === "Enter" && para) {
+    const tt = blockText(b).trim(), mc = /^\[/.test(tt) && tt.match(MD_CUE_RE);
+    if (mc) {
+      e.preventDefault(); snapshot();
+      const t2 = document.createElement("template"); t2.innerHTML = slideCueHtml(mc[1], mc[2] ? Math.max(1, +mc[2] - +mc[1] + 1) : 1);
+      const cue = t2.content.firstElementChild; b.replaceWith(cue);
+      let nx = cue.nextElementSibling; if (!nx || nx.tagName !== "P") { nx = document.createElement("p"); nx.append(document.createElement("br")); cue.after(nx); }
+      const c = document.createRange(); c.setStart(nx, 0); c.collapse(true); sel.removeAllRanges(); sel.addRange(c);
+      refreshCueLabels(); onEdit(true); return;
+    }
+  }
+  if (e.key === "]" && b && r.startContainer.nodeType === 3 && /\[pause$/i.test(r.startContainer.textContent.slice(0, r.startOffset))) {
+    e.preventDefault(); const node = r.startContainer, full = node.textContent, tpl = document.createElement("template"); tpl.innerHTML = pauseHtml;
+    const tail = document.createTextNode(" " + full.slice(r.startOffset)); node.textContent = full.slice(0, r.startOffset - 6);
+    node.after(tpl.content.firstChild, tail); if (!node.textContent) node.remove(); setCaret(tail, 1); onEdit(); return;
+  }
+  if (e.key === " " || e.key === "Enter" || /^[.,;:!?)”’"]$/.test(e.key)) {
+    if (mdCloseInline(e.key === "Enter" ? "" : e.key)) { if (e.key !== "Enter") e.preventDefault(); onEdit(); }
+  }
+});
 function renderEditStats() {
   const w = words(S.transcript).length, mins = w / (S.meta.wpm || 140);
   const txt = `${w.toLocaleString()} words · about ${Math.round(mins)} min · ${sections.length} sections`;

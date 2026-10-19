@@ -69,3 +69,22 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 ## Claude answers
 
 Every request to Claude goes through `askJson`, which fingerprints the exact prompt and tier. The answer is kept in the `kv` store in IndexedDB (key `ai-<fingerprint>`, newest 500 kept) and in the account under `_cache/ai`, so the same request on another device is answered without spending usage. Changing the manuscript or passage changes the prompt, so a stale answer is never shown. When a saved answer is used, the next press of the same button asks fresh (`refresh`), and the platform cache is set to 24 hours. Test: `tests/browser/cache.py`.
+
+## Markdown
+
+The manuscript is stored as sanitized HTML (`S.html`) but reads and writes Markdown. `mdToHtml` and `htmlToMd` are the two directions; they round-trip, which `tests/browser/md.py` checks with awkward text (literal `*`, `#`, `1.`, brackets, nested marks).
+
+| Markdown | Manuscript |
+|---|---|
+| `#` to `####` | Headings 1 to 4 (more `#` are Heading 4) |
+| `>` | Quotation |
+| `-`, `*`, `+`, `1.` | Bulleted and numbered lists |
+| `**x**`, `*x*`, `++x++` | Bold, italic, underline |
+| `==x==`, `=={green}x==` | Highlights (yellow, or green, blue, pink) |
+| `[slide]`, `[slide 3]`, `[slides 3-5]`, `[pause]` | Slide cues and pause cues |
+| `::: scripture John 3:16 ESV #id` ... `:::` | A Scripture section; the id keeps its other loaded translations |
+| `\` or two spaces at a line end | Hard line break |
+
+A file may begin with a `---` details block (`title`, `text`, `date`, `service`, `place`, `speaker`, `tags`, `pace`). When a file is opened, `detectDetails` also reads labeled lines (`Date: ...`, `- **Where:** ...`) and short header lines that hold only a date, time, service, place, "by" name, or Scripture reference, and `applyDetails` puts what it found into the sermon. A service not named in the file is inferred from the date and time against the service days and times in Settings. Header lines that held nothing else leave the manuscript; undo restores the details too. A file this app exported (with a "Manuscript with slide cues" section) imports as just the manuscript, with its details.
+
+The Markdown view (`#btn-md`) shows the details block and the manuscript as text. Edits apply as you type, and Scripture directives reuse the existing block by id, else by reference.
