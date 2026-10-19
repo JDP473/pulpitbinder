@@ -1016,7 +1016,9 @@ const openDB = () => new Promise(res => {
   try {
     const r = indexedDB.open("pulpit-binder", 2);
     r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("sermons")) d.createObjectStore("sermons", { keyPath: "id" }); if (!d.objectStoreNames.contains("kv")) d.createObjectStore("kv", { keyPath: "k" }); };
-    r.onsuccess = () => res(r.result); r.onerror = () => res(null);
+    // an older copy of the page open in another tab holds the old version and blocks the upgrade: carry on without saved sermons for now rather than hang
+    r.onblocked = () => { setTimeout(() => res(null), 2500); try { toast("Close other Pulpit Binder tabs, then reload, to finish an update."); } catch {} };
+    r.onsuccess = () => { r.result.onversionchange = () => r.result.close(); res(r.result); }; r.onerror = () => res(null);
   } catch { res(null); }
 });
 const store = {
@@ -2074,7 +2076,15 @@ function fingerprint(s) {
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return (h2 >>> 0).toString(36) + (h1 >>> 0).toString(36) + s.length.toString(36);
 }
-const aiDoc = key => (cdb && userId) ? cdb.doc(`data/users/${userId}/_cache`).collection("ai").doc(key) : null;
+const aiDoc = key => (cdb && userId) ? cdb.doc(`data/users/${userId}/_cache/ai/${key}`) : null;
+/* The account's database holds at most 25,000 documents, so saved answers are kept to the newest few hundred. */
+async function pruneCloudCache(col, keep) {
+  if (!cdb || !userId) return;
+  try {
+    const snap = await cdb.collection(`data/users/${userId}/_cache/${col}`).orderBy("at", "desc").limit(1000).get();
+    for (const d of snap.docs.slice(keep)) await cdb.doc(`data/users/${userId}/_cache/${col}/${d.id}`).delete();
+  } catch (e) { console.warn("cache prune", e); }
+}
 const askFresh = new Set();   // buttons whose last answer came from the saved copy
 let aiPuts = 0;
 async function askJson(prompt, { tier = "default", fresh = false, id = "" } = {}) {
@@ -2094,7 +2104,7 @@ async function askJson(prompt, { tier = "default", fresh = false, id = "" } = {}
   const rec = { k: key, v: JSON.stringify(value), at: Date.now(), tier };
   kv.put(rec);
   const d = aiDoc(key); if (d && rec.v.length < AI_CLOUD_MAX) d.set({ v: rec.v, at: rec.at, tier }).catch(() => {});
-  if (++aiPuts % 25 === 0) pruneAnswers();
+  if (++aiPuts % 25 === 0) { pruneAnswers(); pruneCloudCache("ai", 300); }
   return { value, cached: false, at: rec.at };
 }
 async function pruneAnswers() {

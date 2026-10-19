@@ -29,7 +29,7 @@ async def main():
       else: await r.abort()
     await page.route("**/*", route)
     await page.goto("https://x.test/#build"); await page.wait_for_timeout(700)
-    await page.evaluate("""recs => new Promise(res => { const q = indexedDB.open('pulpit-binder', 1); q.onsuccess = () => { const tx = q.result.transaction('sermons','readwrite'); const st = tx.objectStore('sermons'); st.clear(); recs.forEach(r => st.put(r)); tx.oncomplete = res; }; })""", recs)
+    await page.evaluate("""recs => new Promise(res => { const q = indexedDB.open('pulpit-binder'); q.onsuccess = () => { const tx = q.result.transaction('sermons','readwrite'); const st = tx.objectStore('sermons'); st.clear(); recs.forEach(r => st.put(r)); tx.oncomplete = res; }; })""", recs)
     await page.goto("https://x.test/#dash"); await page.reload(); await page.wait_for_timeout(1500)
     await page.screenshot(path=str(ROOT / "tests" / "out" / "dash_top.png"))
     await page.screenshot(path=str(ROOT / "tests" / "out" / "dash_full.png"), full_page=True)

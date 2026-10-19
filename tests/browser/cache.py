@@ -15,7 +15,7 @@ const persist = () => localStorage.setItem('__db', JSON.stringify(Object.fromEnt
 const subs = [];
 const snap = path => ({ id: path.split('/').pop(), exists: store.has(path), data: () => store.has(path) ? JSON.parse(store.get(path)) : undefined, metadata: { hasPendingWrites: false } });
 const doc = path => ({ async get() { return snap(path); }, async set(v) { store.set(path, JSON.stringify(v)); persist(); subs.forEach(f => f()); },
-  async delete() { store.delete(path); persist(); }, onSnapshot(cb) { cb(snap(path)); return () => {}; }, collection: sub => collection(path + '/' + sub) });
+  async delete() { store.delete(path); persist(); }, onSnapshot(cb) { cb(snap(path)); return () => {}; } });   // like the real DocumentReference: no collection()
 const collection = path => ({ doc: id => doc(path + '/' + id), onSnapshot(cb) { const f = () => { const n = path.split('/').length + 1;
   const docs = [...store.keys()].filter(k => k.startsWith(path + '/') && k.split('/').length === n).map(snap);
   cb({ docChanges: () => docs.map(d => ({ type: 'added', doc: d })) }); }; subs.push(f); setTimeout(f, 0); return () => {}; } });
