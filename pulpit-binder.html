@@ -47,7 +47,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background
 .brand{font-family:var(--f-read);font-weight:600;font-size:1.15rem;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand svg{flex:none}
 .tabs{display:flex;gap:2px;background:var(--sunk);border-radius:8px;padding:3px}
-.tab{border:0;background:transparent;padding:0 14px;min-height:30px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.tab{border:0;background:transparent;padding:0 10px;min-height:30px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;display:inline-flex;align-items:center;gap:6px}
 .tab:hover{color:var(--ink)}
 .tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .tab-ic{display:none}
@@ -825,6 +825,50 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
   #dash-table td.mono:first-child{white-space:normal;width:58px}
   #dash-table td:nth-child(3){min-width:92px}
 }
+/* ---------- materials ---------- */
+.mat{display:flex;flex-direction:column;gap:18px}
+.mat-brand{flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.mat-brand-id{display:flex;align-items:center;gap:14px;min-width:0}
+.mat-brand-logo{flex:none;width:64px;height:64px;border-radius:10px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;overflow:hidden}
+.mat-brand-logo img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.mat-brand-logo span{font:700 11px/1.1 var(--f-read);color:#555;text-align:center;padding:4px}
+.mat-brand-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mat-brand-text b{font:600 1.05rem/1.2 var(--f-read);overflow-wrap:anywhere}
+.mat-brand-act,.mat-act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mat-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:22px;align-items:start}
+@media (max-width:900px){.mat-grid{grid-template-columns:minmax(0,1fr)}}
+.mat-fields,.mat-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.mat-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px) + 12px)}
+@media (max-width:900px){.mat-side{position:static;order:-1}}
+.mat-prev{display:flex;justify-content:center;background:var(--sunk);border-radius:10px;padding:12px}
+.mat-prev canvas{display:block;width:auto;height:auto;max-width:100%;max-height:min(72vh,720px);background:#fff;border-radius:3px;box-shadow:0 6px 22px rgba(0,0,0,.22)}
+#mb-outline{font-family:var(--f-read);font-size:15px;line-height:1.5}
+.mat-caps{display:flex;flex-direction:column;gap:10px}
+.mat-cap{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.mat-cap-h{display:flex;align-items:center;gap:8px}
+.mat-cap-h b{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.mat-cap textarea{font-family:var(--f-read);font-size:15px;line-height:1.5}
+.mat-quotes{display:flex;flex-direction:column;gap:8px}
+.mat-q{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.mat-q.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mat-q-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mat-q textarea{font-family:var(--f-read);font-size:15px;line-height:1.5}
+.brand-logo-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand-logo-box{width:96px;height:96px;border:1px dashed var(--line);border-radius:10px;background:#fff;display:grid;place-items:center;overflow:hidden;color:#666;font-size:12px;text-align:center}
+.brand-logo-box img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.brand-logo-btns{display:flex;gap:8px;flex-wrap:wrap}
+input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
+@media (max-width:700px){
+  .tabs{grid-template-columns:repeat(7,minmax(0,1fr))}
+  .tab{font-size:9.5px;letter-spacing:-.03em}
+  .tabs{padding-inline:0}
+}
+@media (pointer:coarse){
+  .mat .fav{min-height:44px;padding:0 8px}
+  .mat .fav input{width:22px;height:22px}
+  input.brand-color{min-height:44px}
+  .mat-q textarea,.mat-cap textarea{min-height:64px}
+}
 </style>
 
 <a class="skip" href="#main" id="skip-link">Skip to content</a>
@@ -841,6 +885,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
         <button class="tab" role="tab" id="tab-study" aria-selected="false" aria-controls="view-study" tabindex="-1" data-view="study"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 22H20v-4"/><path d="M9 8h7"/></svg><span class="tab-tx">Study</span></button>
         <button class="tab" role="tab" id="tab-edit" aria-selected="false" aria-controls="view-edit" tabindex="-1" data-view="edit"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg><span class="tab-tx">Edit</span></button>
         <button class="tab" role="tab" id="tab-present" aria-selected="false" aria-controls="view-present" tabindex="-1" data-view="present"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M10 8v4l4-2-4-2z"/><path d="M8 20h8M12 16v4"/></svg><span class="tab-tx">Present</span></button>
+        <button class="tab" role="tab" id="tab-materials" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-view="materials"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span class="tab-tx">Materials</span></button>
         <button class="tab" role="tab" id="tab-analysis" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-view="analysis"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 5-6"/></svg><span class="tab-tx">Analysis</span></button>
       </nav>
       <span class="hdr-title" id="hdr-title"></span>
@@ -1082,6 +1127,81 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
     </div>
   </section>
 
+  <!-- MATERIALS -->
+  <section class="view" id="view-materials" role="tabpanel" aria-labelledby="tab-materials" hidden>
+    <div class="mat">
+      <div class="panel mat-brand">
+        <div class="mat-brand-id"><div class="mat-brand-logo" id="mat-brand-logo" aria-hidden="true"></div><div class="mat-brand-text"><b id="mat-brand-name"></b><span class="hint" id="mat-brand-sub"></span></div></div>
+        <div class="mat-brand-act"><button type="button" class="btn" id="mat-edit-brand">Edit branding</button><button type="button" class="btn primary" id="mat-all" hidden>Save all as .zip</button></div>
+      </div>
+
+      <div class="panel" id="mat-bulletin">
+        <div class="bind-head"><h2>Back of the bulletin</h2><div class="spacer"></div><span class="hint">Sermon notes page with fill-in blanks</span></div>
+        <div class="mat-grid">
+          <div class="mat-fields">
+            <div class="row2">
+              <div class="field"><label for="mb-size">Page size</label><select id="mb-size"><option value="full">Full page, 8.5 × 11 in</option><option value="half">Half page, 5.5 × 8.5 in</option></select></div>
+              <div class="field"><label for="mb-ans">Copy</label><label class="fav" for="mb-ans"><input type="checkbox" id="mb-ans"> <span>Show the answers (your copy)</span></label></div>
+            </div>
+            <div class="field"><label for="mb-idea">The big idea</label><input type="text" id="mb-idea" placeholder="One sentence the congregation can carry home"></div>
+            <div class="field"><label for="mb-outline">Outline</label><textarea id="mb-outline" rows="9" spellcheck="true" placeholder="One main point per line. Start a line with a dash for a sub-point. Put [[double brackets]] around the words to leave blank."></textarea><span class="hint">Main points are numbered I, II, III and sub-points A, B, C for you. The words in [[double brackets]] become blanks.</span></div>
+            <div class="field"><label for="mb-q">Questions for the week</label><textarea id="mb-q" rows="3" placeholder="One question per line"></textarea></div>
+            <div class="mat-act"><button type="button" class="btn" id="mb-local">Build from my outline</button><button type="button" class="btn" id="mb-ai">Draft with Claude</button></div>
+            <div class="hint" id="mb-status" aria-live="polite"></div>
+          </div>
+          <div class="mat-side">
+            <div class="mat-prev" id="mb-prev"><canvas id="mb-canvas" width="850" height="1100" role="img" aria-label="Preview of the bulletin notes page"></canvas></div>
+            <div class="mat-act"><button type="button" class="btn primary mat-save" id="mb-pdf">Save PDF</button><button type="button" class="btn mat-save" id="mb-png">Save picture</button><button type="button" class="btn ghost" id="mb-copy">Copy outline</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="mat-social">
+        <div class="bind-head"><h2>Social media invitations</h2><div class="spacer"></div><span class="hint">A picture and words to post</span></div>
+        <div class="mat-grid">
+          <div class="mat-fields">
+            <div class="row2">
+              <div class="field"><label for="ms-fmt">Shape</label><select id="ms-fmt"><option value="square">Square, 1080 × 1080</option><option value="story">Story, 1080 × 1920</option></select></div>
+              <div class="field"><label for="ms-pal">Colors</label><select id="ms-pal"><option value="dark">Dark</option><option value="light">Light</option><option value="deck">Match my slides</option></select></div>
+            </div>
+            <div class="field"><label for="ms-head">Headline</label><input type="text" id="ms-head" placeholder="You are invited"></div>
+            <div class="field"><label for="ms-when">When</label><input type="text" id="ms-when"></div>
+            <div class="field"><label for="ms-topic">This week</label><input type="text" id="ms-topic"></div>
+            <div class="mat-act"><button type="button" class="btn" id="ms-ai">Draft captions with Claude</button></div>
+            <div class="hint" id="ms-status" aria-live="polite"></div>
+            <div class="mat-caps" id="ms-caps"></div>
+          </div>
+          <div class="mat-side">
+            <div class="mat-prev" id="ms-prev"><canvas id="ms-canvas" width="1080" height="1080" role="img" aria-label="Preview of the invitation picture"></canvas></div>
+            <div class="mat-act"><button type="button" class="btn primary mat-save" id="ms-png">Save picture</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="mat-quotes">
+        <div class="bind-head"><h2>Quotes to share</h2><div class="spacer"></div><span class="hint">Lines from the manuscript, as written</span></div>
+        <div class="mat-grid">
+          <div class="mat-fields">
+            <div class="row2">
+              <div class="field"><label for="mq-fmt">Shape</label><select id="mq-fmt"><option value="square">Square, 1080 × 1080</option><option value="story">Story, 1080 × 1920</option></select></div>
+              <div class="field"><label for="mq-pal">Colors</label><select id="mq-pal"><option value="dark">Dark</option><option value="light">Light</option><option value="deck">Match my slides</option></select></div>
+            </div>
+            <div class="field"><label for="mq-who">Under each quote</label><input type="text" id="mq-who" placeholder="Name and sermon title"></div>
+            <div class="mat-act"><button type="button" class="btn" id="mq-find">Find quotable lines</button><button type="button" class="btn" id="mq-ai">Pick with Claude</button></div>
+            <div class="hint" id="mq-status" aria-live="polite"></div>
+            <div class="mat-quotes" id="mq-list"></div>
+            <div class="field"><label for="mq-new">Add your own</label><textarea id="mq-new" rows="2" placeholder="Type or paste a line"></textarea></div>
+            <div class="mat-act"><button type="button" class="btn" id="mq-add">Add quote</button></div>
+          </div>
+          <div class="mat-side">
+            <div class="mat-prev" id="mq-prev"><canvas id="mq-canvas" width="1080" height="1080" role="img" aria-label="Preview of the quote picture"></canvas></div>
+            <div class="mat-act"><button type="button" class="btn primary mat-save" id="mq-png">Save this picture</button><button type="button" class="btn mat-save" id="mq-zip">Save all chosen as .zip</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ANALYSIS -->
   <section class="view" id="view-dash" role="tabpanel" aria-labelledby="tab-dash" hidden>
     <div class="dash">
@@ -1208,6 +1328,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
       <button type="button" class="set-tab" role="tab" id="set-tab-services" data-pane="services" aria-controls="set-pane-services" aria-selected="false">Services</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-places" data-pane="places" aria-controls="set-pane-places" aria-selected="false">Places</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-defaults" data-pane="defaults" aria-controls="set-pane-defaults" aria-selected="false">New sermons</button>
+      <button type="button" class="set-tab" role="tab" id="set-tab-brand" data-pane="brand" aria-controls="set-pane-brand" aria-selected="false">Branding</button>
     </div>
     <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
       <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
@@ -1233,6 +1354,21 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
         <div class="field"><label for="set-speaker">Speaker</label><input type="text" id="set-speaker"></div>
         <div class="field"><label for="set-wpm">Pace (words/min)</label><input type="number" id="set-wpm" min="80" max="220" step="5"></div>
       </div>
+    </div>
+    <div class="set-pane" id="set-pane-brand" role="tabpanel" aria-labelledby="set-tab-brand" hidden>
+      <span class="hint">Used on the bulletin notes page, invitations, and quote cards in Materials.</span>
+      <div class="field"><span class="set-h">Church logo</span>
+        <div class="brand-logo-row"><div class="brand-logo-box" id="set-logo-box"></div><div class="brand-logo-btns"><button type="button" class="btn" id="set-logo-pick">Choose a logo</button><button type="button" class="btn ghost" id="set-logo-clear">Remove</button></div></div>
+        <input type="file" id="set-logo-file" accept="image/*" hidden>
+        <span class="hint">A PNG or SVG with a clear background works best. It is resized small and saved with your settings.</span></div>
+      <div class="field"><label for="set-bname">Church name</label><input type="text" id="set-bname" maxlength="80"></div>
+      <div class="field"><label for="set-btag">Tagline (optional)</label><input type="text" id="set-btag" maxlength="120" placeholder="Visitors are always welcome"></div>
+      <div class="field"><label for="set-btimes">Service times line</label><input type="text" id="set-btimes" maxlength="160"><span class="hint">Leave empty to build it from your Services list.</span></div>
+      <div class="row2">
+        <div class="field"><label for="set-baddr">Address</label><input type="text" id="set-baddr" maxlength="160"></div>
+        <div class="field"><label for="set-bweb">Website or page</label><input type="text" id="set-bweb" maxlength="80"></div>
+      </div>
+      <div class="field"><label for="set-bcolor">Accent color</label><input type="color" id="set-bcolor" class="brand-color"></div>
     </div>
     <div class="sc-pop-row"><span class="hint" id="set-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="set-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
   </form>
@@ -2126,7 +2262,7 @@ $("#btn-del").onclick = async () => {
 };
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
-  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent();
+  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study") renderStudy();
   watchCurrent();
@@ -3474,7 +3610,7 @@ const DEF_SERVICES = [
   { name: "Sunday AM", day: 0, time: "10:00" }, { name: "Sunday PM", day: 0, time: "18:00" }, { name: "Wednesday Bible Study", day: 3, time: "19:00" },
   { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
 ];
-let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, updatedAt: 0 };
+let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
 const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
 const cleanTime = t => typeof t === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : "";
@@ -3490,13 +3626,19 @@ function cleanPlaces(a) {
   for (const x of a) { const name = cleanStr(x, 120); if (name && !out.some(o => sameName(o, name))) out.push(name); }
   return out.slice(0, 60);
 }
+function cleanBrand(j, base) {
+  j = j && typeof j === "object" ? j : {}; const b = base || {};
+  const logo = typeof j.logo === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(j.logo) && j.logo.length < 250000 ? j.logo : j.logo === "" ? "" : b.logo || "";
+  const color = typeof j.color === "string" && /^#[0-9a-f]{6}$/i.test(j.color) ? j.color.toLowerCase() : j.color === "" ? "" : b.color || "";
+  return { name: cleanStr(j.name, 80), tagline: cleanStr(j.tagline, 120), times: cleanStr(j.times, 160), address: cleanStr(j.address, 160), web: cleanStr(j.web, 80), color, logo };
+}
 function normSettings(j, base) {
   const favs = Array.isArray(j.favs) ? j.favs.map(cleanVer).filter(Boolean).slice(0, MAX_FAVS) : [];
   const services = cleanServices(j.services), places = cleanPlaces(j.places) || base.places;
   const dp = typeof j.defPlace === "string" ? j.defPlace : base.defPlace;
   return { ...base, defVer: cleanVer(j.defVer) || base.defVer, favs: favs.length ? favs : base.favs, claudeFallback: j.claudeFallback !== false,
     services: services && services.length ? services : base.services, places, defPlace: places.find(p => sameName(p, dp)) || "",
-    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, updatedAt: +j.updatedAt || 0 };
+    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, brand: j.brand ? cleanBrand(j.brand, base.brand) : base.brand, updatedAt: +j.updatedAt || 0 };
 }
 try { const j = JSON.parse(localStorage.getItem("pb-settings") || "null"); if (j && typeof j === "object") settings = normSettings(j, settings); } catch {}
 const svcByName = n => settings.services.find(s => sameName(s.name, n));
@@ -3521,6 +3663,7 @@ function applySettings(j, fromCloud) {
   try { localStorage.setItem("pb-settings", JSON.stringify(settings)); } catch {}
   document.querySelectorAll(".pb-scripture").forEach(e => rerenderOne(e));
   updateHint(); renderServiceOptions(); renderPlaceList(); renderMore();
+  if (view === "materials") renderMaterials();
 }
 function saveSettings() {
   settings.updatedAt = Date.now();
@@ -3829,7 +3972,7 @@ function openSettings(opts = {}) {
   renderSetServices(opts.add && opts.tab === "services" ? setDraft.services.length - 1 : -1);
   renderSetPlaces(opts.add && opts.tab === "places" ? setDraft.places.length - 1 : -1);
   renderSetFound(); gatherUsed().catch(() => {});
-  $("#set-speaker").value = settings.speaker; $("#set-wpm").value = settings.wpm;
+  $("#set-speaker").value = settings.speaker; $("#set-wpm").value = settings.wpm; openBrandFields();
   $("#set-msg").textContent = "";
   setTab(opts.tab || "scripture");
   m.hidden = false; if (!opts.add) (document.querySelector(".set-tab[aria-selected=true]") || $("#set-def")).focus();
@@ -3860,7 +4003,7 @@ $("#settings-form").addEventListener("submit", e => {
   settings.defVer = $("#set-def").value; settings.favs = favs; settings.claudeFallback = $("#set-claude").checked;
   settings.services = svcs.map(({ name, day, time }) => ({ name, day, time })); settings.places = places.map(p => p.name);
   settings.defPlace = (places.find(p => p.key === setDraft.defKey) || {}).name || "";
-  settings.speaker = cleanStr($("#set-speaker").value, 80); settings.wpm = wpm;
+  settings.speaker = cleanStr($("#set-speaker").value, 80); settings.wpm = wpm; settings.brand = readBrandFields();
   saveSettings(); $("#settings").hidden = true;
   // Follow a rename through to the open sermon; past sermons keep the name they were saved with.
   let changed = false;
@@ -3876,7 +4019,7 @@ $("#settings-form").addEventListener("submit", e => {
   if (picked) applyServiceTime(picked.name);
   if (changed) { renderTags(); save(); }
   document.querySelectorAll(".pb-scripture").forEach(x => rerenderOne(x));
-  setDraft = null;
+  setDraft = null; if (view === "materials") renderMaterials();
   if (!picked || !picked.time) toast("Settings saved");
 });
 
@@ -4772,7 +4915,7 @@ async function pushRecord(rec) {
   const md = rec.media || {};
   let fileRef = null, fileLocal = false;
   if (md.file && md.file.blob) { fileRef = await upBlob(md.file.blob); fileLocal = !fileRef; }
-  const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
+  const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, mat: rec.mat || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
   await putPart(base, "core", core, last, chunks);
   await putPart(base, "html", rec.html || "", last, chunks);
   await putPart(base, "preached", md.preached || "", last, chunks);
@@ -4802,7 +4945,7 @@ async function pullRecord(id) {
   const rec = {
     id, updatedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
     slides: slidesT.map(t => parseJ(t, { title: "", body: [], notes: "" })), pptxName: m.pptxName, pdfName: m.pdfName, pdfNote: m.pdfNote, pdfAspect: m.pdfAspect, aspect: m.aspect, slidesFromPdf: m.slidesFromPdf, deckVer: m.deckVer || 0,
-    pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, study: core.study || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
+    pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, study: core.study || null, mat: core.mat || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
     media: { link: (core.media && core.media.link) || "", preached, file: (core.media && core.media.file) || (local && local.media && local.media.file && m.fileLocal ? local.media.file : null) }
   };
   rec.transcript = plainFromHtml(rec.html);
@@ -6003,16 +6146,454 @@ function renderStudy() {
 }
 $("#btn-theme").addEventListener("click", () => setTimeout(() => { if (view === "study" && stViz === "map") stRenderViz(); }, 0));
 
+/* ---------------- Materials: bulletin notes page, invitations, quote cards ---------------- */
+/* Everything is drawn on canvases from the sermon's own text and the branding in Settings, so the pictures, the PDF,
+   and the zip all come from the same drawing code. The page keeps the editable parts in S.mat, which syncs with the sermon. */
+const MF = { read: '"Literata", Georgia, "Times New Roman", serif', ui: '"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif' };
+const mfont = (role, px, weight = 400, style = "") => `${style ? style + " " : ""}${weight} ${Math.round(px)}px ${MF[role]}`;
+const matM = () => { const m = (S.mat = S.mat || {}); if (m.size !== "half") m.size = "full"; for (const k of ["sFmt", "qFmt"]) if (!["square", "story"].includes(m[k])) m[k] = "square"; if (!["dark", "light", "deck"].includes(m.sPal)) m.sPal = "dark"; if (!["dark", "light", "deck"].includes(m.qPal)) m.qPal = "light"; m.quotes = Array.isArray(m.quotes) ? m.quotes : []; m.caps = Array.isArray(m.caps) ? m.caps : []; return m; };
+const brandInfo = () => {
+  const b = settings.brand || {};
+  const times = b.times || settings.services.filter(s => s.day != null && s.time).map(s => `${DAYS[s.day]} ${fmtTime(s.time)}`).join(" · ");
+  return { name: b.name || settings.defPlace || "Bridge Creek church of Christ", tagline: b.tagline || "", times, address: b.address || "", web: b.web || "", color: b.color || "#8a5d0b", logo: b.logo || "" };
+};
+let logoCache = { src: "", img: null };
+function matLogo() {
+  const src = brandInfo().logo; if (!src) return Promise.resolve(null);
+  if (logoCache.src === src && logoCache.img) return Promise.resolve(logoCache.img);
+  return new Promise(res => { const im = new Image(); im.onload = () => { logoCache = { src, img: im }; res(im); }; im.onerror = () => res(null); im.src = src; });
+}
+async function matFonts() { try { await Promise.race([Promise.all([document.fonts.load('600 40px Literata'), document.fonts.load('400 20px Literata'), document.fonts.load('italic 400 20px Literata'), document.fonts.load('700 20px "Schibsted Grotesk"'), document.fonts.load('400 20px "Schibsted Grotesk"')]), new Promise(r => setTimeout(r, 1500))]); } catch {} }
+const matSlug = () => ((S.meta.title || "sermon").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "sermon") + (S.meta.when ? "-" + S.meta.when.slice(0, 10) : "");
+function matPalette(kind) {
+  const br = brandInfo(); let bg, ink, sub, accent = br.color;
+  if (kind === "light") { bg = "#f4f5f7"; ink = "#1a2130"; sub = "#566074"; }
+  else if (kind === "deck" && S.slides.some(x => !x.made && x.model)) { const t = deckTheme(); bg = t.bg; ink = t.fg; sub = stMix(t.fg, t.bg, 0.72); accent = t.accent; }
+  else { bg = "#151b27"; ink = "#f3f1ea"; sub = "#b3bac8"; }
+  const bgRGB = stHex(bg), dark = lum(bgRGB) < 0.4; let a = accent, g = 0;
+  while (contrast(stHex(a), bgRGB) < 3 && g++ < 14) a = stMix(a, dark ? "#ffffff" : "#000000", 0.8);
+  return { bg, ink, sub, accent: a, dark };
+}
+function wrapText(ctx, text, maxW) {
+  const out = [];
+  for (const para of String(text).split("\n")) { let line = ""; for (const w of para.split(/\s+/).filter(Boolean)) { const t = line ? line + " " + w : w; if (line && ctx.measureText(t).width > maxW) { out.push(line); line = w; } else line = t; } out.push(line); }
+  return out;
+}
+function fitBlock(ctx, text, role, weight, style, maxW, maxH, px0, pxMin, lh) {
+  let px = px0, lines = [];
+  for (; px >= pxMin; px -= 2) { ctx.font = mfont(role, px, weight, style); lines = wrapText(ctx, text, maxW); if (lines.length * px * lh <= maxH) return { px, lines }; }
+  px = pxMin; ctx.font = mfont(role, px, weight, style); return { px, lines: wrapText(ctx, text, maxW) };
+}
+function spaced(ctx, text, x, y, track, align = "left") {   // uppercase labels with a little letter-spacing
+  const t = String(text).toUpperCase(); let w = 0; for (const ch of t) w += ctx.measureText(ch).width + track; w -= track;
+  let cx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
+  for (const ch of t) { ctx.fillText(ch, cx, y); cx += ctx.measureText(ch).width + track; }
+  return w;
+}
+function fitItems(ctx, text, maxW) {   // as many whole " · " items as fit on one line
+  const parts = String(text).split(" · "); let out = parts[0];
+  for (let i = 1; i < parts.length; i++) { const t = out + " · " + parts[i]; if (ctx.measureText(t).width > maxW) break; out = t; }
+  return ctx.measureText(out).width > maxW ? wrapText(ctx, out, maxW)[0] : out;
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+/* the logo, or the church's name set as a wordmark; returns the width used */
+function drawBrandMark(ctx, logo, x, y, maxW, maxH, pal, align = "left") {
+  if (logo) { const r = Math.min(maxH / logo.height, maxW / logo.width), w = logo.width * r, h = logo.height * r, dx = align === "center" ? x + (maxW - w) / 2 : align === "right" ? x + maxW - w : x; ctx.drawImage(logo, dx, y, w, h); return { w, h }; }
+  const br = brandInfo(); const fit = fitBlock(ctx, br.name, "read", 600, "", maxW, maxH, maxH * 0.5, 12, 1.15);
+  ctx.fillStyle = pal.ink; ctx.textAlign = align === "center" ? "center" : align === "right" ? "right" : "left"; ctx.textBaseline = "alphabetic";
+  const ax = align === "center" ? x + maxW / 2 : align === "right" ? x + maxW : x;
+  fit.lines.forEach((ln, i) => ctx.fillText(ln, ax, y + fit.px + i * fit.px * 1.15)); ctx.textAlign = "left";
+  return { w: Math.max(...fit.lines.map(l => ctx.measureText(l).width)), h: fit.lines.length * fit.px * 1.15 };
+}
+/* one line of text with blanks: words wrap, [[blank]] words become an underline (or the word itself, for the answer copy) */
+function drawRuns(ctx, str, x, y, maxW, px, weight, color, accent, answers, lh, dry) {
+  ctx.font = mfont("read", px, weight); const sp = ctx.measureText(" ").width; const toks = [];
+  String(str).split(/(\[\[[^\]]+\]\])/).forEach(part => { const m = part.match(/^\[\[([^\]]+)\]\]$/); if (m) toks.push({ w: m[1].trim(), blank: true }); else { const lead = part.length > 0 && !/^\s/.test(part); part.split(/\s+/).filter(Boolean).forEach((w, i) => toks.push({ w, blank: false, glue: i === 0 && lead && toks.length > 0 })); } });
+  let cx = 0, cy = y; const first = () => cx === 0;
+  for (const t of toks) {
+    ctx.font = mfont("read", px, t.blank && answers ? 700 : weight, t.blank && answers ? "italic" : "");
+    const tw = ctx.measureText(t.w).width, w = t.blank && !answers ? Math.max(px * 3.4, tw * 1.35) : tw, gap = t.glue ? 0 : sp;
+    if (!first() && cx + gap + w > maxW) { cx = 0; cy += px * lh; }
+    const dx = x + cx + (first() ? 0 : gap);
+    if (!dry) {
+      if (t.blank && !answers) { ctx.strokeStyle = color; ctx.lineWidth = Math.max(1.5, px * 0.06); ctx.beginPath(); ctx.moveTo(dx, cy + px * 0.14); ctx.lineTo(dx + w, cy + px * 0.14); ctx.stroke(); }
+      else { ctx.fillStyle = t.blank ? accent : color; ctx.fillText(t.w, dx, cy); }
+    }
+    cx += (first() ? 0 : gap) + w;
+  }
+  return cy;
+}
+const ROMANS = n => ROMAN(n);
+function parseOutline(text) {
+  const items = [];
+  String(text || "").replace(/\r/g, "").split("\n").forEach(raw => {
+    if (!raw.trim()) return;
+    const sub = /^\s*[-•*]\s+/.test(raw) || /^\s{2,}\S/.test(raw);
+    const t = raw.replace(/^\s*[-•*]\s+/, "").trim(); if (t) items.push({ lv: sub && items.length ? 2 : 1, text: t });
+  });
+  let a = 0, b = 0; items.forEach(it => { if (it.lv === 1) { a++; b = 0; it.num = ROMANS(a) + "."; } else { b++; it.num = LETTER(b) + "."; } });
+  return items;
+}
+const matLines = t => String(t || "").split("\n").map(x => x.replace(/^\s*(\d+[.)]|[-•*])\s*/, "").trim()).filter(Boolean);
+/* ---- the bulletin page ---- */
+async function drawBulletin(canvas, opt = {}) {
+  await matFonts(); const logo = await matLogo(), m = matM(), br = brandInfo(), half = m.size === "half";
+  const DPI = 200, W = Math.round((half ? 5.5 : 8.5) * DPI), H = Math.round((half ? 8.5 : 11) * DPI);
+  canvas.width = W; canvas.height = H; const ctx = canvas.getContext("2d");
+  const pal = { bg: "#ffffff", ink: "#1b1f27", sub: "#5a6270", accent: stMix(br.color, "#000000", 0.85), line: "#c9ccd3" };
+  const items = parseOutline(m.outline), qs = matLines(m.questions), answers = !!m.answers;
+  const meta = [S.meta.text, S.meta.when ? new Date(S.meta.when).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "", S.meta.speaker].filter(Boolean).join("  ·  ");
+  const footTxt = [br.times, [br.address, br.web].filter(Boolean).join("  ·  "), br.tagline].filter(Boolean);
+  const lay = (s, dry) => {
+    const k = (half ? 0.84 : 1) * s, pt = v => v * DPI / 72 * k, M = (half ? 0.5 : 0.65) * DPI, cw = W - 2 * M;
+    const T = (str, x, yy) => { if (!dry) ctx.fillText(str, x, yy); };
+    let y = M; ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+    const hh = 0.6 * DPI * (half ? 0.88 : 1);
+    if (!dry) { ctx.fillStyle = pal.accent; ctx.font = mfont("ui", pt(8.5), 700); spaced(ctx, "Sermon notes", W - M, y + hh * 0.55, pt(1.6), "right"); }
+    let tx = M;
+    if (logo) { const r = Math.min(hh / logo.height, (half ? 1.6 : 2.2) * DPI / logo.width), lw = logo.width * r, lh2 = logo.height * r; if (!dry) ctx.drawImage(logo, M, y + (hh - lh2) / 2, lw, lh2); tx = M + lw + 0.16 * DPI; if (br.tagline && !dry) { ctx.font = mfont("ui", pt(8.5), 400); ctx.fillStyle = pal.sub; ctx.fillText(br.tagline, tx, y + hh * 0.55); } }
+    else { if (!dry) { ctx.fillStyle = pal.ink; ctx.font = mfont("read", pt(15), 600); ctx.fillText(br.name, M, y + hh * 0.5); if (br.tagline) { ctx.font = mfont("ui", pt(8.5), 400); ctx.fillStyle = pal.sub; ctx.fillText(br.tagline, M, y + hh * 0.5 + pt(13)); } } }
+    y += hh + 0.14 * DPI; if (!dry) { ctx.fillStyle = pal.accent; ctx.fillRect(M, y, cw, Math.max(3, pt(2))); } y += 0.34 * DPI * k;
+    // title
+    const title = S.meta.title || "Sermon title"; ctx.font = mfont("read", pt(26), 600);
+    const tf = fitBlock(ctx, title, "read", 600, "", cw, pt(26) * 1.15 * 2, pt(26), pt(17), 1.15);
+    if (!dry) { ctx.fillStyle = pal.ink; ctx.font = mfont("read", tf.px, 600); } tf.lines.forEach((ln, i) => T(ln, M, y + tf.px + i * tf.px * 1.15)); y += tf.lines.length * tf.px * 1.15 + pt(5);
+    if (meta) { if (!dry) { ctx.fillStyle = pal.sub; ctx.font = mfont("ui", pt(10.5), 400); } const ml = (ctx.font = mfont("ui", pt(10.5), 400), wrapText(ctx, meta, cw)); ml.forEach((ln, i) => T(ln, M, y + pt(11) + i * pt(14))); y += ml.length * pt(14) + pt(8); }
+    // big idea
+    if (m.bigIdea && m.bigIdea.trim()) {
+      const pad = pt(9); ctx.font = mfont("read", pt(13), 400, "italic"); const il = wrapText(ctx, m.bigIdea.trim(), cw - pad * 2), bh = pad * 2 + pt(10) + il.length * pt(18);
+      if (!dry) { ctx.strokeStyle = pal.accent; ctx.lineWidth = Math.max(2, pt(1.4)); roundRect(ctx, M, y, cw, bh, 8); ctx.stroke(); ctx.fillStyle = pal.accent; ctx.font = mfont("ui", pt(8), 700); spaced(ctx, "The big idea", M + pad, y + pad + pt(7), pt(1.4)); ctx.fillStyle = pal.ink; ctx.font = mfont("read", pt(13), 400, "italic"); il.forEach((ln, i) => ctx.fillText(ln, M + pad, y + pad + pt(10) + pt(14) + i * pt(18))); }
+      y += bh + pt(11);
+    } else y += pt(4);
+    // outline
+    const numW = pt(30);
+    items.forEach(it => {
+      const lv1 = it.lv === 1, px = pt(lv1 ? 14 : 12.5), ind = lv1 ? 0 : pt(24), x0 = M + ind;
+      if (!dry) { ctx.fillStyle = pal.accent; ctx.font = mfont("read", px, 700); ctx.fillText(it.num, x0, y + px); }
+      const end = drawRuns(ctx, it.text, x0 + numW, y + px, cw - ind - numW, px, lv1 ? 600 : 400, pal.ink, pal.accent, answers, 1.34, dry);
+      y = end + px * 0.55 + (lv1 ? pt(13) : pt(5));
+      if (!dry && !answers && lv1) { ctx.strokeStyle = pal.line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 + numW, y - pt(6)); ctx.lineTo(M + cw, y - pt(6)); ctx.stroke(); }
+      if (lv1 && !answers) y += pt(14);
+    });
+    if (!items.length) { y += pt(6); }
+    // questions
+    if (qs.length) {
+      y += pt(2); if (!dry) { ctx.fillStyle = pal.accent; ctx.font = mfont("ui", pt(8.5), 700); spaced(ctx, "For the week", M, y + pt(8), pt(1.5)); } y += pt(18);
+      qs.slice(0, 5).forEach((q, i) => { ctx.font = mfont("read", pt(11.5), 400); const ql = wrapText(ctx, q, cw - pt(22)); if (!dry) { ctx.fillStyle = pal.accent; ctx.font = mfont("read", pt(11.5), 700); ctx.fillText(String(i + 1) + ".", M, y + pt(11.5)); ctx.fillStyle = pal.ink; ctx.font = mfont("read", pt(11.5), 400); ql.forEach((ln, j) => ctx.fillText(ln, M + pt(22), y + pt(11.5) + j * pt(16))); } y += ql.length * pt(16) + pt(6); });
+    }
+    return { y, M, cw, pt };
+  };
+  const footH = footTxt.length ? (0.3 + 0.17 * footTxt.length) * DPI : 0.3 * DPI, notesMin = 1.1 * DPI;
+  let s = 1, L; for (; s >= 0.6; s -= 0.04) { L = lay(s, true); if (L.y <= H - footH - notesMin - L.M) break; }
+  ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, W, H); L = lay(Math.max(0.6, s), false);
+  const { M, cw, pt } = L; let y = L.y + pt(8);
+  const fy = H - M - footH + pt(2);
+  if (!answers && y < fy - 0.5 * DPI) {
+    ctx.fillStyle = pal.accent; ctx.font = mfont("ui", pt(8.5), 700); spaced(ctx, "Notes", M, y + pt(8), pt(1.5)); y += pt(22);
+    ctx.strokeStyle = pal.line; ctx.lineWidth = 1.5; for (let ly = y + 0.3 * DPI; ly < fy - 0.18 * DPI; ly += 0.33 * DPI) { ctx.beginPath(); ctx.moveTo(M, ly); ctx.lineTo(M + cw, ly); ctx.stroke(); }
+  }
+  ctx.fillStyle = pal.accent; ctx.fillRect(M, fy, cw, Math.max(2, pt(1.2)));
+  footTxt.forEach((t, i) => { ctx.fillStyle = i === 0 ? pal.ink : pal.sub; ctx.font = mfont("ui", pt(i === 0 ? 9.5 : 8.5), i === 0 ? 700 : 400); ctx.fillText(t, M, fy + pt(14) + i * pt(13)); });
+  return { w: W, h: H, wIn: half ? 5.5 : 8.5, hIn: half ? 8.5 : 11 };
+}
+/* ---- invitation and quote pictures ---- */
+const CARD = { square: [1080, 1080], story: [1080, 1920] };
+async function drawInvite(canvas) {
+  await matFonts(); const logo = await matLogo(), m = matM(), br = brandInfo(), pal = matPalette(m.sPal), [W, H] = CARD[m.sFmt];
+  canvas.width = W; canvas.height = H; const ctx = canvas.getContext("2d"); const P = Math.round(W * 0.085), cw = W - 2 * P, story = m.sFmt === "story";
+  ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, W, H); ctx.fillStyle = pal.accent; ctx.fillRect(0, 0, W, Math.round(H * 0.012));
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+  const top = P + Math.round(H * 0.01), mark = drawBrandMark(ctx, logo, P, top, cw * 0.62, H * (story ? 0.075 : 0.105), pal);
+  const head = (m.sHead || "").trim() || "You are invited", when = (m.sWhen || "").trim() || matWhenAuto(), topic = (m.sTopic || "").trim() || [S.meta.title, S.meta.text].filter(Boolean).join("  ·  ");
+  // the footer is measured first, so the message above it never runs into it
+  const foot = [br.times, br.address, br.web].filter(Boolean), fpx = W * 0.03, fl = [];
+  foot.forEach((t, i) => { ctx.font = mfont("ui", fpx, i === 0 ? 700 : 400); wrapText(ctx, t, cw).forEach(l => fl.push([l, i])); });
+  const footH = fl.length ? fl.length * fpx * 1.5 + fpx * 1.4 : 0, footTop = H - P - footH;
+  const lay = (f, dry) => {
+    let y = top + mark.h + H * (story ? 0.09 : 0.055);
+    const hf = fitBlock(ctx, head, "read", 600, "", cw, H * 0.22 * f, W * 0.125 * f, W * 0.06 * f, 1.04);
+    if (!dry) { ctx.fillStyle = pal.ink; ctx.font = mfont("read", hf.px, 600); hf.lines.forEach((ln, i) => ctx.fillText(ln, P, y + hf.px + i * hf.px * 1.04)); }
+    y += hf.lines.length * hf.px * 1.04 + W * 0.04 * f;
+    if (when) { const wf = fitBlock(ctx, when, "ui", 700, "", cw, H * 0.14 * f, W * 0.062 * f, W * 0.04 * f, 1.2); if (!dry) { ctx.fillStyle = pal.accent; ctx.font = mfont("ui", wf.px, 700); wf.lines.forEach((ln, i) => ctx.fillText(ln, P, y + wf.px + i * wf.px * 1.2)); } y += wf.lines.length * wf.px * 1.2 + W * 0.045 * f; }
+    if (!dry) { ctx.fillStyle = pal.accent; ctx.fillRect(P, y, W * 0.14, Math.max(4, W * 0.006)); } y += W * 0.05 * f;
+    if (topic) {
+      if (!dry) { ctx.fillStyle = pal.sub; ctx.font = mfont("ui", W * 0.026 * f, 700); spaced(ctx, "This week", P, y + W * 0.026 * f, W * 0.005); } y += W * 0.045 * f;
+      const tf = fitBlock(ctx, topic, "read", 400, "italic", cw, H * (story ? 0.2 : 0.17) * f, W * 0.05 * f, W * 0.032 * f, 1.25);
+      if (!dry) { ctx.fillStyle = pal.ink; ctx.font = mfont("read", tf.px, 400, "italic"); tf.lines.forEach((ln, i) => ctx.fillText(ln, P, y + tf.px + i * tf.px * 1.25)); }
+      y += tf.lines.length * tf.px * 1.25;
+    }
+    return y;
+  };
+  let f = 1; for (; f > 0.5; f -= 0.05) if (lay(f, true) <= footTop - W * 0.045) break;
+  lay(Math.max(0.5, f), false);
+  if (fl.length) { ctx.fillStyle = pal.accent; ctx.fillRect(P, footTop, cw, 3); fl.forEach(([t, i], k) => { ctx.fillStyle = i === 0 ? pal.ink : pal.sub; ctx.font = mfont("ui", fpx, i === 0 ? 700 : 400); ctx.fillText(t, P, footTop + fpx * 1.9 + k * fpx * 1.5); }); }
+  return { w: W, h: H };
+}
+async function drawQuote(canvas, q) {
+  await matFonts(); const logo = await matLogo(), m = matM(), br = brandInfo(), pal = matPalette(m.qPal), [W, H] = CARD[m.qFmt];
+  canvas.width = W; canvas.height = H; const ctx = canvas.getContext("2d"); const P = Math.round(W * 0.09), cw = W - 2 * P;
+  ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, W, H); ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+  ctx.fillStyle = pal.accent; ctx.font = mfont("read", W * 0.3, 600); ctx.fillText("“", P - W * 0.01, P + W * 0.24);
+  const text = (q && q.text || "Choose a quote to see it here.").replace(/^["“]+|["”]+$/g, "");
+  const who = (m.qWho != null && m.qWho !== "" ? m.qWho : [S.meta.speaker, S.meta.title].filter(Boolean).join("  ·  "));
+  const ruleY = H - P - H * 0.125, attrY = ruleY - W * 0.04, top = P + W * 0.2, bottom = (who ? attrY - W * 0.07 : ruleY - W * 0.05);
+  const fit = fitBlock(ctx, text, "read", 600, "", cw, bottom - top, W * 0.085, W * 0.036, 1.22), blockH = fit.lines.length * fit.px * 1.22, y0 = top + Math.max(0, (bottom - top - blockH) / 2);
+  ctx.fillStyle = pal.ink; ctx.font = mfont("read", fit.px, 600); fit.lines.forEach((ln, i) => ctx.fillText(ln, P, y0 + fit.px + i * fit.px * 1.22));
+  if (who) { ctx.fillStyle = pal.accent; ctx.font = mfont("ui", W * 0.03, 700); ctx.fillText(wrapText(ctx, who, cw)[0], P, attrY); }
+  ctx.fillStyle = pal.accent; ctx.fillRect(P, ruleY, cw, 3);
+  const by = ruleY + H * 0.025; drawBrandMark(ctx, logo, P, by, cw * 0.5, H * 0.085, pal);
+  const sm = br.web || br.times; if (sm) { ctx.fillStyle = pal.sub; ctx.font = mfont("ui", W * 0.026, 400); ctx.textAlign = "right"; ctx.fillText(fitItems(ctx, sm, cw * 0.46), W - P, by + H * 0.05); ctx.textAlign = "left"; }
+  return { w: W, h: H };
+}
+function matWhenAuto() {
+  const w = S.meta.when ? new Date(S.meta.when) : null, now = new Date(); let d = null;
+  if (w && !isNaN(w) && w - now > -3 * 36e5 && w - now < 9 * 864e5) d = w; else { const nx = nextService(); if (nx) d = nx.d; }
+  if (!d) return "";
+  return `${DAYS[d.getDay()]}, ${d.toLocaleDateString(undefined, { month: "long", day: "numeric" })} at ${d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`;
+}
+/* ---- files: PNG, a one-page PDF, and a zip ---- */
+const canvasBlob = (c, type = "image/png", q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), type, q));
+async function canvasPdf(c, wIn, hIn) {
+  const jpg = new Uint8Array(await (await canvasBlob(c, "image/jpeg", 0.93)).arrayBuffer()), enc = new TextEncoder(), pw = (wIn * 72).toFixed(2), ph = (hIn * 72).toFixed(2);
+  const parts = [], offs = []; let len = 0; const push = d => { const b = typeof d === "string" ? enc.encode(d) : d; parts.push(b); len += b.length; };
+  push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n${body}\nendobj\n`); };
+  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+  obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+  offs[4] = len; push(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${c.width} /Height ${c.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); push(jpg); push("\nendstream\nendobj\n");
+  const content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(5, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  const xr = len; push(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map(n => String(offs[n]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
+  const out = new Uint8Array(len); let p = 0; for (const b of parts) { out.set(b, p); p += b.length; } return new Blob([out], { type: "application/pdf" });
+}
+async function matSave(name, data) {
+  if (!downloads) { toast("Saving is not available in this view. Press and hold the picture to save it."); return false; }
+  try { await downloads.save({ filename: name, data }); return true; } catch (e) { if (e && e.code !== "declined") toast("That file could not be saved here."); return false; }
+}
+async function matFiles() {   // everything chosen, as named blobs
+  const m = matM(), out = [], tmp = document.createElement("canvas");
+  const bd = await drawBulletin(tmp); out.push([`${matSlug()}-bulletin-notes.pdf`, await canvasPdf(tmp, bd.wIn, bd.hIn)]);
+  await drawInvite(tmp); out.push([`${matSlug()}-invitation-${m.sFmt}.png`, await canvasBlob(tmp)]);
+  let n = 0; for (const q of m.quotes.filter(x => x.on)) { n++; await drawQuote(tmp, q); out.push([`${matSlug()}-quote-${n}-${m.qFmt}.png`, await canvasBlob(tmp)]); }
+  return out;
+}
+async function matZip(files, name) {
+  if (!window.JSZip) { toast("The zip reader did not load. Check your connection and reload."); return; }
+  const z = new JSZip(); files.forEach(([n, b]) => z.file(n, b)); await matSave(name, await z.generateAsync({ type: "blob" }));
+}
+/* ---- building the text: from the manuscript, or with Claude ---- */
+function matLocalOutline() {
+  let items = []; try { const all = outlineModel().items; items = all.filter(i => i.lv >= 2); if (!items.length) items = all; } catch {}
+  const blank = t => { const w = t.split(/\s+/); let pick = -1, best = 0; w.forEach((x, i) => { const k = x.replace(/[^A-Za-z']/g, ""); if (k.length >= 5 && !STOP.has(k.toLowerCase()) && k.length > best) { best = k.length; pick = i; } }); if (pick >= 0) w[pick] = w[pick].replace(/([A-Za-z']+)/, "[[$1]]"); return w.join(" "); };
+  if (items.length) return items.slice(0, 12).map(it => (it.lv >= 3 ? "  - " : "") + blank(it.text.replace(/\s+/g, " ").trim())).join("\n");
+  const ok = sc => words(sc.text).length >= 18 && !/pb-scripture/.test(sc.html || ""), lead = /^(first|second|third|fourth|fifth|finally|lastly|so|now|and|but|then|also|next|notice first)\b[,:]?\s+/i;
+  let secs = sections.filter(sc => sc.cue && ok(sc)); if (secs.length < 2) secs = sections.filter(ok);
+  const pick = [], n = Math.min(6, secs.length); for (let i = 0; i < n; i++) pick.push(secs[Math.floor(i * secs.length / n)]);
+  return pick.map(sc => { let first = (sc.text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]?/) || [""])[0].trim().replace(lead, "").split(/\s+/).slice(0, 14).join(" ").replace(/[,;:]$/, ""); first = first.charAt(0).toUpperCase() + first.slice(1); return blank(first); }).join("\n");
+}
+const nzText = t => String(t || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+function matLocalQuotes() {
+  const out = [];
+  sections.forEach(sec => {
+    if (/pb-scripture/.test(sec.html || "")) return;
+    const box = document.createElement("div"); box.innerHTML = sec.html || ""; const hl = [...box.querySelectorAll("mark")].map(x => x.textContent.replace(/\s+/g, " ").trim()).filter(Boolean);
+    (sec.text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]+["”’]?/g) || []).map(x => x.trim()).forEach(s => {
+      const n = words(s).length; if (n < 7 || n > 30) return; if (/^(and|but|so|then|now|well|okay|all right)\b/i.test(s) && n < 12) return;
+      let sc = 0; if (hl.some(h => s.includes(h) || h.includes(s))) sc += 4; if (/\bnot\b[^.]*\bbut\b/i.test(s)) sc += 3; if (/\b(you|your)\b/i.test(s)) sc += 1; if (/\b(God|Christ|Jesus|gospel|grace|faith|cross)\b/.test(s)) sc += 1; if (n >= 9 && n <= 22) sc += 2; if (/\?$/.test(s)) sc -= 1; if (/\d/.test(s)) sc -= 1;
+      out.push({ text: s, sc });
+    });
+  });
+  const seen = new Set(); return out.sort((a, b) => b.sc - a.sc).filter(q => { const k = nzText(q.text); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8).map(q => ({ id: uid(), text: q.text, on: false, src: "manuscript" }));
+}
+const matDraftContext = () => `Sermon: ${S.meta.title || "(untitled)"}${S.meta.text ? ", text " + S.meta.text : ""}. Preacher: ${S.meta.speaker || "the preacher"}. Congregation: ${brandInfo().name}.`;
+async function matAsk(prompt, id, status, busy) {
+  if (!sample) { toast("Claude is not available in this view"); return null; }
+  const say = t => { $(status).textContent = t || ""; }; busy.forEach(b => { b.disabled = true; }); say("Claude is working…");
+  try { const { value, cached, at } = await askJson(prompt, { id }); say(cached ? savedNote(at) : ""); return value; }
+  catch (e) { say({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."); return null; }
+  finally { busy.forEach(b => { b.disabled = false; }); }
+}
+async function matDraftBulletin() {
+  if (words(S.transcript).length < 60) { toast("Add more of the manuscript first"); return; }
+  const m = matM(), heads = [...ed.children].filter(levelOf).map(h => `H${levelOf(h)}: ${blockText(h)}`);
+  const v = await matAsk(`You are helping a preacher in the churches of Christ prepare the sermon-notes page that is printed on the back of the Sunday bulletin. Listeners follow along and fill in blanks. Use his own wording and doctrine; do not add ideas that are not in the sermon.
+
+${matDraftContext()}
+${heads.length ? "His headings:\n" + heads.join("\n") + "\n" : ""}
+Return ONLY JSON: {"bigIdea": one plain sentence, "outline": [{"level": 1 or 2, "text": "the point in his words, with the one or two key words a listener would write in written like [[this]]"}], "questions": [2 or 3 short questions for the week, addressed to "you"]}
+Rules: 3 to 5 main points (level 1), each under 16 words; sub-points (level 2) only where a main point has clear parts, at most 2 under each; every blank is a single important word or a two-word phrase taken from the point itself; no emojis.
+
+Manuscript:
+"""
+${S.transcript.slice(0, 60000)}
+"""`, "mb", "#mb-status", [$("#mb-ai")]);
+  if (!v) return;
+  const rows = (Array.isArray(v.outline) ? v.outline : []).filter(r => r && typeof r.text === "string" && r.text.trim()).slice(0, 14);
+  if (!rows.length) { $("#mb-status").textContent = "Claude did not return an outline. Try again."; return; }
+  m.outline = rows.map(r => (+r.level === 2 ? "  - " : "") + String(r.text).replace(/\s+/g, " ").trim()).join("\n");
+  if (v.bigIdea) m.bigIdea = String(v.bigIdea).trim().slice(0, 220);
+  m.questions = (Array.isArray(v.questions) ? v.questions : []).map(x => String(x).trim()).filter(Boolean).slice(0, 4).join("\n");
+  save(); matFill(); matDraw();
+}
+async function matDraftCaptions() {
+  const br = brandInfo(), m = matM();
+  const v = await matAsk(`Write three short social media posts inviting people to worship, for a church of Christ. Plain, warm, pastoral wording. No emojis, no hashtags, no hype, no pressure. Say when and where using only the details given; never invent an address, a phone number, or a time.
+
+${matDraftContext()}
+When: ${(m.sWhen || "").trim() || matWhenAuto() || "(not given)"}
+Place: ${br.name}${br.address ? ", " + br.address : ""}
+Service times: ${br.times || "(not given)"}
+Web or page: ${br.web || "(none)"}
+This week's message: ${[S.meta.title, S.meta.text].filter(Boolean).join(", ") || "(not given)"}
+${S.ai && S.ai.bigIdea ? "Big idea: " + S.ai.bigIdea : ""}
+
+Return ONLY JSON: {"captions":[{"label":"Warm and simple","text":"under 55 words"},{"label":"Short","text":"under 25 words"},{"label":"About the message","text":"under 60 words, drawing on this week's message"}]}`, "ms", "#ms-status", [$("#ms-ai")]);
+  if (!v) return;
+  const caps = (Array.isArray(v.captions) ? v.captions : []).filter(c => c && c.text).slice(0, 4).map(c => ({ id: uid(), label: String(c.label || "Caption").slice(0, 40), text: String(c.text).trim().slice(0, 700) }));
+  if (!caps.length) { $("#ms-status").textContent = "Claude did not return captions. Try again."; return; }
+  m.caps = caps; save(); matRenderCaps();
+}
+async function matPickQuotes() {
+  if (words(S.transcript).length < 60) { toast("Add more of the manuscript first"); return; }
+  const m = matM();
+  const v = await matAsk(`Pick the lines from this sermon manuscript most worth sharing on their own as a quote picture: memorable, true to the sermon, understandable without the rest. Each must be copied EXACTLY, word for word, from the manuscript, one to two sentences, under 30 words. Do not include Scripture quotations; choose the preacher's own words. Do not change or tidy any wording.
+
+${matDraftContext()}
+
+Return ONLY JSON: {"quotes":[{"text":"exact words from the manuscript","why":"under 12 words"}]}. Give 6.
+
+Manuscript:
+"""
+${S.transcript.slice(0, 60000)}
+"""`, "mq", "#mq-status", [$("#mq-ai")]);
+  if (!v) return;
+  const src = nzText(S.transcript), rows = (Array.isArray(v.quotes) ? v.quotes : []).map(r => String(r && r.text || "").replace(/\s+/g, " ").trim()).filter(t => t.length > 12);
+  const good = rows.filter(t => src.includes(nzText(t))), dropped = rows.length - good.length;
+  if (!good.length) { $("#mq-status").textContent = "Claude's lines did not match the manuscript word for word, so none were added. Try again."; return; }
+  const keep = m.quotes.filter(q => q.src === "yours" || q.on), have = new Set(keep.map(q => nzText(q.text)));
+  m.quotes = [...good.filter(t => !have.has(nzText(t))).map(t => ({ id: uid(), text: t, on: true, src: "claude" })), ...keep];
+  m.qSel = m.quotes[0] && m.quotes[0].id; save(); matRenderQuotes(); matDraw();
+  if (dropped) $("#mq-status").textContent = `${dropped} suggestion${dropped === 1 ? " was" : "s were"} left out because the wording was not in the manuscript.`;
+}
+/* ---- the tab ---- */
+let matBound = false, matT = 0, matSeq = 0;
+function matBrandStrip() {
+  const br = brandInfo(), box = $("#mat-brand-logo"); box.replaceChildren();
+  if (br.logo) box.append(el("img", { src: br.logo, alt: "" })); else box.append(el("span", { text: "No logo yet" }));
+  $("#mat-brand-name").textContent = br.name;
+  $("#mat-brand-sub").textContent = [br.times, br.address, br.web].filter(Boolean).join(" · ") || "Add your logo, address, and website in Settings so they appear on everything here.";
+}
+function matFill() {
+  const m = matM();
+  $("#mb-size").value = m.size; $("#mb-ans").checked = !!m.answers; $("#mb-idea").value = m.bigIdea || ""; $("#mb-outline").value = m.outline || ""; $("#mb-q").value = m.questions || "";
+  $("#ms-fmt").value = m.sFmt; $("#ms-pal").value = m.sPal; $("#ms-head").value = m.sHead || ""; $("#ms-when").value = m.sWhen || ""; $("#ms-topic").value = m.sTopic || "";
+  $("#ms-when").placeholder = matWhenAuto() || "Sunday at 10:00 AM"; $("#ms-topic").placeholder = [S.meta.title, S.meta.text].filter(Boolean).join("  ·  ") || "The title and passage";
+  $("#mq-fmt").value = m.qFmt; $("#mq-pal").value = m.qPal; $("#mq-who").value = m.qWho != null ? m.qWho : ""; $("#mq-who").placeholder = [S.meta.speaker, S.meta.title].filter(Boolean).join("  ·  ") || "Name and sermon title";
+  const deck = S.slides.some(x => !x.made && x.model); for (const id of ["#ms-pal", "#mq-pal"]) { const o = $(id).querySelector("option[value=deck]"); o.hidden = !deck; o.disabled = !deck; }
+  matRenderCaps(); matRenderQuotes();
+}
+function matRenderCaps() {
+  const m = matM(), box = $("#ms-caps"); box.replaceChildren();
+  if (!m.caps.length) { box.append(el("div", { class: "hint", text: sample ? "Press Draft captions with Claude for three posts you can edit, or write your own below." : "Write the post you want to share." }), el("div", {}, el("button", { type: "button", class: "btn", text: "Start a caption", onclick: () => { const b = brandInfo(), w = (m.sWhen || "").trim() || matWhenAuto(); m.caps = [{ id: uid(), label: "My caption", text: `You are invited to worship with us${w ? " " + w : ""} at ${b.name}.${S.meta.title ? ` This week: ${S.meta.title}${S.meta.text ? " (" + S.meta.text + ")" : ""}.` : ""} Visitors are always welcome.` }]; save(); matRenderCaps(); } }))); return; }
+  m.caps.forEach((c, i) => {
+    const ta = el("textarea", { id: "mc-" + c.id, rows: "4", "aria-label": c.label }); ta.value = c.text; ta.oninput = () => { c.text = ta.value; save(); };
+    box.append(el("div", { class: "mat-cap" }, el("div", { class: "mat-cap-h" }, el("b", { text: c.label }), el("div", { class: "spacer" }), el("button", { type: "button", class: "btn sm", text: "Copy", onclick: e => copyText(ta.value, ta) }), el("button", { type: "button", class: "btn sm ghost", text: "Remove", onclick: () => { m.caps.splice(i, 1); save(); matRenderCaps(); } })), ta));
+  });
+}
+function matRenderQuotes() {
+  const m = matM(), box = $("#mq-list"); box.replaceChildren();
+  if (!m.quotes.length) { box.append(el("div", { class: "hint", text: "No lines yet. Press Find quotable lines to scan the manuscript, or add your own." })); return; }
+  if (!m.quotes.some(q => q.id === m.qSel)) m.qSel = (m.quotes.find(q => q.on) || m.quotes[0]).id;
+  m.quotes.forEach((q, i) => {
+    const cb = el("input", { type: "checkbox", id: "mqc-" + q.id, "aria-label": "Include this quote" }); cb.checked = !!q.on; cb.onchange = () => { q.on = cb.checked; save(); matSaveState(); };
+    const ta = el("textarea", { id: "mqt-" + q.id, rows: "3", "aria-label": "Quote" }); ta.value = q.text; ta.oninput = () => { q.text = ta.value; save(); if (m.qSel === q.id) matQueue(); };
+    const card = el("div", { class: "mat-q" + (m.qSel === q.id ? " sel" : ""), "data-id": q.id },
+      el("div", { class: "mat-q-h" }, el("label", { class: "fav", for: "mqc-" + q.id }, cb, el("span", { text: "Use" })), el("span", { class: "chip" + (q.src === "claude" ? " accent" : ""), text: q.src === "claude" ? "Claude's pick" : q.src === "yours" ? "Yours" : "From the manuscript" }), el("div", { class: "spacer" }),
+        el("button", { type: "button", class: "btn sm", text: m.qSel === q.id ? "Showing" : "Show", "aria-pressed": String(m.qSel === q.id), onclick: () => { m.qSel = q.id; save(); matRenderQuotes(); matDraw(); } }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Copy", onclick: () => copyText(ta.value, ta) }),
+        el("button", { type: "button", class: "btn sm ghost", text: "Remove", onclick: () => { m.quotes.splice(i, 1); save(); matRenderQuotes(); matDraw(); } })), ta);
+    box.append(card);
+  });
+  matSaveState();
+}
+function matSaveState() { if (!S) return; const m = matM(); for (const b of document.querySelectorAll(".mat-save,#mat-all")) b.hidden = !downloads; for (const id of ["#mb-ai", "#ms-ai", "#mq-ai"]) $(id).hidden = !sample; $("#mq-zip").disabled = !m.quotes.some(q => q.on); }
+function matQueue() { clearTimeout(matT); matT = setTimeout(matDraw, 120); }
+async function matDraw() {
+  if (view !== "materials") return; const seq = ++matSeq, m = matM();
+  await drawBulletin($("#mb-canvas")); if (seq !== matSeq) return;
+  await drawInvite($("#ms-canvas")); if (seq !== matSeq) return;
+  const q = m.quotes.find(x => x.id === m.qSel) || m.quotes.find(x => x.on) || m.quotes[0]; await drawQuote($("#mq-canvas"), q);
+}
+function renderMaterials() {
+  const m = matM();
+  if (m.outline == null) { m.outline = matLocalOutline(); if (!m.bigIdea && S.ai && S.ai.bigIdea) m.bigIdea = S.ai.bigIdea; }
+  if (!m.quotes.length && !m.quotesDone) { m.quotes = matLocalQuotes(); m.quotes.slice(0, 3).forEach(q => { q.on = true; }); m.quotesDone = true; m.qSel = m.quotes[0] && m.quotes[0].id; }
+  matBrandStrip(); matFill(); matBind();
+  matSaveState(); matDraw();
+}
+function matBind() {
+  if (matBound) return; matBound = true;
+  const m = () => matM(), on = (id, ev, fn) => $(id).addEventListener(ev, fn);
+  const field = (id, key, redraw = true, num) => on(id, "input", () => { m()[key] = $(id).value; save(); if (redraw) matQueue(); });
+  on("#mb-size", "change", () => { m().size = $("#mb-size").value; save(); matQueue(); });
+  on("#mb-ans", "change", () => { m().answers = $("#mb-ans").checked; save(); matQueue(); });
+  field("#mb-idea", "bigIdea"); field("#mb-outline", "outline"); field("#mb-q", "questions");
+  on("#mb-local", "click", () => { const t = matLocalOutline(); if (!t) { toast("Add main point headings in Edit, or press Draft with Claude."); return; } m().outline = t; save(); matFill(); matDraw(); toast("Outline built from your headings"); });
+  on("#mb-ai", "click", matDraftBulletin);
+  on("#mb-copy", "click", () => copyText(`${S.meta.title || ""}\n${S.meta.text || ""}\n\n${m().bigIdea ? "The big idea: " + m().bigIdea + "\n\n" : ""}${parseOutline(m().outline).map(i => (i.lv === 2 ? "    " : "") + i.num + " " + i.text.replace(/\[\[|\]\]/g, "_____")).join("\n")}`, $("#mb-outline")));
+  on("#mb-pdf", "click", async () => { const c = document.createElement("canvas"), d = await drawBulletin(c); await matSave(`${matSlug()}-bulletin-notes.pdf`, await canvasPdf(c, d.wIn, d.hIn)); });
+  on("#mb-png", "click", async () => { const c = document.createElement("canvas"); await drawBulletin(c); await matSave(`${matSlug()}-bulletin-notes.png`, await canvasBlob(c)); });
+  on("#ms-fmt", "change", () => { m().sFmt = $("#ms-fmt").value; save(); matQueue(); }); on("#ms-pal", "change", () => { m().sPal = $("#ms-pal").value; save(); matQueue(); });
+  field("#ms-head", "sHead"); field("#ms-when", "sWhen"); field("#ms-topic", "sTopic");
+  on("#ms-ai", "click", matDraftCaptions);
+  on("#ms-png", "click", async () => { const c = document.createElement("canvas"); await drawInvite(c); await matSave(`${matSlug()}-invitation-${m().sFmt}.png`, await canvasBlob(c)); });
+  on("#mq-fmt", "change", () => { m().qFmt = $("#mq-fmt").value; save(); matQueue(); }); on("#mq-pal", "change", () => { m().qPal = $("#mq-pal").value; save(); matQueue(); });
+  field("#mq-who", "qWho");
+  on("#mq-find", "click", () => { const found = matLocalQuotes(), keep = m().quotes.filter(q => q.src !== "manuscript" || q.on), have = new Set(keep.map(q => nzText(q.text))); m().quotes = [...keep, ...found.filter(q => !have.has(nzText(q.text)))]; m().quotesDone = true; save(); matRenderQuotes(); matDraw(); $("#mq-status").textContent = found.length ? `${found.length} lines found. Tick the ones to use.` : "No good lines found yet. Add more to the manuscript, or add your own."; });
+  on("#mq-ai", "click", matPickQuotes);
+  on("#mq-add", "click", () => { const t = $("#mq-new").value.replace(/\s+/g, " ").trim(); if (!t) return; const q = { id: uid(), text: t, on: true, src: "yours" }; m().quotes.unshift(q); m().qSel = q.id; $("#mq-new").value = ""; save(); matRenderQuotes(); matDraw(); });
+  on("#mq-png", "click", async () => { const q = m().quotes.find(x => x.id === m().qSel) || m().quotes[0]; if (!q) { toast("Choose a quote first"); return; } const c = document.createElement("canvas"); await drawQuote(c, q); await matSave(`${matSlug()}-quote-${m().qFmt}.png`, await canvasBlob(c)); });
+  on("#mq-zip", "click", async () => { const files = [], c = document.createElement("canvas"); let n = 0; for (const q of m().quotes.filter(x => x.on)) { n++; await drawQuote(c, q); files.push([`${matSlug()}-quote-${n}-${m().qFmt}.png`, await canvasBlob(c)]); } if (!files.length) { toast("Tick at least one quote"); return; } await matZip(files, `${matSlug()}-quotes.zip`); });
+  on("#mat-all", "click", async () => { toast("Putting it together…"); await matZip(await matFiles(), `${matSlug()}-materials.zip`); });
+  on("#mat-edit-brand", "click", () => openSettings({ tab: "brand" }));
+}
+/* ---- Branding in Settings ---- */
+async function logoFromFile(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("read")); i.src = url; });
+    const w0 = img.naturalWidth || 480, h0 = img.naturalHeight || 480, sc = Math.min(1, 480 / Math.max(w0, h0)), c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(w0 * sc)); c.height = Math.max(1, Math.round(h0 * sc)); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    let out = c.toDataURL("image/png");
+    if (out.length > 240000) out = c.toDataURL("image/webp", 0.88);
+    if (out.length > 240000) throw new Error("big");
+    return out;
+  } finally { URL.revokeObjectURL(url); }
+}
+function setLogoBox() { const b = $("#set-logo-box"), logo = setDraft && setDraft.brandLogo; b.replaceChildren(); if (logo) b.append(el("img", { src: logo, alt: "Church logo" })); else b.textContent = "No logo"; $("#set-logo-clear").disabled = !logo; }
+function openBrandFields() {
+  const b = settings.brand || {}, auto = brandInfo();
+  setDraft.brandLogo = b.logo || ""; setLogoBox();
+  $("#set-bname").value = b.name || ""; $("#set-bname").placeholder = auto.name; $("#set-btag").value = b.tagline || ""; $("#set-btimes").value = b.times || ""; $("#set-btimes").placeholder = auto.times || "Sunday 10:00 AM · Wednesday 7:00 PM";
+  $("#set-baddr").value = b.address || ""; $("#set-bweb").value = b.web || ""; $("#set-bcolor").value = b.color || "#8a5d0b";
+}
+function readBrandFields() {
+  return cleanBrand({ name: $("#set-bname").value, tagline: $("#set-btag").value, times: $("#set-btimes").value, address: $("#set-baddr").value, web: $("#set-bweb").value, color: $("#set-bcolor").value, logo: setDraft.brandLogo || "" }, settings.brand);
+}
+$("#set-logo-pick").onclick = () => $("#set-logo-file").click();
+$("#set-logo-file").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { setDraft.brandLogo = await logoFromFile(f); setLogoBox(); } catch (err) { $("#set-msg").textContent = err && err.message === "big" ? "That logo is too detailed to keep small. Try a simpler version." : "Couldn't read that picture. Try a PNG or SVG."; } };
+$("#set-logo-clear").onclick = () => { setDraft.brandLogo = ""; setLogoBox(); };
+
 /* ---------------- views ---------------- */
 function setView(v) {
   view = v; document.body.dataset.view = v; requestAnimationFrame(measureHeader);
   for (const t of document.querySelectorAll(".tab")) { const on = t.dataset.view === v; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; }
-  for (const id of ["dash", "build", "study", "edit", "present", "analysis"]) $("#view-" + id).hidden = id !== v;
+  for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") renderStudy();
   if (v === "edit") { refreshCueLabels(); renderEditStats(); renderSuggestions(); renderOutline(); requestAnimationFrame(renderGutter); }
   if (v === "present") renderPresent();
+  if (v === "materials") renderMaterials();
   if (v === "analysis") renderAnalysis();
   try { history.replaceState(null, "", "#" + v); } catch {}
 }
@@ -6070,12 +6651,12 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); setView(["dash", "build", "study", "edit", "present", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); setView(["dash", "build", "study", "edit", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
-  claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
+  claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
-  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; }).catch(() => {});
+  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
 $("#btn-go-edit").onclick = () => setView("edit");
 const setCollapsed = c => { const h = $("header.top"); h.classList.toggle("collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };

@@ -6,7 +6,7 @@ HTML = open(ROOT / "pulpit-binder.html").read()
 JSZIP = open(ROOT / "tests" / "node" / "node_modules" / "jszip" / "dist" / "jszip.min.js").read()
 OUT = ROOT / "tests" / "out"
 CHECK = """() => { const small=[], zoom=[]; document.querySelectorAll('button,a[href],select,input,textarea,[role=tab]').forEach(e=>{
-  const r=e.getBoundingClientRect(), cs=getComputedStyle(e); if(!r.width||!r.height||!e.checkVisibility({checkVisibilityCSS:true})) return;
+  const cs=getComputedStyle(e); const box=(e.type==='checkbox'||e.type==='radio')&&e.closest('label')?e.closest('label'):e; const r=box.getBoundingClientRect(); if(!r.width||!r.height||!e.checkVisibility({checkVisibilityCSS:true})) return;
   const n=(e.id?'#'+e.id:e.tagName.toLowerCase()+'.'+(e.className||'').toString().split(' ')[0])+' '+Math.round(r.width)+'x'+Math.round(r.height);
   if(Math.min(r.width,r.height)<32) small.push(n);
   if(['INPUT','SELECT','TEXTAREA'].includes(e.tagName)&&parseFloat(cs.fontSize)<16&&!['checkbox','radio','range','color','file'].includes(e.type)) zoom.push(n); });
@@ -25,7 +25,7 @@ async def main():
                 else: await r.abort()
             await page.route("**/*", route)
             await page.goto("https://x.test/"); await page.wait_for_timeout(700)
-            for v in ["dash", "build", "study", "edit", "present", "analysis"]:
+            for v in ["dash", "build", "study", "edit", "present", "materials", "analysis"]:
                 await page.click("#tab-" + v); await page.wait_for_timeout(450)
                 r = await page.evaluate(CHECK)
                 print(scheme, v, "overflow", r["overflow"], "small", r["small"][:6], "zoom", r["zoom"][:4])
