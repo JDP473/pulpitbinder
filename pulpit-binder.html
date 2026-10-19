@@ -982,7 +982,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
 "use strict";
 const $ = s => document.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k,v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v !== false && v != null) e.setAttribute(k, v); } for (const k of kids) if (k != null) e.append(k); return e; };
-const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200); };
+const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), Math.max(2200, String(m).length * 50)); };
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
 const localNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
@@ -1001,8 +1001,8 @@ const mem = new Map();
 let idb = null;
 const openDB = () => new Promise(res => {
   try {
-    const r = indexedDB.open("pulpit-binder", 1);
-    r.onupgradeneeded = () => r.result.createObjectStore("sermons", { keyPath: "id" });
+    const r = indexedDB.open("pulpit-binder", 2);
+    r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("sermons")) d.createObjectStore("sermons", { keyPath: "id" }); if (!d.objectStoreNames.contains("kv")) d.createObjectStore("kv", { keyPath: "k" }); };
     r.onsuccess = () => res(r.result); r.onerror = () => res(null);
   } catch { res(null); }
 });
@@ -1020,6 +1020,21 @@ const store = {
     mem.delete(id);
     if (!idb) return;
     try { idb.transaction("sermons", "readwrite").objectStore("sermons").delete(id); } catch {}
+  }
+};
+/* Small records kept on this device: saved Claude answers ("ai-…") and text studies ("study-…"). */
+const kvMem = new Map();
+const kv = {
+  async get(k) {
+    if (kvMem.has(k) || !idb) return kvMem.get(k) || null;
+    return new Promise(res => { try { const q = idb.transaction("kv").objectStore("kv").get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch { res(null); } });
+  },
+  async put(rec) { kvMem.set(rec.k, rec); if (!idb) return; try { idb.transaction("kv", "readwrite").objectStore("kv").put(rec); } catch {} },
+  async del(k) { kvMem.delete(k); if (!idb) return; try { idb.transaction("kv", "readwrite").objectStore("kv").delete(k); } catch {} },
+  async all(prefix) {
+    const pick = list => list.filter(r => r && String(r.k).startsWith(prefix));
+    if (!idb) return pick([...kvMem.values()]);
+    return new Promise(res => { try { const q = idb.transaction("kv").objectStore("kv").getAll(); q.onsuccess = () => res(pick(q.result || [])); q.onerror = () => res(pick([...kvMem.values()])); } catch { res(pick([...kvMem.values()])); } });
   }
 };
 
@@ -2032,6 +2047,47 @@ function renderAI() {
 }
 
 let sample = null, downloads = null;
+/* ---------------- Claude answers, kept ---------------- */
+/* Every request to Claude goes through askJson. Each answer is kept under a fingerprint of the exact
+   request, on this device and in your account, so asking the same thing again (on any device) costs
+   nothing. Change the manuscript or the passage and the request changes with it, so an out-of-date
+   answer is never shown. When a saved answer is used, the next press of the same button asks fresh. */
+const DAY = 864e5, AI_KEEP = 500, AI_CLOUD_MAX = 200000;
+function fingerprint(s) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(36) + (h1 >>> 0).toString(36) + s.length.toString(36);
+}
+const aiDoc = key => (cdb && userId) ? cdb.doc(`data/users/${userId}/_cache`).collection("ai").doc(key) : null;
+const askFresh = new Set();   // buttons whose last answer came from the saved copy
+let aiPuts = 0;
+async function askJson(prompt, { tier = "default", fresh = false, id = "" } = {}) {
+  if (!sample) throw { code: "not_granted" };
+  if (id && askFresh.has(id)) fresh = true;
+  const key = "ai-" + fingerprint(tier + "\n" + prompt);
+  if (!fresh) {
+    let hit = await kv.get(key);
+    if (!hit) await Promise.race([syncSettled, new Promise(r => setTimeout(r, 4000))]);
+    if (!hit) { const d = aiDoc(key); if (d) { try { const snap = await d.get(); if (snap.exists) { hit = { k: key, ...snap.data() }; kv.put(hit); } } catch {} } }
+    if (hit && typeof hit.v === "string") {
+      try { const value = JSON.parse(hit.v); if (id) askFresh.add(id); return { value, cached: true, at: hit.at || 0 }; } catch {}
+    }
+  }
+  const value = await sample.json(prompt, { modelTier: tier, cache: fresh ? { gcTime: DAY, refresh: true } : { gcTime: DAY } });
+  if (id) askFresh.delete(id);
+  const rec = { k: key, v: JSON.stringify(value), at: Date.now(), tier };
+  kv.put(rec);
+  const d = aiDoc(key); if (d && rec.v.length < AI_CLOUD_MAX) d.set({ v: rec.v, at: rec.at, tier }).catch(() => {});
+  if (++aiPuts % 25 === 0) pruneAnswers();
+  return { value, cached: false, at: rec.at };
+}
+async function pruneAnswers() {
+  const all = (await kv.all("ai-")).sort((a, b) => (b.at || 0) - (a.at || 0));
+  for (const r of all.slice(AI_KEEP)) kv.del(r.k);
+}
+const savedNote = at => `Claude's saved answer from ${new Date(at).toLocaleDateString(undefined, { month: "short", day: "numeric" })} was used, so no usage was spent. Press again for a fresh one.`;
 $("#btn-ai").onclick = async () => {
   if (!sample) { toast("Claude analysis is not available in this view"); return; }
   if (words(S.transcript).length < 40) { toast("Add more of the transcript first"); return; }
@@ -2060,8 +2116,9 @@ As-preached transcript from the recording (compare with the manuscript; add a "d
 ${preachedPlain().slice(0, 40000)}
 """` : ""}`;
   try {
-    const res = await sample.json(prompt, { modelTier: "default" });
-    S.ai = { ...res, at: Date.now() };
+    const { value: res, cached, at } = await askJson(prompt, { id: "ai" });
+    S.ai = { ...res, at: cached ? at : Date.now() };
+    if (cached) toast(savedNote(at));
   } catch (e) {
     const msg = { not_granted: "Claude analysis was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "The analysis did not finish. Try again.";
     S.ai = S.ai && !S.ai.error ? S.ai : { error: msg }; toast(msg);
@@ -2687,7 +2744,7 @@ async function fetchPassage(ref, ver) {
   } else why = "no_connector";
   if (settings.claudeFallback && sample) {
     try {
-      const r = await sample.json(`Give the exact wording of ${ref} in the ${VER_NAME[ver] || ver} (${ver}), word for word as printed in that translation, without section headings or footnotes. Mark words the translation prints in italics with underscores, like _is_. If you are not certain of this translation's exact wording, set "sure" to false. Return ONLY JSON: {"sure": true, "verses": [{"c": chapter number, "v": verse number, "t": "verse text"}]}`, { modelTier: "default" });
+      const { value: r } = await askJson(`Give the exact wording of ${ref} in the ${VER_NAME[ver] || ver} (${ver}), word for word as printed in that translation, without section headings or footnotes. Mark words the translation prints in italics with underscores, like _is_. If you are not certain of this translation's exact wording, set "sure" to false. Return ONLY JSON: {"sure": true, "verses": [{"c": chapter number, "v": verse number, "t": "verse text"}]}`);
       const vs = (r && Array.isArray(r.verses) ? r.verses : []).filter(x => x && typeof x.t === "string");
       if (!vs.length) throw new Error("empty");
       const st = refStart(ref);
@@ -3155,7 +3212,7 @@ async function askClaude(fresh) {
     : `${ctx}\n\n${AI_ASK[key]}`;
   mk.busy = true; renderMkPreview(); $("#mk-again").disabled = true; $("#mk-add").disabled = true;
   try {
-    const r = await sample.json(prompt, { modelTier: key === "art" ? "complex" : "default", ...(fresh ? { cache: false } : {}) });
+    const { value: r } = await askJson(prompt, { tier: key === "art" ? "complex" : "default", fresh });
     if (!mk || mk.kind !== key) return;
     if (key === "points") { d.title = String(r.title || "").slice(0, 80); d.points = (Array.isArray(r.points) ? r.points : []).slice(0, 4).map(x => String(x).slice(0, 90)); }
     else if (key === "art") { d.prompt = String(r.prompt || "").slice(0, 600); if (!d.caption) d.caption = String(r.caption || "").slice(0, 80); if (!d.prompt) throw { code: "empty" }; }
@@ -3494,7 +3551,7 @@ $("#btn-ao").onclick = async () => {
   let budget = 60000; const lines = paras.map((p, i) => { let t = blockText(p).replace(/\s+/g, " "); const cap = Math.max(200, Math.floor(budget / Math.max(1, paras.length - i))); if (t.length > cap) t = t.slice(0, cap) + " …"; budget -= t.length; return `¶${i + 1} ${t}`; });
   aoSetBusy("Claude is reading the manuscript…");
   try {
-    const res = await sample.json(`You are helping a preacher in the churches of Christ outline a sermon manuscript he will preach from. Propose headings to place above existing paragraphs. Do not change, add, or remove any of his words; only choose where headings go and what they say.
+    const { value: res, cached, at } = await askJson(`You are helping a preacher in the churches of Christ outline a sermon manuscript he will preach from. Propose headings to place above existing paragraphs. Do not change, add, or remove any of his words; only choose where headings go and what they say.
 
 Levels:
 1 = major division (for example Introduction, the body's large movements, Conclusion or Invitation). Use only if it helps; many sermons need none or just 2 to 3.
@@ -3512,7 +3569,8 @@ ${existing.length ? "His current headings, for reference (you are making a fresh
 Return ONLY JSON: {"outline":[{"before": paragraph number, "level": 1|2|3, "text": "heading"}]}
 
 Paragraphs:
-${lines.join("\n\n")}`, { modelTier: "default" });
+${lines.join("\n\n")}`, { id: "ao" });
+    if (cached) toast(savedNote(at));
     const rows = (res && Array.isArray(res.outline) ? res.outline : [])
       .map(r => ({ el: paras[(+r.before || 0) - 1], level: [1, 2, 3, 4].includes(+r.level) ? +r.level : 2, text: String(r.text || "").replace(/\s+/g, " ").trim().slice(0, 120) }))
       .filter(r => r.el && r.text);
@@ -3627,12 +3685,12 @@ Manuscript (sections numbered; numbers are not part of the text):
 ${secText.slice(0, 60000)}
 """`;
   try {
-    const res = await sample.json(prompt, { modelTier: "default" });
+    const { value: res, cached } = await askJson(prompt, { id: "sg" });
     const list = (res && Array.isArray(res.suggestions) ? res.suggestions : []).filter(s => s && SG_LABEL[s.type] && typeof s.anchor === "string");
     const ok = list.filter(s => findAnchor(s.anchor) && (s.type !== "slide" || (s.slide >= 1 && s.slide <= S.slides.length)));
     S.suggestions = ok.map(s => ({ type: s.type, anchor: s.anchor, text: s.text || "", level: [1, 2, 3, 4].includes(+s.level) ? +s.level : 2, color: HL[s.color] ? s.color : "yellow", slide: +s.slide || null, reason: s.reason || "", source: "claude" }));
     save(); renderSuggestions();
-    toast(ok.length < list.length ? `${ok.length} suggestions. ${list.length - ok.length} skipped because the quoted text didn't match.` : `${ok.length} suggestions ready`);
+    toast((ok.length < list.length ? `${ok.length} suggestions. ${list.length - ok.length} skipped because the quoted text didn't match.` : `${ok.length} suggestions ready.`) + (cached ? " From Claude's saved answer, so no usage was spent." : ""));
   } catch (e) {
     toast({ not_granted: "Claude suggestions were not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "The suggestions did not finish. Try again.");
   }
@@ -3895,7 +3953,9 @@ function watchCurrent() {
     }
   }, () => {});
 }
-async function startSync() {
+let syncKnown; const syncSettled = new Promise(r => { syncKnown = r; });   // resolves once we know whether the account is reachable
+async function startSync() { try { await startSyncInner(); } finally { syncKnown(); } }
+async function startSyncInner() {
   if (!(window.claude && window.claude.use)) { setSync("off"); return; }
   const [db, user, assets] = await Promise.all([claude.use("db"), claude.use("user"), claude.use("assets")]).catch(() => [null, null, null]);
   if (!db || !user) { setSync("off"); return; }
@@ -4292,7 +4352,8 @@ Return ONLY a JSON object:
 Sermons (${rows.length}):
 ${lines.join("\n")}`;
   try {
-    const res = await sample.json(prompt, { modelTier: "default" });
+    const { value: res, cached, at: was } = await askJson(prompt, { id: "dash" });
+    if (cached) toast(savedNote(was));
     const arr = (x, n) => (Array.isArray(x) ? x : []).slice(0, n);
     const j = { overview: String(res.overview || ""), patterns: arr(res.patterns, 6).map(String), wellCovered: arr(res.wellCovered, 8).map(String), underrepresented: arr(res.underrepresented, 8).map(String), recurringGaps: arr(res.recurringGaps, 5).map(String), ideas: arr(res.ideas, 6).map(i => ({ title: String(i && i.title || ""), text: String(i && i.text || ""), why: String(i && i.why || "") })), count: rows.length, scope: [$("#dash-range").selectedOptions[0].text, dashF.svc !== "all" ? dashF.svc : ""].filter(Boolean).join(", "), at: Date.now() };
     applyDashAI(j);

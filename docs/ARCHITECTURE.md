@@ -35,6 +35,7 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - `data/users/<userId>/<sermonId>`: metadata, part counts, and `dash` (a compact summary used by the Dashboard).
 - `data/users/<userId>/<sermonId>/parts/<name>.<k>`: chunks of 60,000 characters (`core`, `html`, `preached`, `pdf`, `s<i>` per slide).
 - Large binaries go to the assets store and are referenced as `{asset: id}`.
+- `data/users/<userId>/_cache/ai/<fingerprint>`: saved Claude answers, one per exact request (see Claude answers below).
 - `data/users/<userId>/_prefs`: settings (default translation, favorites, services with day and time, places preached with a default, and the speaker and pace for new sermons).
 - `data/users/<userId>/_dash`: the latest Claude read across all sermons.
 - Ids starting with `_` are not sermons and are skipped in the library.
@@ -64,3 +65,7 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 ## Dashboard
 
 `dashSummary(rec)` reduces a sermon to word count, references, reading grade, voice counts, and the key analysis fields. Summaries are cached, saved with each sermon's sync metadata, and pulled from `core` and `html` parts for older sermons that lack one.
+
+## Claude answers
+
+Every request to Claude goes through `askJson`, which fingerprints the exact prompt and tier. The answer is kept in the `kv` store in IndexedDB (key `ai-<fingerprint>`, newest 500 kept) and in the account under `_cache/ai`, so the same request on another device is answered without spending usage. Changing the manuscript or passage changes the prompt, so a stale answer is never shown. When a saved answer is used, the next press of the same button asks fresh (`refresh`), and the platform cache is set to 24 hours. Test: `tests/browser/cache.py`.
