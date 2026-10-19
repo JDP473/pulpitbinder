@@ -1,0 +1,7 @@
+# test output and dependencies
+tests/out/
+tests/node/node_modules/
+__pycache__/
+# copyrighted Bible text captured for parser tests; keep local only
+tests/fixtures/samples.json
+.DS_Store
