@@ -18,7 +18,7 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 
 ```
 { id, updatedAt, example,
-  meta: { title, text, when, service, place, speaker, wpm, series },
+  meta: { title, text, when, service, place, speaker, wpm, series, more },
   html,                 // the manuscript (rich text)
   transcript,           // plain text derived from html
   slides: [ ... ],      // rendered PowerPoint models, PDF pages, or made slides
@@ -88,3 +88,7 @@ The manuscript is stored as sanitized HTML (`S.html`) but reads and writes Markd
 A file may begin with a `---` details block (`title`, `text`, `date`, `service`, `place`, `speaker`, `tags`, `pace`). When a file is opened, `detectDetails` also reads labeled lines (`Date: ...`, `- **Where:** ...`) and short header lines that hold only a date, time, service, place, "by" name, or Scripture reference, and `applyDetails` puts what it found into the sermon. A service not named in the file is inferred from the date and time against the service days and times in Settings. Header lines that held nothing else leave the manuscript; undo restores the details too. A file this app exported (with a "Manuscript with slide cues" section) imports as just the manuscript, with its details.
 
 The Markdown view (`#btn-md`) shows the details block and the manuscript as text. Edits apply as you type, and Scripture directives reuse the existing block by id, else by reference.
+
+## Presented more than once
+
+`meta.when`, `meta.service`, and `meta.place` are the sermon's main presentation. `meta.more` is an array of the others, each `{id, when, service, place}`. Code that reads a sermon's dates or places uses `deliveriesOf(meta)`, which returns the main one first, so a sermon with no `more` behaves exactly as before and older saved sermons need no migration. In the Markdown details block the others are an `also:` list of `when | service | place`; a labeled line `Also presented: ...` is read the same way. The dashboard counts a sermon once as a sermon and once per presentation (months, services, and filters work per presentation; length and themes stay per sermon). `tests/browser/deliveries.py` covers the form, header, details block, import, Settings renames, and dashboard.

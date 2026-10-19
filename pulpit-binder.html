@@ -211,6 +211,12 @@ main{padding-block:18px 40px}
 .fav:hover{background:var(--sunk)}
 .fav b{font-family:var(--f-mono);font-size:12px;min-width:5.6em;color:var(--sc-accent)}
 .fav span{color:var(--muted)}
+.deliv-list{display:flex;flex-direction:column;gap:10px}
+.deliv-list:empty{display:none}
+.deliv{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--sunk)}
+.deliv-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.deliv-h b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.deliv-h .link-btn{margin-left:0}
 .lab-row{display:flex;align-items:baseline;gap:8px}
 .link-btn{border:0;background:none;padding:0;margin-left:auto;color:var(--accent);font-size:12.5px;font-weight:500;cursor:pointer}
 .link-btn:hover{text-decoration:underline}
@@ -697,6 +703,8 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
           <div class="field"><div class="lab-row"><label for="m-place">Place</label><button type="button" class="link-btn" data-set-tab="places">Edit list</button></div>
             <div class="inp-row"><input type="text" id="m-place" list="place-list" autocomplete="off"><button type="button" class="btn" id="m-place-save" hidden>Save to places</button></div>
             <datalist id="place-list"></datalist></div>
+          <div id="m-more" class="deliv-list"></div>
+          <div><button type="button" class="link-btn" id="m-add-delivery" style="margin:0">+ Presented again? Add another time or place</button></div>
           <div class="row2">
             <div class="field"><label for="m-speaker">Speaker</label><input type="text" id="m-speaker"></div>
             <div class="field"><label for="m-wpm">Pace (words/min)</label><input type="number" id="m-wpm" min="80" max="220" step="5"></div>
@@ -1086,7 +1094,7 @@ const EXAMPLE_SLIDES = [
 const blank = () => { const nx = nextService(), other = svcByName("Other") || settings.services[0];
   return {
   id: uid(), example: false, updatedAt: Date.now(),
-  meta: { title: "", text: "", when: nx ? localStamp(nx.d) : localNow(), service: nx ? nx.s.name : other ? other.name : "Other", place: settings.defPlace, speaker: settings.speaker, wpm: settings.wpm, series: "" },
+  meta: { title: "", text: "", when: nx ? localStamp(nx.d) : localNow(), service: nx ? nx.s.name : other ? other.name : "Other", place: settings.defPlace, speaker: settings.speaker, wpm: settings.wpm, series: "", more: [] },
   transcript: "", html: "", suggestions: [], dismissed: [], slides: [], pptxName: "", manual: {}, ai: null
 }; };
 const exampleRec = () => {
@@ -1675,7 +1683,10 @@ function renderTags() {
   const m = S.meta;
   const chip = (k, v, cls = "") => v ? bar.append(el("span", { class: "chip " + cls }, el("b", { text: k }), v)) : null;
   if (S.example) bar.append(el("span", { class: "chip example", text: "Example sermon, replace with your own" }));
-  chip("When", fmtWhen(m.when)); chip("Where", m.place); chip("Service", m.service); chip("Text", m.text, "accent"); chip("Speaker", m.speaker);
+  const ds = deliveriesOf(m);
+  if (ds.length > 1) ds.forEach((d, i) => chip(i ? "Also" : "Presented", fmtDelivery(d)));
+  else { chip("When", fmtWhen(m.when)); chip("Where", m.place); chip("Service", m.service); }
+  chip("Text", m.text, "accent"); chip("Speaker", m.speaker);
   (m.series || "").split(",").map(s => s.trim()).filter(Boolean).forEach(s => chip("Tag", s));
   if (S.ai && !S.ai.error) {
     if (S.ai.approach) chip("Approach", S.ai.approach, "accent");
@@ -1689,24 +1700,39 @@ const F = { title: "#m-title", text: "#m-text", when: "#m-when", service: "#m-se
 function loadForm() {
   renderServiceOptions(); renderPlaceList();
   for (const [k, sel] of Object.entries(F)) $(sel).value = S.meta[k] ?? "";
-  updatePlaceSave(); renderDeckStatus();
+  renderMore(); updatePlaceSave(); renderDeckStatus();
 }
+/* A sermon can be presented more than once. The When, Service, and Place fields are the main presentation; meta.more holds the
+   others, each {id, when, service, place}. Everything that reads a sermon's dates and places goes through deliveriesOf. */
+const deliveriesOf = m => [{ when: m.when || "", service: m.service || "", place: m.place || "" }, ...(m.more || []).map(d => ({ when: d.when || "", service: d.service || "", place: d.place || "" }))];
+const fmtDelivery = d => [fmtWhen(d.when), d.service, d.place].filter(Boolean).join(" · ");
+const cleanMore = a => Array.isArray(a) ? a.filter(x => x && typeof x === "object").slice(0, 30).map(x => ({ id: String(x.id || "").replace(/[^\w-]/g, "").slice(0, 24) || uid(), when: /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(String(x.when || "")) ? String(x.when) : "", service: cleanStr(x.service, 60), place: cleanStr(x.place, 120) })) : [];
+const deliveryLines = m => { const ds = deliveriesOf(m); return ds.length > 1 ? `- Presented ${ds.length} times: ${ds.map(fmtDelivery).join("; ")}` : `- Date/time: ${m.when}\n- Place: ${m.place}\n- Service: ${m.service}`; };
 // The Service list comes from Settings. A sermon whose service has since been renamed or removed keeps it as its own option.
+const svcNames = cur => { const names = settings.services.map(s => s.name); if (cur && !names.some(n => sameName(n, cur))) names.push(cur); return names; };
 function renderServiceOptions() {
-  const sel = $("#m-service"), cur = S ? S.meta.service : "";
-  const names = settings.services.map(s => s.name);
-  if (cur && !names.some(n => sameName(n, cur))) names.push(cur);
+  const sel = $("#m-service"), cur = S ? S.meta.service : "", names = svcNames(cur);
   sel.replaceChildren(...names.map(n => el("option", { value: n, text: n })), el("option", { value: "__add", text: "Add a service…" }));
   sel.value = names.find(n => sameName(n, cur)) || names[0] || "";
 }
 function renderPlaceList() { $("#place-list").replaceChildren(...settings.places.map(p => el("option", { value: p }))); updatePlaceSave(); }
-function updatePlaceSave() { const v = cleanStr($("#m-place").value, 120); $("#m-place-save").hidden = !v || settings.places.some(p => sameName(p, v)); }
-// Choosing a service with a set time moves the sermon to that time on the same date.
-function applyServiceTime(name) {
-  const s = svcByName(name); if (!s || !s.time) return;
-  const date = /^\d{4}-\d{2}-\d{2}/.test(S.meta.when || "") ? S.meta.when.slice(0, 10) : localNow().slice(0, 10);
-  const when = `${date}T${s.time}`; if (when === S.meta.when) return;
-  S.meta.when = when; $("#m-when").value = when; toast(`Time set to ${fmtTime(s.time)} for ${s.name}`);
+function updatePlaceSave() {
+  const unsaved = v => { v = cleanStr(v, 120); return !!v && !settings.places.some(p => sameName(p, v)); };
+  $("#m-place-save").hidden = !unsaved($("#m-place").value);
+  document.querySelectorAll("#m-more .deliv").forEach(g => { const inp = g.querySelector(".deliv-place"), b = g.querySelector(".inp-row .btn"); if (inp && b) b.hidden = !unsaved(inp.value); });
+}
+// Choosing a service with a set time moves that presentation to that time on the same date.
+function setServiceTime(d, name, input) {
+  const s = svcByName(name); if (!s || !s.time) return false;
+  const date = /^\d{4}-\d{2}-\d{2}/.test(d.when || "") ? d.when.slice(0, 10) : localNow().slice(0, 10);
+  const when = `${date}T${s.time}`; if (when === d.when) return false;
+  d.when = when; input.value = when; toast(`Time set to ${fmtTime(s.time)} for ${s.name}`); return true;
+}
+const applyServiceTime = name => setServiceTime(S.meta, name, $("#m-when"));
+function savePlaceName(raw) {
+  const v = cleanStr(raw, 120); if (!v || settings.places.some(p => sameName(p, v))) return;
+  settings.places = [...settings.places, v]; if (!settings.defPlace) settings.defPlace = v;
+  saveSettings(); renderPlaceList(); toast(`${v} saved to your places`);
 }
 for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () => {
   if (k === "service" && $(sel).value === "__add") { $(sel).value = S.meta.service; openSettings({ tab: "services", add: true, pick: true }); return; }
@@ -1715,10 +1741,41 @@ for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () =>
   if (k === "place") updatePlaceSave();
   renderTags(); save(); if (k === "title") refreshLibrary();
 });
-$("#m-place-save").onclick = () => {
-  const v = cleanStr($("#m-place").value, 120); if (!v || settings.places.some(p => sameName(p, v))) return;
-  settings.places = [...settings.places, v]; if (!settings.defPlace) settings.defPlace = v;
-  saveSettings(); renderPlaceList(); toast(`${v} saved to your places`);
+$("#m-place-save").onclick = () => savePlaceName($("#m-place").value);
+/* the other times and places the sermon was presented */
+function renderMore() {
+  const box = $("#m-more"); box.replaceChildren(); if (!S) return;
+  (S.meta.more || []).forEach((d, i) => {
+    const pre = `m-d${i}`, lab = (t, id) => el("label", { for: id, text: t });
+    const when = el("input", { type: "datetime-local", id: pre + "-when" }); when.value = d.when || "";
+    const svc = el("select", { id: pre + "-svc" }); const names = svcNames(d.service);
+    if (!d.service) svc.append(el("option", { value: "", text: "Choose a service" })); names.forEach(x => svc.append(el("option", { value: x, text: x }))); svc.value = names.find(x => sameName(x, d.service)) || "";
+    const place = el("input", { type: "text", id: pre + "-place", class: "deliv-place", list: "place-list", autocomplete: "off" }); place.value = d.place || "";
+    const keep = el("button", { type: "button", class: "btn", text: "Save to places", hidden: "" });
+    when.oninput = () => { d.when = when.value; renderTags(); save(); };
+    svc.onchange = () => { d.service = svc.value; setServiceTime(d, d.service, when); renderTags(); save(); };
+    place.oninput = () => { d.place = place.value; updatePlaceSave(); renderTags(); save(); };
+    keep.onclick = () => savePlaceName(place.value);
+    let armed = false; const rm = el("button", { type: "button", class: "link-btn", text: "Remove" });
+    rm.onclick = () => { if (!armed) { armed = true; rm.textContent = "Sure?"; setTimeout(() => { armed = false; rm.textContent = "Remove"; }, 3000); return; } S.meta.more.splice(i, 1); renderMore(); renderTags(); save(); };
+    const main = el("button", { type: "button", class: "link-btn", text: "Make main", title: "Make this the main presentation, the one shown first and used for the sermon's date", onclick: () => swapMain(i) });
+    box.append(el("div", { class: "deliv", role: "group", "aria-label": `Presentation ${i + 2}` },
+      el("div", { class: "deliv-h" }, el("b", { text: "Also presented" }), el("div", { class: "spacer" }), main, rm),
+      el("div", { class: "row2" }, el("div", { class: "field" }, lab("Date and time", pre + "-when"), when), el("div", { class: "field" }, lab("Service", pre + "-svc"), svc)),
+      el("div", { class: "field" }, lab("Place", pre + "-place"), el("div", { class: "inp-row" }, place, keep))));
+  });
+  updatePlaceSave();
+}
+function swapMain(i) {
+  const m = S.meta, d = m.more[i], t = { when: m.when, service: m.service, place: m.place };
+  m.when = d.when; m.service = d.service; m.place = d.place; d.when = t.when; d.service = t.service; d.place = t.place;
+  loadForm(); renderTags(); save(); toast("Now the main presentation");
+}
+$("#m-add-delivery").onclick = () => {
+  const last = deliveriesOf(S.meta).slice(-1)[0];
+  S.meta.more = [...(S.meta.more || []), { id: uid(), when: last.when, service: last.service, place: last.place }];
+  renderMore(); renderTags(); save();
+  const w = $(`#m-d${S.meta.more.length - 1}-when`); if (w) { w.focus(); w.scrollIntoView({ block: "nearest" }); }
 };
 document.querySelectorAll("[data-set-tab]").forEach(b => b.onclick = () => openSettings({ tab: b.dataset.setTab }));
 let tT = null;
@@ -1828,7 +1885,7 @@ $("#btn-del").onclick = async () => {
   openRec(library[0] || exampleRec()); refreshLibrary(); toast("Deleted");
 };
 function openRec(r) {
-  S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta };
+  S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent();
   if (mdOn) $("#md-src").value = mdDocument();
   watchCurrent();
@@ -2123,9 +2180,7 @@ $("#btn-ai").onclick = async () => {
 Details:
 - Title: ${m.title || "(untitled)"}
 - Primary text: ${m.text || "(not given)"}
-- Date/time: ${m.when}
-- Place: ${m.place}
-- Service: ${m.service}
+${deliveryLines(m)}
 
 Return ONLY a JSON object with these keys:
 {"bigIdea": one sentence, "summary": 2-3 sentences, "approach": one of "Expository","Textual","Topical","Narrative","Doctrinal","Evangelistic", "audience": short phrase, "tone": [up to 3 adjectives], "themes": [3-6 short tags, 1-3 words each], "doctrines": [0-4 short tags], "scriptures": [{"ref": "Book C:V", "use": "how the passage functions in the sermon, under 15 words"}], "callToAction": one sentence or "", "applicationPoints": [up to 4], "illustrations": [up to 4 short descriptions], "strengths": [2-4], "gaps": [1-4 constructive observations, e.g. unsupported claims, missing context, unclear transitions]}
@@ -2154,7 +2209,7 @@ ${preachedPlain().slice(0, 40000)}
 $("#btn-export").onclick = async () => {
   const m = S.meta, a = localAnalysis(), ai = S.ai && !S.ai.error ? S.ai : null;
   const L = [];
-  L.push(`# ${m.title || "Untitled sermon"}`, "", `- **When:** ${fmtWhen(m.when)}`, `- **Where:** ${m.place}`, `- **Service:** ${m.service}`, `- **Text:** ${m.text}`, `- **Speaker:** ${m.speaker}`);
+  L.push(`# ${m.title || "Untitled sermon"}`, "", `- **When:** ${fmtWhen(m.when)}`, `- **Where:** ${m.place}`, `- **Service:** ${m.service}`, ...deliveriesOf(m).slice(1).map(d => `- **Also presented:** ${fmtDelivery(d)}`), `- **Text:** ${m.text}`, `- **Speaker:** ${m.speaker}`);
   if (m.series) L.push(`- **Tags:** ${m.series}`);
   if (S.media && S.media.link) L.push(`- **Recording:** ${S.media.link}`);
   L.push(`- **Length:** ${a.words} words, about ${Math.round(a.minutes)} minutes`, `- **Passages cited:** ${a.refs.join("; ") || "none"}`, "");
@@ -2320,7 +2375,8 @@ const DETAIL_KEYS = { title: "title", sermon: "title", sermon_title: "title", su
   time: "time", service: "service", service_type: "service", occasion: "service", event: "service", service_occasion: "service",
   place: "place", where: "place", location: "place", venue: "place", congregation: "place", church: "place",
   speaker: "speaker", preacher: "speaker", author: "speaker", by: "speaker", minister: "speaker", preached_by: "speaker",
-  series: "series", tags: "series", tag: "series", keywords: "series", pace: "wpm", wpm: "wpm" };
+  series: "series", tags: "series", tag: "series", keywords: "series", pace: "wpm", wpm: "wpm",
+  also: "more", also_presented: "more", presented_again: "more", other_times: "more", additional: "more", more: "more" };
 const detailKey = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 function splitFrontMatter(src) {
   src = String(src || "").replace(/^\uFEFF/, "");
@@ -2342,7 +2398,8 @@ function splitFrontMatter(src) {
 function mdFrontMatter() {
   const m = S.meta, q = v => /^[A-Za-z0-9(][^#"'\\\n]*$/.test(v) && !/:(\s|$)/.test(v) && !/\s$/.test(v) ? v : JSON.stringify(v);
   const rows = [["title", m.title], ["text", m.text], ["date", (m.when || "").replace("T", " ")], ["service", m.service], ["place", m.place], ["speaker", m.speaker], ["tags", m.series], ["pace", m.wpm]];
-  return "---\n" + rows.filter(([, v]) => v !== "" && v != null).map(([k, v]) => `${k}: ${q(String(v))}`).join("\n") + "\n---\n\n";
+  const also = (m.more || []).map(d => `  - ${(d.when || "").replace("T", " ")} | ${d.service || ""} | ${d.place || ""}`);
+  return "---\n" + rows.filter(([, v]) => v !== "" && v != null).map(([k, v]) => `${k}: ${q(String(v))}`).join("\n") + (also.length ? "\nalso:\n" + also.join("\n") : "") + "\n---\n\n";
 }
 const mdDocument = () => mdFrontMatter() + htmlToMd(S.html);
 
@@ -2373,6 +2430,21 @@ function matchPlace(s) {
   for (const p of [...settings.places].sort((a, b) => b.length - a.length)) { const m = s.match(new RegExp(`\\b${escRe(p)}\\b`, "i")); if (m) return { name: p, frag: m[0] }; }
   return null;
 }
+/* "2026-10-21 19:00 | Wednesday Bible Study | Oak Grove", or looser: "Oct 21, 2026 7 PM · Oak Grove". Positional when it has bars. */
+function parseDelivery(s) {
+  s = String(s || "").trim(); let when = s, service = "", place = "";
+  if (s.includes("|")) { const p = s.split("|").map(x => x.trim()); when = p[0] || ""; service = p[1] || ""; place = p.slice(2).join(" | ").trim(); }
+  const dt = parseDateTime(when, { loose24: true });
+  if (!s.includes("|")) {
+    let rest = s; dt.frags.forEach(f => { rest = rest.replace(f, " "); });
+    for (const part of rest.split(/\s*(?:·|•| at |;)\s*/).map(x => x.replace(/^[,\-–—\s]+|[,\-–—\s]+$/g, "")).filter(Boolean)) {
+      const sv = matchService(part), pl = matchPlace(part);
+      if (sv && !service) service = sv.name; else if (pl && !place) place = pl.name; else if (!place) place = part; else if (!service) service = part;
+    }
+  }
+  if (!dt.date && !dt.time && !service && !place) return null;
+  return { date: dt.date, time: dt.time, service, place };
+}
 /* Reads the top of a manuscript for sermon details: a front matter block, labeled lines ("Date: ...", "- **Where:** ..."),
    and short lines that hold only a date, time, service, place, "by" name, or Scripture reference. items are the opening
    lines or blocks as {t: plain text, h: heading level}. Returns what was found and which items held nothing else. */
@@ -2383,12 +2455,13 @@ function detectDetails(items, fm) {
     if (field === "when" || field === "time") {
       const p = parseDateTime(v, { loose24: true }); if (!p.date && !p.time) return false;
       if (p.date && !found._date) found._date = p.date; if (p.time && !found._time) found._time = p.time;
+    } else if (field === "more") { const d = parseDelivery(v); if (!d) return false; (found.more = found.more || []).push(d);
     } else if (field === "wpm") { const w = cleanWpm(v); if (!w) return false; found.wpm = found.wpm || w; }
     else if (field === "text") found.text = found.text || v.slice(0, 120);
     else if (found[field] == null) found[field] = String(v).slice(0, 160);
     if (i != null) used.add(i); return true;
   };
-  for (const [key, v] of Object.entries(fm || {})) { const f = DETAIL_KEYS[key]; if (f) set(f, Array.isArray(v) ? v.join(", ") : v); }
+  for (const [key, v] of Object.entries(fm || {})) { const f = DETAIL_KEYS[key]; if (f === "more") (Array.isArray(v) ? v : [v]).forEach(x => set("more", x)); else if (f) set(f, Array.isArray(v) ? v.join(", ") : v); }
   const first = items.findIndex(x => (x.t || "").trim()), h1s = items.filter(x => x.h === 1).length;
   let seen = 0, sawMeta = false, titleAt = -1;
   for (let i = 0; i < items.length; i++) {
@@ -2417,7 +2490,7 @@ function detectDetails(items, fm) {
   return { found, used };
 }
 /* Puts details found in a file into the sermon, and says which ones changed. */
-function applyDetails(f) {
+function applyDetails(f, opts = {}) {
   const m = S.meta, done = [];
   const put = (k, v, label) => { if (v == null || v === "" || m[k] === v) return; m[k] = v; done.push(label); };
   put("title", f.title, "title"); put("text", f.text, "primary text");
@@ -2437,6 +2510,11 @@ function applyDetails(f) {
   put("service", svcName || inferred, "service");
   put("place", f.place ? (settings.places.find(p => sameName(p, f.place)) || f.place) : "", "place");
   put("speaker", f.speaker, "speaker"); put("series", f.series, "tags"); put("wpm", f.wpm, "pace");
+  const cur2 = (m.when || "").slice(11, 16) || "10:00", key = l => JSON.stringify(l.map(x => [x.when, x.service, x.place]));
+  if (f.more && f.more.length) {
+    const next = f.more.map(d => { const sv = d.service ? svcByName(d.service) : null; return { when: d.date ? `${d.date}T${d.time || (sv && sv.time) || cur2}` : "", service: sv ? sv.name : d.service || "", place: d.place ? (settings.places.find(p => sameName(p, d.place)) || d.place) : "" }; });
+    if (key(next) !== key(m.more || [])) { m.more = next.map(x => ({ id: uid(), ...x })); done.push(`${next.length} other presentation${next.length === 1 ? "" : "s"}`); }
+  } else if (opts.replaceMore && (m.more || []).length) { m.more = []; done.push("other presentations"); }
   if (done.length) { loadForm(); renderTags(); save(); if (done.includes("title")) refreshLibrary(); }
   return done;
 }
@@ -2693,7 +2771,7 @@ function mdApply(report) {
   const src = $("#md-src").value, { fm, body } = splitFrontMatter(src);
   const html = sanitize(mdToHtml(fm ? body : src, { keepIds: true }));
   if (html !== sanitize(ed.innerHTML)) { ed.innerHTML = html; refreshCueLabels(); onEdit(true); fillScriptures(); }
-  if (fm) { const done = applyDetails(detectDetails([], fm).found); if (report && done.length) toast(`Updated from the details block: ${done.join(", ")}`); }
+  if (fm) { const done = applyDetails(detectDetails([], fm).found, { replaceMore: true }); if (report && done.length) toast(`Updated from the details block: ${done.join(", ")}`); }
 }
 function mdShow(on) {
   mdOn = on; $(".ed-col").classList.toggle("md-on", on); $("#md-wrap").hidden = !on;
@@ -3034,7 +3112,7 @@ function applySettings(j, fromCloud) {
   settings = normSettings(j, settings); settings.updatedAt = settings.updatedAt || Date.now();
   try { localStorage.setItem("pb-settings", JSON.stringify(settings)); } catch {}
   document.querySelectorAll(".pb-scripture").forEach(e => rerenderOne(e));
-  updateHint(); renderServiceOptions(); renderPlaceList();
+  updateHint(); renderServiceOptions(); renderPlaceList(); renderMore();
 }
 function saveSettings() {
   settings.updatedAt = Date.now();
@@ -3380,9 +3458,13 @@ $("#settings-form").addEventListener("submit", e => {
   let changed = false;
   const sv = svcs.find(s => s.orig && s.orig !== s.name && s.orig === S.meta.service); if (sv) { S.meta.service = sv.name; changed = true; }
   const pl = places.find(p => p.orig && p.orig !== p.name && p.orig === S.meta.place); if (pl) { S.meta.place = pl.name; changed = true; }
+  (S.meta.more || []).forEach(d => {
+    const s2 = svcs.find(s => s.orig && s.orig !== s.name && s.orig === d.service); if (s2) { d.service = s2.name; changed = true; }
+    const p2 = places.find(p => p.orig && p.orig !== p.name && p.orig === d.place); if (p2) { d.place = p2.name; changed = true; }
+  });
   const picked = setDraft.pick && svcs.find(s => s.pick);
   if (picked) { S.meta.service = picked.name; changed = true; }
-  renderServiceOptions(); renderPlaceList(); $("#m-place").value = S.meta.place || ""; updatePlaceSave();
+  renderServiceOptions(); renderPlaceList(); renderMore(); $("#m-place").value = S.meta.place || ""; updatePlaceSave();
   if (picked) applyServiceTime(picked.name);
   if (changed) { renderTags(); save(); }
   document.querySelectorAll(".pb-scripture").forEach(x => rerenderOne(x));
@@ -4071,7 +4153,7 @@ Rules:
 
 Return ONLY JSON: {"suggestions":[{"type":"highlight|bold|rewrite|heading|slide|split|merge|pause|quote","anchor":"...","text":"new wording or heading text, when needed","level":1 to 4 for headings (1 major division, 2 main point, 3 sub-point, 4 minor point),"color":"yellow|green|blue|pink for highlights","slide":number for slide cues,"reason":"one short sentence"}]}
 
-Sermon: ${S.meta.title || "(untitled)"}, text ${S.meta.text || "(not given)"}, ${S.meta.service} at ${S.meta.place}.
+Sermon: ${S.meta.title || "(untitled)"}, text ${S.meta.text || "(not given)"}, ${deliveriesOf(S.meta).length > 1 ? `presented ${deliveriesOf(S.meta).length} times (${deliveriesOf(S.meta).map(fmtDelivery).join("; ")})` : `${S.meta.service} at ${S.meta.place}`}.
 ${ai ? `Earlier analysis. Big idea: ${ai.bigIdea || ""}. Gaps: ${(ai.gaps || []).join("; ")}.` : ""}
 
 Slides:
@@ -4163,6 +4245,7 @@ function shareText() {
   const m = S.meta, ai = S.ai && !S.ai.error ? S.ai : null, md = media();
   const refs = []; const seen = new Set(); for (const r of findRefs(S.transcript || "")) if (!seen.has(r.ref)) { seen.add(r.ref); refs.push(r.ref); }
   const L = [m.title || "Sermon", [fmtWhen(m.when), m.service, m.place].filter(Boolean).join(" · ")];
+  deliveriesOf(m).slice(1).forEach(d => L.push("Also: " + fmtDelivery(d)));
   if (m.speaker) L.push(m.speaker);
   if (m.text) L.push(`Text: ${m.text}`);
   if (ai && ai.bigIdea) L.push("", ai.bigIdea);
@@ -4431,7 +4514,8 @@ const saveDashF = () => { try { localStorage.setItem("pb-dash", JSON.stringify({
 function dashRow(id, u, meta, sum, example) {
   meta = { ...blank().meta, ...(meta || {}) };
   const when = meta.when ? new Date(meta.when) : null;
-  return { id, u, example: !!example, title: meta.title || "Untitled sermon", when: when && !isNaN(when) ? when : null, service: meta.service || "Other", place: meta.place || "", text: meta.text || "", tags: String(meta.series || "").split(/[,;]+/).map(s => s.trim()).filter(Boolean), minutes: sum.words / (+meta.wpm || 140), ...sum };
+  const deliveries = deliveriesOf(meta).map(d => { const w = d.when ? new Date(d.when) : null; return { when: w && !isNaN(w) ? w : null, service: d.service || "Other", place: d.place || "" }; });
+  return { id, u, example: !!example, title: meta.title || "Untitled sermon", when: when && !isNaN(when) ? when : null, service: meta.service || "Other", place: meta.place || "", deliveries, times: deliveries.length, text: meta.text || "", tags: String(meta.series || "").split(/[,;]+/).map(s => s.trim()).filter(Boolean), minutes: sum.words / (+meta.wpm || 140), ...sum };
 }
 async function pullDashSummary(m) {
   const base = sermonPath(m.id);
@@ -4469,19 +4553,20 @@ async function gatherDash(onProgress) {
   const real = rows.filter(r => !r.example);
   return real.length ? real : rows;
 }
-function dashFiltered() {
+/* A sermon presented more than once counts once as a sermon and once for each time it was preached. */
+function dashDelOk(when, service) {
   const now = new Date(), y = now.getFullYear();
-  const inRange = r => {
-    if (dashF.range === "all") return true;
-    if (!r.when) return false;
-    if (dashF.range === "12m") return r.when >= new Date(y - 1, now.getMonth(), now.getDate());
-    if (dashF.range === "6m") return r.when >= new Date(y, now.getMonth() - 6, now.getDate());
-    if (dashF.range === "ytd") return r.when.getFullYear() === y;
-    if (dashF.range === "last") return r.when.getFullYear() === y - 1;
-    return true;
-  };
-  return (dashRows || []).filter(r => inRange(r) && (dashF.svc === "all" || r.service === dashF.svc));
+  if (dashF.svc !== "all" && service !== dashF.svc) return false;
+  if (dashF.range === "all") return true;
+  if (!when) return false;
+  if (dashF.range === "12m") return when >= new Date(y - 1, now.getMonth(), now.getDate());
+  if (dashF.range === "6m") return when >= new Date(y, now.getMonth() - 6, now.getDate());
+  if (dashF.range === "ytd") return when.getFullYear() === y;
+  if (dashF.range === "last") return when.getFullYear() === y - 1;
+  return true;
 }
+const dashDels = rows => rows.flatMap(r => r.deliveries.filter(d => dashDelOk(d.when, d.service)).map(d => ({ ...r, when: d.when, service: d.service, place: d.place })));
+function dashFiltered() { return (dashRows || []).filter(r => r.deliveries.some(d => dashDelOk(d.when, d.service))); }
 const tally = (rows, f) => { const m = new Map(); rows.forEach(r => { const seen = new Set(); for (let k of f(r) || []) { k = String(k).trim(); if (!k) continue; const key = k.toLowerCase(); if (seen.has(key)) continue; seen.add(key); const e = m.get(key) || { label: k, n: 0, titles: [] }; e.n++; e.titles.push(r.title); m.set(key, e); } }); return [...m.values()].sort((a, b) => b.n - a.n || a.label.localeCompare(b.label)); };
 const capFirst = s => s.charAt(0).toUpperCase() + s.slice(1);
 const fmtMonth = d => d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
@@ -4503,12 +4588,13 @@ async function renderDash(regather = true) {
 }
 function drawDash() {
   const all = dashRows || [];
-  const svcSel = $("#dash-svc"), svcRank = n => { const i = settings.services.findIndex(s => sameName(s.name, n)); return i < 0 ? 999 : i; }, svcs = [...new Set(all.map(r => r.service))].sort((a, b) => svcRank(a) - svcRank(b) || a.localeCompare(b));
+  const svcSel = $("#dash-svc"), svcRank = n => { const i = settings.services.findIndex(s => sameName(s.name, n)); return i < 0 ? 999 : i; }, svcs = [...new Set(all.flatMap(r => r.deliveries.map(d => d.service)))].sort((a, b) => svcRank(a) - svcRank(b) || a.localeCompare(b));
   svcSel.replaceChildren(el("option", { value: "all", text: "All services" }), ...svcs.map(s => el("option", { value: s, text: s })));
   if (dashF.svc !== "all" && !svcs.includes(dashF.svc)) dashF.svc = "all";
   svcSel.value = dashF.svc; $("#dash-range").value = dashF.range;
   const rows = dashFiltered();
   const dated = rows.filter(r => r.when).sort((a, b) => a.when - b.when);
+  const dels = dashDels(rows), multi = dels.length > rows.length;
   const analyzed = rows.filter(r => r.ai);
   const ex = all.length && all.every(r => r.example);
   $("#dash-sub").textContent = ex ? "Showing the example sermon. Your own sermons appear here as you add them." :
@@ -4523,10 +4609,10 @@ function drawDash() {
   const books = bookN.filter(Boolean).length;
   const grades = rows.map(r => r.grade).filter(g => g != null);
   const kpi = $("#dash-kpi"); kpi.replaceChildren();
-  [[rows.length, "sermons"], [(mins / 60).toFixed(mins >= 600 ? 0 : 1), "hours of preaching"], [counted.length ? Math.round(counted.reduce((a, r) => a + r.minutes, 0) / counted.length) + " min" : "–", "average length"], [passages.size, "passages cited"], [`${books} of 66`, "books of the Bible"], [`${analyzed.length} of ${rows.length}`, "analyzed by Claude"], [grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1) : "–", "average reading grade"]]
+  [[rows.length, "sermons"], ...(multi ? [[dels.length, "times preached"]] : []), [(mins / 60).toFixed(mins >= 600 ? 0 : 1), "hours of preaching"], [counted.length ? Math.round(counted.reduce((a, r) => a + r.minutes, 0) / counted.length) + " min" : "–", "average length"], [passages.size, "passages cited"], [`${books} of 66`, "books of the Bible"], [`${analyzed.length} of ${rows.length}`, "analyzed by Claude"], [grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1) : "–", "average reading grade"]]
     .forEach(([v, k]) => kpi.append(el("div", { class: "stat" }, el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k }))));
 
-  drawMonths(dated);
+  drawMonths(dels.filter(r => r.when).sort((a, b) => a.when - b.when), multi);
   drawLength(dated.filter(r => r.words > 80));
   drawBooks(bookN, bookRefs, bookTitles);
   const genres = []; BIBLE.forEach((b, i) => { let g = genres.find(x => x.label === b.genre); if (!g) genres.push(g = { label: b.genre, n: 0, titles: new Set() }); bookTitles[i].forEach(t => g.titles.add(t)); });
@@ -4541,7 +4627,7 @@ function drawDash() {
   aiBars("#dash-doctrines", r => r.ai.doctrines, 10);
   aiBars("#dash-approach", r => [r.ai.approach], 6);
   aiBars("#dash-tone", r => r.ai.tone, 8);
-  dashBars($("#dash-service"), tally(rows, r => [r.service]), true, "sermon");
+  dashBars($("#dash-service"), tally(dels, r => [r.service]), true, multi ? "time" : "sermon");
   const tg = tally(rows, r => r.tags).slice(0, 10);
   $("#dash-tags-panel").hidden = !tg.length; if (tg.length) dashBars($("#dash-tags"), tg, true, "sermon");
 
@@ -4572,7 +4658,8 @@ function dashBars(box, items, clickable, unit) {
 }
 const svgEl = (w, h, inner, label) => `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
 function niceMax(v) { if (v <= 4) return Math.max(1, Math.ceil(v)); const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p; return 10 * p; }
-function drawMonths(dated) {
+function drawMonths(dated, multi) {
+  const noun = multi ? "time" : "sermon";
   const box = $("#dash-months");
   if (!dated.length) { box.innerHTML = '<div class="hint">Add dates to your sermons to see them over time.</div>'; return; }
   const a = dated[0].when, z = dated[dated.length - 1].when;
@@ -4594,7 +4681,7 @@ function drawMonths(dated) {
   buckets.forEach((b, i) => {
     const cx = L + bw * i + bw / 2, c = b.rows.length, lb = lab(b);
     if (c) { const top = y(c), x = cx - barW / 2, r = Math.min(4, barW / 2, (H - B - top)); s += `<path class="bar" d="M${x},${H - B} V${top + r} Q${x},${top} ${x + r},${top} H${x + barW - r} Q${x + barW},${top} ${x + barW},${top + r} V${H - B} Z"/>`; }
-    s += `<rect class="hit" x="${L + bw * i}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(`${lb.long}: ${c} sermon${c === 1 ? "" : "s"}${c ? "\n" + tipList(b.rows.map(r => r.title)) : ""}`)}"/>`;
+    s += `<rect class="hit" x="${L + bw * i}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(`${lb.long}: ${c} ${noun}${c === 1 ? "" : "s"}${c ? "\n" + tipList(b.rows.map(r => r.title)) : ""}`)}"/>`;
     let txt = "";
     if (!q && n <= 14) { if (i % every === 0) txt = lb.short + (i === 0 || b.k % 12 === 0 ? " ’" + String(Math.floor(b.k / 12)).slice(2) : ""); }
     else txt = lb.short;
@@ -4602,7 +4689,7 @@ function drawMonths(dated) {
   });
   s += `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" class="base"/>`;
   box.innerHTML = svgEl(W, H, s, `Sermons per ${q ? "quarter" : "month"}`);
-  $("#dash-months-h").textContent = q ? "Sermons by quarter" : "Sermons by month";
+  $("#dash-months-h").textContent = (multi ? "Times preached by " : "Sermons by ") + (q ? "quarter" : "month");
 }
 function drawLength(pts) {
   const box = $("#dash-length");
@@ -4661,7 +4748,7 @@ function drawRhythm(rows) {
 }
 function drawDashTable(rows) {
   const qv = (dashF.q || "").toLowerCase().trim();
-  const match = r => !qv || [r.title, r.text, r.service, r.place, ...(r.tags || []), ...(r.refs || []), ...(r.ai ? [r.ai.approach, ...r.ai.themes, ...r.ai.doctrines, ...r.ai.tone] : [])].some(s => String(s || "").toLowerCase().includes(qv)) || (BIBLE_IDX.has(dashF.q) && r.refs.some(x => bibleBook(x) === BIBLE_IDX.get(dashF.q)));
+  const match = r => !qv || [r.title, r.text, ...r.deliveries.flatMap(d => [d.service, d.place]), ...(r.tags || []), ...(r.refs || []), ...(r.ai ? [r.ai.approach, ...r.ai.themes, ...r.ai.doctrines, ...r.ai.tone] : [])].some(s => String(s || "").toLowerCase().includes(qv)) || (BIBLE_IDX.has(dashF.q) && r.refs.some(x => bibleBook(x) === BIBLE_IDX.get(dashF.q)));
   const list = rows.filter(match);
   const k = dashF.sort, d = dashF.dir;
   const val = r => k === "when" ? (r.when ? +r.when : 0) : k === "minutes" ? r.minutes : k === "approach" ? (r.ai ? r.ai.approach : "~") : String(r[k] || "").toLowerCase();
@@ -4676,10 +4763,10 @@ function drawDashTable(rows) {
     const open = () => openFromDash(r.id);
     tr.onclick = open; tr.onkeydown = e => { if (e.key === "Enter") open(); };
     tr.append(
-      el("td", { class: "mono", text: r.when ? r.when.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "No date" }),
+      el("td", { class: "mono", title: r.times > 1 ? r.deliveries.map(d => [d.when ? d.when.toLocaleDateString() : "no date", d.service, d.place].filter(Boolean).join(" · ")).join("\n") : null, text: (r.when ? r.when.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "No date") + (r.times > 1 ? ` +${r.times - 1}` : "") }),
       el("td", { class: "t" }, el("b", { text: r.title }), r.ai && r.ai.bigIdea ? el("div", { class: "hint", text: r.ai.bigIdea }) : null),
       el("td", { text: r.text || (r.refs[0] || "") }),
-      el("td", { class: "hide-sm", text: r.service }),
+      el("td", { class: "hide-sm", text: [...new Set(r.deliveries.map(d => d.service))].join(", ") }),
       el("td", { class: "mono num", text: r.words > 80 ? String(Math.round(r.minutes)) : "–" }),
       el("td", { class: "hide-sm", text: r.ai ? r.ai.approach : "" }),
       el("td", { class: "hide-sm" }, r.ai ? el("span", { class: "dash-chips" }, ...r.ai.themes.slice(0, 3).map(t => el("span", { class: "chip", text: t }))) : el("span", { class: "chip warn-chip", text: "Not analyzed" })));
@@ -4734,7 +4821,7 @@ $("#btn-dash-ai").onclick = async () => {
   const bookCount = new Array(66).fill(0); rows.forEach(r => new Set(r.refs.map(bibleBook).filter(b => b >= 0)).forEach(b => bookCount[b]++));
   let budget = 70000;
   const lines = rows.map((r, i) => {
-    const parts = [r.when ? r.when.toISOString().slice(0, 10) : "no date", r.title, r.text ? "text " + r.text : "", r.service, r.words > 80 ? Math.round(r.minutes) + " min" : "",
+    const parts = [r.when ? r.when.toISOString().slice(0, 10) : "no date", r.title, r.text ? "text " + r.text : "", r.times > 1 ? `${[...new Set(r.deliveries.map(d => d.service))].join(" and ")} (${r.times} times)` : r.service, r.words > 80 ? Math.round(r.minutes) + " min" : "",
       r.ai ? `approach ${r.ai.approach}; themes ${r.ai.themes.join(", ")}; doctrines ${r.ai.doctrines.join(", ")}; big idea: ${r.ai.bigIdea}${r.ai.callToAction ? "; call: " + r.ai.callToAction : ""}${r.ai.gaps.length ? "; gaps: " + r.ai.gaps.join(" / ") : ""}` : `not analyzed; passages ${r.refs.slice(0, 8).join(", ")}`];
     let t = parts.filter(Boolean).join(" | "); const cap = Math.max(240, Math.floor(budget / Math.max(1, rows.length - i))); if (t.length > cap) t = t.slice(0, cap) + "…"; budget -= t.length; return "- " + t;
   });
