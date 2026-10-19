@@ -35,7 +35,7 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - `data/users/<userId>/<sermonId>`: metadata, part counts, and `dash` (a compact summary used by the Dashboard).
 - `data/users/<userId>/<sermonId>/parts/<name>.<k>`: chunks of 60,000 characters (`core`, `html`, `preached`, `pdf`, `s<i>` per slide).
 - Large binaries go to the assets store and are referenced as `{asset: id}`.
-- `data/users/<userId>/_prefs`: settings (default translation, favorites).
+- `data/users/<userId>/_prefs`: settings (default translation, favorites, services with day and time, places preached with a default, and the speaker and pace for new sermons).
 - `data/users/<userId>/_dash`: the latest Claude read across all sermons.
 - Ids starting with `_` are not sermons and are skipped in the library.
 

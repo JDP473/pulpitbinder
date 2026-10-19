@@ -48,7 +48,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background
 .tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .spacer{flex:1}
 .lib{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-select,input[type=text],input[type=datetime-local],input[type=number],textarea{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
+select,input[type=text],input[type=datetime-local],input[type=number],input[type=time],textarea{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
 textarea{resize:vertical}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:500;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
@@ -211,6 +211,39 @@ main{padding-block:18px 40px}
 .fav:hover{background:var(--sunk)}
 .fav b{font-family:var(--f-mono);font-size:12px;min-width:5.6em;color:var(--sc-accent)}
 .fav span{color:var(--muted)}
+.lab-row{display:flex;align-items:baseline;gap:8px}
+.link-btn{border:0;background:none;padding:0;margin-left:auto;color:var(--accent);font-size:12.5px;font-weight:500;cursor:pointer}
+.link-btn:hover{text-decoration:underline}
+.inp-row{display:flex;gap:6px;min-width:0}
+.inp-row input{flex:1}
+.set-tabs .set-tab{flex:1;padding-inline:8px}
+.set-pane{display:flex;flex-direction:column;gap:14px}
+.set-pane[hidden]{display:none}
+.set-rows{display:flex;flex-direction:column;gap:6px}
+.set-row{display:grid;gap:6px;align-items:center}
+.set-row.svc{grid-template-columns:minmax(0,1fr) 8.4em 8.8em auto}
+.set-row.place{grid-template-columns:auto minmax(0,1fr) auto}
+.set-row-btns{display:flex;gap:2px}
+.set-row-btns .icon-btn{width:30px;height:32px;border-color:transparent;background:transparent;color:var(--muted);font-size:15px}
+.set-row-btns .icon-btn:hover:not(:disabled){border-color:var(--line);color:var(--ink)}
+.set-row-btns .icon-btn:disabled{opacity:.35;cursor:default}
+.set-star{border:0;background:none;width:30px;height:32px;cursor:pointer;font-size:18px;color:var(--line);padding:0}
+.set-star[aria-pressed="true"]{color:var(--accent)}
+.set-empty{font-size:13.5px;color:var(--muted);padding:6px 0}
+.set-found{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.set-found .chip{cursor:pointer}
+.set-found .chip:hover{border-color:var(--muted)}
+@media (max-width:560px){
+  .set-row.svc{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) auto;grid-template-areas:"name name btns" "day time time";padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .set-row.svc:last-child{border-bottom:0;padding-bottom:0}
+  .set-row.svc .sv-name{grid-area:name}
+  .set-row.svc .sv-day{grid-area:day}
+  .set-row.svc .sv-time{grid-area:time}
+  .set-row.svc .set-row-btns{grid-area:btns}
+  .set-rows:has(.svc){gap:10px}
+  .set-row-btns .icon-btn{width:26px}
+  .set-tabs .set-tab{padding:5px 4px;font-size:12.5px;white-space:normal;line-height:1.2}
+}
 .rec-link-out{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .rec-link-out:empty{display:none}
 .rec-file{display:flex;flex-direction:column;gap:8px}
@@ -291,8 +324,8 @@ mark.hl-yellow{background:var(--hl-yellow)} mark.hl-green{background:var(--hl-gr
 .side-pane{display:flex;flex-direction:column;gap:12px}
 .side-pane[hidden]{display:none}
 .side-tabs{display:flex;gap:2px;background:var(--sunk);border-radius:8px;padding:3px}
-.side-tab{border:0;background:transparent;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;font-size:13.5px;white-space:nowrap}
-.side-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.side-tab,.set-tab{border:0;background:transparent;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;font-size:13.5px;white-space:nowrap}
+.side-tab[aria-selected="true"],.set-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 /* outline: sermon-outline numbering (I. A. 1.), indented by heading level */
 .ol-list{display:flex;flex-direction:column;gap:1px}
 .ao-bar{display:flex;gap:8px;flex-wrap:wrap}
@@ -649,10 +682,12 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
           <div class="field"><label for="m-text">Primary text</label><input type="text" id="m-text" placeholder="e.g. Psalm 119:105-112"></div>
           <div class="row2">
             <div class="field"><label for="m-when">Date and time</label><input type="datetime-local" id="m-when"></div>
-            <div class="field"><label for="m-service">Service</label>
-              <select id="m-service"><option>Sunday AM</option><option>Sunday PM</option><option>Wednesday Bible Study</option><option>TikTok Live</option><option>Camp / Retreat</option><option>Gospel Meeting</option><option>Other</option></select></div>
+            <div class="field"><div class="lab-row"><label for="m-service">Service</label><button type="button" class="link-btn" data-set-tab="services">Edit list</button></div>
+              <select id="m-service"></select></div>
           </div>
-          <div class="field"><label for="m-place">Place</label><input type="text" id="m-place"></div>
+          <div class="field"><div class="lab-row"><label for="m-place">Place</label><button type="button" class="link-btn" data-set-tab="places">Edit list</button></div>
+            <div class="inp-row"><input type="text" id="m-place" list="place-list" autocomplete="off"><button type="button" class="btn" id="m-place-save" hidden>Save to places</button></div>
+            <datalist id="place-list"></datalist></div>
           <div class="row2">
             <div class="field"><label for="m-speaker">Speaker</label><input type="text" id="m-speaker"></div>
             <div class="field"><label for="m-wpm">Pace (words/min)</label><input type="number" id="m-wpm" min="80" max="220" step="5"></div>
@@ -907,10 +942,37 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
 <div class="modal" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="set-title">
   <form class="modal-card" id="settings-form">
     <h2 id="set-title">Settings</h2>
-    <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
-    <fieldset class="field"><legend>Favorite translations</legend><span class="hint">These show as tabs along the top of every Scripture section, so you can switch the one that's displayed. Up to six.</span><div class="fav-list" id="set-favs"></div></fieldset>
-    <div class="field"><span class="set-h">Where the text comes from</span><span class="hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
-      <label class="fav" for="set-claude"><input type="checkbox" id="set-claude"> <span>If Bible Gateway can't be reached, let Claude fill in the text. It's marked so you can check the wording.</span></label></div>
+    <div class="side-tabs set-tabs" role="tablist" aria-label="Settings sections">
+      <button type="button" class="set-tab" role="tab" id="set-tab-scripture" data-pane="scripture" aria-controls="set-pane-scripture" aria-selected="true">Scripture</button>
+      <button type="button" class="set-tab" role="tab" id="set-tab-services" data-pane="services" aria-controls="set-pane-services" aria-selected="false">Services</button>
+      <button type="button" class="set-tab" role="tab" id="set-tab-places" data-pane="places" aria-controls="set-pane-places" aria-selected="false">Places</button>
+      <button type="button" class="set-tab" role="tab" id="set-tab-defaults" data-pane="defaults" aria-controls="set-pane-defaults" aria-selected="false">New sermons</button>
+    </div>
+    <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
+      <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
+      <fieldset class="field"><legend>Favorite translations</legend><span class="hint">These show as tabs along the top of every Scripture section, so you can switch the one that's displayed. Up to six.</span><div class="fav-list" id="set-favs"></div></fieldset>
+      <div class="field"><span class="set-h">Where the text comes from</span><span class="hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
+        <label class="fav" for="set-claude"><input type="checkbox" id="set-claude"> <span>If Bible Gateway can't be reached, let Claude fill in the text. It's marked so you can check the wording.</span></label></div>
+    </div>
+    <div class="set-pane" id="set-pane-services" role="tabpanel" aria-labelledby="set-tab-services" hidden>
+      <span class="hint">These fill the Service list on every sermon. Give a service a day and time, and a new sermon starts on the next one, and choosing it on a sermon sets the time.</span>
+      <div class="set-rows" id="set-svcs"></div>
+      <div><button type="button" class="btn" id="set-svc-add">Add a service</button></div>
+      <div class="set-found" id="set-svc-found" hidden></div>
+    </div>
+    <div class="set-pane" id="set-pane-places" role="tabpanel" aria-labelledby="set-tab-places" hidden>
+      <span class="hint">Congregations and other places you preach. They're offered as you type the place on a sermon. The starred one fills in for new sermons.</span>
+      <div class="set-rows" id="set-places"></div>
+      <div><button type="button" class="btn" id="set-place-add">Add a place</button></div>
+      <div class="set-found" id="set-place-found" hidden></div>
+    </div>
+    <div class="set-pane" id="set-pane-defaults" role="tabpanel" aria-labelledby="set-tab-defaults" hidden>
+      <span class="hint">Filled in on each new sermon. The place comes from your starred place, and the service and time from the next service on your list.</span>
+      <div class="row2">
+        <div class="field"><label for="set-speaker">Speaker</label><input type="text" id="set-speaker"></div>
+        <div class="field"><label for="set-wpm">Pace (words/min)</label><input type="number" id="set-wpm" min="80" max="220" step="5"></div>
+      </div>
+    </div>
     <div class="sc-pop-row"><span class="hint" id="set-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="set-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
   </form>
 </div>
@@ -990,11 +1052,13 @@ const EXAMPLE_SLIDES = [
   { title: "The Light of the World", body: ["John 8:12", "Believe, repent, be baptized (Acts 2:38)"], notes: "Invitation song.", images: [] }
 ];
 
-const blank = () => ({
+// New sermons take their service, time, place, speaker, and pace from Settings.
+const blank = () => { const nx = nextService(), other = svcByName("Other") || settings.services[0];
+  return {
   id: uid(), example: false, updatedAt: Date.now(),
-  meta: { title: "", text: "", when: localNow(), service: new Date().getDay() === 0 ? (new Date().getHours() < 15 ? "Sunday AM" : "Sunday PM") : new Date().getDay() === 3 ? "Wednesday Bible Study" : "Other", place: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, series: "" },
+  meta: { title: "", text: "", when: nx ? localStamp(nx.d) : localNow(), service: nx ? nx.s.name : other ? other.name : "Other", place: settings.defPlace, speaker: settings.speaker, wpm: settings.wpm, series: "" },
   transcript: "", html: "", suggestions: [], dismissed: [], slides: [], pptxName: "", manual: {}, ai: null
-});
+}; };
 const exampleRec = () => {
   const r = blank();
   r.example = true;
@@ -1593,10 +1657,40 @@ function renderTags() {
 /* ---------------- build view ---------------- */
 const F = { title: "#m-title", text: "#m-text", when: "#m-when", service: "#m-service", place: "#m-place", speaker: "#m-speaker", wpm: "#m-wpm", series: "#m-series" };
 function loadForm() {
+  renderServiceOptions(); renderPlaceList();
   for (const [k, sel] of Object.entries(F)) $(sel).value = S.meta[k] ?? "";
-  renderDeckStatus();
+  updatePlaceSave(); renderDeckStatus();
 }
-for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () => { S.meta[k] = k === "wpm" ? (+$(sel).value || 140) : $(sel).value; renderTags(); save(); if (k === "title") refreshLibrary(); });
+// The Service list comes from Settings. A sermon whose service has since been renamed or removed keeps it as its own option.
+function renderServiceOptions() {
+  const sel = $("#m-service"), cur = S ? S.meta.service : "";
+  const names = settings.services.map(s => s.name);
+  if (cur && !names.some(n => sameName(n, cur))) names.push(cur);
+  sel.replaceChildren(...names.map(n => el("option", { value: n, text: n })), el("option", { value: "__add", text: "Add a service…" }));
+  sel.value = names.find(n => sameName(n, cur)) || names[0] || "";
+}
+function renderPlaceList() { $("#place-list").replaceChildren(...settings.places.map(p => el("option", { value: p }))); updatePlaceSave(); }
+function updatePlaceSave() { const v = cleanStr($("#m-place").value, 120); $("#m-place-save").hidden = !v || settings.places.some(p => sameName(p, v)); }
+// Choosing a service with a set time moves the sermon to that time on the same date.
+function applyServiceTime(name) {
+  const s = svcByName(name); if (!s || !s.time) return;
+  const date = /^\d{4}-\d{2}-\d{2}/.test(S.meta.when || "") ? S.meta.when.slice(0, 10) : localNow().slice(0, 10);
+  const when = `${date}T${s.time}`; if (when === S.meta.when) return;
+  S.meta.when = when; $("#m-when").value = when; toast(`Time set to ${fmtTime(s.time)} for ${s.name}`);
+}
+for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () => {
+  if (k === "service" && $(sel).value === "__add") { $(sel).value = S.meta.service; openSettings({ tab: "services", add: true, pick: true }); return; }
+  S.meta[k] = k === "wpm" ? (+$(sel).value || 140) : $(sel).value;
+  if (k === "service") applyServiceTime(S.meta.service);
+  if (k === "place") updatePlaceSave();
+  renderTags(); save(); if (k === "title") refreshLibrary();
+});
+$("#m-place-save").onclick = () => {
+  const v = cleanStr($("#m-place").value, 120); if (!v || settings.places.some(p => sameName(p, v))) return;
+  settings.places = [...settings.places, v]; if (!settings.defPlace) settings.defPlace = v;
+  saveSettings(); renderPlaceList(); toast(`${v} saved to your places`);
+};
+document.querySelectorAll("[data-set-tab]").forEach(b => b.onclick = () => openSettings({ tab: b.dataset.setTab }));
 let tT = null;
 
 
@@ -2434,15 +2528,59 @@ function renderSuggestions() {
 const VERSIONS = [["ESV", "English Standard Version"], ["LSB", "Legacy Standard Bible"], ["NASB", "New American Standard Bible (2020)"], ["NASB1995", "New American Standard Bible 1995"], ["NKJV", "New King James Version"], ["KJV", "King James Version"], ["CSB", "Christian Standard Bible"], ["NIV", "New International Version"], ["NLT", "New Living Translation"], ["NET", "New English Translation"], ["RSV", "Revised Standard Version"], ["AMP", "Amplified Bible"], ["ASV", "American Standard Version"], ["YLT", "Young's Literal Translation"], ["WEB", "World English Bible"]];
 const VER_NAME = Object.fromEntries(VERSIONS);
 const MAX_FAVS = 6;
-let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, updatedAt: 0 };
-try { const j = JSON.parse(localStorage.getItem("pb-settings") || "null"); if (j) settings = { ...settings, ...j }; } catch {}
+/* Services carry an optional weekday (0 Sunday) and "HH:MM" time. Places are plain names; defPlace is one of them or "". */
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DEF_SERVICES = [
+  { name: "Sunday AM", day: 0, time: "10:00" }, { name: "Sunday PM", day: 0, time: "18:00" }, { name: "Wednesday Bible Study", day: 3, time: "19:00" },
+  { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
+];
+let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, updatedAt: 0 };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
+const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
+const cleanTime = t => typeof t === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : "";
+const cleanWpm = w => { w = Math.round(+w); return w >= 80 && w <= 220 ? w : null; };
+const sameName = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
+function cleanServices(a) {
+  if (!Array.isArray(a)) return null; const out = [];
+  for (const x of a) { const name = cleanStr(x && x.name, 60); if (!name || out.some(o => sameName(o.name, name))) continue; const day = Number.isInteger(x.day) && x.day >= 0 && x.day <= 6 ? x.day : null; out.push({ name, day, time: cleanTime(x.time) }); }
+  return out.slice(0, 30);
+}
+function cleanPlaces(a) {
+  if (!Array.isArray(a)) return null; const out = [];
+  for (const x of a) { const name = cleanStr(x, 120); if (name && !out.some(o => sameName(o, name))) out.push(name); }
+  return out.slice(0, 60);
+}
+function normSettings(j, base) {
+  const favs = Array.isArray(j.favs) ? j.favs.map(cleanVer).filter(Boolean).slice(0, MAX_FAVS) : [];
+  const services = cleanServices(j.services), places = cleanPlaces(j.places) || base.places;
+  const dp = typeof j.defPlace === "string" ? j.defPlace : base.defPlace;
+  return { ...base, defVer: cleanVer(j.defVer) || base.defVer, favs: favs.length ? favs : base.favs, claudeFallback: j.claudeFallback !== false,
+    services: services && services.length ? services : base.services, places, defPlace: places.find(p => sameName(p, dp)) || "",
+    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, updatedAt: +j.updatedAt || 0 };
+}
+try { const j = JSON.parse(localStorage.getItem("pb-settings") || "null"); if (j && typeof j === "object") settings = normSettings(j, settings); } catch {}
+const svcByName = n => settings.services.find(s => sameName(s.name, n));
+// The next service on the list that has a day and time. One that began in the last three hours still counts,
+// so a sermon logged right after preaching lands on that service.
+function nextService(now = new Date()) {
+  let best = null;
+  for (const s of settings.services) {
+    if (s.day == null || !s.time) continue;
+    const [h, mi] = s.time.split(":").map(Number);
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (s.day - now.getDay() + 7) % 7, h, mi);
+    if (d - now < -3 * 36e5) d.setDate(d.getDate() + 7);
+    if (!best || d < best.d) best = { s, d };
+  }
+  return best;
+}
+const localStamp = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtTime = t => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }); };
 function applySettings(j, fromCloud) {
   if (!j || (fromCloud && (j.updatedAt || 0) <= (settings.updatedAt || 0))) return;
-  settings = { ...settings, defVer: cleanVer(j.defVer) || settings.defVer, favs: Array.isArray(j.favs) ? j.favs.map(cleanVer).filter(Boolean).slice(0, MAX_FAVS) : settings.favs, claudeFallback: j.claudeFallback !== false, updatedAt: j.updatedAt || Date.now() };
+  settings = normSettings(j, settings); settings.updatedAt = settings.updatedAt || Date.now();
   try { localStorage.setItem("pb-settings", JSON.stringify(settings)); } catch {}
   document.querySelectorAll(".pb-scripture").forEach(e => rerenderOne(e));
-  updateHint();
+  updateHint(); renderServiceOptions(); renderPlaceList();
 }
 function saveSettings() {
   settings.updatedAt = Date.now();
@@ -2672,7 +2810,69 @@ document.addEventListener("click", e => {
 }, true);
 
 /* settings */
-function openSettings() {
+/* The dialog edits a draft; nothing changes until Save. Rows remember their original name so a rename
+   can follow through to the open sermon. */
+let setDraft = null;
+function setTab(name) {
+  document.querySelectorAll(".set-tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.pane === name)));
+  document.querySelectorAll(".set-pane").forEach(p => { p.hidden = p.id !== "set-pane-" + name; });
+}
+document.querySelectorAll(".set-tab").forEach(t => t.onclick = () => setTab(t.dataset.pane));
+$(".set-tabs").addEventListener("keydown", e => {
+  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+  const tabs = [...document.querySelectorAll(".set-tab")], i = tabs.indexOf(document.activeElement); if (i < 0) return;
+  const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]; setTab(n.dataset.pane); n.focus(); e.preventDefault();
+});
+const rowBtn = (label, glyph, on, disabled) => el("button", { type: "button", class: "icon-btn", "aria-label": label, title: label, text: glyph, disabled: disabled ? "" : false, onclick: on });
+function moveRow(list, i, d, render) { const j = i + d; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; render(); }
+function renderSetServices(focusIdx) {
+  const box = $("#set-svcs"), list = setDraft.services; box.replaceChildren();
+  if (!list.length) box.append(el("div", { class: "set-empty", text: "No services yet. Add one below." }));
+  list.forEach((sv, i) => {
+    const name = el("input", { type: "text", class: "sv-name", placeholder: "Service name", "aria-label": "Service name", maxlength: "60" }); name.value = sv.name; name.oninput = () => { sv.name = name.value; renderSetFound(); };
+    const day = el("select", { class: "sv-day", "aria-label": `Day for ${sv.name || "this service"}` }, el("option", { value: "", text: "Any day" }), ...DAYS.map((d, k) => el("option", { value: String(k), text: d })));
+    day.value = sv.day == null ? "" : String(sv.day); day.onchange = () => { sv.day = day.value === "" ? null : +day.value; };
+    const time = el("input", { type: "time", class: "sv-time", "aria-label": `Time for ${sv.name || "this service"}` }); time.value = sv.time || ""; time.oninput = () => { sv.time = cleanTime(time.value); };
+    box.append(el("div", { class: "set-row svc" }, name, day, time, el("span", { class: "set-row-btns" },
+      rowBtn("Move up", "↑", () => moveRow(list, i, -1, renderSetServices), i === 0),
+      rowBtn("Move down", "↓", () => moveRow(list, i, 1, renderSetServices), i === list.length - 1),
+      rowBtn(`Remove ${sv.name || "this service"}`, "×", () => { list.splice(i, 1); renderSetServices(); renderSetFound(); }))));
+    if (i === focusIdx) setTimeout(() => name.focus(), 0);
+  });
+}
+function renderSetPlaces(focusIdx) {
+  const box = $("#set-places"), list = setDraft.places; box.replaceChildren();
+  if (!list.length) box.append(el("div", { class: "set-empty", text: "No places yet. Add one below, or save one from a sermon's Place field." }));
+  list.forEach((pl, i) => {
+    const isDef = setDraft.defKey === pl.key;
+    const star = el("button", { type: "button", class: "set-star", "aria-pressed": String(isDef), "aria-label": isDef ? `${pl.name || "This place"} fills in for new sermons` : `Use ${pl.name || "this place"} for new sermons`, title: isDef ? "Fills in for new sermons" : "Use for new sermons", text: "★",
+      onclick: () => { setDraft.defKey = isDef ? null : pl.key; renderSetPlaces(); } });
+    const name = el("input", { type: "text", placeholder: "Congregation or place", "aria-label": "Place name", maxlength: "120" }); name.value = pl.name; name.oninput = () => { pl.name = name.value; renderSetFound(); };
+    box.append(el("div", { class: "set-row place" }, star, name, el("span", { class: "set-row-btns" },
+      rowBtn("Move up", "↑", () => moveRow(list, i, -1, renderSetPlaces), i === 0),
+      rowBtn("Move down", "↓", () => moveRow(list, i, 1, renderSetPlaces), i === list.length - 1),
+      rowBtn(`Remove ${pl.name || "this place"}`, "×", () => { list.splice(i, 1); if (setDraft.defKey === pl.key) setDraft.defKey = null; renderSetPlaces(); renderSetFound(); }))));
+    if (i === focusIdx) setTimeout(() => name.focus(), 0);
+  });
+}
+// Services and places already used on sermons in this browser but missing from the lists, offered as one-click adds.
+let setUsed = { services: [], places: [] };
+function renderSetFound() {
+  const fill = (box, used, have, add) => {
+    const miss = used.filter(([n]) => !have.some(h => sameName(h, n))).slice(0, 10);
+    box.hidden = !miss.length; box.replaceChildren();
+    if (miss.length) box.append(el("span", { class: "hint", text: "From your sermons:" }), ...miss.map(([n, c]) => el("button", { type: "button", class: "chip", title: `Used on ${c} sermon${c === 1 ? "" : "s"}`, text: "+ " + n, onclick: () => add(n) })));
+  };
+  fill($("#set-svc-found"), setUsed.services, setDraft.services.map(s => s.name), n => { setDraft.services.push({ name: n, day: null, time: "", orig: null }); renderSetServices(setDraft.services.length - 1); renderSetFound(); });
+  fill($("#set-place-found"), setUsed.places, setDraft.places.map(p => p.name), n => { setDraft.places.push({ name: n, orig: null, key: uid() }); renderSetPlaces(); renderSetFound(); });
+}
+async function gatherUsed() {
+  const recs = (await store.all()).filter(r => !r.example && r.meta);
+  const count = f => { const m = new Map(); recs.forEach(r => { const v = cleanStr(r.meta[f], 120); if (!v) return; const k = [...m.keys()].find(x => sameName(x, v)) || v; m.set(k, (m.get(k) || 0) + 1); }); return [...m].sort((a, b) => b[1] - a[1]); };
+  setUsed = { services: count("service"), places: count("place") };
+  if (setDraft) renderSetFound();
+}
+function openSettings(opts = {}) {
   const m = $("#settings");
   verOptions($("#set-def"), settings.defVer);
   const box = $("#set-favs"); box.replaceChildren();
@@ -2682,10 +2882,19 @@ function openSettings() {
     box.append(el("label", { class: "fav", for: id }, cb, el("b", { text: code }), el("span", { text: name })));
   });
   $("#set-claude").checked = settings.claudeFallback;
+  setDraft = { services: settings.services.map(s => ({ ...s, orig: s.name })), places: settings.places.map(p => ({ name: p, orig: p, key: uid() })), defKey: null, pick: !!opts.pick };
+  setDraft.defKey = (setDraft.places.find(p => sameName(p.name, settings.defPlace)) || {}).key || null;
+  if (opts.add && opts.tab === "services") setDraft.services.push({ name: "", day: null, time: "", orig: null, pick: true });
+  if (opts.add && opts.tab === "places") setDraft.places.push({ name: "", orig: null, key: uid() });
+  renderSetServices(opts.add && opts.tab === "services" ? setDraft.services.length - 1 : -1);
+  renderSetPlaces(opts.add && opts.tab === "places" ? setDraft.places.length - 1 : -1);
+  renderSetFound(); gatherUsed().catch(() => {});
+  $("#set-speaker").value = settings.speaker; $("#set-wpm").value = settings.wpm;
   $("#set-msg").textContent = "";
-  m.hidden = false; $("#set-def").focus();
+  setTab(opts.tab || "scripture");
+  m.hidden = false; if (!opts.add) (document.querySelector(".set-tab[aria-selected=true]") || $("#set-def")).focus();
 }
-$("#btn-settings").onclick = openSettings;
+$("#btn-settings").onclick = () => openSettings();
 $("#set-cancel").onclick = () => { $("#settings").hidden = true; };
 $("#settings").addEventListener("click", e => { if (e.target.id === "settings") $("#settings").hidden = true; });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#settings").hidden) $("#settings").hidden = true; });
@@ -2693,14 +2902,38 @@ $("#set-favs").addEventListener("change", e => {
   const on = [...$("#set-favs").querySelectorAll("input:checked")];
   if (on.length > MAX_FAVS) { e.target.checked = false; $("#set-msg").textContent = `Choose up to ${MAX_FAVS} favorites so the tabs fit.`; } else $("#set-msg").textContent = "";
 });
+$("#set-svc-add").onclick = () => { setDraft.services.push({ name: "", day: null, time: "", orig: null }); renderSetServices(setDraft.services.length - 1); };
+$("#set-place-add").onclick = () => { setDraft.places.push({ name: "", orig: null, key: uid() }); renderSetPlaces(setDraft.places.length - 1); };
 $("#settings-form").addEventListener("submit", e => {
   e.preventDefault();
+  const fail = (tab, msg) => { setTab(tab); $("#set-msg").textContent = msg; };
   const favs = [...$("#set-favs").querySelectorAll("input:checked")].map(x => x.value);
-  if (!favs.length) { $("#set-msg").textContent = "Pick at least one favorite translation."; return; }
+  if (!favs.length) return fail("scripture", "Pick at least one favorite translation.");
+  const svcs = setDraft.services.map(s => ({ ...s, name: cleanStr(s.name, 60) })).filter(s => s.name || s.day != null || s.time);
+  if (svcs.some(s => !s.name)) return fail("services", "Give each service a name, or remove the empty row.");
+  if (!svcs.length) return fail("services", "Keep at least one service so sermons have one to choose.");
+  if (svcs.some((s, i) => svcs.findIndex(o => sameName(o.name, s.name)) !== i)) return fail("services", "Two services have the same name.");
+  const places = setDraft.places.map(p => ({ ...p, name: cleanStr(p.name, 120) })).filter(p => p.name);
+  if (places.some((p, i) => places.findIndex(o => sameName(o.name, p.name)) !== i)) return fail("places", "Two places have the same name.");
+  const wpm = cleanWpm($("#set-wpm").value);
+  if (!wpm) return fail("defaults", "Pace should be between 80 and 220 words a minute.");
   settings.defVer = $("#set-def").value; settings.favs = favs; settings.claudeFallback = $("#set-claude").checked;
+  settings.services = svcs.map(({ name, day, time }) => ({ name, day, time })); settings.places = places.map(p => p.name);
+  settings.defPlace = (places.find(p => p.key === setDraft.defKey) || {}).name || "";
+  settings.speaker = cleanStr($("#set-speaker").value, 80); settings.wpm = wpm;
   saveSettings(); $("#settings").hidden = true;
+  // Follow a rename through to the open sermon; past sermons keep the name they were saved with.
+  let changed = false;
+  const sv = svcs.find(s => s.orig && s.orig !== s.name && s.orig === S.meta.service); if (sv) { S.meta.service = sv.name; changed = true; }
+  const pl = places.find(p => p.orig && p.orig !== p.name && p.orig === S.meta.place); if (pl) { S.meta.place = pl.name; changed = true; }
+  const picked = setDraft.pick && svcs.find(s => s.pick);
+  if (picked) { S.meta.service = picked.name; changed = true; }
+  renderServiceOptions(); renderPlaceList(); $("#m-place").value = S.meta.place || ""; updatePlaceSave();
+  if (picked) applyServiceTime(picked.name);
+  if (changed) { renderTags(); save(); }
   document.querySelectorAll(".pb-scripture").forEach(x => rerenderOne(x));
-  toast("Settings saved");
+  setDraft = null;
+  if (!picked || !picked.time) toast("Settings saved");
 });
 
 /* ---------------- Make slides from the manuscript ---------------- */
@@ -3813,7 +4046,7 @@ async function renderDash(regather = true) {
 }
 function drawDash() {
   const all = dashRows || [];
-  const svcSel = $("#dash-svc"), svcs = [...new Set(all.map(r => r.service))].sort();
+  const svcSel = $("#dash-svc"), svcRank = n => { const i = settings.services.findIndex(s => sameName(s.name, n)); return i < 0 ? 999 : i; }, svcs = [...new Set(all.map(r => r.service))].sort((a, b) => svcRank(a) - svcRank(b) || a.localeCompare(b));
   svcSel.replaceChildren(el("option", { value: "all", text: "All services" }), ...svcs.map(s => el("option", { value: s, text: s })));
   if (dashF.svc !== "all" && !svcs.includes(dashF.svc)) dashF.svc = "all";
   svcSel.value = dashF.svc; $("#dash-range").value = dashF.range;
