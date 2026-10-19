@@ -8,6 +8,7 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
 
 - **Dashboard:** every sermon at once: frequency, length, Bible coverage by book and section, themes, doctrines, approach, tone, themes over time, and Claude's read across all of it.
 - **Settings:** translations, your services with their days and times, the places you preach, and defaults for new sermons. A new sermon starts on the next service, and services and places can be added straight from the sermon details.
+- **Import:** Import in the header brings in a whole folder at once, by choosing or dropping it. Each manuscript, slide deck, and recording becomes a sermon, matched by file name, with its details filled in from the file, the file name, the subfolder, and the file date.
 - **Build:** sermon details (date, time, place, service, text, tags). A sermon can be presented more than once: add each other time and place under the first, and the dashboard counts every time it was preached., the slide deck (.pptx rendered to match PowerPoint, or a PDF export), a recording link or file with an as-preached transcript, and slide bindings.
 - **Edit:** Markdown-native manuscript: type `##`, `>`, `-`, `1.`, `**bold**`, `*italic*`, `==highlight==`, `[slide 3]` and it formats as you go, paste or open Markdown files, or press Markdown to read and edit the whole manuscript as text. Opening a file (Markdown, Word, text, or HTML) also fills in the sermon details it mentions: title, text, date and time, service, place, speaker, tags. Rich text manuscript with headings H1 to H4, highlights, pauses, slide cues, and Scripture sections (type a reference, press Tab, choose among favorite translations). Slides sit in a column beside the text and stay in sync. Side panel with Claude's suggestions and an outline view with auto outline. Highlight text or use a Scripture section to make new slides (quote, key verse, big idea, summary points, fill in the blank, question, Canva illustration, photo).
 - **Present:** the manuscript scrolls and the matching slide follows along. Works on phones, with smaller slides so the text leads.
@@ -35,6 +36,7 @@ python3 tests/browser/settings.py # services, places, and new sermon defaults
 python3 tests/browser/cache.py    # saved Claude answers
 python3 tests/browser/md.py       # Markdown typing, paste, import, and the Markdown view
 python3 tests/browser/deliveries.py # a sermon presented at several times and places
+python3 tests/browser/folder.py   # importing a folder of files as sermons
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.

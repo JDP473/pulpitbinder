@@ -61,7 +61,7 @@ textarea{resize:vertical}
 .hdr-title{display:none;font-family:var(--f-read);font-weight:600;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:40ch}
 header.collapsed .hdr-title{display:block}
 header.collapsed .tagbar{display:none}
-header.collapsed #library,header.collapsed #btn-new,header.collapsed #btn-del{display:none}
+header.collapsed #library,header.collapsed #btn-new,header.collapsed #btn-del,header.collapsed #btn-import{display:none}
 header.collapsed .hdr-toggle svg{transform:rotate(180deg)}
 .hdr-toggle svg{transition:transform .2s}
 @media (max-width:700px){ header.collapsed .lib{flex-basis:auto;order:1} header.collapsed .hdr-title{flex:1;max-width:none} }
@@ -211,6 +211,15 @@ main{padding-block:18px 40px}
 .fav:hover{background:var(--sunk)}
 .fav b{font-family:var(--f-mono);font-size:12px;min-width:5.6em;color:var(--sc-accent)}
 .fav span{color:var(--muted)}
+.imp-card{width:min(640px,100%)}
+.imp-step{display:flex;flex-direction:column;gap:12px}
+.imp-step[hidden]{display:none}
+.imp-head{margin:0;font-size:1.05rem}
+.imp-list{display:flex;flex-direction:column;gap:6px;max-height:44vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:4px}
+.imp-item{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;background:transparent;border-radius:6px;padding:8px 10px;cursor:pointer;color:var(--ink)}
+.imp-item:hover,.imp-item:focus-visible{background:var(--sunk)}
+.imp-more summary{cursor:pointer;font-size:13px;color:var(--muted)}
+#imp-bar{transition:width .2s}
 .deliv-list{display:flex;flex-direction:column;gap:10px}
 .deliv-list:empty{display:none}
 .deliv{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--sunk)}
@@ -675,6 +684,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
         <span class="sync-pill" id="sync" data-state="off" role="status">On this device</span>
         <select id="library" aria-label="Saved sermons"></select>
         <button class="btn" id="btn-new">New</button>
+        <button class="btn" id="btn-import" title="Bring in sermons from a folder or files">Import</button>
         <button class="btn" id="btn-del" title="Delete this sermon from this browser">Delete</button>
         <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
         <button class="icon-btn" id="btn-theme" aria-label="Toggle light or dark mode" title="Light / dark">
@@ -958,6 +968,26 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
       <div class="mk-body"><div class="mk-preview" id="mk-preview" aria-live="polite"></div><div class="mk-fields" id="mk-fields"></div></div>
       <div class="sc-pop-row"><button type="button" class="btn" id="mk-again">Ask Claude again</button><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel2">Cancel</button><button type="button" class="btn primary" id="mk-add">Add slide</button></div>
     </div>
+  </div>
+</div>
+<div class="modal" id="import-modal" hidden role="dialog" aria-modal="true" aria-labelledby="imp-title">
+  <div class="modal-card imp-card">
+    <h2 id="imp-title">Bring in sermons</h2>
+    <div id="imp-pick" class="imp-step">
+      <p class="hint" style="margin:0">Choose a folder and every manuscript (.md, .txt, .docx, .html), slide deck (.pptx or .pdf), and recording in it becomes a sermon. Files with the same name in a folder go together, so <b>Psalm 23.docx</b> and <b>Psalm 23.pptx</b> are one sermon. The title, text, date and time, service, place, and speaker are filled in from what each file says. Everything is read in your browser.</p>
+      <div class="drop" id="imp-drop" tabindex="0" role="button" aria-label="Drop a folder here, or press Enter to choose one"><strong>Drop a folder here</strong><div class="hint">or choose one below</div></div>
+      <label class="fav" for="imp-tags"><input type="checkbox" id="imp-tags" checked> <span>Use subfolder names as tags</span></label>
+      <label class="fav" for="imp-skip"><input type="checkbox" id="imp-skip" checked> <span>Skip anything already imported</span></label>
+      <div class="sc-pop-row"><button type="button" class="btn primary" id="imp-folder">Choose a folder</button><button type="button" class="btn" id="imp-files">Choose files</button><div class="spacer"></div><button type="button" class="btn ghost" id="imp-close">Close</button></div>
+      <input type="file" id="imp-in-folder" webkitdirectory multiple hidden>
+      <input type="file" id="imp-in-files" multiple hidden accept=".md,.markdown,.txt,.text,.docx,.html,.htm,.pptx,.pdf,audio/*,video/*">
+    </div>
+    <div id="imp-run" class="imp-step" hidden>
+      <div class="prog" aria-hidden="true"><i id="imp-bar"></i></div>
+      <div class="hint" id="imp-now" aria-live="polite"></div>
+      <div class="sc-pop-row"><div class="spacer"></div><button type="button" class="btn" id="imp-stop">Stop after this one</button></div>
+    </div>
+    <div id="imp-done" class="imp-step" hidden></div>
   </div>
 </div>
 <div class="modal" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="set-title">
@@ -1651,22 +1681,22 @@ async function parsePdf(file, onProgress) {
   }
   return { pages, aspect };
 }
-function applyPdf() {
-  const pages = S.pdfPages || [];
-  S.slides.forEach(s => { s.exact = null; });
-  if (!pages.length) { S.pdfNote = ""; if (S.slidesFromPdf) { S.slides = []; S.slidesFromPdf = false; } return; }
-  if (!S.slides.length || S.slidesFromPdf) {
-    S.slides = pages.map(p => { const w = p.text.split(" "); return { title: w.slice(0, 8).join(" "), body: [w.slice(8).join(" ")].filter(Boolean), notes: "", exact: p.blob, hidden: false }; });
-    S.slidesFromPdf = true; S.aspect = S.pdfAspect || S.aspect;
-    S.pdfNote = `${pages.length} pages used as slides. Add the .pptx too for speaker notes and better matching.`;
+function applyPdf(rec = S) {
+  const pages = rec.pdfPages || [];
+  rec.slides.forEach(s => { s.exact = null; });
+  if (!pages.length) { rec.pdfNote = ""; if (rec.slidesFromPdf) { rec.slides = []; rec.slidesFromPdf = false; } return; }
+  if (!rec.slides.length || rec.slidesFromPdf) {
+    rec.slides = pages.map(p => { const w = p.text.split(" "); return { title: w.slice(0, 8).join(" "), body: [w.slice(8).join(" ")].filter(Boolean), notes: "", exact: p.blob, hidden: false }; });
+    rec.slidesFromPdf = true; rec.aspect = rec.pdfAspect || rec.aspect;
+    rec.pdfNote = `${pages.length} pages used as slides. Add the .pptx too for speaker notes and better matching.`;
     return;
   }
-  const all = S.slides.map((_, i) => i), visible = all.filter(i => !S.slides[i].hidden);
+  const all = rec.slides.map((_, i) => i), visible = all.filter(i => !rec.slides[i].hidden);
   let target;
-  if (pages.length === all.length) { target = all; S.pdfNote = `Exact images for all ${pages.length} slides.`; }
-  else if (pages.length === visible.length) { target = visible; S.pdfNote = `Exact images for the ${pages.length} visible slides. Hidden slides are drawn from the .pptx.`; }
-  else { target = all.slice(0, pages.length); S.pdfNote = `The PDF has ${pages.length} pages but the deck has ${all.length} slides. Pages were matched in order; export the PDF again from this same deck.`; }
-  target.forEach((si, k) => { S.slides[si].exact = pages[k].blob; });
+  if (pages.length === all.length) { target = all; rec.pdfNote = `Exact images for all ${pages.length} slides.`; }
+  else if (pages.length === visible.length) { target = visible; rec.pdfNote = `Exact images for the ${pages.length} visible slides. Hidden slides are drawn from the .pptx.`; }
+  else { target = all.slice(0, pages.length); rec.pdfNote = `The PDF has ${pages.length} pages but the deck has ${all.length} slides. Pages were matched in order; export the PDF again from this same deck.`; }
+  target.forEach((si, k) => { rec.slides[si].exact = pages[k].blob; });
 }
 async function parseDocx(file) {
   const zip = await JSZip.loadAsync(file);
@@ -2491,15 +2521,22 @@ function detectDetails(items, fm) {
 }
 /* Puts details found in a file into the sermon, and says which ones changed. */
 function applyDetails(f, opts = {}) {
-  const m = S.meta, done = [];
+  const done = mergeDetails(S.meta, f, opts);
+  if (done.length) { loadForm(); renderTags(); save(); if (done.includes("title")) refreshLibrary(); }
+  return done;
+}
+/* The merging itself works on any sermon's details, so a folder of files can fill in many sermons. With opts.defaultDate and
+   opts.defaultTime, a time with no date (or a date with no time) falls back to those, not to now. */
+function mergeDetails(m, f, opts = {}) {
+  const done = [];
   const put = (k, v, label) => { if (v == null || v === "" || m[k] === v) return; m[k] = v; done.push(label); };
   put("title", f.title, "title"); put("text", f.text, "primary text");
   const sv = f.service ? svcByName(f.service) : null, svcName = f.service ? (sv ? sv.name : f.service) : "";
   const cur = (m.when || "").match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
   let date = f._date, time = f._time;
   if (!date && !time && sv && sv.time) time = sv.time;
-  if (date && !time) time = (sv && sv.time) || (cur && cur[2]) || localNow().slice(11);
-  if (time && !date) date = (cur && cur[1]) || localNow().slice(0, 10);
+  if (date && !time) time = (sv && sv.time) || (cur && cur[2]) || opts.defaultTime || localNow().slice(11);
+  if (time && !date) date = (cur && cur[1]) || opts.defaultDate || localNow().slice(0, 10);
   let inferred = "";
   if (!svcName && date && f._time) {
     const dow = new Date(date + "T12:00").getDay(), [th, tm] = f._time.split(":").map(Number); let best = null;
@@ -2515,7 +2552,6 @@ function applyDetails(f, opts = {}) {
     const next = f.more.map(d => { const sv = d.service ? svcByName(d.service) : null; return { when: d.date ? `${d.date}T${d.time || (sv && sv.time) || cur2}` : "", service: sv ? sv.name : d.service || "", place: d.place ? (settings.places.find(p => sameName(p, d.place)) || d.place) : "" }; });
     if (key(next) !== key(m.more || [])) { m.more = next.map(x => ({ id: uid(), ...x })); done.push(`${next.length} other presentation${next.length === 1 ? "" : "s"}`); }
   } else if (opts.replaceMore && (m.more || []).length) { m.more = []; done.push("other presentations"); }
-  if (done.length) { loadForm(); renderTags(); save(); if (done.includes("title")) refreshLibrary(); }
   return done;
 }
 function nearestHl(css) {
@@ -2730,7 +2766,8 @@ $("#file-text").onchange = async e => {
   try { await importManuscript(f); } catch (err) { toast("Could not read that file: " + (err.message || err)); }
 };
 /* Opens a file as the manuscript, and fills the sermon's details from whatever the file says about them. Undo puts back both. */
-async function importManuscript(f) {
+/* Reads a manuscript file into HTML and the sermon details it mentions, without touching the open sermon. */
+async function readManuscript(f) {
   let html, found = null;
   if (/\.(docx|html?)$/i.test(f.name)) {
     let fm = null, raw;
@@ -2752,6 +2789,10 @@ async function importManuscript(f) {
     else { const lines = body.split("\n"), d = detectDetails(items(lines), fm); found = d.found; md = lines.filter((_, i) => !d.used.has(i)).join("\n"); }
     html = mdToHtml(md, { soft: isMd });
   }
+  return { html, found };
+}
+async function importManuscript(f) {
+  const { html, found } = await readManuscript(f);
   snapshot({ meta: true });
   if (S.example) { S.meta.title = ""; S.meta.text = ""; S.meta.series = ""; }
   S.html = sanitize(html); S.example = false;
@@ -2764,6 +2805,162 @@ async function importManuscript(f) {
 }
 /* A Scripture section that came from a file or from Markdown without its text gets it fetched. */
 function fillScriptures() { ed.querySelectorAll(".pb-scripture").forEach(e => { const d = readSc(e); if (!d.texts[d.ver]) loadSc(d.id, d.ver); }); }
+
+/* ---------------- Import a folder of sermons ---------------- */
+/* Every manuscript (.md, .txt, .docx, .html), slide deck (.pptx or .pdf), and recording in a folder becomes a sermon. Files with
+   the same name in the same folder go together: Psalm 23.docx, Psalm 23.pptx, and Psalm 23.mp3 are one sermon. Details come from
+   what each file says (see detectDetails); what it does not say comes from the file name, the subfolder, and the file's date. */
+const IMP_TEXT = ["md", "markdown", "docx", "txt", "text", "html", "htm"];   // in the order preferred when one sermon has several
+const IMP_MEDIA = ["mp3", "m4a", "wav", "ogg", "mp4", "mov", "webm", "m4v"];
+const IMP_MAX = 250 * 1048576;
+const extOf = n => (String(n).match(/\.([^.\/\\]+)$/) || ["", ""])[1].toLowerCase();
+const baseOf = n => String(n).replace(/^.*[\\/]/, "").replace(/\.[^.]+$/, "");
+const ymdLocal = ms => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+/* "2026-10-18 Psalm 23" and "romans_12_light" become a date and a title */
+function nameDetails(base) {
+  let t = String(base), date = null;
+  const m = t.match(/^(\d{4})[-_.](\d{1,2})[-_.](\d{1,2})(?=$|[\s_.\-–—])[\s_.\-–—]*/);
+  if (m) { const p = parseDateTime(`${m[1]}-${m[2]}-${m[3]}`); if (p.date) { date = p.date; t = t.slice(m[0].length); } }
+  if (!/\s/.test(t)) t = t.replace(/[_-]+/g, " ");
+  t = t.replace(/_+/g, " ").replace(/\s+/g, " ").trim();
+  return { date, title: t || String(base).trim() };
+}
+/* the service held on the day and nearest the time, when there is one */
+function guessService(when) {
+  const m = String(when || "").match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/); if (!m) return null;
+  const dow = new Date(m[1] + "T12:00").getDay(), mins = +m[2] * 60 + +m[3]; let best = null;
+  for (const s of settings.services) { if (s.day !== dow || !s.time) continue; const [h, mi] = s.time.split(":").map(Number), diff = Math.abs(h * 60 + mi - mins); if (!best || diff < best.diff) best = { s, diff }; }
+  return best && best.s;
+}
+function impGroups(entries, fromFolder) {
+  const skipped = [], map = new Map();
+  for (const e of entries) {
+    const parts = e.path.split("/"), name = parts.pop();
+    if (/^(\.|~\$)/.test(name) || /^(thumbs\.db|desktop\.ini)$/i.test(name)) continue;
+    const ext = extOf(name), kind = IMP_TEXT.includes(ext) ? "text" : ext === "pptx" ? "pptx" : ext === "pdf" ? "pdf" : IMP_MEDIA.includes(ext) ? "media" : null;
+    if (!kind) { skipped.push({ path: e.path, why: "not a manuscript, slide deck, or recording" }); continue; }
+    if (e.file.size > IMP_MAX) { skipped.push({ path: e.path, why: "larger than 250 MB" }); continue; }
+    const dir = parts.join("/"), key = (dir + "/" + baseOf(name)).toLowerCase();
+    let g = map.get(key); if (!g) map.set(key, g = { key, dir, base: baseOf(name), text: [], pptx: null, pdf: null, media: null, tags: [] });
+    if (kind === "text") g.text.push({ ...e, ext });
+    else if (g[kind]) skipped.push({ path: e.path, why: `same name as ${g[kind].path.split("/").pop()}` }); else g[kind] = e;
+  }
+  const groups = [...map.values()];
+  for (const g of groups) {
+    g.text.sort((a, b) => IMP_TEXT.indexOf(a.ext) - IMP_TEXT.indexOf(b.ext));
+    for (const x of g.text.slice(1)) skipped.push({ path: x.path, why: `same name as ${g.text[0].path.split("/").pop()}` });
+    g.text = g.text.slice(0, 1);
+    const segs = g.dir ? g.dir.split("/") : [];
+    g.tags = (fromFolder ? segs.slice(1) : segs).filter(x => x && !/^(19|20)\d{2}$/.test(x));
+  }
+  groups.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+  return { groups, skipped };
+}
+const impKey = g => fingerprint([...["pptx", "pdf", "media"].map(k => g[k]), ...g.text].filter(Boolean).map(e => `${e.file.size}:${e.file.lastModified}`).join("|") + g.key);
+const MEDIA_TYPES = { mp3: "audio/mpeg", m4a: "audio/mp4", wav: "audio/wav", ogg: "audio/ogg", mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm", m4v: "video/mp4" };
+/* Builds one sermon record from a group of files. Nothing here touches the sermon on screen. */
+async function impMake(g, opts, progress) {
+  const rec = blank(), m = rec.meta, notes = [], problems = [];   // notes are for the summary; problems are things that could not be read
+  m.when = ""; m.service = ""; rec.example = false;
+  let found = null;
+  const lead = g.text[0] || g.pptx || g.pdf || g.media, stamp = Math.max(...[g.text[0], g.pptx, g.pdf, g.media].filter(Boolean).map(e => e.file.lastModified || 0));
+  if (g.text[0]) { const r = await readManuscript(g.text[0].file); rec.html = sanitize(r.html); found = r.found; }
+  rec.transcript = plainFromHtml(rec.html);
+  if (g.pptx) {
+    const { slides, aspect } = await parsePptx(g.pptx.file, (i, n) => progress(`${g.base}: slide ${i} of ${n}`));
+    if (slides.length) { rec.slides = slides; rec.aspect = aspect; rec.pptxName = g.pptx.file.name; rec.slidesFromPdf = false; } else problems.push("no slides found in the .pptx");
+  }
+  if (g.pdf) {
+    try { const { pages, aspect } = await parsePdf(g.pdf.file, (i, n) => progress(`${g.base}: page ${i} of ${n}`)); if (pages.length) { rec.pdfPages = pages; rec.pdfName = g.pdf.file.name; rec.pdfAspect = aspect; } }
+    catch (e) { problems.push("couldn't read the PDF: " + (e.message || e)); }
+  }
+  if (rec.pdfPages || rec.slides.length) { applyPdf(rec); rec.deckVer = Date.now(); }
+  if (g.media) { rec.media = { link: "", file: { name: g.media.file.name, type: g.media.file.type || MEDIA_TYPES[extOf(g.media.file.name)] || "audio/mpeg", blob: g.media.file, duration: null }, preached: "" }; if (g.media.file.size > 20 * 1048576) notes.push("recording stays on this device (over 20 MB)"); }
+  const nd = nameDetails(g.base), fileDate = stamp ? ymdLocal(stamp) : "";
+  const done = mergeDetails(m, found || {}, { defaultDate: nd.date || fileDate, defaultTime: "10:00" });
+  if (!m.title) m.title = nd.title;
+  if (!m.when) {
+    const date = nd.date || fileDate;
+    if (date) { const sv = settings.services.find(s => s.day === new Date(date + "T12:00").getDay() && s.time); m.when = `${date}T${(m.service && svcByName(m.service) && svcByName(m.service).time) || (sv && sv.time) || "10:00"}`; notes.push(nd.date ? "date from the file name" : "date from the file's date"); }
+  }
+  if (!m.service) { const sv = guessService(m.when) || svcByName("Other"); if (sv) { m.service = sv.name; if (m.when) notes.push("service guessed from the day"); } }
+  if (!m.series && opts.tags && g.tags.length) m.series = g.tags.join(", ");
+  if (!g.text[0] && !rec.slides.length && !rec.pdfPages && !(rec.media && rec.media.file)) throw new Error(problems.join("; ") || "nothing in it could be read");   // never save an empty sermon
+  rec.updatedAt = Date.now(); notes.push(...problems);
+  return { rec, notes, filled: done, lead: lead.path };
+}
+async function entriesFromDrop(dt) {
+  const ens = [...(dt.items || [])].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);   // read before any await: the event's data goes away after it
+  const files = [...(dt.files || [])], out = []; let folder = false;
+  const walk = async (en, prefix) => {
+    if (en.isFile) { const file = await new Promise((res, rej) => en.file(res, rej)); out.push({ file, path: prefix + en.name }); }
+    else if (en.isDirectory) { folder = true; const rd = en.createReader(); let batch; do { batch = await new Promise((res, rej) => rd.readEntries(res, rej)); for (const e of batch) await walk(e, prefix + en.name + "/"); } while (batch.length); }
+  };
+  for (const en of ens) await walk(en, "");
+  if (!out.length) files.forEach(f => out.push({ file: f, path: f.name }));
+  return { entries: out, fromFolder: folder };
+}
+let impBusy = false, impStop = false;
+const impStep = k => { for (const id of ["pick", "run", "done"]) $("#imp-" + id).hidden = id !== k; };
+function openImport() { if (impBusy) { $("#import-modal").hidden = false; return; } impStep("pick"); $("#imp-folder").hidden = !("webkitdirectory" in document.createElement("input")); $("#import-modal").hidden = false; $("#imp-folder").hidden ? $("#imp-files").focus() : $("#imp-folder").focus(); }
+const closeImport = () => { $("#import-modal").hidden = true; };   // an import in progress keeps going; Import in the header brings its progress back
+async function impRun(entries, fromFolder) {
+  const opts = { tags: $("#imp-tags").checked, skipDone: $("#imp-skip").checked };
+  const { groups, skipped } = impGroups(entries, fromFolder);
+  if (!groups.length) { impStep("done"); impSummary({ made: [], dupes: [], failed: [], skipped, stopped: false, total: 0 }); return; }
+  impBusy = true; impStop = false; impStep("run");
+  const have = new Set((await store.all()).map(r => r.importKey).filter(Boolean)), made = [], dupes = [], failed = [], now = x => { $("#imp-now").textContent = x; };
+  for (let i = 0; i < groups.length; i++) {
+    if (impStop) break;
+    const g = groups[i], key = impKey(g);
+    $("#imp-bar").style.width = `${i / groups.length * 100}%`; now(`${i + 1} of ${groups.length}: ${g.base}`);
+    if (opts.skipDone && have.has(key)) { dupes.push(g.base); continue; }
+    try { const r = await impMake(g, opts, now); r.rec.importKey = key; await store.put(r.rec); made.push(r); have.add(key); }
+    catch (e) { console.warn("import", g.base, e); failed.push({ name: g.base, why: (e && e.message) || String(e) }); }
+    await new Promise(r => setTimeout(r, 0));
+  }
+  $("#imp-bar").style.width = "100%";
+  const stopped = impStop; impBusy = false;
+  if (made.length && S && S.example) { const ex = S.id; await store.del(ex); openRec(made[0].rec); }
+  await refreshLibrary();
+  if (made.length && cdb) { setSync("saving"); made.forEach(r => { pushing = pushing.then(() => pushRecord(r.rec)).catch(e => console.warn("sync", e)); }); pushing.then(() => setSync("synced"), () => setSync("error")); }
+  impStep("done"); impSummary({ made, dupes, failed, skipped, stopped, total: groups.length });
+}
+function impSummary(r) {
+  const box = $("#imp-done"); box.replaceChildren();
+  const n = r.made.length, withSlides = r.made.filter(x => x.rec.slides.length).length, withRec = r.made.filter(x => x.rec.media && x.rec.media.file).length;
+  box.append(el("p", { class: "imp-head" }, el("b", { text: n ? `${n} sermon${n === 1 ? "" : "s"} imported` : "Nothing new was imported" }), r.stopped ? " (stopped early)" : ""));
+  const bits = []; if (withSlides) bits.push(`${withSlides} with slides`); if (withRec) bits.push(`${withRec} with a recording`);
+  const guessed = r.made.filter(x => x.notes.some(t => /file's date|from the day/.test(t))).length;
+  if (bits.length) box.append(el("div", { class: "hint", text: bits.join(", ") + "." }));
+  if (guessed) box.append(el("div", { class: "hint", style: "color:var(--warn)", text: `${guessed} had no date in the file, so the date came from the file's date and the service from the day. Check those in Build.` }));
+  if (r.dupes.length) box.append(el("div", { class: "hint", text: `${r.dupes.length} already imported, left alone.` }));
+  if (r.made.length) {
+    const list = el("div", { class: "imp-list" });
+    r.made.forEach(x => { const m = x.rec.meta; list.append(el("button", { type: "button", class: "imp-item", onclick: async () => { $("#import-modal").hidden = true; await refreshLibrary(); openRec(x.rec); setView("build"); } },
+      el("b", { text: m.title || "Untitled sermon" }), el("span", { class: "hint", text: [m.when ? fmtWhen(m.when) : "", m.service, m.place, m.series ? "Tags: " + m.series : "", x.rec.slides.length ? `${x.rec.slides.length} slides` : ""].filter(Boolean).join(" · ") }), x.notes.length ? el("span", { class: "hint", text: x.notes.join("; ") }) : null)); });
+    box.append(list);
+  }
+  if (r.failed.length) box.append(el("details", { class: "imp-more", open: "" }, el("summary", { text: `${r.failed.length} could not be imported` }), ...r.failed.map(f => el("div", { class: "hint", style: "color:var(--warn)", text: `${f.name}: ${f.why}` }))));
+  if (r.skipped.length) box.append(el("details", { class: "imp-more" }, el("summary", { text: `${r.skipped.length} file${r.skipped.length === 1 ? "" : "s"} skipped` }), ...r.skipped.slice(0, 200).map(f => el("div", { class: "hint", text: `${f.path}: ${f.why}` }))));
+  box.append(el("div", { class: "sc-pop-row" }, el("div", { class: "spacer" }), el("button", { type: "button", class: "btn", text: "Import more", onclick: () => impStep("pick") }), el("button", { type: "button", class: "btn primary", id: "imp-ok", text: "Done", onclick: closeImport })));
+  $("#imp-ok").focus();
+}
+$("#btn-import").onclick = openImport;
+$("#imp-folder").onclick = () => $("#imp-in-folder").click();
+$("#imp-files").onclick = () => $("#imp-in-files").click();
+$("#imp-in-folder").onchange = e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) impRun(fs.map(f => ({ file: f, path: f.webkitRelativePath || f.name })), fs.some(f => (f.webkitRelativePath || "").includes("/"))); };
+$("#imp-in-files").onchange = e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) impRun(fs.map(f => ({ file: f, path: f.name })), false); };
+const drop = $("#imp-drop");
+drop.onclick = () => ($("#imp-folder").hidden ? $("#imp-files") : $("#imp-folder")).click();
+drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drop.click(); } };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = async e => { e.preventDefault(); drop.classList.remove("over"); try { const { entries, fromFolder } = await entriesFromDrop(e.dataTransfer); if (entries.length) impRun(entries, fromFolder); } catch (err) { toast("Couldn't read what was dropped: " + (err.message || err)); } };
+$("#imp-stop").onclick = () => { impStop = true; $("#imp-now").textContent = "Stopping after this one…"; };
+$("#imp-close").onclick = closeImport;
+$("#import-modal").addEventListener("click", e => { if (e.target.id === "import-modal") closeImport(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#import-modal").hidden) closeImport(); });
 
 /* the Markdown view: the whole manuscript, with its details, as text. Edits apply to the manuscript as you type. */
 let mdOn = false, mdT = 0;
