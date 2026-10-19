@@ -7,6 +7,7 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 | Tab | Section id | Render entry |
 |---|---|---|
 | Dashboard | `#view-dash` | `renderDash()` gathers every sermon, `drawDash()` draws |
+| Study | `#view-study` | `renderStudy()` |
 | Build | `#view-build` | `renderBindings()`, `renderMediaPanel()` |
 | Edit | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
 | Present | `#view-present` | `renderPresent()` |
@@ -96,3 +97,7 @@ The Markdown view (`#btn-md`) shows the details block and the manuscript as text
 ## Folder import
 
 `impGroups` groups the files of a folder by directory and base name (a manuscript, a .pptx, a .pdf, and a recording with the same name are one sermon; extra files with the same name are listed as skipped). `impMake` builds one record per group without touching the open sermon: `readManuscript` reads the text and the details it mentions, `parsePptx` and `parsePdf` read the deck, `mergeDetails` fills the details, and what the file does not say comes from the file name (a leading date, a slug as a title), the subfolder (as a tag, ignoring year folders), and the file's modified date, with the service guessed from the day. Each record keeps an `importKey` made from the file names, sizes, and dates, so importing the same unchanged folder again adds nothing. Dropped folders are read through `webkitGetAsEntry`; the picker uses `webkitdirectory`. `tests/browser/folder.py` builds a folder on disk and checks all of it.
+
+## Text Study
+
+`study()` holds the passage, chosen translations, notes, and questions for the open sermon (`S.study`, synced in the `core` part of the record). `compareVerse` aligns each verse of the other translations to the reading text with a longest common subsequence, producing intervals where the readings differ; the overlay underlines those intervals and the tooltip lists each translation's reading, and the stacked view prints the same alignment line by line. Cross references come from OpenBible.info and Jewish commentary from Sefaria, both fetched through Firecrawl `firecrawl_scrape`; the background, Christian history, Hebrew and Jewish understanding, themes, and answers to questions are Claude JSON prompts ("Task: ..."), written for a preacher in the churches of Christ. Every one of these goes through `stGet`, which keeps the result in the `kv` store (`study-<key>`) and, except for Bible text, in the account under `_cache/study`, so a passage opened again, or on another device, makes no new request. Bible text is stored on this device only. `stMapSvg` draws the mind map as SVG from what has been gathered; `studyMd` writes the whole study as Markdown. Test: `tests/browser/study.py`, which counts requests to prove the cache.

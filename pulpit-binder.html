@@ -211,6 +211,113 @@ main{padding-block:18px 40px}
 .fav:hover{background:var(--sunk)}
 .fav b{font-family:var(--f-mono);font-size:12px;min-width:5.6em;color:var(--sc-accent)}
 .fav span{color:var(--muted)}
+/* text study */
+.vc0{--vc:#2f5d8a}.vc1{--vc:#2f7a4b}.vc2{--vc:#a1620b}.vc3{--vc:#7a4a9a}.vc4{--vc:#1f7a80}.vc5{--vc:#b0456b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .vc0{--vc:#8db8e8}:root:not([data-theme="light"]) .vc1{--vc:#6fc28f}:root:not([data-theme="light"]) .vc2{--vc:#e2a54a}:root:not([data-theme="light"]) .vc3{--vc:#c39be0}:root:not([data-theme="light"]) .vc4{--vc:#6fcdd2}:root:not([data-theme="light"]) .vc5{--vc:#ec8fb0}}
+:root[data-theme="dark"] .vc0{--vc:#8db8e8}:root[data-theme="dark"] .vc1{--vc:#6fc28f}:root[data-theme="dark"] .vc2{--vc:#e2a54a}:root[data-theme="dark"] .vc3{--vc:#c39be0}:root[data-theme="dark"] .vc4{--vc:#6fcdd2}:root[data-theme="dark"] .vc5{--vc:#ec8fb0}
+.study{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:18px;align-items:start}
+@media (max-width:1100px){.study{grid-template-columns:minmax(0,1fr)}}
+.st-main,.st-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+.st-main > #st-panels{display:flex;flex-direction:column;gap:18px}
+.st-main > #st-panels[hidden]{display:none}
+.st-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) + 8px);max-height:calc(100vh - var(--hdr-h,110px) - 30px);overflow:auto}
+@media (max-width:1100px){.st-side{position:static;max-height:none}}
+.st-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.st-form .field{flex:1;min-width:200px}
+.st-vers{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.st-vchip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;cursor:pointer;font:600 12.5px var(--f-mono);color:var(--muted)}
+.st-vchip .st-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid currentColor}
+.st-vchip.on{color:var(--vc);border-color:var(--vc);background:color-mix(in srgb,var(--vc) 12%,var(--surface))}
+.st-vchip.on .st-dot{background:var(--vc)}
+.vt{font:700 10.5px var(--f-mono);color:var(--vc,var(--muted));letter-spacing:.02em}
+.st-actions{display:flex;gap:8px;flex-wrap:wrap}
+.st-actions[hidden]{display:none}
+.st-lbl{font-size:12.5px;color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+.st-seg .set-tab[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.st-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.st-lg{display:inline-flex;align-items:center;gap:4px}
+.st-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.st-kws{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.st-kws .chip{cursor:pointer}
+.st-stripwrap{display:flex;flex-direction:column;gap:4px}
+.st-strip{display:flex;gap:3px;flex-wrap:wrap}
+.st-strip .bk{min-width:30px;cursor:pointer}
+.st-verses{display:flex;flex-direction:column;gap:10px;font-family:var(--f-read);font-size:1.12rem;line-height:1.85}
+.st-verse{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:6px;align-items:baseline}
+.st-vn{border:0;background:transparent;color:var(--sc-accent);font:700 .72em var(--f-ui);cursor:pointer;padding:2px;border-radius:4px;text-align:right}
+.st-vn:hover{background:var(--sunk)}
+button.st-var{all:unset;cursor:pointer;border-bottom:2px dotted var(--accent);padding:0 1px;border-radius:2px}
+button.st-var:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.st-var.d1{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.st-var.d2{background:color-mix(in srgb,var(--accent) 20%,transparent)}
+.st-var.d3{background:color-mix(in srgb,var(--accent) 32%,transparent)}
+button.st-var:hover,button.st-var:focus-visible{background:color-mix(in srgb,var(--accent) 40%,transparent)}
+button.st-var.ins{font-weight:700;color:var(--accent);padding:0 3px;border-bottom:0}
+span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;line-height:1.3;padding:0 4px;border-radius:6px;background:var(--sunk);margin:0 1px}
+.st-var.stack .st-vb{border-bottom:2px dotted var(--accent)}
+.st-va{font:500 .62em var(--f-ui);color:var(--muted);display:flex;gap:4px;align-items:baseline;white-space:nowrap}
+.lg{border-bottom:2px solid color-mix(in srgb,var(--sc-accent) 55%,transparent);font-weight:600}
+.kw{background:var(--hl-yellow);border-radius:2px;padding:0 1px}
+.st-tip{position:fixed;z-index:60;max-width:min(340px,calc(100vw - 16px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.22);padding:10px 12px;font-family:var(--f-ui);font-size:13.5px;line-height:1.4}
+.st-tip[hidden]{display:none}
+.st-tip-h{font:700 11px var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.st-readings{display:flex;flex-direction:column;gap:6px}
+.st-rd{display:flex;gap:8px;align-items:baseline}
+.st-rd.base .st-rt{font-weight:700}
+.st-rvs{display:inline-flex;gap:4px;flex-wrap:wrap;flex:none}
+.st-menu{display:flex;flex-direction:column;gap:6px}
+.st-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:10px}
+.st-card{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.st-card p{margin:0}
+.st-orig{display:flex;gap:8px;align-items:baseline}
+.st-heb{font:600 1.35rem var(--f-read)}
+.st-hebtext{font:1.15rem/1.8 var(--f-read);color:var(--muted)}
+.st-xr{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--surface)}
+.st-xr summary{cursor:pointer;padding:4px 0}
+.st-xi{padding:6px 0;border-top:1px solid var(--line)}
+.st-xh{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.st-xt{font-family:var(--f-read);color:var(--muted);font-size:.95rem}
+.st-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.st-eras{display:flex;flex-direction:column;gap:10px}
+.st-era{border-left:3px solid var(--accent);padding:2px 0 2px 12px}
+.st-era p{margin:4px 0}
+.st-eh{font:700 13px var(--f-ui)}
+.st-hist{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.st-struct{display:flex;flex-direction:column;gap:4px}
+.st-sec{display:flex;gap:10px;align-items:baseline;border-left:4px solid var(--sc-accent);padding:4px 10px;background:var(--sunk);border-radius:0 6px 6px 0}
+.st-sec b{font:600 12px var(--f-mono);min-width:5em}
+.st-q{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.st-qh{display:flex;gap:8px;align-items:flex-start}
+.st-qt{font-size:14px;font-weight:500;cursor:pointer}
+.st-q.done .st-qt{color:var(--muted)}
+.st-qm,.st-qa{display:flex;gap:6px;flex-wrap:wrap}
+.st-qm:empty{display:none}
+.st-ans{border-left:3px solid var(--ok);padding-left:10px;display:flex;flex-direction:column;gap:6px}
+.st-ans p{margin:0}
+.st-qform{display:flex;flex-direction:column;gap:8px}
+.st-ioa{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.st-ioa summary{cursor:pointer}
+.st-ioa-l{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+.st-vizbar .btn{flex:0 1 auto}
+.st-mapbox{overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface);margin-top:8px}
+.st-mapbox svg{display:block}
+.st-mapbox.fit svg{width:100%;height:auto}
+.st-sgrid{display:grid;gap:4px}
+.st-sv{border:0;background:var(--sunk);border-radius:4px;font:600 11px var(--f-mono);color:var(--muted);padding:4px 0;cursor:pointer}
+.st-sb{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:6px;font-size:13px;min-width:0;overflow:hidden}
+.st-sb b{font:700 11px var(--f-mono)}
+.st-sb.s0{background:color-mix(in srgb,#2f6fae 18%,var(--surface));border-left:4px solid #2f6fae}
+.st-sb.s1{background:color-mix(in srgb,#2f8a57 18%,var(--surface));border-left:4px solid #2f8a57}
+.st-sb.s2{background:color-mix(in srgb,#c0761a 18%,var(--surface));border-left:4px solid #c0761a}
+.st-sb.s3{background:color-mix(in srgb,#8a4fb0 18%,var(--surface));border-left:4px solid #8a4fb0}
+.st-timewrap{overflow-x:auto}
+.st-time{display:grid;gap:6px;min-width:660px}
+.st-th{font:700 11px var(--f-ui);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:2px 4px}
+.st-tl{font:700 12px var(--f-ui);align-self:start;padding-top:6px}
+.st-tc{display:flex;flex-direction:column;gap:6px}
+.st-te{border-radius:6px;padding:6px 8px;font-size:12.5px;display:flex;flex-direction:column;gap:2px}
+.st-tc.ch .st-te{background:color-mix(in srgb,#2f6fae 14%,var(--surface));border-left:3px solid #2f6fae}
+.st-tc.jw .st-te{background:color-mix(in srgb,#c0761a 14%,var(--surface));border-left:3px solid #c0761a}
 .imp-card{width:min(640px,100%)}
 .imp-step{display:flex;flex-direction:column;gap:12px}
 .imp-step[hidden]{display:none}
@@ -597,8 +704,8 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
 @media (max-width:700px){
   header.top{position:static}
   .top-row{gap:8px;padding-block:8px}
-  .tabs{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(5,1fr)}
-  .tab{padding:8px 4px}
+  .tabs{order:3;flex-basis:100%;display:grid;grid-template-columns:repeat(6,1fr)}
+  .tab{padding:8px 2px;font-size:13px}
   .lib{order:2;flex-basis:100%;flex-wrap:nowrap;min-width:0}
   .lib select{flex:1 1 0;width:0;min-width:0}
   .lib .btn{padding-inline:10px}
@@ -673,6 +780,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" id="tab-dash" aria-selected="false" data-view="dash">Dashboard</button>
         <button class="tab" role="tab" id="tab-build" aria-selected="true" data-view="build">Build</button>
+        <button class="tab" role="tab" id="tab-study" aria-selected="false" data-view="study">Study</button>
         <button class="tab" role="tab" id="tab-edit" aria-selected="false" data-view="edit">Edit</button>
         <button class="tab" role="tab" id="tab-present" aria-selected="false" data-view="present">Present</button>
         <button class="tab" role="tab" id="tab-analysis" aria-selected="false" data-view="analysis">Analysis</button>
@@ -765,6 +873,42 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- STUDY -->
+  <section class="view" id="view-study" hidden>
+    <div class="study">
+      <div class="st-main">
+        <div class="panel" id="st-top">
+          <div class="bind-head"><h2>Text study</h2><div class="spacer"></div>
+            <button type="button" class="btn" id="st-copy" title="Copy this study as Markdown">Copy as Markdown</button>
+            <button type="button" class="btn" id="st-save" hidden>Save .md</button></div>
+          <form class="st-form" id="st-form" autocomplete="off">
+            <div class="field"><label for="st-ref">Passage</label><input type="text" id="st-ref" placeholder="Psalm 119:105-112" enterkeyhint="go"></div>
+            <button type="submit" class="btn primary">Study this text</button>
+          </form>
+          <div class="field"><span class="set-h">Translations to compare</span><div class="st-vers" id="st-vers"></div></div>
+          <div class="st-actions" id="st-actions" hidden>
+            <button type="button" class="btn" id="st-use">Use as the sermon's text</button>
+            <button type="button" class="btn" id="st-add" title="Add this passage as a Scripture section at the end of the manuscript">Add to the manuscript</button>
+            <button type="button" class="btn ghost" id="st-reload" title="Fetch the text again">Reload the text</button>
+          </div>
+          <div class="hint" id="st-status" role="status" aria-live="polite"></div>
+        </div>
+        <div id="st-panels" hidden>
+          <div class="panel" id="st-compare"></div>
+          <div class="panel" id="st-xref"></div>
+          <div class="panel" id="st-context"></div>
+          <div class="panel" id="st-history"></div>
+          <div class="panel" id="st-viz"></div>
+        </div>
+      </div>
+      <aside class="st-side" id="st-side">
+        <div class="panel" id="st-questions"></div>
+        <div class="panel" id="st-notes"></div>
+      </aside>
+    </div>
+    <div class="st-tip" id="st-tip" role="tooltip" hidden></div>
   </section>
 
   <!-- EDIT -->
@@ -1918,6 +2062,7 @@ function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent();
   if (mdOn) $("#md-src").value = mdDocument();
+  sd = null; stXrOpen = null; if (view === "study") renderStudy();
   watchCurrent();
 }
 
@@ -3833,16 +3978,7 @@ mkModal.addEventListener("click", e => { if (e.target === mkModal) closePicker()
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !mkModal.hidden) closePicker(); });
 
 /* source helpers */
-function scUnits(d) {
-  const cur = d.texts[d.ver]; if (!cur) return [];
-  const st = refStart(d.ref); const units = []; let ch = st.ch, u = null;
-  for (const part of cur.t.split(/(\{\{\d{1,3}(?::\d{1,3})?\}\})/)) {
-    const m = part.match(/^\{\{(\d{1,3})(?::(\d{1,3}))?\}\}$/);
-    if (m) { if (m[2]) ch = +m[1]; u = { ch, v: m[2] ? +m[2] : +m[1], t: part }; units.push(u); }
-    else if (u) u.t += part; else if (part.trim()) { u = { ch, v: st.v, t: part }; units.push(u); }
-  }
-  return units;
-}
+function scUnits(d) { const cur = d.texts[d.ver]; return cur ? unitsFromTokens(cur.t, d.ref) : []; }
 const bookOf = ref => (ref.match(/^(.*?)\s+\d/) || [, ref])[1];
 const unitRef = (book, a, z) => a.ch === z.ch ? `${book} ${a.ch}:${a.v}${z.v !== a.v ? "-" + z.v : ""}` : `${book} ${a.ch}:${a.v}-${z.ch}:${z.v}`;
 function outlinePointAt(target) {
@@ -4570,7 +4706,7 @@ async function pushRecord(rec) {
   const md = rec.media || {};
   let fileRef = null, fileLocal = false;
   if (md.file && md.file.blob) { fileRef = await upBlob(md.file.blob); fileLocal = !fileRef; }
-  const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
+  const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
   await putPart(base, "core", core, last, chunks);
   await putPart(base, "html", rec.html || "", last, chunks);
   await putPart(base, "preached", md.preached || "", last, chunks);
@@ -4600,7 +4736,7 @@ async function pullRecord(id) {
   const rec = {
     id, updatedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
     slides: slidesT.map(t => parseJ(t, { title: "", body: [], notes: "" })), pptxName: m.pptxName, pdfName: m.pdfName, pdfNote: m.pdfNote, pdfAspect: m.pdfAspect, aspect: m.aspect, slidesFromPdf: m.slidesFromPdf, deckVer: m.deckVer || 0,
-    pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
+    pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, study: core.study || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
     media: { link: (core.media && core.media.link) || "", preached, file: (core.media && core.media.file) || (local && local.media && local.media.file && m.fileLocal ? local.media.file : null) }
   };
   rec.transcript = plainFromHtml(rec.html);
@@ -5069,13 +5205,746 @@ document.querySelectorAll("#dash-table th[data-k]").forEach(th => {
 let dashQueued = 0;
 function queueDash() { if (view !== "dash") return; clearTimeout(dashQueued); dashQueued = setTimeout(() => renderDash(true), 1500); }
 
+/* ---------------- Text Study ---------------- */
+/* Study a passage the way a preacher does before writing: the text in several translations laid over one another so
+   the differences show, its cross references, background and word study, how it has been read through history, and the
+   questions it raises. Everything fetched or asked is kept, on this device and in the account, so nothing is pulled twice. */
+const ST_MAX_VERSES = 40, ST_MAX_VERS = 6, ST_XR_VERSES = 12, ST_V = "v1";
+const study = () => (S.study = S.study || { ref: "", vers: [], base: "", questions: [], notes: "", ioa: { obs: "", int: "", app: "" } });
+let sd = null;   // what is loaded for the passage on screen
+const sdNew = ref => ({ ref, units: {}, srcs: {}, errors: {}, xr: {}, xrBusy: new Set(), ctx: null, tx: null, ch: null, jw: null, themes: null, map: null, sef: {}, busy: new Set(), note: "" });
+let stMode = "overlay", stLogic = false, stKw = ""; try { stMode = localStorage.getItem("pb-st-mode") === "stacked" ? "stacked" : "overlay"; } catch {}
+
+/* kept results: this device first, then the account */
+const stDoc = k => (cdb && userId) ? cdb.doc(`data/users/${userId}/_cache/study/${fingerprint(k)}`) : null;   // full paths: a document reference has no collection()
+async function stPeek(k, cloud = true) {
+  const hit = await kv.get("study-" + k); if (hit) return hit.v;
+  if (!cloud) return null;
+  await Promise.race([syncSettled, new Promise(r => setTimeout(r, 4000))]);
+  const d = stDoc(k); if (!d) return null;
+  try { const snap = await d.get(); if (snap.exists) { const v = JSON.parse(snap.data().v), at = snap.data().at || Date.now(); kv.put({ k: "study-" + k, v, at }); return v; } } catch {}
+  return null;
+}
+async function stGet(k, make, { fresh = false, cloud = true } = {}) {
+  if (!fresh) { const v = await stPeek(k, cloud); if (v != null) return { value: v, cached: true }; }
+  const value = await make(), at = Date.now();
+  kv.put({ k: "study-" + k, v: value, at });
+  const d = cloud && stDoc(k); if (d) { const str = JSON.stringify(value); if (str.length < 200000) d.set({ v: str, at }).catch(() => {}); }
+  return { value, cached: false };
+}
+const mdFrom = res => { const p = res && res.payload; return typeof p === "string" ? p : (p && (p.markdown || (p.data && p.data.markdown))) || ""; };
+const stKey = (kind, ref, extra = "") => `${kind}|${ref.toLowerCase()}${extra ? "|" + extra : ""}|${ST_V}`;
+
+/* ---- the text in each translation, and how the translations differ ---- */
+function unitsFromTokens(t, ref) {
+  const st = refStart(ref); const units = []; let ch = st.ch, u = null;
+  for (const part of String(t || "").split(/(\{\{\d{1,3}(?::\d{1,3})?\}\})/)) {
+    const m = part.match(/^\{\{(\d{1,3})(?::(\d{1,3}))?\}\}$/);
+    if (m) { if (m[2]) ch = +m[1]; u = { ch, v: m[2] ? +m[2] : +m[1], t: part }; units.push(u); }
+    else if (u) u.t += part; else if (part.trim()) { u = { ch, v: st.v, t: part }; units.push(u); }
+  }
+  return units;
+}
+const normW = w => w.toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9']+/g, "");
+function toks(text) {   // words as printed, each with the key used to compare it; a lone dash or mark stays with the word before it
+  const out = [];
+  for (const w of String(text || "").split(/\s+/).filter(Boolean)) { const k = normW(w); if (!k && out.length) out[out.length - 1].w += " " + w; else if (k) out.push({ w, k }); }
+  return out;
+}
+function lcsMatch(a, b) {   // m[i] = the position in b that a[i] lines up with, or -1
+  const n = a.length, m = b.length, dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const mp = new Array(n).fill(-1); let i = 0, j = 0;
+  while (i < n && j < m) { if (a[i] === b[j]) { mp[i] = j; i++; j++; } else if (dp[i + 1][j] >= dp[i][j + 1]) i++; else j++; }
+  return mp;
+}
+/* One verse: the reading text's words, and each place where any other translation chooses differently. A place is a run
+   of the reading text's words (or the gap between two words, for words another translation adds) with what each
+   translation has there, grouped by identical wording. */
+function compareVerse(baseText, alts) {
+  const B = toks(baseText), n = B.length, bk = B.map(x => x.k);
+  const per = Object.entries(alts).map(([ver, text]) => { const A = toks(text); return { ver, A, mp: lcsMatch(bk, A.map(x => x.k)) }; });
+  const tokDiff = new Array(n).fill(false), gapDiff = new Array(n + 1).fill(false);
+  for (const p of per) {
+    let prev = -1;
+    for (let i = 0; i <= n; i++) {
+      if (i < n && p.mp[i] < 0) { tokDiff[i] = true; continue; }
+      const next = i < n ? p.mp[i] : p.A.length;
+      if (next - prev > 1) gapDiff[i] = true;
+      if (i < n) prev = p.mp[i];
+    }
+  }
+  const intervals = []; let run = null;
+  const flush = () => { if (run) { intervals.push(run); run = null; } };
+  for (let i = 0; i <= n; i++) {
+    if (gapDiff[i]) { if (!run) run = { a: i, b: i }; }
+    if (i < n) { if (tokDiff[i]) { if (!run) run = { a: i, b: i }; run.b = i + 1; } else flush(); }
+  }
+  flush();
+  // a run that began with a gap and ran into tokens covers the gap; one that ended at a gap spans to it
+  const tokens = B;
+  for (const iv of intervals) {
+    const baseWords = B.slice(iv.a, iv.b), baseKey = baseWords.map(x => x.k).join(" ");
+    const groups = new Map(); groups.set(baseKey, { text: baseWords.map(x => x.w).join(" "), vers: [], base: true, key: baseKey });
+    let differing = 0;
+    for (const p of per) {
+      let s = 0; for (let i = iv.a - 1; i >= 0; i--) if (p.mp[i] >= 0) { s = p.mp[i] + 1; break; }
+      let e = p.A.length; for (let i = iv.b; i < n; i++) if (p.mp[i] >= 0) { e = p.mp[i]; break; }
+      const w = p.A.slice(s, e), key = w.map(x => x.k).join(" ");
+      if (!groups.has(key)) groups.set(key, { text: w.map(x => x.w).join(" "), vers: [], base: false, key });
+      groups.get(key).vers.push(p.ver); if (key !== baseKey) differing++;
+    }
+    iv.groups = [...groups.values()]; iv.differing = differing; iv.total = per.length;
+  }
+  const changed = tokDiff.filter(Boolean).length + gapDiff.filter(Boolean).length;
+  return { tokens, intervals, score: n ? Math.min(1, changed / n) : 0 };
+}
+const LOGIC = new Set(["for", "therefore", "but", "because", "so", "if", "then", "yet", "since", "although", "though", "thus", "until", "unless", "lest", "whoever", "whatever", "wherefore", "nevertheless", "however", "that"]);
+
+/* ---- the study view ---- */
+const stBase = () => { const loaded = Object.keys(sd ? sd.units : {}), st = study(); return loaded.includes(st.base) ? st.base : loaded.includes(settings.defVer) ? settings.defVer : loaded[0] || ""; };
+const vcls = v => "vc" + Math.max(0, study().vers.indexOf(v)) % 6;
+const vtag = v => el("b", { class: "vt " + vcls(v), text: v, title: VER_NAME[v] || v });
+const stBusySet = (k, on) => { if (!sd) return; on ? sd.busy.add(k) : sd.busy.delete(k); };
+const stSample = () => !!sample;
+function stVerseList() {
+  const base = stBase(), bu = sd && sd.units[base]; if (!bu) return [];
+  return bu.slice(0, ST_MAX_VERSES).map(u => {
+    const alts = {};
+    for (const [ver, us] of Object.entries(sd.units)) if (ver !== base) { const m = us.find(x => x.ch === u.ch && x.v === u.v); if (m) alts[ver] = scPlainText(m.t); }
+    return { ch: u.ch, v: u.v, key: `${u.ch}:${u.v}`, base: scPlainText(u.t), alts };
+  });
+}
+const stVRef = (vs, ref) => `${bookOf(ref)} ${vs.ch}:${vs.v}`;
+const stPassageText = (ver, max = 4000) => { const us = sd && sd.units[ver]; return us ? us.slice(0, ST_MAX_VERSES).map(u => `${u.v} ${scPlainText(u.t)}`).join(" ").slice(0, max) : ""; };
+const stSlug = () => study().ref;
+
+/* tooltip: hover or focus on a computer, tap on a phone */
+const stTip = () => $("#st-tip");
+let stTipFor = null;
+function stShowTip(anchor, build, pin) {
+  const tip = stTip(); tip.replaceChildren(build()); tip.hidden = false; stTipFor = anchor; tip.dataset.pin = pin ? "1" : "";
+  const r = anchor.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + "px";
+  tip.style.top = (r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8) + "px";
+}
+function stHideTip(force) { const tip = stTip(); if (!tip.hidden && (force || !tip.dataset.pin)) { tip.hidden = true; stTipFor = null; } }
+document.addEventListener("click", e => { if (!e.target.closest(".st-var, .st-vn, #st-tip")) stHideTip(true); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") stHideTip(true); });
+window.addEventListener("scroll", () => stHideTip(true), { passive: true });
+
+const stBare = t => String(t || "").replace(/^[“‘("[]+/, "").replace(/[.,;:!?)”’"\]]+$/, "");
+function stReadings(iv, base) {
+  const box = el("div", { class: "st-readings" });
+  iv.groups.forEach(g => {
+    const vers = g.base ? [base, ...g.vers] : g.vers;
+    if (!vers.length) return;
+    box.append(el("div", { class: "st-rd" + (g.base ? " base" : "") }, el("span", { class: "st-rvs" }, ...vers.map(vtag)), el("span", { class: "st-rt", text: stBare(g.text) || "(nothing here)" })));
+  });
+  return box;
+}
+function stVarNode(iv, tokens, base, vlabel) {
+  const raw = tokens.slice(iv.a, iv.b).map(x => x.w).join(" "), text = stBare(raw), trail = (raw.match(/[.,;:!?)”’"\]]+$/) || [""])[0];
+  const level = iv.total && iv.differing / iv.total > 0.66 ? 3 : iv.differing / Math.max(1, iv.total) > 0.33 ? 2 : 1;
+  const label = `Word choices${vlabel ? " in verse " + vlabel : ""}: ` + iv.groups.map(g => `${g.base ? base + (g.vers.length ? ", " + g.vers.join(", ") : "") : g.vers.join(", ")} ${stBare(g.text) || "nothing"}`).join("; ");
+  const open = pin => stShowTip(node, () => el("div", {}, el("div", { class: "st-tip-h", text: `Word choices${vlabel ? ", verse " + vlabel : ""}` }), stReadings(iv, base)), pin);
+  let node;
+  if (stMode === "stacked") {
+    node = el("span", { class: "st-var stack d" + level, tabindex: "0", role: "group", "aria-label": label },
+      el("span", { class: "st-vb", text: text || "‸" }),
+      ...iv.groups.filter(g => !g.base && g.vers.length).map(g => el("span", { class: "st-va" }, el("span", { class: "st-rvs" }, ...g.vers.map(vtag)), stBare(g.text) || "(none)")));
+  } else {
+    node = el("button", { type: "button", class: "st-var d" + level + (iv.a === iv.b ? " ins" : ""), "aria-label": label, text: iv.a === iv.b ? "‸" : text });
+    node.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") open(false); });
+    node.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") stHideTip(false); });
+    node.addEventListener("focus", () => open(false));
+    node.addEventListener("blur", () => stHideTip(false));
+    node.addEventListener("click", e => { e.stopPropagation(); if (stTipFor === node && stTip().dataset.pin) stHideTip(true); else open(true); });
+  }
+  node.trail = trail; return node;
+}
+function stVerseNode(vs) {
+  const base = stBase(), cmp = compareVerse(vs.base, vs.alts), n = cmp.tokens.length, ints = cmp.intervals, root = el("span", { class: "st-vt" });
+  const kw = stKw, tk = i => {
+    const t = cmp.tokens[i], lg = stLogic && LOGIC.has(t.k), hit = kw && t.k === kw;
+    return lg || hit ? el("span", { class: (lg ? "lg " : "") + (hit ? "kw" : ""), text: t.w }) : document.createTextNode(t.w);
+  };
+  let k = 0;
+  for (let i = 0; i <= n;) {
+    const iv = ints[k];
+    if (iv && iv.a === i) { const vn = stVarNode(iv, cmp.tokens, base, vs.v); root.append(vn, vn.trail || "", " "); k++; i = iv.b; if (iv.b > iv.a) continue; }
+    if (i >= n) break;
+    root.append(tk(i), " "); i++;
+  }
+  return { node: root, score: cmp.score, changes: ints };
+}
+function stRenderVers() {
+  const st = study(), box = $("#st-vers"); box.replaceChildren();
+  const all = [...new Set([...settings.favs, ...st.vers])];
+  all.forEach(v => { const on = st.vers.includes(v); box.append(el("button", { type: "button", class: "st-vchip" + (on ? " on " + vcls(v) : ""), "aria-pressed": String(on), title: VER_NAME[v] || v, onclick: () => stToggleVer(v) }, el("span", { class: "st-dot" }), v)); });
+  const rest = VERSIONS.map(x => x[0]).filter(v => !all.includes(v));
+  if (rest.length) { const sel = el("select", { id: "st-more", "aria-label": "Add another translation" }, el("option", { value: "", text: "More…" }), ...rest.map(v => el("option", { value: v, text: `${v} · ${VER_NAME[v]}` }))); sel.onchange = () => { const v = sel.value; sel.value = ""; if (v) stToggleVer(v); }; box.append(sel); }
+}
+function stToggleVer(v) {
+  const st = study(), on = st.vers.includes(v);
+  if (on && st.vers.length === 1) { toast("Keep at least one translation"); return; }
+  if (!on && st.vers.length >= ST_MAX_VERS) { toast(`Compare up to ${ST_MAX_VERS} translations at a time`); return; }
+  st.vers = on ? st.vers.filter(x => x !== v) : [...st.vers, v]; if (on) { delete sd.units[v]; delete sd.errors[v]; }
+  save(); stRenderVers(); if (st.ref) { if (!on) stLoadTexts(); else stRenderAll(); }
+}
+
+/* ---- Compare translations ---- */
+function stRenderCompare() {
+  const p = $("#st-compare"), st = study(); p.replaceChildren();
+  const loaded = Object.keys(sd.units), vs = stVerseList();
+  const head = el("div", { class: "bind-head" }, el("h2", { text: "Translations laid over one another" }), el("div", { class: "spacer" }));
+  if (vs.length) {
+    const baseSel = el("select", { id: "st-base", "aria-label": "Compare against" }); loaded.forEach(v => baseSel.append(el("option", { value: v, text: v }))); baseSel.value = stBase();
+    baseSel.onchange = () => { st.base = baseSel.value; save(); stRenderAll(); };
+    const seg = el("div", { class: "side-tabs st-seg", role: "group", "aria-label": "How to show the differences" },
+      ...[["overlay", "Hover"], ["stacked", "Stacked"]].map(([k, t]) => el("button", { type: "button", class: "set-tab", "aria-pressed": String(stMode === k), "aria-selected": String(stMode === k), text: t, onclick: () => { stMode = k; try { localStorage.setItem("pb-st-mode", k); } catch {} stRenderCompare(); } })));
+    head.append(el("label", { class: "st-lbl" }, "Reading text ", baseSel), seg);
+  }
+  p.append(head);
+  const bad = Object.entries(sd.errors);
+  if (!vs.length) {
+    if (sd.busy.has("text")) p.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:18px" }, el("span", { class: "spin" }), "Loading the text…"));
+    else if (bad.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: bad[0][1] }), el("div", { class: "hint", text: "The text comes from Bible Gateway through your Firecrawl connection in Claude, or from Claude if you allow that in Settings." }));
+    else p.append(el("div", { class: "hint", text: "Choose a passage above and press Study this text." }));
+    return;
+  }
+  const hint = loaded.length < 2 ? "Add a second translation above to see where they differ." : `Underlined words are where the other translations choose differently from the ${stBase()}. ${stMode === "stacked" ? "Each reading sits under the word it replaces." : "Hover or tap one to see them."}`;
+  p.append(el("div", { class: "hint", text: hint }));
+  const legend = el("div", { class: "st-legend" }, ...loaded.map(v => el("span", { class: "st-lg" }, vtag(v), v === stBase() ? " reading text" : "")));
+  const tools = el("div", { class: "st-tools" });
+  const lg = el("label", { class: "fav", for: "st-logic" }, el("input", { type: "checkbox", id: "st-logic" }), el("span", { text: "Show connecting words (for, but, therefore, so that…)" })); lg.querySelector("input").checked = stLogic; lg.querySelector("input").onchange = e => { stLogic = e.target.checked; stRenderCompare(); };
+  tools.append(lg);
+  // words that repeat
+  const freq = new Map(); vs.forEach(x => sig(x.base).forEach(w => freq.set(w, (freq.get(w) || 0) + 1)));
+  const rep = [...freq.entries()].filter(([, c]) => c > 1).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  if (rep.length) tools.append(el("div", { class: "st-kws" }, el("span", { class: "hint", text: "Repeated words:" }), ...rep.map(([w, c]) => el("button", { type: "button", class: "chip" + (stKw === w ? " accent" : ""), "aria-pressed": String(stKw === w), title: `${c} times. Click to mark each one.`, text: `${w} ${c}`, onclick: () => { stKw = stKw === w ? "" : w; stRenderCompare(); } }))));
+  p.append(legend, tools);
+  // the verses
+  const strip = el("div", { class: "st-strip", role: "img", "aria-label": "How much the translations differ, verse by verse" });
+  const list = el("div", { class: "st-verses" });
+  let prevCh = null;
+  vs.forEach(x => {
+    const r = stVerseNode(x);
+    const lvl = r.score === 0 ? 0 : r.score < 0.08 ? 1 : r.score < 0.2 ? 2 : r.score < 0.4 ? 3 : 4;
+    strip.append(el("button", { type: "button", class: "bk l" + lvl, "data-tip": `Verse ${x.v}: ${r.changes.length} place${r.changes.length === 1 ? "" : "s"} where the translations differ`, title: `Verse ${x.v}: ${r.changes.length} difference${r.changes.length === 1 ? "" : "s"}`, text: String(x.v), onclick: () => { const t = $("#stv-" + x.key.replace(":", "-")); if (t) t.scrollIntoView({ behavior: "smooth", block: "center" }); } }));
+    const vn = el("button", { type: "button", class: "st-vn", title: `Verse ${x.v}: ask a question, or find its cross references`, text: prevCh != null && x.ch !== prevCh ? `${x.ch}:${x.v}` : String(x.v), onclick: e => stVerseMenu(e.currentTarget, x) });
+    prevCh = x.ch;
+    list.append(el("div", { class: "st-verse", id: "stv-" + x.key.replace(":", "-") }, vn, r.node));
+  });
+  if (loaded.length > 1) p.append(el("div", { class: "st-stripwrap" }, el("span", { class: "hint", text: "Where they differ most" }), strip));
+  p.append(list);
+  if ((sd.units[stBase()] || []).length > ST_MAX_VERSES) p.append(el("div", { class: "hint", text: `Showing the first ${ST_MAX_VERSES} verses. Narrow the passage to study the rest.` }));
+  for (const [v, m] of bad) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: `${v}: ${m}` }));
+  const filled = Object.entries(sd.srcs).filter(([, s]) => s === "claude").map(([v]) => v);
+  if (filled.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: `${filled.join(", ")} came from Claude, not Bible Gateway. Check the wording against your Bible before relying on the differences.` }));
+  // manuscript variants
+  const tx = sd.tx, row = el("div", { class: "bind-head", style: "margin-top:6px" }, el("h3", { class: "sub", style: "margin:0", text: "Manuscript variants" }), el("div", { class: "spacer" }));
+  const txBtn = el("button", { type: "button", class: "btn", text: tx ? "Ask again" : "Note manuscript variants", disabled: stSample() ? null : "", title: "Claude lists variant readings in the Greek or Hebrew manuscripts that bear on this passage", onclick: () => stRunTx(!!tx) }); row.append(txBtn);
+  p.append(row);
+  if (sd.busy.has("tx")) p.append(stWait("Claude is checking for variant readings…"));
+  else if (tx) p.append(stVariantsView(tx));
+  else p.append(el("div", { class: "hint", text: "Differences between translations are mostly choices in wording. Some come from variant readings in the manuscripts. Claude can note the ones that bear on this passage; check them against a critical edition before preaching them." }));
+}
+function stWait(t) { return el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:14px" }, el("span", { class: "spin" }), t); }
+function stVariantsView(tx) {
+  const box = el("div", { class: "st-cards" });
+  box.append(el("div", { class: "hint", text: tx.summary || "" }));
+  (tx.variants || []).forEach(v => box.append(el("div", { class: "st-card" }, el("b", { text: [v.verse, v.issue].filter(Boolean).join(" · ") }),
+    ...(v.readings || []).map(r => el("div", { class: "st-rd" }, el("span", { class: "st-rt" }, el("i", { text: r.reading || "" }), r.support ? ` (${r.support})` : ""))),
+    v.bearing ? el("div", { class: "hint", text: v.bearing }) : null, v.followedBy ? el("div", { class: "hint", text: "Followed by: " + v.followedBy }) : null)));
+  if (!(tx.variants || []).length) box.append(el("div", { class: "hint", text: "No significant variant readings noted." }));
+  box.append(el("div", { class: "hint", text: "From Claude's knowledge, not a critical apparatus. Verify with NA28, UBS5, or BHS before relying on it." }));
+  return box;
+}
+function stVerseMenu(btn, vs) {
+  stShowTip(btn, () => el("div", { class: "st-menu" },
+    el("div", { class: "st-tip-h", text: `Verse ${vs.v}` }),
+    el("button", { class: "btn", type: "button", text: "Ask a question about this verse", onclick: () => { stHideTip(true); stFocusQuestion(vs.v); } }),
+    el("button", { class: "btn", type: "button", text: "See its cross references", onclick: () => { stHideTip(true); stOpenXref(vs.key); } })), true);
+}
+
+/* ---- Cross references: OpenBible.info (CC BY), one page per verse, kept after the first time ---- */
+function parseXref(md) {
+  const out = [];
+  for (const chunk of String(md || "").split(/\n\s*Unless otherwise indicated/)[0].split(/\n###\s+/).slice(1)) {
+    const m = chunk.match(/^\[([^\]]+)\]\([^)]*\)[ \t]*\n([\s\S]*)$/); if (!m) continue;
+    const ref = normalizeRef(m[1]); if (!ref) continue;
+    out.push({ ref, text: m[2].split("\n").filter(l => l.trim() && !/Helpful\?|^\s*\[(?:Yes|No)\]/.test(l)).join(" ").replace(/\s+/g, " ").trim() });
+  }
+  return out;
+}
+async function stXrefFor(vref, fresh) {
+  return stGet(stKey("xr", vref), async () => {
+    if (mcpNs) {
+      try {
+        const res = await mcpNs.callTool("Firecrawl", "firecrawl_scrape", { url: `https://www.openbible.info/labs/cross-references/search?q=${encodeURIComponent(vref)}`, formats: ["markdown"], onlyMainContent: true });
+        const items = parseXref(mdFrom(res)); if (items.length) return { items, src: "openbible" };
+      } catch {}
+    }
+    if (sample) {
+      const r = await sample.json(`${stPre()}\n\nTask: cross references.\nList the 8 to 12 most useful cross references for ${vref}: passages that quote it, are quoted by it, or share its key words or ideas. Return ONLY JSON {"refs":[{"ref":"Book C:V","why":"under 14 words"}]}`, { modelTier: "default", cache: { gcTime: DAY } });
+      const items = (r && Array.isArray(r.refs) ? r.refs : []).map(x => ({ ref: normalizeRef(String(x.ref || "")), text: String(x.why || "") })).filter(x => x.ref);
+      if (items.length) return { items, src: "claude" };
+    }
+    throw new Error("Couldn't find cross references. Connect Firecrawl in your Claude settings, or allow Claude on this page.");
+  }, { fresh });
+}
+async function stFindXrefs(only) {
+  if (!sd) return; const st = study(), vs = stVerseList();
+  const todo = (only ? vs.filter(x => x.key === only) : vs.slice(0, ST_XR_VERSES)).filter(x => !sd.xr[x.key] || only);
+  if (!todo.length) { stRenderXref(); return; }
+  stBusySet("xr", true); stRenderXref();
+  const q = todo.slice(), ref = st.ref;
+  await Promise.all([0, 1].map(async () => { while (q.length) { const x = q.shift(); try { sd.xr[x.key] = (await stXrefFor(stVRef(x, ref), false)).value; } catch (e) { sd.xr[x.key] = { items: [], err: e.message }; } if (sd && sd.ref === ref) stRenderXref(); } }));
+  stBusySet("xr", false); stRenderXref();
+}
+let stXrOpen = null, stXrSection = "";
+function stOpenXref(key) { stXrOpen = key; stRenderXref(); const p = $("#st-xref"); p.scrollIntoView({ behavior: "smooth", block: "start" }); if (!sd.xr[key]) stFindXrefs(key); }
+function stXrAll() { return Object.values(sd.xr).flatMap(x => x.items || []); }
+function stRenderXref() {
+  const p = $("#st-xref"); p.replaceChildren(); if (!sd) return;
+  const vs = stVerseList(), have = Object.keys(sd.xr).length, all = stXrAll();
+  const head = el("div", { class: "bind-head" }, el("h2", { text: "Cross references" }), el("div", { class: "spacer" }));
+  if (vs.length) head.append(el("button", { type: "button", class: "btn" + (have ? "" : " primary"), text: have ? "Find the rest" : `Find cross references${vs.length > ST_XR_VERSES ? ` (first ${ST_XR_VERSES} verses)` : ""}`, disabled: sd.busy.has("xr") ? "" : null, onclick: () => stFindXrefs() }));
+  p.append(head);
+  if (!vs.length) { p.append(el("div", { class: "hint", text: "Load a passage to see where else Scripture speaks to it." })); return; }
+  if (sd.busy.has("xr")) p.append(stWait(`Finding cross references… ${have} of ${Math.min(vs.length, ST_XR_VERSES)} verses`));
+  if (!all.length && !sd.busy.has("xr")) { p.append(el("div", { class: "hint", text: "Cross references come from OpenBible.info, ranked by how many readers found each one helpful. Each verse is looked up once and kept." })); const errs = Object.values(sd.xr).map(x => x.err).filter(Boolean); if (errs.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: errs[0] })); return; }
+  // where they land
+  const counts = new Array(66).fill(0), titles = Array.from({ length: 66 }, () => []);
+  all.forEach(x => { const b = bibleBook(x.ref); if (b >= 0) { counts[b]++; titles[b].push(x.ref); } });
+  const max = Math.max(1, ...counts), lvl = c => c ? Math.min(4, Math.ceil(c / max * 4)) : 0;
+  const sections = [...new Set(BIBLE.map(b => b.genre))];
+  const map = el("div", { class: "st-map" });
+  [[0, 39, "Old Testament"], [39, 66, "New Testament"]].forEach(([a, z, label]) => {
+    const g = el("div", { class: "bk-grid" });
+    for (let i = a; i < z; i++) g.append(el("button", { type: "button", class: "bk l" + lvl(counts[i]), title: counts[i] ? `${BIBLE[i].name}: ${titles[i].join(", ")}` : BIBLE[i].name, "aria-label": `${BIBLE[i].name}, ${counts[i]} cross references`, text: BIBLE[i].ab, onclick: () => { stXrSection = counts[i] ? BIBLE[i].genre : ""; stRenderXref(); } }));
+    map.append(el("div", { class: "bk-sec" }, el("div", { class: "bk-h", text: `${label} · ${counts.slice(a, z).reduce((s, c) => s + c, 0)}` }), g));
+  });
+  p.append(el("div", { class: "hint", text: `${all.length} cross references. Brighter books have more.` }), map);
+  const flt = el("select", { id: "st-xr-sec", "aria-label": "Show cross references from" }, el("option", { value: "", text: "All of Scripture" }), ...sections.map(s => el("option", { value: s, text: s }))); flt.value = stXrSection; flt.onchange = () => { stXrSection = flt.value; stRenderXref(); };
+  const th = el("button", { type: "button", class: "btn", text: sd.themes ? "Group again" : "Group by theme", disabled: stSample() ? null : "", onclick: () => stRunThemes(!!sd.themes) });
+  p.append(el("div", { class: "st-tools" }, el("label", { class: "st-lbl" }, "Show ", flt), th));
+  if (sd.busy.has("themes")) p.append(stWait("Claude is grouping them…"));
+  if (sd.themes) p.append(stThemesView(sd.themes));
+  const open = stXrOpen && sd.xr[stXrOpen] ? stXrOpen : (vs.find(x => sd.xr[x.key] && (sd.xr[x.key].items || []).length) || {}).key;
+  vs.filter(x => sd.xr[x.key]).forEach(x => {
+    const r = sd.xr[x.key], items = (r.items || []).filter(i => !stXrSection || BIBLE[bibleBook(i.ref)] && BIBLE[bibleBook(i.ref)].genre === stXrSection);
+    const d = el("details", { class: "st-xr", open: x.key === open ? "" : null }, el("summary", {}, el("b", { text: `Verse ${x.v}` }), el("span", { class: "hint", text: ` · ${items.length} reference${items.length === 1 ? "" : "s"}${r.src === "claude" ? " · suggested by Claude" : ""}` })));
+    if (r.err) d.append(el("div", { class: "hint", style: "color:var(--warn)", text: r.err }));
+    items.forEach(i => d.append(el("div", { class: "st-xi" }, el("div", { class: "st-xh" }, el("button", { type: "button", class: "link-btn st-xref-go", style: "margin:0;font-weight:600", text: i.ref, title: "Study this passage", onclick: () => stStudyRef(i.ref) }),
+      el("a", { class: "link-btn", style: "margin-left:8px", href: bgLink(i.ref), target: "_blank", rel: "noopener", text: "Read ↗" }),
+      el("button", { type: "button", class: "link-btn", text: "Add to notes", onclick: () => stAddNote(`${i.ref} (cross reference to ${stVRef(x, study().ref)})`) })), i.text ? el("div", { class: "st-xt", text: i.text }) : null)));
+    p.append(d);
+  });
+  if (Object.values(sd.xr).some(r => r.src === "openbible")) p.append(el("div", { class: "hint", text: "Cross references: OpenBible.info, CC BY. Verse text shown is the ESV." }));
+}
+function stThemesView(t) {
+  const box = el("div", { class: "st-cards" });
+  (t.themes || []).forEach(x => box.append(el("div", { class: "st-card" }, el("b", { text: x.label || "" }), x.why ? el("div", { class: "hint", text: x.why }) : null, el("div", { class: "tags" }, ...(x.refs || []).map(r => el("button", { type: "button", class: "chip", text: r, onclick: () => stStudyRef(r) }))))));
+  return box;
+}
+function stAddNote(line) { const st = study(); st.notes = (st.notes ? st.notes.replace(/\s*$/, "\n") : "") + `- ${line}\n`; save(); stRenderNotes(); toast("Added to your notes"); }
+
+/* ---- Claude's part: background, history, questions. Each is asked once and kept. ---- */
+const stPre = () => `You are helping a preacher in the churches of Christ study a passage before he preaches it. He wants accuracy over cleverness, and wants to see where traditions agree and where they differ without being told what to conclude. Never invent a quotation, a citation, or manuscript evidence. If you are not sure of something, say so plainly or leave it out. Keep every answer concise.`;
+const stTextBlock = () => { const t = stPassageText(settings.defVer in (sd ? sd.units : {}) ? settings.defVer : stBase()); return t ? `\nPassage text for reference (${stBase()}): """${t}"""` : ""; };
+async function stRunAi(kind, field, prompt, again, tier) {
+  if (!sample || !sd) { toast("Claude is not available in this view"); return; }
+  const ref = sd.ref; stBusySet(field, true); stRenderAll();
+  try {
+    const { value, cached } = await stGet(stKey(kind, ref), () => sample.json(prompt, { modelTier: tier || "default", cache: again ? { gcTime: DAY, refresh: true } : { gcTime: DAY } }), { fresh: again });
+    if (sd && sd.ref === ref) { sd[field] = value; if (cached) toast("Shown from the saved answer. Ask again for a fresh one."); }
+  } catch (e) { toast({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."); }
+  if (sd) { stBusySet(field, false); stRenderAll(); }
+}
+const stRunTx = again => stRunAi("tx", "tx", `${stPre()}\n\nTask: manuscript variants.\nPassage: ${sd.ref}.${stTextBlock()}\nTranslations being compared: ${study().vers.join(", ")}.\nList the variant readings in the Greek or Hebrew manuscript tradition that matter for this passage (for example a clause some manuscripts omit, or two readings the translations choose between). Return ONLY JSON {"summary":"one sentence; say plainly if there are no significant variants","variants":[{"verse":"v. 3","issue":"short description","readings":[{"reading":"the wording in English","support":"which manuscripts or traditions have it, only if you are sure"}],"bearing":"how it affects the meaning, one sentence","followedBy":"which of the compared translations follow which reading, if you know"}]}. At most 5 variants; an empty list if none are significant.`, again);
+const stRunCtx = again => stRunAi("ctx", "ctx", `${stPre()}\n\nTask: background and word study.\nPassage: ${sd.ref}.${stTextBlock()}\nReturn ONLY JSON {"author":"","audience":"","date":"approximate, with the range if disputed","genre":"","setting":"the situation the passage speaks into","mainIdea":"one sentence","structure":[{"range":"v. 1-3","label":"what this section does, under 10 words"}],"keyWords":[{"word":"the English word as it appears","original":"the Hebrew or Greek word","translit":"","gloss":"the range of meaning","note":"why it matters or why translations differ, under 30 words"}],"observations":["3 to 5 things worth noticing in the text itself"]}. 3 to 6 key words.`, again);
+const stRunCh = again => stRunAi("ch", "ch", `${stPre()}\n\nTask: how Christians have read this passage through history.\nPassage: ${sd.ref}.${stTextBlock()}\nReturn ONLY JSON {"eras":[{"era":"Early church (to about AD 500)","voices":["names of writers who commented on it, only if you are sure"],"summary":"2 to 3 sentences","emphasis":"what they drew from it"},{"era":"Medieval (about 500 to 1500)"},{"era":"Reformation and after (1500 to 1800)"},{"era":"Restoration Movement and the modern era (1800 to now)"}],"differences":[{"topic":"a point where traditions truly read this text differently","views":[{"tradition":"Catholic, Orthodox, Reformed, Lutheran, Wesleyan, Restoration Movement and churches of Christ, or other","view":"one sentence"}]}],"caution":"one sentence on the limits of this summary"}. Give each era the fields above. At most 3 differences, and none if the text is not disputed.`, again);
+const stRunJw = again => stRunAi("jw", "jw", `${stPre()}\n\nTask: Hebrew and Jewish understanding through history.\nPassage: ${sd.ref}.${stTextBlock()}\nIf the passage is from the Old Testament, give the Hebrew wording and how Jewish interpreters have read it over time. If it is from the New Testament, give its Jewish background (the Hebrew Scriptures it echoes, Second Temple and rabbinic parallels) and, carefully, how Jewish tradition has read the same material. Return ONLY JSON {"hebrew":[{"word":"as it appears in English","original":"Hebrew word","translit":"","meaning":"","note":"under 25 words"}],"eras":[{"era":"Second Temple period and the Septuagint","voices":[],"summary":"2 to 3 sentences, or empty if nothing reliable can be said"},{"era":"Targums, Talmud, and Midrash"},{"era":"Medieval commentators (for example Rashi, Ibn Ezra, Radak, Maimonides)"},{"era":"Early modern and modern Jewish readings"}],"howItChanged":"one or two sentences on how understanding shifted","caution":"one sentence on the limits of this summary"}. Give each era the fields above. At most 4 Hebrew words.`, again);
+async function stRunThemes(again) {
+  const refs = stXrAll().map(x => x.ref); if (!refs.length) return;
+  await stRunAi("themes", "themes", `${stPre()}\n\nTask: group cross references by theme.\nPassage: ${sd.ref}.\nCross references: ${[...new Set(refs)].slice(0, 80).join("; ")}.\nGroup them into 3 to 6 themes that help a preacher see the threads. Return ONLY JSON {"themes":[{"label":"short","why":"one sentence on what this thread says","refs":["Book C:V"]}]} using only the references listed.`, again);
+}
+const stEras = (d, key = "eras") => { const box = el("div", { class: "st-eras" }); (d[key] || []).forEach(e => { if (!e.summary && !(e.voices || []).length) return; box.append(el("div", { class: "st-era" }, el("div", { class: "st-eh", text: e.era || "" }), (e.voices || []).length ? el("div", { class: "tags" }, ...e.voices.map(v => el("span", { class: "chip", text: v }))) : null, e.summary ? el("p", { text: e.summary }) : null, e.emphasis ? el("p", { class: "hint", text: e.emphasis }) : null)); }); return box; };
+function stRenderContext() {
+  const p = $("#st-context"); p.replaceChildren(); if (!sd) return; const c = sd.ctx;
+  p.append(el("div", { class: "bind-head" }, el("h2", { text: "Background and word study" }), el("div", { class: "spacer" }), el("button", { type: "button", class: "btn" + (c ? "" : " primary"), text: c ? "Ask again" : "Study the background", disabled: stSample() && stVerseList().length ? null : "", onclick: () => stRunCtx(!!c) })));
+  if (sd.busy.has("ctx")) { p.append(stWait("Claude is studying the passage…")); return; }
+  if (!c) { p.append(el("div", { class: "hint", text: stSample() ? "Author, audience, date, setting, how the passage is built, and the Hebrew or Greek words behind the translations. Asked once, then kept." : "Claude is not available in this view." })); return; }
+  if (c.mainIdea) p.append(el("p", { class: "big-idea", text: c.mainIdea }));
+  const facts = el("div", { class: "tags" }); [["Author", c.author], ["Audience", c.audience], ["Date", c.date], ["Genre", c.genre]].forEach(([k, v]) => { if (v) facts.append(el("span", { class: "chip" }, el("b", { text: k }), v)); }); p.append(facts);
+  if (c.setting) p.append(el("p", { text: c.setting }));
+  if ((c.structure || []).length) { p.append(el("h3", { class: "sub", text: "How it is built" })); const ol = el("div", { class: "st-struct" }); c.structure.forEach((s, i) => ol.append(el("div", { class: "st-sec" + (" s" + (i % 4)) }, el("b", { text: s.range || "" }), el("span", { text: s.label || "" })))); p.append(ol); }
+  if ((c.keyWords || []).length) { p.append(el("h3", { class: "sub", text: "Words behind the translations" })); const g = el("div", { class: "st-cards" }); c.keyWords.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: /[֐-׿]/.test(w.original || "") ? "he" : "grc", dir: /[֐-׿]/.test(w.original || "") ? "rtl" : "ltr", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.gloss ? el("div", { text: w.gloss }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null))); p.append(g); }
+  if ((c.observations || []).length) { p.append(el("h3", { class: "sub", text: "Worth noticing" })); p.append(list(c.observations)); }
+  p.append(el("div", { class: "hint", text: "From Claude's knowledge. Check dates and word meanings against a commentary or lexicon." }));
+}
+/* ---- Hebrew and Jewish sources, from Sefaria, one verse at a time ---- */
+const SEF_ORDINAL = { 1: "I", 2: "II", 3: "III" };
+function sefBook(ref) { const b = bookOf(ref); if (bibleBook(ref) < 0 || bibleBook(ref) >= 39) return null; let n = b === "Psalm" ? "Psalms" : b === "Song of Solomon" ? "Song of Songs" : b; const m = n.match(/^([123])\s+(.+)$/); return m ? `${SEF_ORDINAL[m[1]]} ${m[2]}` : n; }
+const sefWho = ref => { const i = bibleBook(ref); return i < 5 ? ["Rashi", "Ibn Ezra", "Ramban", "Sforno"] : ["Rashi", "Ibn Ezra", "Radak", "Metzudat David"]; };
+const flat = x => Array.isArray(x) ? x.flatMap(flat) : typeof x === "string" ? [x] : [];
+const unhtml = s => { const d = document.createElement("div"); d.innerHTML = String(s).replace(/<br\s*\/?>/gi, "\n"); return d.textContent.replace(/\s+\n/g, "\n").trim(); };
+async function stSefaria(vs, who) {
+  const book = sefBook(study().ref); if (!book) return null;
+  return (await stGet(stKey("sef", `${book} ${vs.ch}:${vs.v}`, who), async () => {
+    if (!mcpNs) throw new Error("Connect Firecrawl in your Claude settings to read Sefaria.");
+    const title = `${who} on ${book}`, url = `https://www.sefaria.org/api/texts/${encodeURIComponent(title.replace(/ /g, "_"))}.${vs.ch}.${vs.v}?context=0&commentary=0&pad=0`;
+    const md = mdFrom(await mcpNs.callTool("Firecrawl", "firecrawl_scrape", { url, formats: ["markdown"], onlyMainContent: true }));
+    const m = md.match(/\{[\s\S]*\}/); let j = null; try { j = m && JSON.parse(m[0]); } catch {}
+    if (!j || j.error) return { none: true };
+    const en = flat(j.text).map(unhtml).filter(Boolean), he = flat(j.he).map(unhtml).filter(Boolean);
+    return en.length || he.length ? { en, he, ref: j.ref || title } : { none: true };
+  })).value;
+}
+async function stLoadSources(vs) {
+  const k = "sef" + vs.key; stBusySet(k, true); stRenderHistory(); sd.sef[vs.key] = {};
+  try { for (const who of sefWho(study().ref)) { try { sd.sef[vs.key][who] = await stSefaria(vs, who); } catch (e) { sd.sef[vs.key][who] = { err: e.message }; } stRenderHistory(); } }
+  finally { stBusySet(k, false); stRenderHistory(); }
+}
+let stSefVerse = "";
+function stRenderHistory() {
+  const p = $("#st-history"); p.replaceChildren(); if (!sd) return;
+  p.append(el("div", { class: "bind-head" }, el("h2", { text: "How it has been read" })));
+  const row = (title, d, field, run, hint) => {
+    const top = el("div", { class: "bind-head" }, el("h3", { class: "sub", style: "margin:0", text: title }), el("div", { class: "spacer" }), el("button", { type: "button", class: "btn" + (d ? "" : " primary"), text: d ? "Ask again" : "Trace it", disabled: stSample() && stVerseList().length ? null : "", onclick: () => run(!!d) }));
+    const box = el("div", { class: "st-hist" }, top);
+    if (sd.busy.has(field)) box.append(stWait("Claude is tracing it…"));
+    else if (!d) box.append(el("div", { class: "hint", text: stSample() ? hint : "Claude is not available in this view." }));
+    return box;
+  };
+  const ch = row("Christian interpretation", sd.ch, "ch", stRunCh, "From the early church to the present, and the places where traditions read this text differently.");
+  if (sd.ch) {
+    ch.append(stEras(sd.ch));
+    if ((sd.ch.differences || []).length) { ch.append(el("h3", { class: "sub", text: "Where traditions differ" })); sd.ch.differences.forEach(d => ch.append(el("div", { class: "st-card" }, el("b", { text: d.topic || "" }), ...(d.views || []).map(v => el("div", { class: "st-rd" }, el("span", { class: "st-rvs" }, el("b", { class: "vt", text: v.tradition || "" })), el("span", { class: "st-rt", text: v.view || "" })))))); }
+    if (sd.ch.caution) ch.append(el("div", { class: "hint", text: sd.ch.caution }));
+  }
+  const jw = row("Hebrew and Jewish understanding", sd.jw, "jw", stRunJw, "The Hebrew behind the text, and how Jewish interpreters have understood it from the Second Temple period to today.");
+  if (sd.jw) {
+    if ((sd.jw.hebrew || []).length) { const g = el("div", { class: "st-cards" }); sd.jw.hebrew.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: "he", dir: "rtl", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.meaning ? el("div", { text: w.meaning }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null))); jw.append(g); }
+    jw.append(stEras(sd.jw));
+    if (sd.jw.howItChanged) jw.append(el("p", { class: "big-idea", style: "font-size:1.05rem", text: sd.jw.howItChanged }));
+    if (sd.jw.caution) jw.append(el("div", { class: "hint", text: sd.jw.caution }));
+  }
+  // primary sources
+  const vs = stVerseList(), canSef = sefBook(study().ref);
+  const src = el("div", { class: "st-hist" }, el("div", { class: "bind-head" }, el("h3", { class: "sub", style: "margin:0", text: "Jewish commentators, in their own words" }), el("div", { class: "spacer" })));
+  if (!canSef) src.append(el("div", { class: "hint", text: "Sefaria's classic commentators are on the Hebrew Bible, so this is for Old Testament passages." }));
+  else if (!vs.length) src.append(el("div", { class: "hint", text: "Load a passage first." }));
+  else {
+    const sel = el("select", { id: "st-sef-v", "aria-label": "Verse" }, ...vs.map(x => el("option", { value: x.key, text: `Verse ${x.v}` }))); sel.value = stSefVerse && vs.some(x => x.key === stSefVerse) ? stSefVerse : vs[0].key; stSefVerse = sel.value;
+    sel.onchange = () => { stSefVerse = sel.value; stRenderHistory(); };
+    const cur = vs.find(x => x.key === stSefVerse), got = sd.sef[stSefVerse];
+    src.firstChild.append(sel, el("button", { type: "button", class: "btn", text: got ? "Load again" : `Read ${sefWho(study().ref).slice(0, 3).join(", ")}…`, disabled: mcpNs && !sd.busy.has("sef" + stSefVerse) ? null : "", onclick: () => stLoadSources(cur) }));
+    if (sd.busy.has("sef" + stSefVerse)) src.append(stWait("Reading Sefaria…"));
+    if (got) for (const [who, r] of Object.entries(got)) {
+      if (!r) continue;
+      if (r.err) { src.append(el("div", { class: "hint", style: "color:var(--warn)", text: `${who}: ${r.err}` })); continue; }
+      if (r.none) { src.append(el("div", { class: "hint", text: `${who}: no comment on this verse.` })); continue; }
+      src.append(el("div", { class: "st-card" }, el("b", { text: who }), ...(r.en || []).map(t => el("p", { text: t })), ...(r.he || []).slice(0, 2).map(t => el("p", { class: "st-hebtext", lang: "he", dir: "rtl", text: t })),
+        el("a", { class: "link-btn", style: "margin:0", href: `https://www.sefaria.org/${encodeURIComponent((r.ref || "").replace(/ /g, "_"))}`, target: "_blank", rel: "noopener", text: "Open on Sefaria ↗" })));
+    }
+    if (!got && !mcpNs) src.append(el("div", { class: "hint", text: "Connect Firecrawl in your Claude settings to read Sefaria from here." }));
+    else if (!got) src.append(el("div", { class: "hint", text: "Rashi, Ibn Ezra, and others on this verse, from Sefaria (English translations, CC licenses). Each is read once and kept." }));
+  }
+  p.append(ch, jw, src);
+  p.append(el("div", { class: "hint" }, "More to read: ", ...["Bible Hub|https://biblehub.com/", "Blue Letter Bible|https://www.blueletterbible.org/", "Sefaria|https://www.sefaria.org/"].flatMap(x => { const [t, u] = x.split("|"); return [el("a", { href: u, target: "_blank", rel: "noopener", text: t }), " · "]; }).slice(0, -1)));
+}
+
+/* ---- Questions and notes: kept with the sermon ---- */
+let stQV = null, stArm = null;
+function stFocusQuestion(v) { stQV = v; stRenderQuestions(); const t = $("#st-q-text"); t.scrollIntoView({ behavior: "smooth", block: "center" }); t.focus({ preventScroll: true }); }
+function stGoVerse(v) { const t = $(`[id^="stv-"][id$="-${v}"]`); if (t) t.scrollIntoView({ behavior: "smooth", block: "center" }); }
+function stAnswerView(a) {
+  const box = el("div", { class: "st-ans" });
+  if (a.answer) box.append(el("p", { text: a.answer }));
+  if ((a.refs || []).length) box.append(el("div", { class: "tags" }, ...a.refs.map(r => el("button", { type: "button", class: "chip", text: r, title: "Study this passage", onclick: () => stStudyRef(r) }))));
+  if (a.alternatives) box.append(el("div", { class: "hint", text: "Other readings: " + a.alternatives }));
+  if (a.uncertainty) box.append(el("div", { class: "hint", text: a.uncertainty }));
+  return box;
+}
+async function stAskQuestion(q, again) {
+  if (!sample) { toast("Claude is not available in this view"); return; }
+  const ref = q.ref || study().ref, key = stKey("q", ref || "general", fingerprint(q.q + "|" + (q.v || "")));
+  q.busy = true; stRenderQuestions();
+  const here = sd && sd.ref === ref;
+  const ctx = here && sd.ctx ? `Background already worked out: ${sd.ctx.mainIdea || ""} ${sd.ctx.setting || ""}` : "";
+  try {
+    const { value, cached } = await stGet(key, () => sample.json(`${stPre()}\n\nTask: answer a question about a passage.\n${ref ? `Passage: ${ref}.` : ""}${here ? stTextBlock() : ""}\n${ctx}\n${q.v ? `The question is about verse ${q.v}.` : ""}\nQuestion: ${q.q}\nAnswer plainly and pastorally in 3 to 6 sentences, say where serious readers differ, and give the Scripture that bears on it. Return ONLY JSON {"answer":"","refs":["Book C:V"],"alternatives":"other serious readings, or empty","uncertainty":"what is uncertain or disputed, or empty"}`, { modelTier: "default", cache: again ? { gcTime: DAY, refresh: true } : { gcTime: DAY } }), { fresh: again });
+    q.a = value; q.done = true; if (cached) toast("Shown from the saved answer. Ask again for a fresh one.");
+  } catch (e) { toast({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."); }
+  q.busy = false; save(); stRenderQuestions();
+}
+function stRenderQuestions() {
+  const p = $("#st-questions"), st = study(); p.replaceChildren();
+  const open = st.questions.filter(q => !q.done).length;
+  p.append(el("div", { class: "bind-head" }, el("h2", { text: "Questions" }), el("div", { class: "spacer" }), el("span", { class: "hint", text: st.questions.length ? `${open} open · ${st.questions.length - open} answered` : "" })));
+  const form = el("form", { class: "st-qform", autocomplete: "off" });
+  const ta = el("textarea", { id: "st-q-text", rows: "2", placeholder: "What do you want to understand about this text?", "aria-label": "A question about the text" });
+  const vs = sd ? stVerseList() : [];
+  const vsel = el("select", { id: "st-q-v", "aria-label": "About which verse" }, el("option", { value: "", text: "Whole passage" }), ...vs.map(x => el("option", { value: String(x.v), text: `Verse ${x.v}` }))); vsel.value = stQV != null ? String(stQV) : "";
+  form.append(ta, el("div", { class: "sc-pop-row" }, vsel, el("div", { class: "spacer" }), el("button", { class: "btn primary", type: "submit", text: "Add question" })));
+  ta.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); form.requestSubmit(); } });
+  form.onsubmit = e => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; st.questions.unshift({ id: uid(), q: t, v: vsel.value ? +vsel.value : null, ref: st.ref, a: null, done: false, at: Date.now() }); stQV = null; save(); stRenderQuestions(); };
+  p.append(form);
+  if (!st.questions.length) p.append(el("div", { class: "hint", text: "Keep the questions the text raises. Click a verse number to ask about that verse. Claude can answer each one, and the answer is kept with it." }));
+  st.questions.forEach(q => {
+    const done = el("input", { type: "checkbox", id: "stq-" + q.id, "aria-label": "Answered" }); done.checked = !!q.done; done.onchange = () => { q.done = done.checked; save(); stRenderQuestions(); };
+    const arm = (btn, label, act) => { btn.onclick = () => { if (stArm === q.id + label) { stArm = null; act(); } else { stArm = q.id + label; btn.textContent = "Sure?"; setTimeout(() => { if (stArm === q.id + label) { stArm = null; btn.textContent = label; } }, 3000); } }; return btn; };
+    const card = el("div", { class: "st-q" + (q.done ? " done" : "") }, el("div", { class: "st-qh" }, done, el("label", { for: "stq-" + q.id, class: "st-qt", text: q.q })),
+      el("div", { class: "st-qm" }, q.ref && q.ref !== st.ref ? el("button", { type: "button", class: "chip", text: q.ref, title: "Study this passage", onclick: () => stStudyRef(q.ref) }) : null, q.v ? el("button", { type: "button", class: "chip", text: `Verse ${q.v}`, onclick: () => stGoVerse(q.v) }) : null));
+    if (q.busy) card.append(stWait("Claude is thinking…"));
+    else if (q.a) card.append(stAnswerView(q.a));
+    const act = el("div", { class: "st-qa" },
+      el("button", { type: "button", class: "btn" + (q.a ? " ghost" : ""), text: q.a ? "Ask again" : "Ask Claude", disabled: sample && !q.busy ? null : "", onclick: () => stAskQuestion(q, !!q.a) }),
+      q.a ? el("button", { type: "button", class: "btn ghost", text: "Add to notes", onclick: () => stAddNote(`${q.q} ${q.a.answer || ""}`.trim()) }) : null,
+      arm(el("button", { type: "button", class: "btn ghost", text: "Remove" }), "Remove", () => { st.questions = st.questions.filter(x => x !== q); save(); stRenderQuestions(); }));
+    card.append(act); p.append(card);
+  });
+}
+function stRenderNotes() {
+  const p = $("#st-notes"), st = study(); p.replaceChildren();
+  p.append(el("div", { class: "bind-head" }, el("h2", { text: "Notes" })));
+  let t = 0; const field = (label, key, sub, rows) => {
+    const ta = el("textarea", { rows: String(rows), "aria-label": label, placeholder: sub }); ta.value = key === "notes" ? st.notes : st.ioa[key] || "";
+    ta.oninput = () => { if (key === "notes") st.notes = ta.value; else st.ioa[key] = ta.value; clearTimeout(t); t = setTimeout(save, 500); };
+    return ta;
+  };
+  p.append(field("Notes", "notes", "Anything worth keeping: a thought, a source to check, a line to use.", 6));
+  const d = el("details", { class: "st-ioa", open: (st.ioa.obs || st.ioa.int || st.ioa.app) ? "" : null }, el("summary", {}, el("b", { text: "Observe, interpret, apply" })));
+  [["obs", "Observation", "What does the text say? Who, what, when, where, why. Repeated words, contrasts, commands."], ["int", "Interpretation", "What did it mean to the first hearers? What does it mean in the whole of Scripture?"], ["app", "Application", "What does it ask of us, and of this congregation, this week?"]].forEach(([k, label, ph]) => d.append(el("label", { class: "st-ioa-l" }, el("span", { class: "set-h", text: label }), field(label, k, ph, 3))));
+  p.append(d);
+}
+
+/* ---- Pictures of the text: a mind map, how it is built, and how it has been read through the centuries ---- */
+let stViz = "", stMapFit = true;
+const stFile = suffix => (study().ref || "study").replace(/:/g, "-").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() + suffix;   // "Psalm 7:1-3" is psalm-7-1-3, not psalm-71-3
+const stClip = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
+function stLocalMap() {
+  const st = study(), vs = stVerseList(), br = [];
+  if (sd.ctx) {
+    if (sd.ctx.mainIdea) br.push({ label: "Main idea", children: [{ label: stClip(sd.ctx.mainIdea, 80) }] });
+    if ((sd.ctx.structure || []).length) br.push({ label: "How it is built", children: sd.ctx.structure.slice(0, 5).map(s => ({ label: stClip(`${s.range || ""} ${s.label || ""}`, 60) })) });
+    if ((sd.ctx.keyWords || []).length) br.push({ label: "Key words", children: sd.ctx.keyWords.slice(0, 5).map(w => ({ label: stClip([w.word, w.original, w.gloss].filter(Boolean).join(" · "), 56) })) });
+  } else if (vs.length) {
+    const freq = new Map(); vs.forEach(x => sig(x.base).forEach(w => freq.set(w, (freq.get(w) || 0) + 1)));
+    const rep = [...freq.entries()].filter(([, c]) => c > 1).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    if (rep.length) br.push({ label: "Repeated words", children: rep.map(([w, c]) => ({ label: `${w} (${c})` })) });
+  }
+  if (vs.length && Object.keys(sd.units).length > 1) {
+    const diffs = []; vs.forEach(x => compareVerse(x.base, x.alts).intervals.forEach(iv => diffs.push({ v: x.v, iv })));
+    diffs.sort((a, b) => b.iv.differing - a.iv.differing);
+    if (diffs.length) br.push({ label: "Where translations differ", children: diffs.slice(0, 5).map(d => ({ label: stClip(`v. ${d.v}: ` + d.iv.groups.map(g => g.text || "(omitted)").join(" / "), 60) })) });
+  }
+  const xr = stXrAll();
+  if (xr.length) {
+    const by = new Map(); xr.forEach(x => { const b = BIBLE[bibleBook(x.ref)]; if (b) { if (!by.has(b.genre)) by.set(b.genre, []); by.get(b.genre).push(x.ref); } });
+    br.push({ label: "Cross references", children: [...by.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 5).map(([g, refs]) => ({ label: `${g} (${refs.length})`, children: [...new Set(refs)].slice(0, 3).map(r => ({ label: r })) })) });
+  }
+  if (sd.ch || sd.jw) br.push({ label: "Through history", children: [...((sd.ch && sd.ch.eras) || []).filter(e => e.summary).slice(0, 3).map(e => ({ label: stClip(`${e.era.replace(/\s*\(.*$/, "")}: ${e.summary}`, 70) })), ...((sd.jw && sd.jw.eras) || []).filter(e => e.summary).slice(0, 2).map(e => ({ label: stClip(`Jewish, ${e.era.replace(/\s*\(.*$/, "")}: ${e.summary}`, 70) }))] });
+  const qs = st.questions.filter(q => !q.ref || q.ref === st.ref); if (qs.length) br.push({ label: "Questions", children: qs.slice(0, 6).map(q => ({ label: stClip(q.q, 60) })) });
+  return { center: st.ref, branches: br };
+}
+const stHex = c => { const m = String(c).trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i); if (m) { const h = m[1].length === 3 ? m[1].replace(/./g, x => x + x) : m[1]; return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); } return colorRGB(c) || [128, 128, 128]; };
+const stMix = (a, b, p) => { const A = stHex(a), B = stHex(b); return "#" + A.map((v, i) => Math.round(v * p + B[i] * (1 - p)).toString(16).padStart(2, "0")).join(""); };
+function stMapSvg(data) {
+  const NS = "http://www.w3.org/2000/svg", cs = getComputedStyle(root), g = n => cs.getPropertyValue(n).trim();
+  const bg = g("--surface") || "#ffffff", ink = g("--ink") || "#1a2130", muted = g("--muted") || "#5b6476", dark = lum(stHex(bg)) < 0.35;
+  const hues = dark ? ["#8db8e8", "#6fc28f", "#e2a54a", "#c39be0", "#6fcdd2", "#ec8fb0"] : ["#2f6fae", "#2f8a57", "#c0761a", "#8a4fb0", "#1f8a90", "#c04a76"];
+  const FONT = 13, LH = 16, PX = 11, PY = 7, MAXW = 176, GX = 52, GY = 10;
+  const c2d = document.createElement("canvas").getContext("2d"); c2d.font = `${FONT}px ${g("--f-ui") || "sans-serif"}`;
+  const wrap = (t, mw) => { const out = []; let line = ""; for (const w of String(t).split(/\s+/)) { const tr = line ? line + " " + w : w; if (line && c2d.measureText(tr).width > mw) { out.push(line); line = w; } else line = tr; } if (line) out.push(line); return out.slice(0, 5); };
+  const mk = (n, depth, ci) => { const lines = wrap(n.label || "", depth ? MAXW : 200); const w = Math.min(depth ? MAXW : 200, Math.max(...lines.map(l => c2d.measureText(l).width))) + PX * 2; return { lines, w, h: lines.length * LH + PY * 2, ci, depth, kids: (n.children || []).slice(0, 6).map(c => mk(c, depth + 1, ci)) }; };
+  const root0 = mk({ label: data.center || "Passage" }, 0, 0);
+  const branches = (data.branches || []).slice(0, 8).map((b, i) => mk(b, 1, i % hues.length));
+  const side = [branches.filter((_, i) => i % 2 === 0), branches.filter((_, i) => i % 2 === 1)];
+  const sub = n => (n.sub = n.kids.length ? Math.max(n.h, n.kids.reduce((s, k) => s + sub(k) + GY, -GY)) : n.h);
+  const colW = [[0], [0]]; const walk = (n, s) => { colW[s][n.depth] = Math.max(colW[s][n.depth] || 0, n.w); n.kids.forEach(k => walk(k, s)); };
+  side.forEach((bs, s) => bs.forEach(b => { sub(b); walk(b, s); }));
+  const edge = (s, d) => { let x = root0.w / 2 + GX; for (let k = 1; k < d; k++) x += (colW[s][k] || 0) + GX; return x; };
+  const nodes = [], links = [];
+  const place = (n, s, cy, parent) => {
+    const sg = s ? -1 : 1, x = s ? -edge(s, n.depth) - n.w : edge(s, n.depth);
+    n.x = x; n.y = cy - n.h / 2; nodes.push(n);
+    if (parent) links.push({ a: [sg > 0 ? parent.x + parent.w : parent.x, parent.y + parent.h / 2], b: [sg > 0 ? n.x : n.x + n.w, cy], ci: n.ci });
+    const total = n.kids.reduce((t, k) => t + k.sub + GY, -GY); let y = cy - total / 2;
+    n.kids.forEach(k => { place(k, s, y + k.sub / 2, n); y += k.sub + GY; });
+  };
+  root0.x = -root0.w / 2; root0.y = -root0.h / 2; nodes.push(root0);
+  side.forEach((bs, s) => { const total = bs.reduce((t, b) => t + b.sub + GY, -GY); let y = -total / 2; bs.forEach(b => { b.depth = 1; const sg = s ? -1 : 1; place(b, s, y + b.sub / 2, null); links.push({ a: [sg > 0 ? root0.x + root0.w : root0.x, 0], b: [sg > 0 ? b.x : b.x + b.w, b.y + b.h / 2], ci: b.ci }); y += b.sub + GY; }); });
+  const xs = nodes.flatMap(n => [n.x, n.x + n.w]), ys = nodes.flatMap(n => [n.y, n.y + n.h]), M = 24;
+  const x0 = Math.min(...xs) - M, y0 = Math.min(...ys) - M, W = Math.max(...xs) + M - x0, H = Math.max(...ys) + M - y0;
+  const svg = document.createElementNS(NS, "svg"); svg.setAttribute("xmlns", NS); svg.setAttribute("viewBox", `${x0} ${y0} ${W} ${H}`); svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("role", "img"); svg.setAttribute("aria-label", `Mind map of ${data.center || "the passage"}`);
+  const add = (tag, at, parent = svg) => { const e = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(at)) e.setAttribute(k, v); parent.append(e); return e; };
+  add("rect", { x: x0, y: y0, width: W, height: H, fill: bg });
+  links.forEach(l => { const mx = (l.a[0] + l.b[0]) / 2; add("path", { d: `M${l.a[0]},${l.a[1]} C${mx},${l.a[1]} ${mx},${l.b[1]} ${l.b[0]},${l.b[1]}`, fill: "none", stroke: hues[l.ci], "stroke-width": 2, "stroke-opacity": 0.6 }); });
+  nodes.forEach(n => {
+    const c = hues[n.ci], gEl = add("g", {});
+    add("rect", { x: n.x, y: n.y, width: n.w, height: n.h, rx: n.depth === 0 ? 14 : 8, fill: n.depth === 0 ? ink : stMix(c, bg, n.depth === 1 ? 0.22 : 0.1), stroke: n.depth === 0 ? ink : c, "stroke-width": n.depth === 1 ? 2 : 1.2 }, gEl);
+    const t = add("text", { x: n.x + n.w / 2, y: n.y + PY + FONT - 2, "text-anchor": "middle", "font-size": FONT, "font-family": g("--f-ui") || "sans-serif", "font-weight": n.depth < 2 ? 700 : 400, fill: n.depth === 0 ? bg : ink }, gEl);
+    n.lines.forEach((ln, i) => { const ts = add("tspan", { x: n.x + n.w / 2, dy: i ? LH : 0 }, t); ts.textContent = ln; });
+  });
+  return svg;
+}
+async function stRunMap(again) {
+  await stRunAi("map", "map", `${stPre()}\n\nTask: mind map.\nPassage: ${sd.ref}.${stTextBlock()}\n${sd.ctx ? `Background already worked out: main idea: ${sd.ctx.mainIdea}. Structure: ${(sd.ctx.structure || []).map(s => `${s.range} ${s.label}`).join("; ")}.` : ""}\nDraw the text as a mind map a preacher could study from. Return ONLY JSON {"center":"short title for the passage","branches":[{"label":"2 to 5 words","children":[{"label":"under 7 words","children":[{"label":"under 7 words"}]}]}]}. Use 4 to 6 branches that cover: the main idea, how the passage is built, key words, connections to other Scripture, how it has been read, and application. At most 3 children under each branch and 2 under each of those.`, again, "complex");
+}
+function stRenderViz() {
+  const p = $("#st-viz"); p.replaceChildren(); if (!sd) return;
+  const ready = stVerseList().length > 0;
+  p.append(el("div", { class: "bind-head" }, el("h2", { text: "Pictures of the text" })));
+  const bar = el("div", { class: "ao-bar st-vizbar" });
+  const btn = (label, key, title, fn, off) => bar.append(el("button", { type: "button", class: "btn" + (stViz === key ? " primary" : ""), title, text: label, disabled: off ? "" : null, onclick: fn }));
+  btn("Mind map from this study", "map", "Draws what you have gathered so far, with no Claude needed", () => { stViz = "map"; sd.mapSrc = "local"; stRenderViz(); }, !ready);
+  btn("Mind map with Claude", "map", "Claude draws the passage as a mind map, using what you have gathered", () => { stViz = "map"; sd.mapSrc = "claude"; if (sd.map) stRenderViz(); else stRunMap(false); }, !ready || !sample);
+  btn("How it is built", "struct", "The sections of the passage, verse by verse", () => { stViz = "struct"; stRenderViz(); if (!sd.ctx && sample && !sd.busy.has("ctx")) stRunCtx(false); }, !ready);
+  btn("Through the centuries", "time", "Christian and Jewish readings side by side, from the ancient world to now", () => { stViz = "time"; stRenderViz(); }, !ready);
+  p.append(bar);
+  const out = el("div", { class: "st-vizout" }); p.append(out);
+  if (!stViz) { out.append(el("div", { class: "hint", text: ready ? "Choose a picture. The mind map gathers the repeated words, translation differences, cross references, history, and your questions into one view you can save." : "Load a passage first." })); return; }
+  if (stViz === "map") {
+    const claude = sd.mapSrc === "claude" && sd.map, data = claude ? sd.map : stLocalMap();
+    if (sd.busy.has("map")) { out.append(stWait("Claude is drawing the map…")); return; }
+    if (!(data.branches || []).length) { out.append(el("div", { class: "hint", text: "Nothing to draw yet. Find cross references, study the background, or add questions, and the map fills in." })); return; }
+    const tools = el("div", { class: "st-tools" }, el("span", { class: "hint", text: claude ? "Drawn by Claude from the passage and your study." : "Drawn from what you have gathered so far." }), el("div", { class: "spacer" }),
+      el("button", { type: "button", class: "btn", text: stMapFit ? "Full size" : "Fit to screen", onclick: () => { stMapFit = !stMapFit; stRenderViz(); } }),
+      claude ? el("button", { type: "button", class: "btn", text: "Draw again", onclick: () => stRunMap(true) }) : null,
+      el("button", { type: "button", class: "btn", id: "st-map-save", hidden: downloads ? null : "", text: "Save picture", onclick: () => stSaveMap(data) }));
+    const box = el("div", { class: "st-mapbox" + (stMapFit ? " fit" : "") }); const svg = stMapSvg(data); box.append(svg);
+    out.append(tools, box);
+  } else if (stViz === "struct") {
+    if (sd.busy.has("ctx")) { out.append(stWait("Claude is reading the passage…")); return; }
+    out.append(stStructView());
+  } else out.append(stTimeView());
+}
+async function stSaveMap(data) {
+  const svg = stMapSvg(data), name = stFile("-mind-map.svg");
+  try { await downloads.save({ filename: name, data: '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg) }); } catch (e) { if (e && e.code !== "declined") toast("Saving is not available here"); }
+}
+function stStructView() {
+  const box = el("div", {}), c = sd.ctx, vs = stVerseList();
+  if (!c || !(c.structure || []).length) { box.append(el("div", { class: "hint", text: sample ? "Study the background first and the sections appear here." : "Claude is not available in this view." })); if (sample && !sd.busy.has("ctx")) box.append(el("button", { type: "button", class: "btn primary", text: "Study the background", onclick: () => stRunCtx(false) })); return box; }
+  const nums = vs.map(x => x.v), lo = nums[0], hi = nums[nums.length - 1], N = nums.length;
+  const grid = el("div", { class: "st-sgrid" }); grid.style.gridTemplateColumns = `repeat(${N}, minmax(0,1fr))`;
+  nums.forEach((v, i) => grid.append(el("button", { type: "button", class: "st-sv", style: `grid-column:${i + 1};grid-row:1`, text: String(v), onclick: () => stGoVerse(v) })));
+  let row = 2, placed = 0;
+  c.structure.forEach((s, i) => {
+    const m = String(s.range || "").match(/(\d+)(?:\s*[-–]\s*(\d+))?/); if (!m) return;
+    const a = Math.max(lo, +m[1]), b = Math.min(hi, +(m[2] || m[1])); if (a > b) return;
+    grid.append(el("div", { class: "st-sb s" + (i % 4), style: `grid-column:${nums.indexOf(a) + 1} / ${nums.indexOf(b) + 2};grid-row:${row}`, title: `${s.range}: ${s.label}` }, el("b", { text: s.range || "" }), el("span", { text: s.label || "" }))); placed++;
+  });
+  box.append(grid);
+  if (placed < c.structure.length) box.append(list(c.structure.map(s => `${s.range || ""}: ${s.label || ""}`)));
+  if (c.mainIdea) box.append(el("p", { class: "big-idea", style: "font-size:1.05rem;margin-top:12px", text: c.mainIdea }));
+  return box;
+}
+function stTimeView() {
+  const cols = ["Ancient world (to about AD 500)", "Medieval (500 to 1500)", "Early modern (1500 to 1800)", "Modern (1800 to now)"], eraCol = [[0], [1], [2], [3]];
+  const chr = (sd.ch && sd.ch.eras) || [], jwe = (sd.jw && sd.jw.eras) || [], jcol = [0, 0, 1, 2];   // Second Temple and Talmud are ancient; medieval; early modern and modern share the last two
+  if (!chr.length && !jwe.length) { const box = el("div", { class: "hint", text: sample ? "Trace how Christians and Jews have read this text, under How it has been read above, and the two lanes fill in here." : "Claude is not available in this view." }); return box; }
+  const grid = el("div", { class: "st-time" }); grid.style.gridTemplateColumns = "90px repeat(4, minmax(0,1fr))";
+  grid.append(el("div"), ...cols.map(c => el("div", { class: "st-th", text: c })));
+  const lane = (label, eras, map, cls) => {
+    grid.append(el("div", { class: "st-tl", text: label }));
+    const cells = cols.map(() => []); eras.forEach((e, i) => { if (e.summary) (cells[map[i]] || cells[3]).push(e); });
+    cells.forEach(cs => grid.append(el("div", { class: "st-tc " + cls }, ...cs.map(e => el("div", { class: "st-te", title: e.summary }, el("b", { text: stClip(e.era.replace(/\s*\(.*$/, ""), 40) }), (e.voices || []).length ? el("span", { class: "hint", text: e.voices.slice(0, 3).join(", ") }) : null, el("span", { text: stClip(e.summary, 120) }))))));
+  };
+  lane("Christian", chr, [0, 1, 2, 3], "ch"); lane("Jewish", jwe, jcol, "jw");
+  return el("div", { class: "st-timewrap" }, grid);
+}
+
+/* ---- the study as Markdown, to copy or keep ---- */
+function studyMd() {
+  const st = study(), base = stBase(), L = [`# Text study: ${st.ref || "(no passage yet)"}`, ""];
+  if (st.vers.length) L.push(`Translations compared: ${st.vers.join(", ")}${base ? `. Reading text: ${base}.` : ""}`, "");
+  const vs = stVerseList();
+  if (vs.length) {
+    L.push("## Text", "", ...vs.map(x => `${x.v}. ${x.base}`), "");
+    const diffs = []; vs.forEach(x => compareVerse(x.base, x.alts).intervals.forEach(iv => diffs.push(`- v. ${x.v}: ` + iv.groups.map(g => `${(g.base ? [base, ...g.vers] : g.vers).join("/")} "${g.text || "(omitted)"}"`).join("; "))));
+    if (diffs.length) L.push("## Where the translations differ", "", ...diffs, "");
+  }
+  const xr = []; Object.entries(sd ? sd.xr : {}).forEach(([k, r]) => { const refs = (r.items || []).map(i => i.ref); if (refs.length) xr.push(`- Verse ${k.split(":")[1]}: ${refs.join("; ")}`); });
+  if (xr.length) L.push("## Cross references", "", ...xr, "");
+  const c = sd && sd.ctx; if (c) { L.push("## Background", ""); if (c.mainIdea) L.push(`**Main idea:** ${c.mainIdea}`, ""); [["Author", c.author], ["Audience", c.audience], ["Date", c.date], ["Genre", c.genre], ["Setting", c.setting]].forEach(([k, v]) => { if (v) L.push(`- **${k}:** ${v}`); }); (c.structure || []).forEach(s => L.push(`- ${s.range}: ${s.label}`)); L.push(""); if ((c.keyWords || []).length) L.push("### Key words", "", ...c.keyWords.map(w => `- ${w.word}: ${w.original || ""} ${w.translit ? `(${w.translit})` : ""} ${w.gloss || ""}. ${w.note || ""}`), ""); }
+  const eras = (name, d) => { if (d && (d.eras || []).some(e => e.summary)) L.push(`## ${name}`, "", ...d.eras.filter(e => e.summary).map(e => `- **${e.era}:** ${e.summary}${(e.voices || []).length ? ` (${e.voices.join(", ")})` : ""}`), ""); };
+  eras("Christian interpretation through history", sd && sd.ch); eras("Hebrew and Jewish understanding through history", sd && sd.jw);
+  if (st.questions.length) L.push("## Questions", "", ...st.questions.flatMap(q => [`- ${q.done ? "[x]" : "[ ]"} ${q.q}${q.v ? ` (v. ${q.v})` : ""}`, ...(q.a && q.a.answer ? [`  - ${q.a.answer}`] : [])]), "");
+  [["Observation", st.ioa.obs], ["Interpretation", st.ioa.int], ["Application", st.ioa.app], ["Notes", st.notes]].forEach(([k, v]) => { if (v && v.trim()) L.push(`## ${k}`, "", v.trim(), ""); });
+  return L.join("\n").replace(/\n{3,}/g, "\n\n");
+}
+
+/* ---- loading a passage, and putting the view together ---- */
+function stShowPanels(on) { $("#st-panels").hidden = !on; }
+function stRenderAll() { if (!sd) return; stRenderCompare(); stRenderXref(); stRenderContext(); stRenderHistory(); stRenderViz(); stRenderQuestions(); }
+async function stLoadTexts(fresh) {
+  const st = study(), ref = st.ref, mine = sd; if (!ref || !mine) return;
+  stBusySet("text", true); $("#st-status").textContent = "Loading the text…"; stRenderCompare();
+  const q = st.vers.filter(v => fresh || !mine.units[v]);
+  await Promise.all([0, 1].map(async () => {
+    while (q.length) {
+      const v = q.shift();
+      try {
+        const { value } = await stGet(stKey("txt", ref, v), async () => { delete verseCache[v + "|" + ref.toLowerCase()]; const r = await fetchPassage(ref, v); return { t: r.t, s: r.s }; }, { fresh, cloud: false });
+        mine.units[v] = unitsFromTokens(value.t, ref); mine.srcs[v] = value.s; delete mine.errors[v];
+      } catch (e) { mine.errors[v] = e.message || "Couldn't load that translation."; }
+      if (sd === mine) { $("#st-actions").hidden = !Object.keys(mine.units).length; stRenderCompare(); }
+    }
+  }));
+  stBusySet("text", false); $("#st-status").textContent = "";
+  if (sd !== mine) return;
+  if (!st.base || !mine.units[st.base]) { st.base = mine.units[settings.defVer] ? settings.defVer : Object.keys(mine.units)[0] || ""; save(); }
+  await stLoadKept(mine); if (sd === mine) stRenderAll();
+}
+/* whatever was fetched or asked before for this passage comes back without a new request */
+async function stLoadKept(mine) {
+  const ref = mine.ref, vs = stVerseList();
+  await Promise.all([
+    ...["ctx", "tx", "ch", "jw", "themes", "map"].map(async k => { const v = await stPeek(stKey(k, ref)); if (v != null && sd === mine) mine[k] = v; }),
+    ...vs.slice(0, ST_XR_VERSES).map(async x => { const v = await stPeek(stKey("xr", stVRef(x, ref))); if (v != null && sd === mine) mine.xr[x.key] = v; })
+  ]);
+}
+async function stStart(ref) {
+  const st = study(); st.ref = ref; if (!st.vers.length) st.vers = settings.favs.slice(0, 4); if (!st.base || !st.vers.includes(st.base)) st.base = st.vers.includes(settings.defVer) ? settings.defVer : st.vers[0];
+  sd = sdNew(ref); stXrOpen = null; stXrSection = ""; stSefVerse = ""; stViz = ""; save();
+  $("#st-ref").value = ref; stRenderVers(); stShowPanels(true); stRenderAll(); $("#st-use").hidden = ref === S.meta.text;
+  await stLoadTexts(false);
+}
+function stStudyRef(ref) { window.scrollTo({ top: 0, behavior: "smooth" }); stStart(ref); }
+$("#st-form").addEventListener("submit", e => {
+  e.preventDefault(); const ref = normalizeRef($("#st-ref").value);
+  if (!ref) { toast("Type a passage with a book and chapter, like Psalm 119:105-112"); return; }
+  stStart(ref);
+});
+$("#st-reload").onclick = () => { if (study().ref && sd) stLoadTexts(true); };
+$("#st-use").onclick = () => { S.meta.text = study().ref; $("#m-text").value = S.meta.text; renderTags(); save(); $("#st-use").hidden = true; toast("Primary text set"); };
+$("#st-add").onclick = () => { const st = study(); if (!st.ref) return; const vs = stBase() || settings.defVer; insertScripture(st.ref, vs, { afterBlock: true }); toast(`${st.ref} added to the end of the manuscript`); };
+$("#st-copy").onclick = () => copyText(studyMd(), $("#st-copy"));
+$("#st-save").onclick = async () => { const name = stFile("-study.md"); try { await downloads.save({ filename: name, data: studyMd() }); } catch (e) { if (e && e.code !== "declined") toast("Saving is not available here"); } };
+function renderStudy() {
+  const st = study(); $("#st-save").hidden = !downloads;
+  if (!st.vers.length) st.vers = settings.favs.slice(0, 4);
+  stRenderVers(); stRenderNotes();
+  $("#st-ref").value = st.ref || $("#st-ref").value || ""; if (!st.ref && S.meta.text && !$("#st-ref").value) $("#st-ref").value = S.meta.text;
+  $("#st-use").hidden = !st.ref || st.ref === S.meta.text; $("#st-actions").hidden = !(sd && Object.keys(sd.units).length);
+  if (st.ref && (!sd || sd.ref !== st.ref)) { stStart(st.ref); return; }
+  stShowPanels(!!st.ref); if (sd) stRenderAll(); else stRenderQuestions();
+}
+$("#btn-theme").addEventListener("click", () => setTimeout(() => { if (view === "study" && stViz === "map") stRenderViz(); }, 0));
+
 /* ---------------- views ---------------- */
 function setView(v) {
   view = v; document.body.dataset.view = v; requestAnimationFrame(measureHeader);
   for (const t of document.querySelectorAll(".tab")) t.setAttribute("aria-selected", String(t.dataset.view === v));
-  for (const id of ["dash", "build", "edit", "present", "analysis"]) $("#view-" + id).hidden = id !== v;
+  for (const id of ["dash", "build", "study", "edit", "present", "analysis"]) $("#view-" + id).hidden = id !== v;
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
+  if (v === "study") renderStudy();
   if (v === "edit") { refreshCueLabels(); renderEditStats(); renderSuggestions(); renderOutline(); requestAnimationFrame(renderGutter); }
   if (v === "present") renderPresent();
   if (v === "analysis") renderAnalysis();
@@ -5090,7 +5959,7 @@ document.querySelectorAll(".tab").forEach(t => t.onclick = () => setView(t.datas
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); setView(["dash", "build", "edit", "present", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); setView(["dash", "build", "study", "edit", "present", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
