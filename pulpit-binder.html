@@ -1520,7 +1520,7 @@ let S = null;          // current record
 let sections = [];     // derived [{text, forced, cue, slide, how}]
 let library = [];
 let saveT = null;
-const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); refreshLibrary(); queueCloud(); }, 500); };
+const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }, 500); };
 
 /* ---------------- text tools ---------------- */
 const STOP = new Set("the a an and or but if then than so to of in on at by for with from as is are was were be been being it its this that these those there here we you he she they them his her our your their i me my mine us who whom whose which what when where why how not no yes do does did done have has had will would shall should can could may might must just also very into out up down over under about after before again more most some any all each every one two three said says say like get got go going come came let lets us oh well now today morning really want know think thing things much many even only because through while those which them him jesus god lord".split(" "));
@@ -2266,6 +2266,14 @@ async function refreshLibrary() {
   if (S && !library.find(r => r.id === S.id)) library.unshift(S);
   const ids = new Set(library.map(r => r.id));
   for (const m of cloudMetas.values()) if (!ids.has(m.id)) library.push({ id: m.id, cloudOnly: true, updatedAt: m.updatedAt, meta: m.meta || { title: m.title, when: m.when } });
+  drawLibrary();
+}
+/* After a save only the open sermon changed, so the list is updated in place instead of read again from storage. */
+function touchLibrary() {
+  const i = library.findIndex(r => r.id === S.id); if (i >= 0) library[i] = S; else library.unshift(S);
+  drawLibrary();
+}
+function drawLibrary() {
   library.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const sel = $("#library"); sel.replaceChildren();
   library.forEach(r => sel.append(el("option", { value: r.id, text: `${(r.meta && r.meta.title) || "Untitled sermon"}${r.meta && r.meta.when ? " · " + new Date(r.meta.when).toLocaleDateString() : ""}${r.cloudOnly ? " · from your account" : ""}` })));
@@ -4995,7 +5003,6 @@ $("#btn-copy-ch").onclick = () => { const ch = chapters(); if (ch.length < 3) { 
    go to the page's file storage and are referenced by id. */
 let cdb = null, cassets = null, userId = null, cloudMetas = new Map(), cloudReady = false, unsubCur = null, lastEditAt = 0, cloudT = null, pushing = Promise.resolve();
 const pushed = {};
-const blobIds = new WeakMap();
 const DEVICE = (() => { try { let d = localStorage.getItem("pb-device"); if (!d) { d = uid() + uid(); localStorage.setItem("pb-device", d); } return d; } catch { return uid() + uid(); } })();
 const CHUNK = 60000, MAX_ASSET = 20 * 1048576;
 const sermonPath = id => `data/users/${userId}/${id}`;   // data/users/<you> is your private collection; each sermon is one document in it
@@ -5005,13 +5012,25 @@ function setSync(state, detail) {
   p.textContent = { off: "On this device", saving: "Saving…", synced: "Synced", error: "Sync paused", loading: "Syncing…" }[state] || state;
   p.title = detail || { off: "Sermons are saved in this browser. Open this page in Claude while signed in to sync across devices.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and will sync when the connection returns.", loading: "Checking your account for sermons" }[state] || "";
 }
+/* Files go up once. Each upload is remembered by the file's content on this device, so reopening the page, or a
+   change elsewhere in the deck, never sends the same picture again. */
+const blobUp = new WeakMap();
+const blobKey = async b => { try { const d = await crypto.subtle.digest("SHA-256", await b.arrayBuffer()); return "asset-" + [...new Uint8Array(d)].map(x => x.toString(16).padStart(2, "0")).join(""); } catch { return null; } };
+async function uploadOnce(b) {
+  if (b.size > MAX_ASSET || !cassets) return null;
+  const key = await blobKey(b);
+  if (key) { const hit = await kv.get(key); if (hit && hit.id) return hit.id; }
+  const r = await cassets.upload(b);
+  if (key) kv.put({ k: key, id: r.id, at: Date.now() });
+  return r.id;
+}
 async function upBlob(b) {
   if (!b) return null;
   if (b.asset) return b;
   if (!(b instanceof Blob)) return null;
-  let id = blobIds.get(b);
-  if (!id) { if (b.size > MAX_ASSET || !cassets) return null; const r = await cassets.upload(b); id = r.id; blobIds.set(b, id); }
-  return { asset: id };
+  let p = blobUp.get(b);
+  if (!p) { p = uploadOnce(b); blobUp.set(b, p); p.catch(() => blobUp.delete(b)); }
+  const id = await p; return id ? { asset: id } : null;
 }
 async function deepUp(v) {
   if (v instanceof Blob) return upBlob(v);
@@ -5019,38 +5038,43 @@ async function deepUp(v) {
   if (v && typeof v === "object") { if (v.asset) return v; const o = {}; for (const [k, x] of Object.entries(v)) o[k] = await deepUp(x); return o; }
   return v;
 }
-async function putPart(base, name, str, last, chunks) {
-  const h = keyOf(str) + ":" + str.length;
-  if (last[name] === h && chunks[name] != null) return;
-  const n = Math.max(1, Math.ceil(str.length / CHUNK));
-  for (let k = 0; k < n; k++) await cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) });
-  for (let k = n; k < (chunks[name] || 0); k++) { try { await cdb.doc(`${base}/parts/${name}.${k}`).delete(); } catch {} }
-  chunks[name] = n; last[name] = h;
-}
+const runPool = async (tasks, n = 4) => { const q = tasks.slice(); await Promise.all(Array.from({ length: Math.min(n, q.length) }, async () => { while (q.length) await q.shift()(); })); };   // a few at a time: the store limits concurrent writes
+const partHash = str => keyOf(str) + ":" + str.length;
+/* What is already in the account is recorded in the sermon's own document (hashes of each part), so a new session, or
+   another device, sends only the parts that changed. */
 async function pushRecord(rec) {
   if (!cdb || !userId || rec.example) return;
   const base = sermonPath(rec.id);
   const last = (pushed[rec.id] = pushed[rec.id] || {});
   const prevMeta = cloudMetas.get(rec.id);
   const chunks = { ...((prevMeta && prevMeta.chunks) || {}), ...(last.chunks || {}) };
+  const hashes = { ...((prevMeta && prevMeta.hashes) || {}), ...(last.hashes || {}) };
   const md = rec.media || {};
   let fileRef = null, fileLocal = false;
   if (md.file && md.file.blob) { fileRef = await upBlob(md.file.blob); fileLocal = !fileRef; }
   const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, mat: rec.mat || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
-  await putPart(base, "core", core, last, chunks);
-  await putPart(base, "html", rec.html || "", last, chunks);
-  await putPart(base, "preached", md.preached || "", last, chunks);
-  const slideCount = (rec.slides || []).length;
-  if (last.deckVer !== (rec.deckVer || 0) || prevMeta == null) {
-    for (let i = 0; i < slideCount; i++) await putPart(base, "s" + i, JSON.stringify(await deepUp(rec.slides[i])), last, chunks);
-    const oldCount = prevMeta ? prevMeta.slideCount || 0 : 0;
-    for (let i = slideCount; i < oldCount; i++) { for (let k = 0; k < (chunks["s" + i] || 1); k++) { try { await cdb.doc(`${base}/parts/s${i}.${k}`).delete(); } catch {} } delete chunks["s" + i]; delete last["s" + i]; }
-    await putPart(base, "pdf", JSON.stringify(await deepUp(rec.pdfPages || null)), last, chunks);
-    last.deckVer = rec.deckVer || 0;
+  const parts = [["core", core], ["html", rec.html || ""], ["preached", md.preached || ""]];
+  const slideCount = (rec.slides || []).length, oldCount = prevMeta ? prevMeta.slideCount || 0 : 0, trims = [];
+  if (!prevMeta || (prevMeta.deckVer || 0) !== (rec.deckVer || 0) || oldCount !== slideCount) {
+    const strs = new Array(slideCount);
+    await runPool(rec.slides.map((sl, i) => async () => { strs[i] = JSON.stringify(await deepUp(sl)); }), 3);
+    strs.forEach((t, i) => parts.push(["s" + i, t]));
+    parts.push(["pdf", JSON.stringify(await deepUp(rec.pdfPages || null))]);
+    for (let i = slideCount; i < oldCount; i++) { for (let k = 0; k < (chunks["s" + i] || 1); k++) trims.push(`${base}/parts/s${i}.${k}`); delete chunks["s" + i]; delete hashes["s" + i]; }
   }
-  last.chunks = chunks;
-  const meta = { id: rec.id, updatedAt: rec.updatedAt || Date.now(), device: DEVICE, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, fileLocal, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
+  const writes = [];
+  for (const [name, str] of parts) {
+    const h = partHash(str); if (hashes[name] === h && chunks[name] != null) continue;
+    const n = Math.max(1, Math.ceil(str.length / CHUNK));
+    for (let k = 0; k < n; k++) writes.push(() => cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) }));
+    for (let k = n; k < (chunks[name] || 0); k++) trims.push(`${base}/parts/${name}.${k}`);
+    chunks[name] = n; hashes[name] = h;
+  }
+  await runPool(writes);
+  await runPool(trims.map(p => () => cdb.doc(p).delete().catch(() => {})));
+  const meta = { id: rec.id, updatedAt: rec.updatedAt || Date.now(), device: DEVICE, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, hashes, fileLocal, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
   await cdb.doc(base).set(meta);
+  last.chunks = chunks; last.hashes = hashes;
   cloudMetas.set(rec.id, meta);
 }
 async function pullRecord(id) {
@@ -5070,19 +5094,22 @@ async function pullRecord(id) {
     media: { link: (core.media && core.media.link) || "", preached, file: (core.media && core.media.file) || (local && local.media && local.media.file && m.fileLocal ? local.media.file : null) }
   };
   rec.transcript = plainFromHtml(rec.html);
-  const last = (pushed[id] = { chunks: { ...(m.chunks || {}) }, deckVer: m.deckVer || 0 });
-  last.html = keyOf(html) + ":" + html.length; last.preached = keyOf(preached) + ":" + preached.length;
+  pushed[id] = { chunks: { ...(m.chunks || {}) }, hashes: { ...(m.hashes || {}), html: partHash(html), preached: partHash(preached) } };
   await store.put(rec);
   return rec;
 }
+/* A short pause after typing stops gathers a burst of edits into one push; steady typing still goes up every few seconds. */
+let cloudFirst = 0;
 function queueCloud() {
   if (!cdb || !S || S.example) return;
   clearTimeout(cloudT);
   setSync("saving");
+  const now = Date.now(); if (!cloudFirst) cloudFirst = now;
   cloudT = setTimeout(() => {
+    cloudFirst = 0;
     const rec = S;
     pushing = pushing.then(() => pushRecord(rec)).then(() => setSync("synced")).catch(e => { console.warn("sync", e); setSync("error", e && e.code === "quota_or_state" ? "Your page's file storage is full. Text still syncs; remove old sermons' slides or recordings to make room." : null); });
-  }, 1800);
+  }, Math.max(0, Math.min(600, cloudFirst + 4000 - now)));
 }
 function watchCurrent() {
   if (unsubCur) { try { unsubCur(); } catch {} unsubCur = null; }

@@ -35,6 +35,9 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - `data/users/<userId>/<sermonId>`: metadata, part counts, and `dash` (a compact summary used by the Dashboard).
 - `data/users/<userId>/<sermonId>/parts/<name>.<k>`: chunks of 60,000 characters (`core`, `html`, `preached`, `pdf`, `s<i>` per slide).
 - Large binaries go to the assets store and are referenced as `{asset: id}`.
+- The sermon document records `hashes` of each part. A push compares against them and writes only parts that changed, so a new session or another device does not resend everything. Slides are sent only when `deckVer` or the slide count differs from the account's copy.
+- Each uploaded file is remembered on the device by its SHA-256 (`kv` key `asset-<hash>`), so the same picture is never uploaded twice.
+- Writes go a few at a time. A save waits 0.5 s after typing stops, then about 0.6 s more before pushing (at most 4 s during steady typing).
 - `data/users/<userId>/_prefs`: settings (default translation, favorites).
 - `data/users/<userId>/_dash`: the latest Claude read across all sermons.
 - Ids starting with `_` are not sermons and are skipped in the library.
