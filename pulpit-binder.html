@@ -16,6 +16,7 @@
   --read-size:1.3rem;
   --hl-yellow:#fff0a6; --hl-green:#d4f2d0; --hl-blue:#d6e6ff; --hl-pink:#fbd9e8;
   --sc-accent:#2f5d8a; --sc-bg:#f3f7fb; --sc-line:#d3dfeb; --sc-on:#ffffff;
+  --danger:#b3261e; --danger-ink:#ffffff;
   --ctl:36px; --ctl-sm:30px; --r-sm:6px; --r:10px; --nav-h:0px;
 }
 @media (pointer:coarse){:root{--ctl:44px; --ctl-sm:36px}}
@@ -24,13 +25,13 @@
   --accent:#e2b55e; --accent-ink:#1a1408; --accent-soft:#33291a; --active:#1d2433;
   --slide-bg:#0b0f16; --slide-ink:#f3f1ea; --slide-sub:#aeb3be; --ok:#6fc28f; --warn:#e2a54a;
   --hl-yellow:#5b4c10; --hl-green:#1f4a2c; --hl-blue:#1f3a64; --hl-pink:#5a2341;
-  --sc-accent:#8db8e8; --sc-bg:#141d29; --sc-line:#28384c; --sc-on:#0e1219; color-scheme:dark}}
+  --sc-accent:#8db8e8; --sc-bg:#141d29; --sc-line:#28384c; --sc-on:#0e1219; --danger:#f2836f; --danger-ink:#1a0d0b; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1219; --surface:#161b25; --sunk:#10141c; --ink:#e5e8ee; --muted:#97a0b2; --line:#283041;
   --accent:#e2b55e; --accent-ink:#1a1408; --accent-soft:#33291a; --active:#1d2433;
   --slide-bg:#0b0f16; --slide-ink:#f3f1ea; --slide-sub:#aeb3be; --ok:#6fc28f; --warn:#e2a54a;
   --hl-yellow:#5b4c10; --hl-green:#1f4a2c; --hl-blue:#1f3a64; --hl-pink:#5a2341;
-  --sc-accent:#8db8e8; --sc-bg:#141d29; --sc-line:#28384c; --sc-on:#0e1219; color-scheme:dark}
+  --sc-accent:#8db8e8; --sc-bg:#141d29; --sc-line:#28384c; --sc-on:#0e1219; --danger:#f2836f; --danger-ink:#1a0d0b; color-scheme:dark}
 
 body{min-height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.45}
@@ -71,6 +72,7 @@ textarea{resize:vertical}
 .btn:hover{border-color:var(--muted)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:var(--danger-ink)}
 .btn:disabled{opacity:.5;cursor:default}
 .btn.sm,.ed-toolbar .btn,.sg-act .btn{min-height:var(--ctl-sm);padding:0 10px;font-size:13px}
 select.sm,.ed-toolbar select{height:var(--ctl-sm);padding:0 7px;font-size:13px}
@@ -350,6 +352,22 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 .imp-item:hover,.imp-item:focus-visible{background:var(--sunk)}
 .imp-more summary{cursor:pointer;font-size:13px;color:var(--muted)}
 #imp-bar{transition:width .2s}
+/* deleting sermons */
+.del-card{width:min(620px,100%)}
+.del-tools{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
+.del-tools input[type=search]{flex:1 1 220px;min-width:0;height:var(--ctl);padding:0 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);font-size:15px}
+.del-list{display:flex;flex-direction:column;gap:2px;max-height:min(52vh,460px);overflow:auto;border:1px solid var(--line);border-radius:8px;padding:4px}
+.del-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:8px 10px;border-radius:6px;cursor:pointer}
+.del-row:hover{background:var(--sunk)}
+.del-row.on{background:color-mix(in srgb,var(--danger) 11%,var(--surface))}
+.del-row input{margin:3px 0 0;width:18px;height:18px;accent-color:var(--danger)}
+#del-all{accent-color:var(--danger)}
+@media (max-width:560px){#del-msg{flex-basis:100%}}
+.del-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.del-t b{font-family:var(--f-read);font-weight:600;overflow-wrap:anywhere}
+.del-tags{display:flex;gap:4px;flex-wrap:wrap}
+.del-tags .chip{font-size:11px;padding:1px 7px}
+@media (pointer:coarse){.del-row{padding:11px 10px}.del-row input{width:22px;height:22px}}
 .deliv-list{display:flex;flex-direction:column;gap:10px}
 .deliv-list:empty{display:none}
 .deliv{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--sunk)}
@@ -899,7 +917,8 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
             <button class="menu-item" role="menuitem" id="btn-new" type="button">New sermon</button>
             <button class="menu-item" role="menuitem" id="btn-import" type="button" title="Bring in sermons from a folder or files">Import from a folder or files</button>
             <div class="menu-sep" role="separator"></div>
-            <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete this sermon from this browser">Delete this sermon</button>
+            <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete the sermon that is open now">Delete this sermon</button>
+            <button class="menu-item danger" role="menuitem" id="btn-del-many" type="button" title="Tick several sermons and delete them together">Choose sermons to delete…</button>
           </div>
         </div>
       </div>
@@ -1318,6 +1337,16 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
       <div class="sc-pop-row"><div class="spacer"></div><button type="button" class="btn" id="imp-stop">Stop after this one</button></div>
     </div>
     <div id="imp-done" class="imp-step" hidden></div>
+  </div>
+</div>
+<div class="modal" id="del-modal" hidden role="dialog" aria-modal="true" aria-labelledby="del-title">
+  <div class="modal-card del-card">
+    <h2 id="del-title">Delete sermons</h2>
+    <p class="hint" style="margin:0" id="del-intro"></p>
+    <div class="del-tools"><input type="search" id="del-q" placeholder="Search title, date, text, service, tag…" aria-label="Search sermons" autocomplete="off"><label class="fav" for="del-all"><input type="checkbox" id="del-all"> <span id="del-all-l">Select all</span></label></div>
+    <div class="del-list" id="del-list" role="group" aria-label="Sermons"></div>
+    <div class="prog" id="del-prog" hidden aria-hidden="true"><i id="del-bar"></i></div>
+    <div class="sc-pop-row"><span class="hint" id="del-msg" role="status" aria-live="polite"></span><div class="spacer"></div><button type="button" class="btn ghost" id="del-cancel">Cancel</button><button type="button" class="btn danger" id="del-go" disabled>Delete</button></div>
   </div>
 </div>
 <div class="modal" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="set-title">
@@ -2251,14 +2280,106 @@ $("#library").onchange = async () => {
   const v = view; openRec(r); setView(v);
 };
 $("#btn-new").onclick = () => { const r = blank(); store.put(r); openRec(r); refreshLibrary(); setView("build"); $("#m-title").focus(); };
-let delArm = false;
-$("#btn-del").onclick = async () => {
-  if (!delArm) { delArm = true; $("#btn-del").textContent = "Confirm delete"; setTimeout(() => { delArm = false; $("#btn-del").textContent = "Delete"; }, 3000); return; }
-  delArm = false; $("#btn-del").textContent = "Delete";
-  const goneId = S.id; await store.del(goneId);
-  if (cdb && cloudMetas.has(goneId)) { const m = cloudMetas.get(goneId); cloudMetas.delete(goneId); try { for (const [name, n] of Object.entries(m.chunks || {})) for (let k = 0; k < n; k++) await cdb.doc(`${sermonPath(goneId)}/parts/${name}.${k}`).delete(); await cdb.doc(sermonPath(goneId)).delete(); } catch (e) { console.warn(e); } }
-  library = (await store.all()).sort((a, b) => b.updatedAt - a.updatedAt);
-  openRec(library[0] || exampleRec()); refreshLibrary(); toast("Deleted");
+/* ---------------- deleting sermons, one or many ---------------- */
+/* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
+   Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */
+async function removeSermon(id) {
+  await store.del(id); delete pushed[id]; dashCache.delete(id);
+  const m = cloudMetas.get(id);
+  if (!cdb || !userId || !m) return true;
+  const base = sermonPath(id), q = Object.entries(m.chunks || {}).flatMap(([name, n]) => Array.from({ length: n }, (_, k) => `${base}/parts/${name}.${k}`));
+  const del = async p => { try { await cdb.doc(p).delete(); } catch (e) { if (!e || !["unavailable", "resource_exhausted"].includes(e.code)) throw e; await new Promise(r => setTimeout(r, 800 + Math.random() * 800)); await cdb.doc(p).delete(); } };
+  try {
+    await Promise.all([0, 1, 2, 3].map(async () => { while (q.length) await del(q.shift()); }));   // a few at a time: the store limits concurrent writes
+    await del(base); cloudMetas.delete(id); return true;
+  } catch (e) { console.warn("delete", id, e); return false; }
+}
+/* Returns how many could not be removed from the account. */
+async function deleteSermons(ids, onProgress) {
+  const gone = new Set(ids), openGone = S && gone.has(S.id);
+  if (openGone) { clearTimeout(saveT); clearTimeout(cloudT); }
+  if (onProgress) onProgress(0, ids.length, true);
+  // a save already on its way to the account finishes first, so it can't bring a deleted sermon back
+  const run = pushing.catch(() => {}).then(async () => { let failed = 0, n = 0; for (const id of ids) { if (!(await removeSermon(id))) failed++; if (onProgress) onProgress(++n, ids.length); } return failed; });
+  pushing = run.catch(() => {});
+  const failed = await run;
+  if (openGone) {
+    const byNew = (a, b) => (b.updatedAt || 0) - (a.updatedAt || 0);
+    let next = (await store.all()).sort(byNew)[0];
+    if (!next && cdb) { const c = [...cloudMetas.values()].sort(byNew)[0]; if (c) { try { next = await pullRecord(c.id); } catch {} } }
+    if (!next) { next = exampleRec(); await store.put(next); }
+    const v = view; openRec(next); setView(v);
+  }
+  await refreshLibrary();
+  return failed;
+}
+let delSel = new Set(), delBusy = false, delArmed = false, delArmT = 0;
+const delWhen = r => { const d = r.meta && r.meta.when ? new Date(r.meta.when) : null; return d && !isNaN(d) ? d : null; };
+function delRows() {
+  const q = $("#del-q").value.trim().toLowerCase();
+  return [...library].sort((a, b) => (delWhen(b) || 0) - (delWhen(a) || 0) || (b.updatedAt || 0) - (a.updatedAt || 0))
+    .filter(r => { if (!q) return true; const m = r.meta || {}, d = delWhen(r); return [m.title, m.text, m.service, m.place, m.series, d ? d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : ""].some(x => String(x || "").toLowerCase().includes(q)); });
+}
+function delDisarm() { delArmed = false; clearTimeout(delArmT); }
+function delUpdate(rows = delRows()) {
+  delDisarm();
+  const n = delSel.size, shown = rows.filter(r => delSel.has(r.id)).length, all = $("#del-all");
+  all.checked = rows.length > 0 && shown === rows.length; all.indeterminate = shown > 0 && shown < rows.length; all.disabled = delBusy || !rows.length;
+  $("#del-all-l").textContent = $("#del-q").value.trim() ? `Select all ${rows.length} shown` : "Select all";
+  const go = $("#del-go"); go.disabled = delBusy || !n; go.textContent = n ? `Delete ${n} sermon${n === 1 ? "" : "s"}` : "Delete";
+  if (!delBusy) $("#del-msg").textContent = n ? `${n} selected${n > shown ? `, ${n - shown} hidden by the search` : ""}` : "";
+}
+function renderDelList() {
+  const box = $("#del-list"), rows = delRows(); box.replaceChildren();
+  if (!rows.length) box.append(el("div", { class: "hint", style: "padding:10px", text: library.length ? "No sermons match." : "No sermons yet." }));
+  rows.forEach(r => {
+    const m = r.meta || {}, d = delWhen(r), id = "del-c-" + r.id;
+    const cb = el("input", { type: "checkbox", id }); cb.checked = delSel.has(r.id);
+    const tags = [S && r.id === S.id ? "Open now" : "", r.example ? "Example" : ""].filter(Boolean);
+    const row = el("label", { class: "del-row" + (cb.checked ? " on" : ""), for: id }, cb, el("span", { class: "del-t" }, el("b", { text: m.title || "Untitled sermon" }),
+      el("span", { class: "hint", text: [d ? d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "No date", m.service, m.text].filter(Boolean).join(" · ") }),
+      tags.length ? el("span", { class: "del-tags" }, ...tags.map(t => el("span", { class: "chip", text: t }))) : null));
+    cb.onchange = () => { if (cb.checked) delSel.add(r.id); else delSel.delete(r.id); row.classList.toggle("on", cb.checked); delUpdate(); };
+    box.append(row);
+  });
+  delUpdate(rows);
+}
+async function openDelete(ids = []) {
+  if (impBusy) { toast("Wait for the import to finish, then delete."); return; }
+  if (delBusy) { $("#del-modal").hidden = false; return; }
+  await refreshLibrary();
+  delSel = new Set(ids.filter(id => library.some(r => r.id === id))); $("#del-q").value = "";
+  for (const e of $("#del-modal").querySelectorAll("input,button")) e.disabled = false;
+  $("#del-prog").hidden = true;
+  $("#del-intro").textContent = `Tick the sermons to delete. They are removed from this ${cdb ? "device and from your account, so they are gone on every device" : "browser"}. This can't be undone.`;
+  renderDelList(); $("#del-modal").hidden = false;
+  if (delSel.size) setTimeout(() => { const c = document.getElementById("del-c-" + [...delSel][0]); if (c) { c.scrollIntoView({ block: "nearest" }); c.focus(); } }, 0);
+}
+const closeDelete = () => { if (!delBusy) { delDisarm(); $("#del-modal").hidden = true; } };
+$("#btn-del").onclick = () => openDelete([S.id]);
+$("#btn-del-many").onclick = () => openDelete();
+$("#del-q").oninput = renderDelList;
+$("#del-all").onchange = () => { const on = $("#del-all").checked; delRows().forEach(r => { if (on) delSel.add(r.id); else delSel.delete(r.id); }); renderDelList(); };
+$("#del-cancel").onclick = closeDelete;
+$("#del-modal").addEventListener("click", e => { if (e.target.id === "del-modal") closeDelete(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#del-modal").hidden) closeDelete(); });
+$("#del-go").onclick = async () => {
+  const ids = [...delSel].filter(id => library.some(r => r.id === id)), n = ids.length, go = $("#del-go");
+  if (!n || delBusy) return;
+  if (!delArmed) {
+    delArmed = true; go.textContent = n === 1 ? "Yes, delete it" : `Yes, delete all ${n}`;
+    $("#del-msg").textContent = "Press again to delete. This can't be undone.";
+    delArmT = setTimeout(() => delUpdate(), 5000); return;
+  }
+  delDisarm(); delBusy = true;
+  for (const e of $("#del-modal").querySelectorAll("input,button")) e.disabled = true;
+  $("#del-prog").hidden = false; $("#del-bar").style.width = "0";
+  let failed = n;
+  try {
+    failed = await deleteSermons(ids, (i, total, waiting) => { $("#del-msg").textContent = waiting ? "Finishing a save first…" : `Deleting ${i} of ${total}…`; $("#del-bar").style.width = `${i / total * 100}%`; });
+  } catch (e) { console.warn("delete", e); }
+  delBusy = false; delSel.clear(); $("#del-modal").hidden = true;
+  toast(failed ? `${n - failed} of ${n} deleted. ${failed} couldn't be removed from your account right now, so ${failed === 1 ? "it is" : "they are"} still listed; try ${failed === 1 ? "it" : "them"} again later.` : n === 1 ? "Sermon deleted" : `${n} sermons deleted`);
 };
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
