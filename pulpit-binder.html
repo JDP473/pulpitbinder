@@ -492,7 +492,29 @@ mark{color:inherit;border-radius:2px;padding:0 1px;background:var(--hl-yellow)}
 mark.hl-yellow{background:var(--hl-yellow)} mark.hl-green{background:var(--hl-green)} mark.hl-blue{background:var(--hl-blue)} mark.hl-pink{background:var(--hl-pink)}
 .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line);vertical-align:-2px;flex:none}
 .sw.hl-yellow{background:var(--hl-yellow)} .sw.hl-green{background:var(--hl-green)} .sw.hl-blue{background:var(--hl-blue)} .sw.hl-pink{background:var(--hl-pink)}
-.edit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:18px;align-items:start}
+.edit{display:grid;grid-template-columns:minmax(0,1fr) min(var(--side-w,340px),62%);gap:18px;align-items:start}
+.sg-drag{position:absolute;left:0;top:0;bottom:0;width:12px;cursor:col-resize;z-index:3;touch-action:none;border-radius:6px}
+.sg-drag::after{content:"";position:absolute;left:3px;top:50%;width:2px;height:44px;margin-top:-22px;border-radius:2px;background:var(--line)}
+.sg-drag:hover::after,.sg-drag:focus-visible::after,.sg-drag.on::after{background:var(--accent);height:72px;margin-top:-36px}
+body.sg-resizing{cursor:col-resize;user-select:none}
+@media (max-width:1180px){.sg-drag{display:none}}
+#side-st .study{grid-template-columns:minmax(0,1fr);gap:12px}
+#side-st .st-main,#side-st .st-side{gap:12px}
+#side-st .st-main > #st-panels{gap:12px}
+#side-st .st-side{position:static;max-height:none;overflow:visible}
+#side-st .panel{padding:12px;border-color:var(--line);box-shadow:none}
+#side-st .st-verses{font-size:1rem}
+.ol-add{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:8px;padding:10px}
+.ol-add .inp-row select{width:auto;flex:none}
+.ol-add .sc-pop-row select{flex:1;min-width:0}
+.ol-gen{display:flex;flex-direction:column;gap:8px;border:1px dashed var(--accent);border-radius:10px;padding:12px;background:var(--accent-soft)}
+.ol-gen[hidden]{display:none}
+.ol-gen-prev{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--f-read);font-size:14.5px;line-height:1.6;max-height:44vh;overflow:auto}
+.ol-gen-prev p{margin:0 0 .7em}.ol-gen-prev > :last-child{margin-bottom:0}
+.ol-gen-prev h2,.ol-gen-prev h3,.ol-gen-prev h4{font-size:1em;margin:.6em 0 .3em}
+.ol-gen-prev blockquote{margin:0 0 .7em;padding-left:10px;border-left:3px solid var(--accent);font-style:italic}
+.ol-item.gen{background:var(--accent-soft)}
+.ol-act .ol-w{width:auto;padding:0 7px;font-size:11.5px;font-weight:600;color:var(--accent)}
 @media (max-width:1180px){.edit{grid-template-columns:minmax(0,1fr)}}
 .ed-wrap{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:start}
 .gutter{position:relative;min-height:200px}
@@ -1084,7 +1106,7 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
 
   <!-- STUDY -->
   <section class="view" id="view-study" role="tabpanel" aria-labelledby="tab-study" hidden>
-    <div class="study">
+    <div class="study" id="study-box">
       <div class="st-main">
         <div class="panel" id="st-top">
           <div class="bind-head"><h2>Text study</h2><div class="spacer"></div>
@@ -1168,10 +1190,12 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
         <div class="hint" id="ed-hint">Each paragraph is a section in Present. A main point or sub-point heading travels with the paragraph under it. Slide cues go before the paragraph that should bring up that slide. Paste from Word or Logos keeps bold, italics, and highlights. Markdown works as you type: <code>##</code> and a space for a heading, <code>&gt;</code> for a quotation, <code>-</code> or <code>1.</code> for a list, <code>**bold**</code>, <code>*italic*</code>, <code>==highlight==</code>, and <code>[slide 3]</code> then Enter for a slide cue.</div>
       </div>
       <aside class="panel sg-col">
+        <div class="sg-drag" id="sg-drag" role="separator" aria-orientation="vertical" aria-label="Resize the side panel" aria-valuemin="280" aria-valuemax="900" tabindex="0" title="Drag to make the panel wider or narrower. Double-click to reset."></div>
         <div class="bind-head side-head">
           <div class="side-tabs" role="tablist" aria-label="Side panel">
             <button class="side-tab" role="tab" id="side-tab-sg" data-side="sg" aria-selected="true" aria-controls="side-sg">Suggestions</button>
             <button class="side-tab" role="tab" id="side-tab-ol" data-side="ol" aria-selected="false" aria-controls="side-ol">Outline</button>
+            <button class="side-tab" role="tab" id="side-tab-st" data-side="st" aria-selected="false" aria-controls="side-st">Study</button>
           </div>
           <div class="spacer"></div><button class="btn ghost" id="sg-undo" disabled>Undo</button>
         </div>
@@ -1184,10 +1208,17 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           <div class="ao-bar"><button type="button" class="btn primary" id="btn-ao" title="Claude proposes divisions, main points, and sub-points above your paragraphs">Auto outline</button><button type="button" class="btn" id="btn-ao-slides" title="Use each slide's title as a main point where that slide begins">From slide titles</button></div>
           <div class="hint" id="ao-status" aria-live="polite"></div>
           <div class="ao-preview" id="ao-preview" hidden></div>
+          <form class="ol-add" id="ol-add" autocomplete="off">
+            <label class="set-h" for="ol-add-text">Add a heading</label>
+            <div class="inp-row"><input type="text" id="ol-add-text" placeholder="Introduction, I. The lamp is for the dark…" maxlength="120"><select id="ol-add-lv" aria-label="Heading level" class="sm"><option value="1">H1 · Division</option><option value="2">H2 · Main point</option><option value="3">H3 · Sub-point</option><option value="4">H4 · Minor</option></select></div>
+            <div class="sc-pop-row"><select id="ol-add-at" aria-label="Where to put it" class="sm"><option value="cursor">At the cursor in the manuscript</option><option value="end">At the end of the manuscript</option></select><div class="spacer"></div><button type="submit" class="btn primary sm">Add heading</button></div>
+          </form>
           <div class="hint" id="ol-summary"></div>
           <div id="ol-list" class="ol-list"></div>
-          <div class="hint">Click a heading to jump to it. The arrows move a point up or down with everything under it, or raise and lower its level.</div>
+          <div class="ol-gen" id="ol-gen" hidden></div>
+          <div class="hint">Click a heading to jump to it. Write drafts text for that section with Claude. The arrows move a point up or down with everything under it, or raise and lower its level.</div>
         </div>
+        <div id="side-st" class="side-pane" role="tabpanel" aria-labelledby="side-tab-st" hidden></div>
       </aside>
     </div>
   </section>
@@ -2722,7 +2753,7 @@ function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
   if (mdOn) $("#md-src").value = mdDocument();
-  sd = null; stXrOpen = null; if (view === "study") renderStudy();
+  sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
   watchCurrent();
 }
 
@@ -4881,7 +4912,10 @@ function makeScriptureSlides(id) {
 }
 
 /* ---------------- side panel tabs: Suggestions | Outline ---------------- */
-let sideTab = "sg"; try { if (localStorage.getItem("pb-side") === "ol") sideTab = "ol"; } catch {}
+let sideTab = "sg"; try { const t = localStorage.getItem("pb-side"); if (t === "ol" || t === "st") sideTab = t; } catch {}
+/* The Study tab beside the manuscript is the same study as the top Study tab: one set of panels, moved to wherever it is shown. */
+try { document.body.append($("#st-tip")); } catch {}   // the study's tooltip floats over whichever place the study is shown
+function placeStudy(where) { const box = $("#study-box"), host = where === "side" ? $("#side-st") : $("#view-study"); if (box && host && box.parentElement !== host) host.prepend(box); }
 function setSideTab(t, fromTap) {
   const col = $(".sg-col"), mobile = matchMedia("(max-width:980px)").matches;
   if (fromTap && mobile) {
@@ -4890,8 +4924,8 @@ function setSideTab(t, fromTap) {
   }
   sideTab = t; try { localStorage.setItem("pb-side", t); } catch {}
   for (const b of document.querySelectorAll(".side-tab")) b.setAttribute("aria-selected", String(b.dataset.side === t));
-  $("#side-sg").hidden = t !== "sg"; $("#side-ol").hidden = t !== "ol";
-  if (t === "ol") renderOutline(); else renderSuggestions();
+  $("#side-sg").hidden = t !== "sg"; $("#side-ol").hidden = t !== "ol"; $("#side-st").hidden = t !== "st";
+  if (t === "ol") renderOutline(); else if (t === "st") { if (view === "edit") { placeStudy("side"); renderStudy(); } } else renderSuggestions();
 }
 document.querySelectorAll(".side-tab").forEach(b => b.onclick = () => setSideTab(b.dataset.side, true));
 
@@ -4957,11 +4991,13 @@ function renderOutline() {
       el("button", { title: "Move up with everything under it", "aria-label": "Move up", text: "↑", onclick: () => moveSection(k, -1) }),
       el("button", { title: "Move down with everything under it", "aria-label": "Move down", text: "↓", onclick: () => moveSection(k, 1) }),
       el("button", { title: "Raise one level", "aria-label": "Raise one level", text: "←", disabled: it.lv <= 1 ? "" : null, onclick: () => relevel(k, -1) }),
-      el("button", { title: "Lower one level", "aria-label": "Lower one level", text: "→", disabled: it.lv >= 4 ? "" : null, onclick: () => relevel(k, 1) }));
+      el("button", { title: "Lower one level", "aria-label": "Lower one level", text: "→", disabled: it.lv >= 4 ? "" : null, onclick: () => relevel(k, 1) }),
+      el("button", { class: "ol-w", title: "Write this section with Claude", "aria-label": `Write the section ${it.text} with Claude`, text: "Write", onclick: () => openGen(it.el) }));
+    if (gen && gen.h === it.el) row.classList.add("gen");
     row.append(act);
     box.append(row);
   });
-  markCurrentOutline();
+  markCurrentOutline(); renderGen();
 }
 function jumpTo(e) {
   if (!e) return;
@@ -5013,6 +5049,105 @@ function relevel(k, d) {
   onEdit(true); renderOutline();
 }
 
+
+/* ---- adding headings, and writing a section with Claude ---- */
+$("#ol-add").addEventListener("submit", e => {
+  e.preventDefault();
+  const text = $("#ol-add-text").value.replace(/\s+/g, " ").trim(); if (!text) { $("#ol-add-text").focus(); return; }
+  const lv = +$("#ol-add-lv").value || 1, at = $("#ol-add-at").value;
+  snapshot();
+  const h = document.createElement("h" + lv); h.textContent = text;
+  let b = at === "cursor" && savedRange && ed.contains(savedRange.startContainer) ? topBlock(savedRange.startContainer) : null;
+  if (b) { while (b.previousElementSibling && b.previousElementSibling.classList.contains("pb-slide")) b = b.previousElementSibling; ed.insertBefore(h, b); }
+  else { const last = ed.lastElementChild; if (last && last.tagName === "P" && !last.textContent.trim()) ed.insertBefore(h, last); else ed.append(h); }
+  if (!h.nextElementSibling) { const p = document.createElement("p"); p.append(document.createElement("br")); h.after(p); }
+  $("#ol-add-text").value = "";
+  normalizeEditor(); onEdit(true); renderOutline(); queueGutter();
+  jumpTo(h); setTimeout(() => { try { const r = document.createRange(), nx = h.nextElementSibling; if (nx && !nx.textContent.trim()) { r.setStart(nx, 0); r.collapse(true); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); } } catch {} }, 50);
+  toast(`Heading added${b ? " at the cursor" : " at the end"}. Undo removes it.`);
+});
+/* a heading's own text: everything after it up to the next heading of any level (slide cues just above that heading go with it) */
+function ownBlocks(h) { const out = []; for (let n = h.nextElementSibling; n; n = n.nextElementSibling) { if (levelOf(n)) break; if (n.classList.contains("pb-slide")) { let m = n; while (m && m.classList.contains("pb-slide")) m = m.nextElementSibling; if (m && levelOf(m)) break; } out.push(n); } return out; }
+let gen = null;   // {h, prompt, len, md, busy}
+function openGen(h) { gen = { h, prompt: gen && gen.h === h ? gen.prompt : "", len: (gen && gen.len) || "few", md: "", busy: false }; renderOutline(); renderGen(); setTimeout(() => { const t = $("#ol-gen-p"); if (t) { t.focus(); t.scrollIntoView({ block: "nearest", behavior: "smooth" }); } }, 0); }
+function renderGen() {
+  const box = $("#ol-gen"); box.replaceChildren();
+  if (!gen || !gen.h.isConnected) { gen = null; box.hidden = true; return; }
+  box.hidden = false;
+  const h = gen.h, own = ownBlocks(h), has = own.some(n => blockText(n).trim());
+  box.append(el("div", { class: "bind-head" }, el("b", { text: `Write: ${blockText(h)}` }), el("div", { class: "spacer" }), el("button", { type: "button", class: "btn ghost sm", text: "Close", onclick: () => { gen = null; renderGen(); renderOutline(); } })));
+  const ta = el("textarea", { id: "ol-gen-p", rows: "3", placeholder: "What should this section say? For example: explain verse 7, tie it to 1 John 1:9, and close with an application for families." }); ta.value = gen.prompt; ta.oninput = () => { gen.prompt = ta.value; };
+  ta.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runGen(); } });
+  const len = el("select", { id: "ol-gen-len", class: "sm", "aria-label": "Length" }, ...[["short", "One paragraph"], ["few", "Two or three paragraphs"], ["full", "A full section"]].map(([v, t]) => el("option", { value: v, text: t }))); len.value = gen.len; len.onchange = () => { gen.len = len.value; };
+  box.append(el("label", { class: "set-h", for: "ol-gen-p", text: "Your prompt" }), ta, el("div", { class: "sc-pop-row" }, len, el("div", { class: "spacer" }), el("button", { type: "button", class: "btn primary sm", id: "ol-gen-go", text: gen.md ? "Write again" : "Write with Claude", disabled: sample && !gen.busy ? null : "", onclick: runGen })));
+  if (!sample) box.append(el("div", { class: "hint", text: "Claude is not available in this view." }));
+  if (gen.busy) box.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:14px" }, el("span", { class: "spin" }), "Claude is writing…"));
+  else if (gen.md) {
+    const prev = el("div", { class: "ol-gen-prev" }); prev.innerHTML = sanitize(mdToHtml(gen.md, { soft: true }));
+    box.append(prev, el("div", { class: "sc-pop-row" }, el("button", { type: "button", class: "btn ghost sm", text: "Discard", onclick: () => { gen.md = ""; renderGen(); } }), el("div", { class: "spacer" }),
+      has ? el("button", { type: "button", class: "btn sm", text: "Replace the section's text", onclick: () => placeGen(true) }) : null,
+      el("button", { type: "button", class: "btn primary sm", text: has ? "Add to the section" : "Put it under the heading", onclick: () => placeGen(false) })));
+  } else box.append(el("div", { class: "hint", text: has ? "Claude reads what is already under this heading and the rest of the sermon, and writes in your voice. Nothing changes until you place it." : "This heading has no text under it yet. Claude writes it from your prompt and the rest of the sermon." }));
+}
+async function runGen() {
+  if (!gen || !sample || gen.busy) return;
+  const g = gen, h = g.h, own = ownBlocks(h).map(blockText).filter(Boolean).join("\n\n");
+  const outline = outlineModel().items.map(it => `${"  ".repeat(it.lv - 1)}H${it.lv} ${it.num || ""} ${it.text}${it.el === h ? "   <-- this section" : ""}`).join("\n");
+  const LEN = { short: "one paragraph of 80 to 140 words", few: "two or three paragraphs, about 200 to 350 words", full: "a full section of about 400 to 650 words, with sub-points only if they help" };
+  g.busy = true; renderGen();
+  try {
+    const { value: r } = await askJson(`You are helping a preacher in the churches of Christ write part of his sermon manuscript, which he will read from at the pulpit. Write in his voice, matching the manuscript's style, vocabulary, and reading level. Be faithful to Scripture and to what the sermon already says; do not add doctrine the sermon does not teach. Plain, warm, preachable sentences meant to be heard. No emojis.
+
+Sermon: ${S.meta.title || "(untitled)"}${S.meta.text ? ", text " + S.meta.text : ""}.
+Outline:
+${outline}
+
+Section to write: "${blockText(h)}" (heading level ${levelOf(h)}).
+${own ? `What is already under this heading:\n"""${own.slice(0, 6000)}"""` : "Nothing is under this heading yet."}
+His request: ${g.prompt.trim() || "Write this section so it develops the heading and fits the outline."}
+Length: ${LEN[g.len] || LEN.few}.
+
+The rest of the manuscript, for voice and context:
+"""${S.transcript.slice(0, 40000)}"""
+
+Return ONLY JSON {"markdown": "the new text in Markdown: paragraphs separated by blank lines, ### for a sub-point only if asked or clearly needed, > for a quotation. Write Scripture references inline like John 3:16. Do not repeat the heading."}`, { id: "gen", tier: g.len === "full" ? "complex" : "default" });
+    if (gen !== g) return;
+    g.md = String((r && r.markdown) || "").replace(/^\s*#{1,2}\s+.*\n+/, "").trim();
+    if (!g.md) toast("Claude didn't write anything. Try a different prompt.");
+  } catch (e) { if (gen === g) toast({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."); }
+  if (gen === g) { g.busy = false; renderGen(); }
+}
+function placeGen(replace) {
+  if (!gen || !gen.md || !gen.h.isConnected) return;
+  const h = gen.h, own = ownBlocks(h);
+  snapshot();
+  const tpl = document.createElement("template"); tpl.innerHTML = sanitize(mdToHtml(gen.md, { soft: true }));
+  const nodes = [...tpl.content.childNodes];
+  const keepCues = replace ? own.filter(n => n.classList.contains("pb-slide") || n.classList.contains("pb-scripture")) : [];
+  if (replace) own.forEach(n => { if (!keepCues.includes(n)) n.remove(); });
+  let after = replace ? h : (own.filter(n => blockText(n).trim() || n.classList.contains("pb-scripture")).pop() || h);
+  if (!replace) own.filter(n => n.tagName === "P" && !n.textContent.trim()).forEach(n => n.remove());
+  if (replace && keepCues.length) after = keepCues[keepCues.length - 1];
+  after.after(...nodes);
+  gen = null; normalizeEditor(); refreshCueLabels(); onEdit(true); renderGen(); renderOutline(); queueGutter();
+  if (nodes[0] && nodes[0].nodeType === 1) { nodes[0].classList.add("hot"); setTimeout(() => nodes.forEach(n => n.classList && n.classList.remove("hot")), 1600); nodes[0].scrollIntoView({ block: "center", behavior: "smooth" }); }
+  toast(replace ? "Section text replaced. Undo brings the old text back." : "Added under the heading. Undo removes it.");
+}
+/* ---- the side panel's width ---- */
+(() => {
+  const grid = $(".edit"), drag = $("#sg-drag"), MIN = 280;
+  const maxW = () => grid.clientWidth ? Math.max(MIN, Math.min(900, Math.round(grid.clientWidth * 0.62))) : 900;   // the Edit view may be hidden when this first runs
+  const setW = (w, keep) => { w = Math.round(Math.max(MIN, Math.min(maxW(), w))); grid.style.setProperty("--side-w", w + "px"); drag.setAttribute("aria-valuenow", String(w)); if (keep) { try { localStorage.setItem("pb-side-w", String(w)); } catch {} } return w; };
+  try { const w = +localStorage.getItem("pb-side-w"); if (w) setW(w); } catch {}
+  let x0 = 0, w0 = 0, id = null;
+  drag.addEventListener("pointerdown", e => { if (e.button) return; e.preventDefault(); id = e.pointerId; drag.setPointerCapture(id); x0 = e.clientX; w0 = $(".sg-col").getBoundingClientRect().width; drag.classList.add("on"); document.body.classList.add("sg-resizing"); });
+  drag.addEventListener("pointermove", e => { if (e.pointerId !== id) return; setW(w0 + (x0 - e.clientX)); });
+  const end = e => { if (e.pointerId !== id) return; id = null; drag.classList.remove("on"); document.body.classList.remove("sg-resizing"); setW($(".sg-col").getBoundingClientRect().width, true); queueGutter(); };
+  drag.addEventListener("pointerup", end); drag.addEventListener("pointercancel", end);
+  drag.addEventListener("dblclick", () => { grid.style.removeProperty("--side-w"); try { localStorage.removeItem("pb-side-w"); } catch {} queueGutter(); });
+  drag.addEventListener("keydown", e => { if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return; e.preventDefault(); setW($(".sg-col").getBoundingClientRect().width + (e.key === "ArrowLeft" ? 24 : -24), true); queueGutter(); });
+  window.addEventListener("resize", () => { const cur = parseFloat(grid.style.getPropertyValue("--side-w")); if (cur && cur > maxW()) setW(maxW()); });
+})();
 /* ---------------- Auto outline ---------------- */
 /* Proposes headings above existing paragraphs without changing any of the sermon's words.
    Two sources: Claude reading the manuscript, or the slide titles where each slide begins.
@@ -7079,8 +7214,8 @@ function setView(v) {
   if (v === "build" && buildSub === "series") renderSeries();
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
-  if (v === "study") renderStudy();
-  if (v === "edit") { refreshCueLabels(); renderEditStats(); renderSuggestions(); renderOutline(); requestAnimationFrame(renderGutter); }
+  if (v === "study") { placeStudy("view"); renderStudy(); }
+  if (v === "edit") { refreshCueLabels(); renderEditStats(); renderSuggestions(); renderOutline(); requestAnimationFrame(renderGutter); if (sideTab === "st") { placeStudy("side"); renderStudy(); } }
   if (v === "present") renderPresent();
   if (v === "materials") renderMaterials();
   if (v === "analysis") renderAnalysis();
