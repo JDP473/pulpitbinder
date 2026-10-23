@@ -371,6 +371,37 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 .imp-item:hover,.imp-item:focus-visible{background:var(--sunk)}
 .imp-more summary{cursor:pointer;font-size:13px;color:var(--muted)}
 #imp-bar{transition:width .2s}
+
+/* series documents */
+.ser{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.ser{grid-template-columns:minmax(0,1fr)}}
+.ser-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) + 8px);max-height:calc(100vh - var(--hdr-h,110px) - 30px);overflow:auto}
+@media (max-width:900px){.ser-side{position:static;max-height:none}}
+.ser-tags{display:flex;gap:6px;flex-wrap:wrap}
+.ser-tags .chip{cursor:pointer;min-height:30px}
+.ser-tags .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ser-list{display:flex;flex-direction:column;gap:2px}
+.ser-item{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;background:transparent;border-radius:var(--r-sm);padding:9px 10px;cursor:pointer;color:var(--ink);border-left:3px solid transparent}
+.ser-item:hover{background:var(--sunk)}
+.ser-item[aria-selected="true"]{background:var(--accent-soft);border-left-color:var(--accent)}
+.ser-item b{font-family:var(--f-read);font-weight:600}
+.ser-item.cur{opacity:.75}
+.ser-read{min-height:50vh}
+.ser-doc{font-family:var(--f-read);font-size:1.08rem;line-height:1.72;overflow-wrap:break-word;padding:4px clamp(0px,2vw,24px)}
+.ser-doc > *{max-width:44em}
+.ser-doc p{margin:0 0 .95em}
+.ser-doc h1{font-size:1.75em;font-weight:600;line-height:1.15;margin:1.4em 0 .5em;padding-bottom:.25em;border-bottom:2px solid var(--accent)}
+.ser-doc h2{font-size:1.35em;font-weight:600;line-height:1.25;margin:1.3em 0 .45em}
+.ser-doc h3{font-family:var(--f-ui);font-size:.8em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:1.2em 0 .4em;color:var(--accent)}
+.ser-doc h4{font-size:1em;font-weight:600;font-style:italic;margin:1em 0 .3em;color:var(--muted)}
+.ser-doc > :is(h1,h2,h3,h4):first-child{margin-top:0}
+.ser-doc blockquote{margin:0 0 .95em;padding:.5em 1em;border-left:3px solid var(--accent);background:var(--sunk);border-radius:0 6px 6px 0;font-style:italic}
+.ser-doc ul,.ser-doc ol{margin:0 0 .95em;padding-left:1.4em}
+.ser-doc .pb-sc-tab,.ser-doc .pb-sc-ref{pointer-events:none}
+.ser-doc .pb-sc-tab:not([aria-pressed="true"]),.ser-doc .pb-sc-mk,.ser-doc .pb-sc-x,.ser-doc .pb-sc-btn{display:none}
+.ser-head{display:flex;flex-direction:column;gap:6px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ser-head h3{margin:0;font:600 1.45rem/1.2 var(--f-read)}
+.ser-head .chip{flex:0 1 auto;white-space:normal;min-width:0;overflow-wrap:anywhere}
 /* deleting sermons */
 .del-card{width:min(620px,100%)}
 .del-tools{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
@@ -956,6 +987,7 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
   <div class="subtabs" id="subtabs" role="tablist" aria-label="Build sections" hidden>
     <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
     <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
+    <button class="subtab" role="tab" id="sub-series" data-sub="series" aria-selected="false" aria-controls="build-series" tabindex="-1" hidden>Series documents</button>
     <button class="subtab" role="tab" id="sub-bindings" data-sub="bindings" aria-selected="false" aria-controls="build-bind" tabindex="-1">Bindings</button>
   </div>
   <!-- BUILD -->
@@ -1022,6 +1054,17 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           </div>
           <div class="bind-list" id="bind-list"></div>
         </div>
+    </div>
+
+    <div id="build-series" hidden>
+      <div class="ser">
+        <div class="panel ser-side">
+          <div class="bind-head"><h2>Series documents</h2><span class="hint" id="ser-count"></span></div>
+          <div class="ser-tags" id="ser-tags" role="group" aria-label="Show sermons in"></div>
+          <div class="ser-list" id="ser-list" role="listbox" aria-label="Sermons in this series"></div>
+        </div>
+        <div class="panel ser-read" id="ser-read" aria-live="polite"></div>
+      </div>
     </div>
   </section>
 
@@ -2151,6 +2194,7 @@ function renderTagPills() {
   const box = $("#tag-pills"); if (!box || !S) return; box.replaceChildren();
   tagsOf(S.meta).forEach((t, i) => box.append(el("span", { class: "chip tag-pill" }, t, el("button", { type: "button", class: "tag-x", "aria-label": `Remove ${t}`, title: `Remove ${t}`, text: "×", onclick: e => { e.stopPropagation(); const c = tagsOf(S.meta); c.splice(i, 1); setTags(c); $("#m-series").focus(); } }))));
   $("#m-series").placeholder = tagsOf(S.meta).length ? "Add another" : "Type a series or tag";
+  updateSeriesTab();
 }
 function renderTagSugg() {
   const inp = $("#m-series"), box = $("#tag-sugg"), q = inp.value.trim().toLowerCase(), have = new Set(tagsOf(S.meta).map(x => x.toLowerCase()));
@@ -2336,6 +2380,88 @@ function renderDeckStatus() {
   tip.hidden = !(S.slides.length && !(S.pdfPages && S.pdfPages.length));
 }
 
+
+/* ---------------- Series documents ---------------- */
+/* Other sermons that share a series or tag with the one open, readable here without opening them. A sermon kept only in the
+   account has its manuscript fetched once and remembered for the session. */
+let serTag = "", serPick = null, serBusy = new Set();
+const serCache = new Map();   // id -> {u, html}
+function serRows() {
+  const mine = tagsOf(S.meta).map(t => t.toLowerCase()); if (!mine.length) return [];
+  const want = serTag ? [serTag.toLowerCase()] : mine;
+  const when = r => { const d = r.meta && r.meta.when ? new Date(r.meta.when) : null; return d && !isNaN(d) ? +d : 0; };
+  return library.filter(r => !r.example && tagsOf(r.meta).some(t => want.includes(t.toLowerCase()))).sort((a, b) => when(a) - when(b) || ((a.meta && a.meta.title) || "").localeCompare((b.meta && b.meta.title) || ""));
+}
+function updateSeriesTab() {
+  const has = !!(S && tagsOf(S.meta).length), b = $("#sub-series"); if (!b) return;
+  b.hidden = !has;
+  if (!has && buildSub === "series" && view === "build") goBuild("details");
+  else if (buildSub === "series" && view === "build") renderSeries();
+}
+async function serHtml(r) {
+  if (r.id === S.id) return S.html || "";
+  const c = serCache.get(r.id); if (c && c.u === r.updatedAt) return c.html;
+  let html = r.cloudOnly ? null : r.html || "";
+  const m = cloudMetas.get(r.id);
+  if ((html == null || (m && m.updatedAt > (r.updatedAt || 0) + 1000)) && cdb && m) {
+    const base = sermonPath(r.id), n = (m.chunks || {}).html || 0;
+    const docs = await Promise.all(Array.from({ length: n }, (_, k) => cdb.doc(`${base}/parts/html.${k}`).get()));
+    html = docs.map(d => (d.exists ? d.data().s : "") || "").join("");
+  }
+  if (html == null) throw new Error("not here");
+  serCache.set(r.id, { u: r.updatedAt, html }); return html;
+}
+function renderSeries() {
+  if (view !== "build" || buildSub !== "series") return;
+  const mine = tagsOf(S.meta);
+  if (serTag && !mine.some(t => t.toLowerCase() === serTag.toLowerCase())) serTag = "";
+  const tb = $("#ser-tags"); tb.replaceChildren();
+  if (mine.length > 1) [["", "All"], ...mine.map(t => [t, t])].forEach(([v, t]) => tb.append(el("button", { type: "button", class: "chip", "aria-pressed": String(serTag === v), text: t, onclick: () => { serTag = v; renderSeries(); } })));
+  tb.hidden = mine.length < 2;
+  const rows = serRows(), list = $("#ser-list"); list.replaceChildren();
+  $("#ser-count").textContent = `${rows.length} sermon${rows.length === 1 ? "" : "s"}${mine.length === 1 ? " in " + mine[0] : ""}`;
+  if (!rows.some(r => r.id === serPick)) serPick = (rows.find(r => r.id !== S.id) || rows[0] || {}).id || null;
+  rows.forEach((r, i) => {
+    const m = r.meta || {}, d = m.when ? new Date(m.when) : null, cur = r.id === S.id;
+    const b = el("button", { type: "button", class: "ser-item" + (cur ? " cur" : ""), role: "option", "aria-selected": String(r.id === serPick), id: "ser-i-" + i, onclick: () => { serPick = r.id; renderSeries(); if (matchMedia("(max-width:900px)").matches) $("#ser-read").scrollIntoView({ behavior: "smooth", block: "start" }); } },
+      el("b", { text: m.title || "Untitled sermon" }),
+      el("span", { class: "hint", text: [d && !isNaN(d) ? d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "No date", m.text, cur ? "open now" : ""].filter(Boolean).join(" · ") }));
+    list.append(b);
+  });
+  if (!rows.length) list.append(el("div", { class: "hint", text: "No other sermons have this series or tag yet." }));
+  renderSerDoc(rows.find(r => r.id === serPick));
+}
+async function renderSerDoc(r) {
+  const box = $("#ser-read"); box.replaceChildren();
+  if (!r) { box.append(el("div", { class: "empty", text: "Choose a sermon to read it here." })); return; }
+  const m = { ...blank().meta, ...(r.meta || {}) }, cur = r.id === S.id;
+  const ds = deliveriesOf(m).filter(d => d.when || d.place);
+  const head = el("div", { class: "ser-head" }, el("h3", { text: m.title || "Untitled sermon" }),
+    el("div", { class: "tags" }, ...ds.map(d => el("span", { class: "chip" }, el("b", { text: d === ds[0] ? "Preached" : "Also" }), fmtDelivery(d))), m.text ? el("a", { class: "chip accent", href: bgLink(m.text), target: "_blank", rel: "noopener", text: m.text }) : null, ...tagsOf(m).map(t => el("span", { class: "chip", text: t }))));
+  const local = !r.cloudOnly && r.ai && !r.ai.error ? r.ai : null, sum = cloudMetas.get(r.id) && cloudMetas.get(r.id).dash;
+  const idea = (local && local.bigIdea) || (sum && sum.ai && sum.ai.bigIdea);
+  if (idea) head.append(el("p", { class: "big-idea", style: "font-size:1.1rem", text: idea }));
+  head.append(el("div", { class: "sc-pop-row" }, el("div", { class: "spacer" }), cur ? el("span", { class: "hint", text: "This is the sermon open now." }) : el("button", { type: "button", class: "btn primary", text: "Open this sermon", onclick: () => serOpen(r.id) })));
+  box.append(head);
+  const doc = el("div", { class: "ser-doc" }); box.append(doc);
+  doc.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:18px" }, el("span", { class: "spin" }), "Loading the manuscript…"));
+  try {
+    const html = await serHtml(r);
+    if (serPick !== r.id || !doc.isConnected) return;
+    doc.innerHTML = sanitize(html || "");
+    doc.querySelectorAll(".pb-slide").forEach(c => c.remove());
+    if (!doc.textContent.trim()) doc.replaceChildren(el("div", { class: "hint", text: "This sermon has no manuscript yet." }));
+  } catch (e) {
+    if (serPick !== r.id || !doc.isConnected) return;
+    doc.replaceChildren(el("div", { class: "hint", style: "color:var(--warn)", text: cdb ? "Couldn't load this manuscript right now. Try again in a moment." : "This sermon is saved in your account, and this page isn't connected to it right now." }));
+  }
+}
+async function serOpen(id) {
+  const sel = $("#library");
+  if (![...sel.options].some(o => o.value === id)) await refreshLibrary();
+  sel.value = id; if (sel.value !== id) return;
+  await sel.onchange(); goBuild("edit"); window.scrollTo({ top: 0 });
+}
 /* ---------------- library ---------------- */
 async function refreshLibrary() {
   library = (await store.all());
@@ -2354,7 +2480,7 @@ function drawLibrary() {
   const sel = $("#library"); sel.replaceChildren();
   library.forEach(r => sel.append(el("option", { value: r.id, text: `${(r.meta && r.meta.title) || "Untitled sermon"}${r.meta && r.meta.when ? " · " + new Date(r.meta.when).toLocaleDateString() : ""}${r.cloudOnly ? " · from your account" : ""}` })));
   sel.value = S.id;
-  queueDash();
+  queueDash(); if (view === "build" && buildSub === "series") renderSeries();
 }
 $("#library").onchange = async () => {
   let r = library.find(x => x.id === $("#library").value); if (!r) return;
@@ -6809,10 +6935,11 @@ $("#set-logo-clear").onclick = () => { setDraft.brandLogo = ""; setLogoBox(); };
 /* ---------------- views ---------------- */
 /* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
 let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") || "details"; } catch {}
-if (!["details", "edit", "bindings"].includes(buildSub)) buildSub = "details";
+if (!["details", "edit", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
-  if (v === "bindings") { buildSub = "bindings"; v = "build"; }
+  if (v === "bindings" || v === "series") { buildSub = v; v = "build"; }
+  if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
   if (v === "edit") buildSub = "edit";
   view = v; document.body.dataset.view = v; requestAnimationFrame(measureHeader);
@@ -6821,7 +6948,8 @@ function setView(v) {
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
   $("#subtabs").hidden = top !== "build";
   for (const b of document.querySelectorAll("#subtabs .subtab")) { const on = b.dataset.sub === buildSub; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; }
-  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings";
+  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series";
+  if (v === "build" && buildSub === "series") renderSeries();
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") renderStudy();
@@ -6829,13 +6957,13 @@ function setView(v) {
   if (v === "present") renderPresent();
   if (v === "materials") renderMaterials();
   if (v === "analysis") renderAnalysis();
-  try { history.replaceState(null, "", "#" + (v === "build" && buildSub === "bindings" ? "bindings" : v)); } catch {}
+  try { history.replaceState(null, "", "#" + (v === "build" && buildSub !== "details" ? buildSub : v)); } catch {}
 }
 const openTab = v => v === "build" ? goBuild(buildSub) : setView(v);
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => openTab(t.dataset.view));
 document.querySelectorAll("#subtabs .subtab").forEach(b => b.onclick = () => goBuild(b.dataset.sub));
 $("#subtabs").addEventListener("keydown", e => {
-  const tabs = [...document.querySelectorAll("#subtabs .subtab")], i = tabs.indexOf(document.activeElement); if (i < 0) return;
+  const tabs = [...document.querySelectorAll("#subtabs .subtab")].filter(b => !b.hidden), i = tabs.indexOf(document.activeElement); if (i < 0) return;
   const to = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
   if (to == null) return; e.preventDefault(); goBuild(tabs[to].dataset.sub); tabs[to].focus();
 });
@@ -6892,7 +7020,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "bindings", "present", "materials", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
