@@ -7,12 +7,12 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 | Tab | Section id | Render entry |
 |---|---|---|
 | Dashboard | `#view-dash` | `renderDash()` gathers every sermon, `drawDash()` draws |
-| Build | `#view-build` | `renderBindings()`, `renderMediaPanel()` |
-| Edit | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
+| Build: Details, Bindings | `#view-build` (`#build-details`, `#build-bind`) | `renderBindings()`, `renderMediaPanel()` |
+| Build: Edit manuscript | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
 | Present | `#view-present` | `renderPresent()` |
 | Analysis | `#view-analysis` | `renderAnalysis()`, `renderAI()` |
 
-`setView(v)` switches tabs and remembers the tab in the URL hash.
+`setView(v)` switches views and remembers the place in the URL hash. Build's sections use the `#subtabs` bar and `goBuild(sub)`; the editor is still its own view internally (`edit`), shown under the Build tab.
 
 ## Sermon record
 

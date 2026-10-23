@@ -7,8 +7,10 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
 ## What it does
 
 - **Dashboard:** every sermon at once: frequency, length, Bible coverage by book and section, themes, doctrines, approach, tone, themes over time, and Claude's read across all of it.
-- **Build:** sermon details (date, time, place, service, text, tags), the slide deck (.pptx rendered to match PowerPoint, or a PDF export), a recording link or file with an as-preached transcript, and slide bindings.
-- **Edit:** rich text manuscript with headings H1 to H4, highlights, pauses, slide cues, and Scripture sections (type a reference, press Tab, choose among favorite translations). Slides sit in a column beside the text and stay in sync. Side panel with Claude's suggestions and an outline view with auto outline. Highlight text or use a Scripture section to make new slides (quote, key verse, big idea, summary points, fill in the blank, question, Canva illustration, photo).
+- **Build**, in three sections:
+  - **Details:** sermon details (date, time, place, service, text, tags), the slide deck (.pptx rendered to match PowerPoint, or a PDF export), and a recording link or file with an as-preached transcript.
+  - **Bindings:** which slide goes with which part of the text.
+  - **Edit manuscript:** rich text manuscript with headings H1 to H4, highlights, pauses, slide cues, and Scripture sections (type a reference, press Tab, choose among favorite translations). Slides sit in a column beside the text and stay in sync. Side panel with Claude's suggestions and an outline view with auto outline. Highlight text or use a Scripture section to make new slides (quote, key verse, big idea, summary points, fill in the blank, question, Canva illustration, photo).
 - **Present:** the manuscript scrolls and the matching slide follows along. Works on phones, with smaller slides so the text leads.
 - **Analysis:** word count, timing, passages cited, recurring words, voice, as-preached comparison, share text and chapters, and Claude's substance analysis.
 

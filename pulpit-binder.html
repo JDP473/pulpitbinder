@@ -105,7 +105,12 @@ main{padding-block:18px 40px}
 .view[hidden]{display:none!important}
 
 /* build */
-.build{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:18px;align-items:start}
+.build{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-4px 0 16px;overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.subtab{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;font-size:14px;min-height:var(--ctl);padding:0 12px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap}
+.subtab:hover{color:var(--ink)}
+.subtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 @media (max-width:900px){.build{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .panel h2{margin:0;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -877,7 +882,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
 .brand-logo-btns{display:flex;gap:8px;flex-wrap:wrap}
 input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
 @media (max-width:700px){
-  .tabs{grid-template-columns:repeat(7,minmax(0,1fr))}
+  .tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
   .tab{font-size:9.5px;letter-spacing:-.03em}
   .tabs{padding-inline:0}
 }
@@ -901,7 +906,6 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
         <button class="tab" role="tab" id="tab-dash" aria-selected="false" aria-controls="view-dash" tabindex="-1" data-view="dash"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span class="tab-tx">Dashboard</span></button>
         <button class="tab" role="tab" id="tab-build" aria-selected="true" aria-controls="view-build" tabindex="0" data-view="build"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg><span class="tab-tx">Build</span></button>
         <button class="tab" role="tab" id="tab-study" aria-selected="false" aria-controls="view-study" tabindex="-1" data-view="study"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 22H20v-4"/><path d="M9 8h7"/></svg><span class="tab-tx">Study</span></button>
-        <button class="tab" role="tab" id="tab-edit" aria-selected="false" aria-controls="view-edit" tabindex="-1" data-view="edit"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg><span class="tab-tx">Edit</span></button>
         <button class="tab" role="tab" id="tab-present" aria-selected="false" aria-controls="view-present" tabindex="-1" data-view="present"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M10 8v4l4-2-4-2z"/><path d="M8 20h8M12 16v4"/></svg><span class="tab-tx">Present</span></button>
         <button class="tab" role="tab" id="tab-materials" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-view="materials"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span class="tab-tx">Materials</span></button>
         <button class="tab" role="tab" id="tab-analysis" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-view="analysis"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 5-6"/></svg><span class="tab-tx">Analysis</span></button>
@@ -935,9 +939,14 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
 </header>
 
 <main class="wrap" id="main" tabindex="-1">
+  <div class="subtabs" id="subtabs" role="tablist" aria-label="Build sections" hidden>
+    <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
+    <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
+    <button class="subtab" role="tab" id="sub-bindings" data-sub="bindings" aria-selected="false" aria-controls="build-bind" tabindex="-1">Bindings</button>
+  </div>
   <!-- BUILD -->
   <section class="view" id="view-build" role="tabpanel" aria-labelledby="tab-build">
-    <div class="build">
+    <div class="build" id="build-details">
       <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
         <div class="panel">
           <h2>Sermon details</h2>
@@ -959,6 +968,9 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           </div>
           <div class="field"><label for="m-series">Series or custom tags</label><input type="text" id="m-series" placeholder="comma separated"></div>
         </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
 
         <div class="panel">
           <h2>Slides</h2>
@@ -982,17 +994,9 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           <div class="field"><label for="rec-preached">As-preached transcript</label><textarea id="rec-preached" rows="5" placeholder="Paste the transcript of the recording. From YouTube: under the video choose … then Show transcript, select it all, and copy."></textarea><span class="hint" id="rec-preached-note"></span></div>
         </div>
       </div>
+    </div>
 
-      <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
-        <div class="panel">
-          <div class="bind-head">
-            <h2>Manuscript</h2><div class="spacer"></div>
-            <button class="btn" id="btn-open-build">Open a file</button>
-            <button class="btn primary" id="btn-go-edit">Edit text</button>
-          </div>
-          <div class="ms-summary" id="ms-summary"></div>
-        </div>
-
+    <div id="build-bind" hidden>
         <div class="panel">
           <div class="bind-head">
             <h2>Bindings</h2><span class="hint" id="bind-summary"></span><div class="spacer"></div>
@@ -1001,7 +1005,6 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           </div>
           <div class="bind-list" id="bind-list"></div>
         </div>
-      </div>
     </div>
   </section>
 
@@ -2255,7 +2258,7 @@ function renderDeckStatus() {
     if (S.pdfName && S.pdfPages && S.pdfPages.length) row(S.pdfName, S.pdfNote || "", () => { S.pdfPages = null; S.pdfName = ""; applyPdf(); deckChanged("Removed the PDF"); });
   }
   const made = S.slides.filter(x => x.made).length;
-  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Delete one from the slide column in Edit.`, null);
+  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Delete one from the slide column in Edit manuscript.`, null);
   const tip = $("#deck-tip");
   tip.hidden = !(S.slides.length && !(S.pdfPages && S.pdfPages.length));
 }
@@ -2287,7 +2290,7 @@ $("#library").onchange = async () => {
   if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return; }
   const v = view; openRec(r); setView(v);
 };
-$("#btn-new").onclick = () => { const r = blank(); store.put(r); openRec(r); refreshLibrary(); setView("build"); $("#m-title").focus(); };
+$("#btn-new").onclick = () => { const r = blank(); store.put(r); openRec(r); refreshLibrary(); goBuild("details"); $("#m-title").focus(); };
 /* ---------------- deleting sermons, one or many ---------------- */
 /* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
    Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */
@@ -2424,7 +2427,7 @@ function highlightRefs(text) {
 function renderPresent() {
   steps = buildSteps(); shownSec = null; secGeo = null;
   const ms = $("#manuscript"); ms.replaceChildren();
-  if (!sections.length) ms.append(el("div", { class: "empty", text: S.slides.length ? "No transcript yet. Next still steps through every slide; add a transcript on the Build tab to bind them." : "No transcript yet. Add one on the Build tab." }));
+  if (!sections.length) ms.append(el("div", { class: "empty", text: S.slides.length ? "No transcript yet. Next still steps through every slide; add one under Build, Edit manuscript, to bind them." : "No transcript yet. Add one under Build, Edit manuscript." }));
   sections.forEach((sec, i) => {
     // While slides follow scrolling, a single tap must not move the text: on phones and tablets
     // the tap that stops a scroll lands on a paragraph. Double-tap or double-click jumps instead.
@@ -3236,7 +3239,6 @@ $("#sg-undo").onclick = () => {
   refreshCueLabels(); onEdit(true); $("#sg-undo").disabled = !undoStack.length; toast("Undid the last change");
 };
 $("#btn-load-text").onclick = () => $("#file-text").click();
-$("#btn-open-build").onclick = () => $("#file-text").click();
 $("#file-text").onchange = async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
   try { await importManuscript(f); } catch (err) { toast("Could not read that file: " + (err.message || err)); }
@@ -3534,7 +3536,7 @@ ed.addEventListener("keydown", e => {
 function renderEditStats() {
   const w = words(S.transcript).length, mins = w / (S.meta.wpm || 140);
   const txt = `${w.toLocaleString()} words · about ${Math.round(mins)} min · ${sections.length} sections`;
-  $("#ed-stats").textContent = txt; $("#ms-summary").textContent = sections.length ? txt : "No manuscript yet.";
+  $("#ed-stats").textContent = txt; const ms = $("#sub-edit"); if (ms) ms.title = sections.length ? txt : "No manuscript yet";
 }
 
 /* slide gutter: thumbnails beside the paragraph that brings each slide up */
@@ -3545,7 +3547,7 @@ function renderGutter() {
   if (view !== "edit") return;
   const g = $("#gutter"); closeGutterPop(); g.replaceChildren();
   const edBox = ed.getBoundingClientRect(); g.style.height = edBox.height + "px";
-  if (!S.slides.length) { g.append(el("div", { class: "g-empty", text: "Load slides on the Build tab to see them here, beside the text they go with." })); return; }
+  if (!S.slides.length) { g.append(el("div", { class: "g-empty", text: "Load slides under Build, Details, to see them here, beside the text they go with." })); return; }
   const groups = groupBlocks([...ed.children]);
   if (groups.length !== sections.length) { S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html); rebuild(); if (groupBlocks([...ed.children]).length !== sections.length) return; }
   if (!groups.length) return;
@@ -4735,7 +4737,7 @@ ${lines.join("\n\n")}`, { id: "ao" });
 };
 $("#btn-ao-slides").onclick = () => {
   onEdit(true);
-  if (!S.slides.length) { toast("Load slides on the Build tab first"); return; }
+  if (!S.slides.length) { toast("Load slides under Build, Details, first"); return; }
   const groups = groupBlocks([...ed.children]);
   if (groups.length !== sections.length) { toast("Try again in a moment"); return; }
   const st = buildSteps(); const rows = []; let last = null, lastTitle = "";
@@ -4961,7 +4963,7 @@ function renderPreachedAnalysis() {
   const md = media(); const cov = coverage();
   const dur = (md.file && md.file.duration) || (() => { const s = parseTimed(md.preached); return s.length ? s[s.length - 1].t + 10 : null; })();
   const pw = words(preachedPlain()).length;
-  if (!md.preached && !dur && !md.link) { box.append(el("div", { class: "hint", text: "Add a recording on the Build tab. Paste the as-preached transcript (YouTube: … under the video, Show transcript, select all, copy) to compare it with the manuscript and build chapters." })); $("#share-panel").hidden = !S.meta.title; renderShare(); return; }
+  if (!md.preached && !dur && !md.link) { box.append(el("div", { class: "hint", text: "Add a recording under Build, Details. Paste the as-preached transcript (YouTube: … under the video, Show transcript, select all, copy) to compare it with the manuscript and build chapters." })); $("#share-panel").hidden = !S.meta.title; renderShare(); return; }
   const st = el("div", { class: "stats" });
   const est = words(S.transcript).length / (S.meta.wpm || 140) * 60;
   const tile = (v, k) => st.append(el("div", { class: "stat" }, el("div", { class: "v", text: v }), el("div", { class: "k", text: k })));
@@ -4990,7 +4992,7 @@ function renderShare() {
   const ch = chapters();
   const chBox = $("#chapters"); chBox.replaceChildren();
   if (ch.length >= 3) { chBox.append(el("h3", { class: "sub", text: "YouTube chapters" })); const pre = el("pre", { class: "share-pre", text: ch.map(c => `${fmtClock(c.t)} ${c.title}`).join("\n") }); chBox.append(pre, el("div", { class: "hint", text: "Paste into the video description. Chapters come from your main-point headings, or slide changes when there are none." })); }
-  else if (parseTimed(media().preached).length) chBox.append(el("div", { class: "hint", text: "Add main-point headings in the Edit tab to get chapter markers." }));
+  else if (parseTimed(media().preached).length) chBox.append(el("div", { class: "hint", text: "Add main-point headings in Edit manuscript to get chapter markers." }));
   $("#share-text").textContent = shareText();
 }
 const copyText = async (t, btn) => { try { await navigator.clipboard.writeText(t); toast("Copied"); } catch { const r = document.createRange(); r.selectNodeContents(btn); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Press Ctrl+C to copy"); } };
@@ -6685,7 +6687,7 @@ function matBind() {
   on("#mb-size", "change", () => { m().size = $("#mb-size").value; save(); matQueue(); });
   on("#mb-ans", "change", () => { m().answers = $("#mb-ans").checked; save(); matQueue(); });
   field("#mb-idea", "bigIdea"); field("#mb-outline", "outline"); field("#mb-q", "questions");
-  on("#mb-local", "click", () => { const t = matLocalOutline(); if (!t) { toast("Add main point headings in Edit, or press Draft with Claude."); return; } m().outline = t; save(); matFill(); matDraw(); toast("Outline built from your headings"); });
+  on("#mb-local", "click", () => { const t = matLocalOutline(); if (!t) { toast("Add main point headings in Edit manuscript, or press Draft with Claude."); return; } m().outline = t; save(); matFill(); matDraw(); toast("Outline built from your headings"); });
   on("#mb-ai", "click", matDraftBulletin);
   on("#mb-copy", "click", () => copyText(`${S.meta.title || ""}\n${S.meta.text || ""}\n\n${m().bigIdea ? "The big idea: " + m().bigIdea + "\n\n" : ""}${parseOutline(m().outline).map(i => (i.lv === 2 ? "    " : "") + i.num + " " + i.text.replace(/\[\[|\]\]/g, "_____")).join("\n")}`, $("#mb-outline")));
   on("#mb-pdf", "click", async () => { const c = document.createElement("canvas"), d = await drawBulletin(c); await matSave(`${matSlug()}-bulletin-notes.pdf`, await canvasPdf(c, d.wIn, d.hIn)); });
@@ -6732,10 +6734,21 @@ $("#set-logo-file").onchange = async e => { const f = e.target.files[0]; e.targe
 $("#set-logo-clear").onclick = () => { setDraft.brandLogo = ""; setLogoBox(); };
 
 /* ---------------- views ---------------- */
+/* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
+let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") || "details"; } catch {}
+if (!["details", "edit", "bindings"].includes(buildSub)) buildSub = "details";
+function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
+  if (v === "bindings") { buildSub = "bindings"; v = "build"; }
+  if (v === "build" && buildSub === "edit") buildSub = "details";
+  if (v === "edit") buildSub = "edit";
   view = v; document.body.dataset.view = v; requestAnimationFrame(measureHeader);
-  for (const t of document.querySelectorAll(".tab")) { const on = t.dataset.view === v; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; }
+  const top = v === "edit" ? "build" : v;
+  for (const t of document.querySelectorAll(".tab")) { const on = t.dataset.view === top; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; }
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
+  $("#subtabs").hidden = top !== "build";
+  for (const b of document.querySelectorAll("#subtabs .subtab")) { const on = b.dataset.sub === buildSub; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; }
+  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings";
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") renderStudy();
@@ -6743,14 +6756,21 @@ function setView(v) {
   if (v === "present") renderPresent();
   if (v === "materials") renderMaterials();
   if (v === "analysis") renderAnalysis();
-  try { history.replaceState(null, "", "#" + v); } catch {}
+  try { history.replaceState(null, "", "#" + (v === "build" && buildSub === "bindings" ? "bindings" : v)); } catch {}
 }
-document.querySelectorAll(".tab").forEach(t => t.onclick = () => setView(t.dataset.view));
+const openTab = v => v === "build" ? goBuild(buildSub) : setView(v);
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => openTab(t.dataset.view));
+document.querySelectorAll("#subtabs .subtab").forEach(b => b.onclick = () => goBuild(b.dataset.sub));
+$("#subtabs").addEventListener("keydown", e => {
+  const tabs = [...document.querySelectorAll("#subtabs .subtab")], i = tabs.indexOf(document.activeElement); if (i < 0) return;
+  const to = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+  if (to == null) return; e.preventDefault(); goBuild(tabs[to].dataset.sub); tabs[to].focus();
+});
 /* tabs: arrow keys, Home and End move between sections, as in any tab list */
 $(".tabs").addEventListener("keydown", e => {
   const tabs = [...document.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement); if (i < 0) return;
   const to = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
-  if (to == null) return; e.preventDefault(); tabs[to].focus(); setView(tabs[to].dataset.view);
+  if (to == null) return; e.preventDefault(); tabs[to].focus(); openTab(tabs[to].dataset.view);
 });
 /* Sermon menu */
 (() => {
@@ -6799,14 +6819,13 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); setView(["dash", "build", "study", "edit", "present", "materials", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "bindings", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
   claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
-$("#btn-go-edit").onclick = () => setView("edit");
 const setCollapsed = c => { const h = $("header.top"); h.classList.toggle("collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
 $("#btn-collapse").onclick = () => setCollapsed(!$("header.top").classList.contains("collapsed"));
 try { if (localStorage.getItem("pb-hdr") === "1") setTimeout(() => setCollapsed(true), 0); } catch {}
