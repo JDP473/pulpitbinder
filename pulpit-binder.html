@@ -402,6 +402,19 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 .ser-head{display:flex;flex-direction:column;gap:6px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 .ser-head h3{margin:0;font:600 1.45rem/1.2 var(--f-read)}
 .ser-head .chip{flex:0 1 auto;white-space:normal;min-width:0;overflow-wrap:anywhere}
+.nx-card{width:min(680px,100%)}
+#btn-ser-next{align-self:flex-start}
+.nx-opts{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.nx-opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:start;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.nx-opt:hover{border-color:var(--muted)}
+.nx-opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.nx-opt .nx-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);margin-top:3px}
+.nx-opt[aria-checked="true"] .nx-dot{border-color:var(--accent);background:radial-gradient(var(--accent) 45%,transparent 50%)}
+.nx-opt .nx-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nx-opt b{font-family:var(--f-read);font-weight:600}
+.nx-ref{font:600 12.5px var(--f-mono);color:var(--accent)}
+.nx-src{font:600 10px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--sunk);border-radius:4px;padding:3px 5px;margin-left:6px;vertical-align:1px}
+@media (pointer:coarse){.nx-opt{padding:13px 12px}}
 /* deleting sermons */
 .del-card{width:min(620px,100%)}
 .del-tools{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
@@ -1060,6 +1073,7 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
       <div class="ser">
         <div class="panel ser-side">
           <div class="bind-head"><h2>Series documents</h2><span class="hint" id="ser-count"></span></div>
+          <button type="button" class="btn primary" id="btn-ser-next">+ Next sermon in this series</button>
           <div class="ser-tags" id="ser-tags" role="group" aria-label="Show sermons in"></div>
           <div class="ser-list" id="ser-list" role="listbox" aria-label="Sermons in this series"></div>
         </div>
@@ -1401,6 +1415,27 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
     </div>
     <div id="imp-done" class="imp-step" hidden></div>
   </div>
+</div>
+<div class="modal" id="nx-modal" hidden role="dialog" aria-modal="true" aria-labelledby="nx-title">
+  <form class="modal-card nx-card" id="nx-form" autocomplete="off">
+    <h2 id="nx-title">Next sermon in the series</h2>
+    <div class="field" id="nx-tag-f"><label for="nx-tag">Series</label><select id="nx-tag"></select></div>
+    <div class="hint" id="nx-sofar"></div>
+    <fieldset class="field"><legend>Recommended texts</legend>
+      <div class="nx-opts" id="nx-opts" role="radiogroup" aria-label="Recommended texts"></div>
+      <div class="hint" id="nx-status" aria-live="polite"></div>
+    </fieldset>
+    <div class="row2">
+      <div class="field"><label for="nx-text">Primary text</label><input type="text" id="nx-text" placeholder="1 John 3:1-10"></div>
+      <div class="field"><label for="nx-name">Title</label><input type="text" id="nx-name" placeholder="Sermon title"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="nx-when">Date and time</label><input type="datetime-local" id="nx-when"></div>
+      <div class="field"><label for="nx-svc">Service</label><select id="nx-svc"></select></div>
+    </div>
+    <label class="fav" for="nx-sc"><input type="checkbox" id="nx-sc" checked> <span>Start the manuscript with the passage as a Scripture section</span></label>
+    <div class="sc-pop-row"><span class="hint" id="nx-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="nx-cancel">Cancel</button><button type="submit" class="btn primary" id="nx-go">Create sermon</button></div>
+  </form>
 </div>
 <div class="modal" id="del-modal" hidden role="dialog" aria-modal="true" aria-labelledby="del-title">
   <div class="modal-card del-card">
@@ -2429,6 +2464,7 @@ function renderSeries() {
     list.append(b);
   });
   if (!rows.length) list.append(el("div", { class: "hint", text: "No other sermons have this series or tag yet." }));
+  $("#btn-ser-next").textContent = serTag ? `+ Next sermon in ${serTag}` : mine.length === 1 ? `+ Next sermon in ${mine[0]}` : "+ Next sermon in this series";
   renderSerDoc(rows.find(r => r.id === serPick));
 }
 async function renderSerDoc(r) {
@@ -2456,6 +2492,97 @@ async function renderSerDoc(r) {
     doc.replaceChildren(el("div", { class: "hint", style: "color:var(--warn)", text: cdb ? "Couldn't load this manuscript right now. Try again in a moment." : "This sermon is saved in your account, and this page isn't connected to it right now." }));
   }
 }
+
+/* Next sermon in a series: the passages it has covered, the next one in order when the series walks through a book, and
+   Claude's recommendations, then a new sermon with the series tag, text, title, and date filled in. */
+let nx = null;   // {tag, rows, opts, pick}
+const nxRef = t => { const r = normalizeRef(String(t || "").split(/[;,]/)[0]); if (!r) return null; const m = r.match(/^(.*?)\s+(\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/); if (!m) return null; const ch = +m[2], v = m[3] ? +m[3] : null; let ech = ch, ev = v; if (m[5]) { ech = +m[4]; ev = +m[5]; } else if (m[4]) { if (v == null) { ech = +m[4]; ev = null; } else ev = +m[4]; } return { ref: r, book: m[1], ch, v, ech, ev }; };
+function nxSeq(rows) {   // a series that walks through one book picks up where the last sermon left off
+  const refs = rows.map(r => nxRef(r.meta && r.meta.text)).filter(Boolean); if (refs.length < 1) return [];
+  const book = refs[refs.length - 1].book; if (!refs.every(x => x.book === book)) return [];
+  const last = refs.reduce((a, b) => (b.ech > a.ech || (b.ech === a.ech && (b.ev == null || (a.ev != null && b.ev > a.ev)))) ? b : a);
+  const out = [];
+  if (last.ev != null) out.push({ text: `${book} ${last.ech}:${last.ev + 1}`, title: "", why: `Picks up right after ${last.ref}. Set where the passage ends.`, src: "next" });
+  out.push({ text: `${book} ${last.ech + 1}`, title: "", why: `The next chapter after ${last.ref}.`, src: "next" });
+  return out;
+}
+function nxDefaults(rows) {
+  const last = rows.filter(r => r.meta && r.meta.when).slice(-1)[0], svc = last ? last.meta.service : "";
+  let when = "";
+  if (last) { const d = new Date(last.meta.when); if (!isNaN(d)) { d.setDate(d.getDate() + 7); while (d < new Date()) d.setDate(d.getDate() + 7); when = localStamp(d); } }
+  if (!when) { const n = nextService(); when = n ? localStamp(n.d) : localNow(); }
+  return { when, svc: svc || (nextService() || {}).s?.name || S.meta.service };
+}
+function nxRenderOpts() {
+  const box = $("#nx-opts"); box.replaceChildren();
+  nx.opts.forEach((o, i) => {
+    const b = el("button", { type: "button", class: "nx-opt", role: "radio", "aria-checked": String(nx.pick === i), onclick: () => { nx.pick = i; nx.typed = false; $("#nx-text").value = o.text; $("#nx-name").value = o.title || ""; nxRenderOpts(); } },
+      el("span", { class: "nx-dot" }), el("span", { class: "nx-t" }, el("span", {}, el("span", { class: "nx-ref", text: o.text }), o.src === "claude" ? el("span", { class: "nx-src", text: "Claude" }) : el("span", { class: "nx-src", text: "Next in order" })), o.title ? el("b", { text: o.title }) : null, o.why ? el("span", { class: "hint", text: o.why }) : null, o.bigIdea ? el("span", { class: "hint", text: "Big idea: " + o.bigIdea }) : null));
+    box.append(b);
+  });
+  if (!nx.opts.length) box.append(el("div", { class: "hint", text: "Type the passage and title below." }));
+}
+async function nxAsk() {
+  const tag = nx.tag, rows = nx.rows;
+  if (!sample) { $("#nx-status").textContent = rows.length ? "" : ""; return; }
+  $("#nx-status").textContent = "Claude is reading the series…";
+  const lines = rows.map(r => { const m = r.meta || {}, sum = cloudMetas.get(r.id) && cloudMetas.get(r.id).dash, ai = (!r.cloudOnly && r.ai && !r.ai.error ? r.ai : null) || (sum && sum.ai); return `- ${m.when ? m.when.slice(0, 10) : "no date"} | ${m.title || "(untitled)"} | text ${m.text || "(none)"}${ai && ai.bigIdea ? " | big idea: " + ai.bigIdea : ""}`; }).join("\n");
+  try {
+    const { value: r } = await askJson(`You are helping a preacher in the churches of Christ plan the next sermon in a series. Here is the series so far, in order.
+
+Series: ${tag}
+${lines || "(no sermons yet)"}
+
+Recommend 3 or 4 primary texts for the next sermon. If the series is moving through a book, the first option continues from where the last sermon ended, with a natural preaching unit (a paragraph or section, not a whole chapter unless it is short), and the others are reasonable alternatives (a shorter unit, a longer unit, or a closely related text). If the series is topical, recommend texts that develop the theme without repeating passages already preached. Never repeat a passage already preached. Use exact references with verse ranges.
+
+Return ONLY JSON: {"options":[{"text":"Book C:V-V","title":"a sermon title, 2 to 7 words","why":"one sentence on why this text comes next","bigIdea":"one sentence"}]}`, { id: "nx" });
+    if (!nx || nx.tag !== tag) return;
+    const got = (r && Array.isArray(r.options) ? r.options : []).map(o => ({ text: normalizeRef(String(o.text || "")) || String(o.text || "").slice(0, 60), title: String(o.title || "").slice(0, 90), why: String(o.why || "").slice(0, 240), bigIdea: String(o.bigIdea || "").slice(0, 240), src: "claude" })).filter(o => o.text);
+    const seen = new Set(got.map(o => o.text.toLowerCase()));
+    nx.opts = [...got, ...nx.opts.filter(o => o.src !== "claude" && !seen.has(o.text.toLowerCase()))].slice(0, 6);
+    $("#nx-status").textContent = got.length ? "" : "Claude didn't suggest any texts. Type one below.";
+    if (got.length && !nx.typed) { nx.pick = 0; $("#nx-text").value = nx.opts[0].text; $("#nx-name").value = nx.opts[0].title || ""; }
+    nxRenderOpts();
+  } catch (e) { if (nx && nx.tag === tag) $("#nx-status").textContent = { not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "Claude's suggestions didn't finish. Type a text below, or close and try again."; }
+}
+function nxLoad(tag) {
+  const keep = serTag; serTag = tag; const rows = serRows(); serTag = keep;
+  nx = { tag, rows, opts: nxSeq(rows), pick: -1 };
+  $("#nx-sofar").textContent = rows.length ? `So far: ${rows.map(r => (r.meta && r.meta.text) || (r.meta && r.meta.title) || "untitled").join(" · ")}` : "";
+  if (nx.opts.length) { nx.pick = 0; $("#nx-text").value = nx.opts[0].text; } else $("#nx-text").value = "";
+  $("#nx-name").value = ""; $("#nx-status").textContent = ""; nxRenderOpts();
+  const d = nxDefaults(rows); $("#nx-when").value = d.when;
+  const sel = $("#nx-svc"), names = svcNames(d.svc); sel.replaceChildren(...names.map(n => el("option", { value: n, text: n }))); sel.value = names.find(n => sameName(n, d.svc)) || names[0] || "";
+  nxAsk();
+}
+function openNext() {
+  const tags = tagsOf(S.meta); if (!tags.length) return;
+  const sel = $("#nx-tag"); sel.replaceChildren(...tags.map(t => el("option", { value: t, text: t })));
+  const start = serTag && tags.some(t => sameName(t, serTag)) ? tags.find(t => sameName(t, serTag)) : tags[0];
+  sel.value = start; $("#nx-tag-f").hidden = tags.length < 2; $("#nx-msg").textContent = "";
+  $("#nx-modal").hidden = false; nxLoad(start);
+}
+const closeNext = () => { $("#nx-modal").hidden = true; nx = null; };
+$("#btn-ser-next").onclick = openNext;
+$("#nx-tag").onchange = () => nxLoad($("#nx-tag").value);
+$("#nx-cancel").onclick = closeNext;
+$("#nx-modal").addEventListener("click", e => { if (e.target.id === "nx-modal") closeNext(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#nx-modal").hidden) closeNext(); });
+["#nx-text", "#nx-name"].forEach(id => $(id).addEventListener("input", () => { if (!nx) return; nx.typed = true; if (nx.pick >= 0) { nx.pick = -1; nxRenderOpts(); } }));
+$("#nx-form").addEventListener("submit", async e => {
+  e.preventDefault(); if (!nx) return;
+  const raw = $("#nx-text").value.trim(), ref = normalizeRef(raw) || raw, title = $("#nx-name").value.trim();
+  if (!ref && !title) { $("#nx-msg").textContent = "Give the sermon a text or a title."; return; }
+  const r = blank(), tag = nx.tag, svc = $("#nx-svc").value;
+  r.meta.series = tag; r.meta.text = ref; r.meta.title = title; r.meta.when = $("#nx-when").value || r.meta.when; r.meta.service = svc || r.meta.service;
+  const src = nx.rows.slice(-1)[0]; if (src && src.meta) { if (src.meta.place) r.meta.place = src.meta.place; if (src.meta.speaker) r.meta.speaker = src.meta.speaker; }
+  if ($("#nx-sc").checked && normalizeRef(ref)) r.html = scElement({ id: uid(), ref: normalizeRef(ref), ver: settings.defVer, texts: {} }).outerHTML + "<p><br></p>";
+  else r.html = "<p><br></p>";
+  r.transcript = plainFromHtml(r.html);
+  closeNext();
+  await store.put(r); openRec(r); await refreshLibrary(); goBuild("edit"); fillScriptures(); window.scrollTo({ top: 0 });
+  toast(`New sermon in ${tag}${ref ? ": " + ref : ""}`);
+});
 async function serOpen(id) {
   const sel = $("#library");
   if (![...sel.options].some(o => o.value === id)) await refreshLibrary();
