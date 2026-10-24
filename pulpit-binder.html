@@ -165,6 +165,16 @@ main{padding-block:18px 40px}
 .sec .pb-sc-x,.sec .pb-sc-mk{display:none}
 .pb-sc-mk{font:600 11.5px var(--f-ui);border:1px solid var(--sc-line);background:var(--surface);color:var(--sc-accent);border-radius:5px;padding:5px 8px;cursor:pointer;white-space:nowrap}
 .pb-sc-mk:hover{border-color:var(--sc-accent)}
+.sc-fmt{position:fixed;z-index:27;display:flex;align-items:center;gap:2px;padding:4px;background:var(--ink);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.sc-fmt[hidden]{display:none}
+.sc-fmt button{border:0;background:transparent;color:var(--bg);min-width:32px;height:32px;border-radius:6px;cursor:pointer;font:600 14px var(--f-ui);display:inline-grid;place-items:center;padding:0 6px}
+.sc-fmt button:hover,.sc-fmt button:focus-visible{background:rgba(127,127,127,.35)}
+.sc-fmt button.on{background:var(--accent);color:var(--accent-ink)}
+.sc-fmt button.sw{width:22px;min-width:22px;height:22px;margin:0 3px;border-radius:50%;border:2px solid var(--bg);padding:0}
+.sc-fmt button.sw.on{outline:2px solid var(--accent);background-clip:padding-box}
+.sc-fmt button.txt{font-size:12.5px}
+.sc-fmt-sep{width:1px;height:20px;background:rgba(127,127,127,.5);margin:0 3px}
+@media (pointer:coarse){.sc-fmt button{min-width:40px;height:40px}.sc-fmt button.sw{width:28px;min-width:28px;height:28px}}
 .sel-pop{position:fixed;z-index:26}
 .sel-pop[hidden]{display:none}
 .sel-pop button{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-ui);padding:6px 11px;border-radius:8px;border:0;background:var(--ink);color:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
@@ -176,6 +186,8 @@ main{padding-block:18px 40px}
 .slide.made-quote .mk::before{content:"\201C";font-family:var(--f-read);font-size:14cqw;line-height:.5;opacity:.3;text-align:center;height:5cqw}
 .slide.made .mk-ref{font:700 2.3cqw/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase}
 .slide.made-scripture .mk-ref{align-self:flex-end}
+.slide.made mark{color:#1b1f27;border-radius:.4cqw;padding:0 .35cqw;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.slide.made mark.hl-yellow{background:#fff0a6}.slide.made mark.hl-green{background:#d4f2d0}.slide.made mark.hl-blue{background:#d6e6ff}.slide.made mark.hl-pink{background:#fbd9e8}
 .slide.made .vn{font:700 .52em/1 var(--f-ui);vertical-align:.7em;margin:0 .18em 0 .05em}
 .slide.made-statement .mk-text,.slide.made-question .mk-text,.slide.made-keyverse .mk-text,.slide.made-blanks .mk-text{text-align:center;text-wrap:balance}
 .slide.made-statement .mk-text{font-weight:700;line-height:1.15;font-family:var(--mk-head,var(--f-read))}
@@ -1457,6 +1469,11 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
   </section>
 </main>
 <div class="toast" id="toast" role="status"></div>
+<div class="sc-fmt" id="sc-fmt" role="toolbar" aria-label="Format the selected Scripture" hidden>
+  <button type="button" data-f="b" aria-label="Bold" title="Bold"><b>B</b></button><button type="button" data-f="i" aria-label="Italic" title="Italic"><i>I</i></button><button type="button" data-f="u" aria-label="Underline" title="Underline"><u>U</u></button>
+  <span class="sc-fmt-sep"></span><button type="button" data-h="yellow" class="sw hl-yellow" aria-label="Highlight yellow" title="Highlight yellow"></button><button type="button" data-h="green" class="sw hl-green" aria-label="Highlight green" title="Highlight green"></button><button type="button" data-h="blue" class="sw hl-blue" aria-label="Highlight blue" title="Highlight blue"></button><button type="button" data-h="pink" class="sw hl-pink" aria-label="Highlight pink" title="Highlight pink"></button>
+  <span class="sc-fmt-sep"></span><button type="button" data-f="clear" class="txt" title="Remove bold, underline, and highlight">Clear</button>
+</div>
 <div class="sel-pop" id="sel-pop" hidden><button type="button" id="btn-make-slide" title="Make a slide from the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M12 9v4M10 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Make slide</button></div>
 <div class="sc-hint" id="sc-hint" hidden><button type="button" id="sc-hint-btn"><kbd>Tab</kbd><span>Insert</span><b id="sc-hint-ref"></b><span class="sc-hint-ver" id="sc-hint-ver"></span></button></div>
 <div class="modal" id="mk-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mk-title">
@@ -3270,7 +3287,7 @@ function htmlToMd(html) {
   const blocks = [];
   for (const n of box.children) {
     if (n.classList.contains("pb-slide")) { const nn = +n.dataset.n, k = +n.dataset.k || 1; blocks.push(nn ? (k > 1 ? `[slides ${nn}-${nn + k - 1}]` : `[slide ${nn}]`) : "[slide]"); continue; }
-    if (n.classList.contains("pb-scripture")) { const d = readSc(n), t = d.texts[d.ver]; blocks.push(`::: scripture ${d.ref} ${d.ver} #${d.id}\n${t ? t.t.trim() + "\n" : ""}:::`); continue; }
+    if (n.classList.contains("pb-scripture")) { const d = readSc(n), t = d.texts[d.ver]; blocks.push(`::: scripture ${d.ref} ${d.ver} #${d.id}\n${t ? t.t.replace(SC_MARK_RE, "").trim() + "\n" : ""}:::`); continue; }
     const tag = n.tagName;
     if (/^H[1-4]$/.test(tag)) { blocks.push("#".repeat(+tag[1]) + " " + inline(n).trim()); continue; }
     if (tag === "UL" || tag === "OL") { blocks.push([...n.children].map((li, i) => (tag === "OL" ? `${i + 1}. ` : "- ") + inline(li).trim()).join("\n")); continue; }
@@ -4222,11 +4239,33 @@ function saveSettings() {
   if (cdb && userId) cdb.doc(sermonPath("_prefs")).set({ ...settings }).catch(() => {});
 }
 
-/* tokens -> HTML */
+/* tokens -> HTML. Formatting you apply to Scripture rides in the same text as invisible marks: bold, underline, and four highlight
+   colors each open and close around a run of words, never across a verse number or line break. */
+const SC_HL = ["yellow", "green", "blue", "pink"], SC_MARKS = "\uE001-\uE004\uE010-\uE014";
+const SC_MARK_RE = new RegExp(`[${SC_MARKS}]`, "g");
+const scMarkHtml = h => h.replace(/\uE001/g, "<b>").replace(/\uE002/g, "</b>").replace(/\uE003/g, "<u>").replace(/\uE004/g, "</u>").replace(/[\uE010-\uE013]/g, c => `<mark class="hl-${SC_HL[c.charCodeAt(0) - 0xE010]}">`).replace(/\uE014/g, "</mark>");
+const scItalic = new RegExp(`_([^_\\n${SC_MARKS}]+)_`, "g");
 function scBodyHtml(t) {
-  return String(t || "").split(/\n{2,}/).map(p => "<p>" + esc(p).replace(/\{\{(\d{1,3}(?::\d{1,3})?)\}\}/g, '<sup class="vn">$1</sup>').replace(/_([^_\n]+)_/g, "<i>$1</i>").replace(/\n/g, "<br>") + "</p>").join("");
+  return String(t || "").split(/\n{2,}/).map(p => "<p>" + scMarkHtml(esc(p).replace(/\{\{(\d{1,3}(?::\d{1,3})?)\}\}/g, '<sup class="vn">$1</sup>').replace(scItalic, "<i>$1</i>").replace(/\n/g, "<br>")) + "</p>").join("");
 }
-const scPlainText = t => String(t || "").replace(/\{\{[\d:]+\}\}/g, "").replace(/_([^_\n]+)_/g, "$1").replace(/\s+/g, " ").trim();
+const scPlainText = t => String(t || "").replace(SC_MARK_RE, "").replace(/\{\{[\d:]+\}\}/g, "").replace(/_([^_\n]+)_/g, "$1").replace(/\s+/g, " ").trim();
+/* the text as pieces: verse numbers, line breaks, and runs of words with their formatting */
+function scPieces(t) {
+  const out = []; let b = false, u = false, h = "", at = 0, m; const re = new RegExp(`\\{\\{\\d{1,3}(?::\\d{1,3})?\\}\\}|\\n|[${SC_MARKS}]|_([^_\\n${SC_MARKS}]+)_`, "g"), src = String(t || "");
+  const word = (x, i) => { if (x) out.push({ k: "w", s: x, b, u, h, i: !!i }); };
+  while ((m = re.exec(src))) {
+    word(src.slice(at, m.index)); at = re.lastIndex; const x = m[0];
+    if (m[1] != null) word(m[1], true);
+    else if (x[0] === "{" || x === "\n") out.push({ k: x === "\n" ? "n" : "v", s: x });
+    else { const c = x.charCodeAt(0); if (c === 0xE001) b = true; else if (c === 0xE002) b = false; else if (c === 0xE003) u = true; else if (c === 0xE004) u = false; else if (c === 0xE014) h = ""; else h = SC_HL[c - 0xE010]; }
+  }
+  word(src.slice(at)); return out;
+}
+function scFromPieces(ps) {
+  const same = (x, y) => x.k === "w" && y.k === "w" && x.b === y.b && x.u === y.u && x.h === y.h && x.i === y.i, merged = [];
+  for (const p of ps) { const l = merged[merged.length - 1]; if (l && same(l, p)) l.s += p.s; else merged.push({ ...p }); }
+  return merged.map(p => { if (p.k !== "w") return p.s; const inner = p.i ? `_${p.s}_` : p.s; return (p.b ? "\uE001" : "") + (p.u ? "\uE003" : "") + (p.h ? String.fromCharCode(0xE010 + SC_HL.indexOf(p.h)) : "") + inner + (p.h ? "\uE014" : "") + (p.u ? "\uE004" : "") + (p.b ? "\uE002" : ""); }).join("");
+}
 function readSc(e) {
   let texts = {}; try { texts = JSON.parse(e.getAttribute("data-texts") || "{}") || {}; } catch {}
   const clean = {};
@@ -4340,7 +4379,7 @@ async function loadSc(id, ver, force) {
   scBusy.set(k, "loading"); rerenderSc(id);
   try {
     const r = await fetchPassage(d.ref, ver);
-    const e2 = edSc(id); if (e2) { const d2 = readSc(e2); d2.texts[ver] = r; writeSc(e2, d2); }
+    const e2 = edSc(id); if (e2) { const d2 = readSc(e2); d2.texts[ver] = r; writeSc(e2, d2); syncScSlides(id); }
     scBusy.delete(k);
   } catch (err) { scBusy.set(k, { err: err.message }); }
   rerenderSc(id); onEdit(true);
@@ -4439,7 +4478,7 @@ document.addEventListener("click", e => {
     const save = el("button", { type: "button", class: "pb-sc-btn", text: "Save" });
     bodyEl.replaceChildren(ta, el("p", {}, save)); ta.focus();
     ["keydown", "input"].forEach(t => ta.addEventListener(t, ev => ev.stopPropagation()));
-    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); onEdit(true); };
+    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); syncScSlides(id); onEdit(true); };
   }
 }, true);
 
@@ -4597,7 +4636,7 @@ function deckTheme(raw) {
   const css = c => `rgb(${c.join(",")})`;
   return { bg: css(bg), fg: css(fg), accent: css(accent) };
 }
-function madeTextHtml(t) { return esc(String(t || "")).replace(/\{\{(\d{1,3}(?::\d{1,3})?)\}\}/g, '<sup class="vn">$1</sup>').replace(/_([^_\n]+)_/g, "<i>$1</i>").replace(/\n{2,}/g, "<br>").replace(/\n/g, "<br>"); }
+function madeTextHtml(t) { return scMarkHtml(esc(String(t || "")).replace(/\{\{(\d{1,3}(?::\d{1,3})?)\}\}/g, '<sup class="vn">$1</sup>').replace(scItalic, "<i>$1</i>").replace(/\n{2,}/g, "<br>").replace(/\n/g, "<br>")); }
 function slideAtSection(si) { let s = -1; for (const x of buildSteps()) if (x.sec != null && x.sec <= si && x.slide != null) s = Math.max(s, x.slide); return s; }
 function insertMadeSlides(target, newSlides, opts = {}) {
   if (!newSlides.length) return;
@@ -4832,10 +4871,10 @@ function draftSlides() {
   const title = t => { const w = String(t || "").replace(/\[\[|\]\]/g, "").split(/\s+/); return w.slice(0, 8).join(" ") + (w.length > 8 ? "…" : ""); };
   if (d.made === "passage") {
     const units = scUnits(s.d), book = bookOf(s.ref), out = [];
-    for (let i = 0; i < units.length; i += d.per) { const cs = units.slice(i, i + d.per); const ref = unitRef(book, cs[0], cs[cs.length - 1]); const text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "" }); }
+    for (let i = 0; i < units.length; i += d.per) { const cs = units.slice(i, i + d.per); const ref = unitRef(book, cs[0], cs[cs.length - 1]); const text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
     return out;
   }
-  if (d.made === "keyverse") { const units = scUnits(s.d), u = units[d.vi] || units[0]; if (!u) return []; const ref = unitRef(bookOf(s.ref), u, u); const text = u.t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim(); return [{ made: "keyverse", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "" }]; }
+  if (d.made === "keyverse") { const units = scUnits(s.d), u = units[d.vi] || units[0]; if (!u) return []; const ref = unitRef(bookOf(s.ref), u, u); const text = u.t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim(); return [{ made: "keyverse", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(u), z: scKey(u) } }]; }
   if (d.made === "blanks") { const one = { ...d, title: title(d.text), body: [d.text.replace(/\[\[|\]\]/g, "")] }; return /\[\[[^\]]+\]\]/.test(d.text) ? [{ ...one, reveal: false }, { ...one, reveal: true }] : [{ ...one, made: "quote" }]; }
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
@@ -5068,6 +5107,83 @@ $("#btn-make-slide").onclick = () => {
   openPicker({ kind: "text", text, range: info.r.cloneRange(), target });
   getSelection().removeAllRanges();
 };
+
+/* ---- formatting Scripture (bold, italic, underline, highlight) and keeping slides made from it in step ---- */
+const scFmt = $("#sc-fmt");
+const scBodyOf = n => { const el_ = n && (n.nodeType === 1 ? n : n.parentElement); const b = el_ && el_.closest(".pb-sc-body"); return b && ed.contains(b) && b.closest(".pb-scripture") ? b : null; };
+const scLen = frag => { frag.querySelectorAll(".vn").forEach(v => v.remove()); return frag.textContent.length; };
+const scOffset = (body, node, off) => { const r = document.createRange(); r.setStart(body, 0); r.setEnd(node, off); return scLen(r.cloneContents()); };
+function scSelection() {
+  const s = getSelection(); if (!s || !s.rangeCount || s.isCollapsed) return null;
+  const r = s.getRangeAt(0), body = scBodyOf(r.startContainer); if (!body || body !== scBodyOf(r.endContainer)) return null;
+  const a = scOffset(body, r.startContainer, r.startOffset), z = scOffset(body, r.endContainer, r.endOffset);
+  return z > a ? { r, body, a, z, id: body.closest(".pb-scripture").getAttribute("data-id") } : null;
+}
+function scRangeAt(body, a, z) {   // the selection back on the same words after the section is redrawn
+  const w = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(".vn") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let pos = 0, n, r = document.createRange(), s0 = false;
+  while ((n = w.nextNode())) { const L = n.length; if (!s0 && a <= pos + L) { r.setStart(n, a - pos); s0 = true; } if (s0 && z <= pos + L) { r.setEnd(n, z - pos); return r; } pos += L; }
+  return null;
+}
+function scPiecesIn(ps, a, z) {   // the pieces' words, split so [a, z) is whole pieces
+  const out = []; let pos = 0;
+  for (const p of ps) {
+    if (p.k !== "w") { out.push(p); continue; }
+    const L = p.s.length, lo = Math.max(a, pos) - pos, hi = Math.min(z, pos + L) - pos;
+    if (hi <= lo) out.push({ ...p, sel: false }); else { if (lo > 0) out.push({ ...p, s: p.s.slice(0, lo), sel: false }); out.push({ ...p, s: p.s.slice(lo, hi), sel: true }); if (hi < L) out.push({ ...p, s: p.s.slice(hi), sel: false }); }
+    pos += L;
+  }
+  return out;
+}
+function scApply(op) {
+  const sel = scSelection(); if (!sel) return;
+  const src = edSc(sel.id); if (!src) return; const d = readSc(src), cur = d.texts[d.ver]; if (!cur) return;
+  const ps = scPiecesIn(scPieces(cur.t), sel.a, sel.z), mine = ps.filter(p => p.k === "w" && p.sel);
+  if (!mine.length) return;
+  if (op === "clear") mine.forEach(p => { p.b = p.u = false; p.h = ""; });
+  else if (op === "b" || op === "u" || op === "i") { const on = !mine.every(p => p[op]); mine.forEach(p => { p[op] = on; }); }
+  else { const on = !mine.every(p => p.h === op); mine.forEach(p => { p.h = on ? op : ""; }); }
+  const t = scFromPieces(ps); if (t === cur.t) return;
+  snapshot(); d.texts[d.ver] = { ...cur, t }; writeSc(src, d); rerenderSc(sel.id); syncScSlides(sel.id); onEdit(true);
+  const nb = src.querySelector(".pb-sc-body"), nr = nb && scRangeAt(nb, sel.a, sel.z); if (nr) { const s = getSelection(); s.removeAllRanges(); s.addRange(nr); }
+  updateScFmt();
+}
+function updateScFmt() {
+  const sel = view === "edit" ? scSelection() : null; if (!sel) { scFmt.hidden = true; return; }
+  const rect = sel.r.getBoundingClientRect(); if (!rect.width && !rect.height) { scFmt.hidden = true; return; }
+  const src = edSc(sel.id), cur = src && readSc(src).texts[readSc(src).ver];
+  if (cur) { const mine = scPiecesIn(scPieces(cur.t), sel.a, sel.z).filter(p => p.k === "w" && p.sel);
+    scFmt.querySelectorAll("button").forEach(b => { const f = b.dataset.f, h = b.dataset.h; b.classList.toggle("on", !!mine.length && (h ? mine.every(p => p.h === h) : ["b", "i", "u"].includes(f) ? mine.every(p => p[f]) : false)); }); }
+  scFmt.hidden = false;
+  const w = scFmt.offsetWidth, h = scFmt.offsetHeight, coarse = matchMedia("(pointer:coarse)").matches;
+  let y = coarse ? rect.bottom + 10 : rect.top - h - 8; if (y < 8 || (!coarse && y < (parseFloat(getComputedStyle(root).getPropertyValue("--hdr-h")) || 0) + 60)) y = rect.bottom + 10;
+  scFmt.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left + rect.width / 2 - w / 2)) + "px"; scFmt.style.top = Math.min(window.innerHeight - h - 8, y) + "px";
+}
+let scFmtT = 0; document.addEventListener("selectionchange", () => { cancelAnimationFrame(scFmtT); scFmtT = requestAnimationFrame(updateScFmt); });
+window.addEventListener("scroll", () => { if (!scFmt.hidden) updateScFmt(); }, { passive: true });
+scFmt.addEventListener("mousedown", e => e.preventDefault());
+scFmt.addEventListener("click", e => { const b = e.target.closest("button"); if (b) scApply(b.dataset.h || b.dataset.f); });
+/* A slide made from Scripture remembers which section and verses it came from (sc: {id, a, z}), and its words follow that
+   section: formatting, a reload, or pasted text changes the slide too. Slides made before this existed link themselves by
+   matching their words the first time their section is touched. */
+const scKey = u => `${u.ch}:${u.v}`;
+const scSlideText = (s, cs) => s.made === "keyverse" ? cs[0].t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim() : cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim();
+function syncScSlides(id) {
+  const e = edSc(id); if (!e || !S || !S.slides.length) return; const d = readSc(e); let changed = false, linked = false;
+  S.slides = S.slides.map(s => {
+    if (!s.ver || (s.made !== "scripture" && s.made !== "keyverse") || (s.sc && s.sc.id !== id)) return s;
+    const cur = d.texts[s.ver]; if (!cur) return s;
+    const units = unitsFromTokens(cur.t, d.ref); let i = -1, j = -1;
+    if (s.sc) { i = units.findIndex(u => scKey(u) === s.sc.a); j = units.findIndex(u => scKey(u) === s.sc.z); }
+    else { const want = scPlainText(s.text); for (let a = 0; a < units.length && i < 0; a++) { let acc = ""; for (let b = a; b < units.length; b++) { acc += units[b].t; const plain = scPlainText(acc); if (plain === want) { i = a; j = b; break; } if (plain.length > want.length) break; } } }
+    if (i < 0 || j < i) return s;
+    const text = scSlideText(s, units.slice(i, j + 1)), sc = { id, a: scKey(units[i]), z: scKey(units[j]) };
+    if (s.sc && text === s.text) return s;
+    if (!s.sc) linked = true;
+    if (text !== s.text) changed = true;
+    return { ...s, sc, text, body: [scPlainText(text)] };
+  });
+  if (changed) deckEdited(); else if (linked) save();
+}
 function makeScriptureSlides(id) {
   const e = edSc(id); if (!e) return;
   const d = readSc(e);
@@ -7596,7 +7712,7 @@ const pxFont = css => String(css || "").split(",")[0].replace(/["']/g, "").trim(
 /* paragraphs: [{algn, lnSpc (1 = single), spcBef (pt), marL, indent (EMU), bullet: {char | auto, color}, runs: [{text, sz (pt), b, i, u, caps, spc (pt), sup, color, font}]}] */
 function pxParas(paras) {
   const run = r => {
-    const pr = `<a:rPr lang="en-US" sz="${Math.max(100, Math.min(400000, Math.round((r.sz || 18) * 100)))}"${r.b ? ' b="1"' : ""}${r.i ? ' i="1"' : ""}${r.u ? ' u="sng"' : ""}${r.caps ? ' cap="all"' : ""}${r.spc ? ` spc="${Math.round(Math.max(-4000, Math.min(4000, r.spc)) * 100)}"` : ""}${r.sup ? ' baseline="30000"' : ""} dirty="0">${pxSolid(r.color)}${r.font ? `<a:latin typeface="${xe(r.font)}"/><a:cs typeface="${xe(r.font)}"/>` : ""}</a:rPr>`;
+    const pr = `<a:rPr lang="en-US" sz="${Math.max(100, Math.min(400000, Math.round((r.sz || 18) * 100)))}"${r.b ? ' b="1"' : ""}${r.i ? ' i="1"' : ""}${r.u ? ' u="sng"' : ""}${r.caps ? ' cap="all"' : ""}${r.spc ? ` spc="${Math.round(Math.max(-4000, Math.min(4000, r.spc)) * 100)}"` : ""}${r.sup ? ' baseline="30000"' : ""} dirty="0">${pxSolid(r.color)}${r.hl ? `<a:highlight>${pxClr(r.hl)}</a:highlight>` : ""}${r.font ? `<a:latin typeface="${xe(r.font)}"/><a:cs typeface="${xe(r.font)}"/>` : ""}</a:rPr>`;
     return String(r.text).split("\n").map(t => t ? `<a:r>${pr}<a:t>${xe(t)}</a:t></a:r>` : "").join(`<a:br>${pr}</a:br>`);
   };
   return (paras.length ? paras : [{ runs: [] }]).map(p => {
@@ -7662,15 +7778,16 @@ async function deckPptx(onStep) {
     if (!bgImg) { try { const blob = await thBackground(bgTheme, hdr ? "title" : "content", BGW, BGH, hdr ? "image/jpeg" : "image/png"); bgImg = { name: addMedia(bkey, { blob, ext: hdr ? "jpeg" : "png" }) }; } catch { bgColor(c, bgTheme.bg); } }
     if (bgImg) bgPicture(c, bgImg);
     const pt = v => v / 100 * PT, wd = t => words(scPlainText(t || "")).length;
-    const R = (text, o = {}) => ({ text, sz: pt(o.size), b: o.b, i: o.i, u: o.u, caps: o.caps, spc: o.spc ? pt(o.spc) : 0, sup: o.sup, color: o.color || fg, font: o.font || body });
+    const R = (text, o = {}) => ({ text, sz: pt(o.size), b: o.b, i: o.i, u: o.u, caps: o.caps, spc: o.spc ? pt(o.spc) : 0, sup: o.sup, hl: o.hl, color: o.hl ? "#1b1f27" : o.color || fg, font: o.font || body });
     const blocks = [];   // each block is one or more paragraphs; blocks after the first get the slide's gap above them
     const P = (runs, o = {}) => ({ runs: [].concat(runs), algn: o.algn || "l", lnSpc: o.lh || 0, bullet: o.bullet || null });
     const ref = algn => { if (s.ref) blocks.push([P(R(s.ver ? `${s.ref} · ${s.ver}` : s.ref, { size: 2.3, b: true, caps: true, spc: 0.23, color: acc }), { algn })]); };
     const kicker = (t, size = 2.2) => blocks.push([P(R(t, { size, b: true, caps: true, spc: size * 0.14, color: acc }), { algn: "ctr" })]);
     // words with verse numbers ({{5}}), italics (_word_), and line breaks, as the slide shows them
-    const rich = (t, o, algn) => { const runs = []; const src = String(t || ""); let last = 0; const re = /\{\{(\d{1,3}(?::\d{1,3})?)\}\}|_([^_\n]+)_|\n+/g; let m;
-      while ((m = re.exec(src))) { if (m.index > last) runs.push(R(src.slice(last, m.index), o)); if (m[1]) runs.push(R(m[1] + " ", { ...o, size: o.size * 0.52, b: true, sup: true, color: acc })); else if (m[2]) runs.push(R(m[2], { ...o, i: true })); else runs.push(R("\n", o)); last = re.lastIndex; }
-      if (last < src.length) runs.push(R(src.slice(last), o)); blocks.push([P(runs, { algn, lh: o.lh })]); };
+    const HLC = { yellow: "#fff0a6", green: "#d4f2d0", blue: "#d6e6ff", pink: "#fbd9e8" };
+    const rich = (t, o, algn) => { const runs = []; const ps = scPieces(t);
+      for (const p of ps) { if (p.k === "v") runs.push(R(p.s.replace(/[{}]/g, "") + " ", { ...o, size: o.size * 0.52, b: true, sup: true, color: acc })); else if (p.k === "n") runs.push(R("\n", o)); else runs.push(R(p.s, { ...o, b: o.b || p.b, i: p.i, u: p.u, hl: p.h ? HLC[p.h] : undefined })); }
+      blocks.push([P(runs, { algn, lh: o.lh })]); };
     const w = wd(s.text);
     let anchor = "ctr", box = { x: 0.08, y: 0.06 * CX / CY, w: 0.84, h: 1 - 0.12 * CX / CY };
     switch (s.made) {
@@ -7835,7 +7952,7 @@ function thBindOnce() {
   $("#th-add-sc").onclick = () => {
     const th = curTheme(); const e = [...ed.querySelectorAll(".pb-scripture")].find(x => { const d = readSc(x); return d.texts[d.ver]; }); if (!th || !e) return;
     thM().slideTheme = { ...th }; const d = readSc(e), units = scUnits(d), book = bookOf(d.ref), out = [];
-    for (let i = 0; i < units.length; i += 2) { const cs = units.slice(i, i + 2), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...th }, notes: "" }); }
+    for (let i = 0; i < units.length; i += 2) { const cs = units.slice(i, i + 2), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...th }, notes: "", sc: { id: d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
     insertMadeSlides(e, out); renderThemePanel();
   };
   $("#th-save").onclick = async () => {

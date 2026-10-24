@@ -34,6 +34,7 @@ cd tests/node && npm install && cd ../..
 pip install playwright        # uses an installed Chromium
 python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
+python3 tests/browser/scfmt.py   # formatting Scripture and slides following it
 python3 tests/browser/pptxout.py   # saves the deck as .pptx (open tests/out/export.pptx to check it)
 python3 tests/browser/canvahd.py   # full-size Canva pictures through the export flow
 ```
