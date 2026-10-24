@@ -4665,7 +4665,7 @@ function renderMade(box, s) {
   switch (s.made) {
     case "statement": textBlock(esc(s.text || ""), fitSize(w, true)); refLine(); break;
     case "title": {   // a title or section slide, with the theme's header picture when there is one
-      const pic = s.img || th.img; if (pic) { box.append(el("img", { class: "mk-hdr", src: blobURL(pic), alt: "" }), el("div", { class: "mk-hdr-fade" })); wrap.classList.add("has-hdr"); }
+      const pic = s.noImg ? null : (s.img || th.img); if (pic) { box.append(el("img", { class: "mk-hdr", src: blobURL(pic), alt: "" }), el("div", { class: "mk-hdr-fade" })); wrap.classList.add("has-hdr"); }
       if (s.kicker) { const k = el("div", { class: "mk-kicker", text: s.kicker }); k.style.color = th.accent; wrap.append(k); }
       wrap.append(el("div", { class: "mk-title" + (s.section ? " is-sec" : ""), text: s.title || "" }));
       if (s.ref) { const r = el("div", { class: "mk-ref", text: s.ref }); r.style.color = th.accent; wrap.append(r); }
@@ -4699,6 +4699,8 @@ const KINDS = {
   statement: { name: "Big idea", icon: "!", desc: "Boiled down to one short line in large type.", ai: true, for: ["text", "scripture"] },
   points: { name: "Summary points", icon: "≡", desc: "A short title with two to four points.", ai: true, for: ["text", "scripture"] },
   point: { name: "Main point", icon: "Ⅱ", desc: "The outline number and the point it belongs to.", for: ["text"] },
+  title: { name: "Sermon title", icon: "T", desc: "The title and text, with the theme's header picture. Good as the first slide.", for: ["text", "scripture"] },
+  section: { name: "Section header", icon: "§", desc: "Opens a new division or main point, large, with the header picture.", for: ["text", "scripture"] },
   blanks: { name: "Fill in the blank", icon: "_", desc: "Key words blanked, then revealed on the next click. Good with sermon notes.", ai: true, for: ["text", "scripture"] },
   question: { name: "Reflection question", icon: "?", desc: "A question for the congregation to take home.", ai: true, for: ["text", "scripture"] },
   art: { name: "Illustration", icon: "✎", desc: "Canva paints a picture of the idea, full-screen, with an optional line over it.", canva: true, for: ["text", "scripture"] },
@@ -4731,6 +4733,12 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !mkModal.h
 function scUnits(d) { const cur = d.texts[d.ver]; return cur ? unitsFromTokens(cur.t, d.ref) : []; }
 const bookOf = ref => (ref.match(/^(.*?)\s+\d/) || [, ref])[1];
 const unitRef = (book, a, z) => a.ch === z.ch ? `${book} ${a.ch}:${a.v}${z.v !== a.v ? "-" + z.v : ""}` : `${book} ${a.ch}:${a.v}-${z.ch}:${z.v}`;
+function headingAbove(target) {
+  let c1 = 0, c2 = 0, hit = null;
+  for (const e of ed.children) { if (e === target) break; const lv = levelOf(e); if (lv === 1) { c1++; c2 = 0; hit = { lv, e }; } else if (lv === 2) { c2++; hit = { lv, e, num: ROMAN(c2) }; } }
+  if (target && levelOf(target) && levelOf(target) <= 2) { const lv = levelOf(target); hit = { lv, e: target, num: lv === 2 ? ROMAN(c2 + 1) : null }; }
+  return hit ? { text: blockText(hit.e), kicker: hit.num ? `Point ${hit.num}` : "" } : { text: "", kicker: "" };
+}
 function outlinePointAt(target) {
   let num = "", text = "", c1 = 0, c2 = 0;
   for (const e of ed.children) { if (e === target) break; const lv = levelOf(e); if (lv === 1) { c1++; c2 = 0; } else if (lv === 2) { c2++; num = ROMAN(c2) + "."; text = blockText(e); } }
@@ -4750,6 +4758,8 @@ async function chooseKind(key) {
   if (key === "quote") mk.draft = { ...base, made: "quote", text: s.text, ref: "" };
   else if (key === "passage") mk.draft = { ...base, made: "passage", per: 2 };
   else if (key === "keyverse") mk.draft = { ...base, made: "keyverse", vi: 0 };
+  else if (key === "title") mk.draft = { ...base, made: "title", kicker: tagsOf(S.meta)[0] || "", ttl: S.meta.title || "", ref: S.meta.text || (s.kind === "scripture" ? s.ref : ""), pic: theme.img ? "theme" : "none", img: null };
+  else if (key === "section") { const h = headingAbove(s.target); mk.draft = { ...base, made: "title", section: true, kicker: h.kicker, ttl: h.text || (s.kind === "scripture" ? s.ref : s.text.split(/\s+/).slice(0, 9).join(" ")), ref: s.kind === "scripture" ? `${s.ref}` : "", pic: theme.img ? "theme" : "none", img: null }; }
   else if (key === "point") { const o = outlinePointAt(s.target); mk.draft = { ...base, made: "point", num: o.num, text: o.text || s.text.split(/\s+/).slice(0, 9).join(" ") }; }
   else if (key === "photo") mk.draft = { ...base, made: "photo", img: null, caption: s.kind === "scripture" ? "" : (words(s.text).length <= 14 ? s.text : ""), ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
   else if (key === "art") mk.draft = { ...base, made: "art", img: null, style: "painterly", prompt: "", caption: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
@@ -4808,6 +4818,7 @@ function draftSlides() {
   }
   if (d.made === "keyverse") { const units = scUnits(s.d), u = units[d.vi] || units[0]; if (!u) return []; const ref = unitRef(bookOf(s.ref), u, u); const text = u.t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim(); return [{ made: "keyverse", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "" }]; }
   if (d.made === "blanks") { const one = { ...d, title: title(d.text), body: [d.text.replace(/\[\[|\]\]/g, "")] }; return /\[\[[^\]]+\]\]/.test(d.text) ? [{ ...one, reveal: false }, { ...one, reveal: true }] : [{ ...one, made: "quote" }]; }
+  if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
   if (d.made === "photo") return d.img ? [{ ...d, title: d.caption || "Photo", body: d.caption ? [d.caption] : [] }] : [];
   if (d.made === "art") return d.img ? [{ made: "art", img: d.img, caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
@@ -4839,6 +4850,15 @@ function renderMkFields() {
   else if (k === "statement" || k === "question") { field(k === "question" ? "Question" : "Big idea", ta("mk-f-text", d.text, 3, v => d.text = v)); if (k === "question") field("Small line above it", tx("mk-f-kick", d.kicker || "Ask yourself", v => d.kicker = v)); }
   else if (k === "blanks") field("Sentence", ta("mk-f-text", d.text, 3, v => d.text = v), "Put [[double brackets]] around the words to blank out. The first slide shows the blanks; the next click fills them in.");
   else if (k === "points") { field("Title", tx("mk-f-title", d.title, v => d.title = v)); const pts = d.points = d.points || []; for (let i = 0; i < 4; i++) field(`Point ${i + 1}`, tx("mk-f-p" + i, pts[i], v => pts[i] = v, i >= 2 ? "optional" : "")); }
+  else if (k === "title" || k === "section") {
+    field("Small line above (optional)", tx("mk-f-kick", d.kicker, v => d.kicker = v, k === "section" ? "Point II" : "Series name"));
+    field(k === "section" ? "Section heading" : "Sermon title", ta("mk-f-ttl", d.ttl, 2, v => d.ttl = v));
+    field("Line below (optional)", tx("mk-f-ref", d.ref, v => d.ref = v, "Psalm 119:105"));
+    const sel = el("select", { id: "mk-f-pic" }); [["theme", "The theme's header picture"], ["own", "A picture from my device"], ["none", "No picture"]].forEach(([v, t]) => { if (v !== "theme" || d.theme.img) sel.append(el("option", { value: v, text: t })); });
+    sel.value = d.pic === "theme" && !d.theme.img ? "none" : d.pic; sel.onchange = () => { d.pic = sel.value; renderMkFields(); renderMkPreview(); };
+    field("Header picture", sel, d.theme.img ? "" : "Choose a theme with a header picture in Materials, Slide theme, to use it here.");
+    if (d.pic === "own") { const inp = el("input", { type: "file", id: "mk-f-img", accept: "image/*" }); inp.onchange = async () => { const file = inp.files[0]; if (!file) return; try { d.img = await shrinkImage(file); renderMkPreview(); } catch { toast("Couldn't read that picture. Try a JPEG or PNG."); } }; field("Picture", inp); }
+  }
   else if (k === "point") { field("Number", tx("mk-f-num", d.num, v => d.num = v, "II.")); field("Main point", ta("mk-f-text", d.text, 2, v => d.text = v)); }
   else if (k === "passage") { const sel = el("select", { id: "mk-f-per" }); [[1, "One verse per slide"], [2, "About two verses per slide"], [3, "About three verses per slide"]].forEach(([v, t]) => sel.append(el("option", { value: String(v), text: t }))); sel.value = String(d.per); sel.onchange = () => { d.per = +sel.value; renderMkPreview(); }; field("Verses per slide", sel); }
   else if (k === "keyverse") { const sel = el("select", { id: "mk-f-vi" }); const book = bookOf(mk.src.ref); scUnits(mk.src.d).forEach((u, i) => sel.append(el("option", { value: String(i), text: `${unitRef(book, u, u)}: ${scPlainText(u.t).slice(0, 60)}…` }))); sel.value = String(d.vi); sel.onchange = () => { d.vi = +sel.value; renderMkPreview(); }; field("Verse", sel); }
