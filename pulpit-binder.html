@@ -1095,6 +1095,7 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
           </div>
           <input type="file" id="file-pptx" accept=".pptx,.pdf" multiple hidden>
           <div class="hint" id="deck-progress" aria-live="polite"></div>
+          <div class="mat-act"><button type="button" class="btn" id="btn-save-pptx" hidden>Save slides as PowerPoint (.pptx)</button></div>
           <div id="deck-status" class="deck-status"></div>
           <div class="tip" id="deck-tip" hidden><b>For a pixel-exact match,</b> also drop the PDF export of this deck. In PowerPoint choose File, then Export (or Save As), then PDF. The .pptx still supplies speaker notes and text matching.</div>
         </div>
@@ -3006,7 +3007,7 @@ function renderAnalysis() {
 function list(items) { const ul = el("ul"); (items || []).forEach(x => ul.append(el("li", { text: typeof x === "string" ? x : (x.ref ? `${x.ref}: ${x.use || ""}` : JSON.stringify(x)) }))); return ul; }
 function renderAI() {
   const out = $("#ai-out"); const ai = S.ai;
-  $("#btn-export").hidden = !downloads;
+  $("#btn-export").hidden = !downloads; $("#btn-save-pptx").hidden = !downloads;
   if (!ai) return;
   out.replaceChildren();
   if (ai.error) { out.append(el("div", { class: "refuse", text: ai.error })); return; }
@@ -3118,6 +3119,7 @@ ${preachedPlain().slice(0, 40000)}
   renderAI(); renderTags(); save();
 };
 
+$("#btn-save-pptx").onclick = () => savePptx($("#btn-save-pptx"));
 $("#btn-export").onclick = async () => {
   const m = S.meta, a = localAnalysis(), ai = S.ai && !S.ai.error ? S.ai : null;
   const L = [];
@@ -7551,23 +7553,269 @@ async function thSetPic(f, fromCanva) {
 }
 function thOwnPic() { const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => thSetPic(inp.files[0], false); inp.click(); }
 /* backgrounds as 1920 x 1080 pictures, for ProPresenter, PowerPoint, or Keynote */
-async function thBackground(th, kind) {
-  const W = 1920, H = 1080, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
+async function thBackground(th, kind, W = 1920, H = 1080, type = "image/png") {
+  const c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d"), k = W / 1920;
   const bg = th.bg, bg2 = th.bg2 || bg;
   if (th.tex === "gradient" || th.tex === "lines") { const g = x.createLinearGradient(0, 0, W * 0.6, H); g.addColorStop(0, bg2); g.addColorStop(th.tex === "lines" ? 0.8 : 0.72, bg); g.addColorStop(1, bg); x.fillStyle = g; }
   else if (th.tex === "vignette") { const g = x.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.38, W * 0.62); g.addColorStop(0, bg2); g.addColorStop(1, bg); x.fillStyle = g; }
   else x.fillStyle = bg;
   x.fillRect(0, 0, W, H);
-  if (th.tex === "lines") { x.strokeStyle = rgba(th.fg, 0.045); x.lineWidth = 3; for (let i = -H; i < W; i += 27) { x.beginPath(); x.moveTo(i, H); x.lineTo(i + H, 0); x.stroke(); } }
-  if (th.tex === "dots") { x.fillStyle = rgba(th.fg, 0.07); for (let yy = 10; yy < H; yy += 21) for (let xx = 10; xx < W; xx += 21) { x.beginPath(); x.arc(xx, yy, 1.8, 0, 7); x.fill(); } }
+  if (th.tex === "lines") { x.strokeStyle = rgba(th.fg, 0.045); x.lineWidth = 3 * k; for (let i = -H; i < W; i += 27 * k) { x.beginPath(); x.moveTo(i, H); x.lineTo(i + H, 0); x.stroke(); } }
+  if (th.tex === "dots") { x.fillStyle = rgba(th.fg, 0.07); for (let yy = 10 * k; yy < H; yy += 21 * k) for (let xx = 10 * k; xx < W; xx += 21 * k) { x.beginPath(); x.arc(xx, yy, 1.8 * k, 0, 7); x.fill(); } }
   if (kind === "title" && th.img) {
     const src = blobURL(th.img); const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
     const hh = H * 0.58, r = Math.max(W / im.width, hh / im.height), dw = im.width * r, dh = im.height * r;
     x.save(); x.beginPath(); x.rect(0, 0, W, hh); x.clip(); x.drawImage(im, (W - dw) / 2, (hh - dh) / 2, dw, dh); x.restore();
     const g = x.createLinearGradient(0, H * 0.3, 0, hh); g.addColorStop(0, rgba(bg, 0)); g.addColorStop(1, bg); x.fillStyle = g; x.fillRect(0, H * 0.3, W, hh - H * 0.3 + 1);
   }
-  if (kind === "scripture") { x.fillStyle = th.accent; x.fillRect(W * 0.08, H * 0.12, 6, H * 0.76); }
-  return canvasBlob(c, "image/png");
+  if (kind === "scripture") { x.fillStyle = th.accent; x.fillRect(W * 0.08, H * 0.12, 6 * k, H * 0.76); }
+  return canvasBlob(c, type, 0.9);
+}
+/* ---------------- PPTX writing ---------------- */
+/* The deck saved as a PowerPoint file. Slides made here become editable text on a picture of their theme's background,
+   slides read from a .pptx are rebuilt from what was read, PDF pages go in as pictures, and each slide's speaker notes
+   hold its own notes and then the manuscript paragraphs it goes with, so Presenter View shows the manuscript. */
+const PX_HEAD = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+const PX_NS = 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"';
+const PX_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
+const PX_CT = "application/vnd.openxmlformats-officedocument.presentationml.";
+const PX_GRP = '<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>';
+const xe = v => String(v == null ? "" : v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f￾￿]/g, "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const pxRels = list => `${PX_HEAD}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${list.map(([id, type, target]) => `<Relationship Id="${id}" Type="${type.includes("://") ? type : PX_REL + type}" Target="${xe(target)}"/>`).join("")}</Relationships>`;
+/* a CSS color (hex, rgb, rgba, or the first color of a gradient) as PowerPoint hex and opacity */
+function pxColor(c) {
+  if (!c || typeof c !== "string") return null;
+  const h = c.match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/i), r = c.match(/rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)/i);
+  if (h && (!r || c.indexOf(h[0]) < c.indexOf(r[0]))) { let v = h[1]; if (v.length === 3) v = v.replace(/./g, x => x + x); return { hex: v.toUpperCase(), a: 1 }; }
+  if (r) return { hex: [r[1], r[2], r[3]].map(v => Math.max(0, Math.min(255, Math.round(+v))).toString(16).padStart(2, "0")).join("").toUpperCase(), a: r[4] == null ? 1 : r[4].endsWith("%") ? parseFloat(r[4]) / 100 : Math.min(1, +r[4]) };
+  return null;
+}
+const pxClr = c => { const k = typeof c === "string" ? pxColor(c) : c; return k ? `<a:srgbClr val="${k.hex}">${k.a < 1 ? `<a:alpha val="${Math.round(Math.max(0, k.a) * 100000)}"/>` : ""}</a:srgbClr>` : ""; };
+const pxSolid = c => { const k = pxClr(c); return k ? `<a:solidFill>${k}</a:solidFill>` : ""; };
+const pxFont = css => String(css || "").split(",")[0].replace(/["']/g, "").trim();
+/* paragraphs: [{algn, lnSpc (1 = single), spcBef (pt), marL, indent (EMU), bullet: {char | auto, color}, runs: [{text, sz (pt), b, i, u, caps, spc (pt), sup, color, font}]}] */
+function pxParas(paras) {
+  const run = r => {
+    const pr = `<a:rPr lang="en-US" sz="${Math.max(100, Math.min(400000, Math.round((r.sz || 18) * 100)))}"${r.b ? ' b="1"' : ""}${r.i ? ' i="1"' : ""}${r.u ? ' u="sng"' : ""}${r.caps ? ' cap="all"' : ""}${r.spc ? ` spc="${Math.round(Math.max(-4000, Math.min(4000, r.spc)) * 100)}"` : ""}${r.sup ? ' baseline="30000"' : ""} dirty="0">${pxSolid(r.color)}${r.font ? `<a:latin typeface="${xe(r.font)}"/><a:cs typeface="${xe(r.font)}"/>` : ""}</a:rPr>`;
+    return String(r.text).split("\n").map(t => t ? `<a:r>${pr}<a:t>${xe(t)}</a:t></a:r>` : "").join(`<a:br>${pr}</a:br>`);
+  };
+  return (paras.length ? paras : [{ runs: [] }]).map(p => {
+    const b = p.bullet, bc = b && b.color ? pxClr(b.color) : "";
+    const ppr = `<a:pPr${p.marL ? ` marL="${Math.round(Math.max(0, p.marL))}"` : ""}${p.indent ? ` indent="${Math.round(p.indent)}"` : ""}${p.algn ? ` algn="${p.algn}"` : ""}>`
+      + (p.lnSpc ? `<a:lnSpc><a:spcPct val="${Math.round(Math.min(13.2, p.lnSpc) * 100000)}"/></a:lnSpc>` : "")
+      + (p.spcBef ? `<a:spcBef><a:spcPts val="${Math.round(Math.min(1584, p.spcBef) * 100)}"/></a:spcBef>` : "")
+      + (b ? (bc ? `<a:buClr>${bc}</a:buClr>` : "") + (b.auto ? '<a:buFont typeface="+mj-lt"/><a:buAutoNum type="arabicPeriod"/>' : `<a:buFont typeface="Arial"/><a:buChar char="${xe(b.char || "•")}"/>`) : "<a:buNone/>") + "</a:pPr>";
+    const last = p.runs[p.runs.length - 1];
+    return `<a:p>${ppr}${p.runs.map(run).join("")}<a:endParaRPr lang="en-US" sz="${Math.max(100, Math.round(((last && last.sz) || p.endSz || 18) * 100))}" dirty="0"/></a:p>`;
+  }).join("");
+}
+const pxBody = (paras, { anchor = "t", ins = [0, 0, 0, 0], fit = false } = {}) => `<a:bodyPr wrap="square" lIns="${Math.round(ins[0])}" tIns="${Math.round(ins[1])}" rIns="${Math.round(ins[2])}" bIns="${Math.round(ins[3])}" anchor="${anchor}" rtlCol="0">${fit ? "<a:normAutofit/>" : ""}</a:bodyPr><a:lstStyle/>${pxParas(paras)}`;
+/* a picture as bytes PowerPoint reads (PNG, JPEG, or GIF), with its size */
+async function pxImage(ref, opt = {}) {
+  if (ref instanceof Blob && /^image\/(png|jpeg|gif)$/.test(ref.type)) {
+    try { const bm = await createImageBitmap(ref); const out = { blob: ref, ext: ref.type === "image/jpeg" ? "jpeg" : ref.type.slice(6), w: bm.width, h: bm.height }; if (bm.close) bm.close(); return out; } catch {}
+  }
+  const src = typeof ref === "string" ? ref : blobURL(ref); if (!src) return null;
+  const im = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+  const w = opt.w || (im && im.naturalWidth), h = opt.h || (im && im.naturalHeight); if (!im || !w || !h) return null;
+  const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").drawImage(im, 0, 0, w, h);
+  return opt.jpeg ? { blob: await canvasBlob(c, "image/jpeg", 0.92), ext: "jpeg", w, h } : { blob: await canvasBlob(c, "image/png"), ext: "png", w, h };
+}
+/* for each slide: its own notes, then each manuscript paragraph that brings it up (every paragraph once) */
+function deckNotes() {
+  const out = S.slides.map(s => String(s.notes || "").trim() ? [String(s.notes).trim()] : []), used = new Set();
+  let st = []; try { st = buildSteps(); } catch {}
+  for (const x of st) {
+    if (x.extra || x.sec == null || used.has(x.sec)) continue;
+    const k = x.slide == null ? 0 : x.slide, t = String((sections[x.sec] || {}).text || "").trim();
+    if (!out[k]) continue; used.add(x.sec); if (t) out[k].push(t);
+  }
+  return out.map(a => a.join("\n\n"));
+}
+async function deckPptx(onStep) {
+  const aspect = S.aspect || 16 / 9, CY = 6858000, CX = Math.abs(aspect - 16 / 9) < 0.002 ? 12192000 : Math.round(CY * aspect), PT = CX / 12700, E = Math.round;
+  const BGW = 1920, BGH = Math.round(1920 / aspect);
+  const media = [], mediaKey = new Map(), blobIds = new WeakMap(); let blobN = 0;
+  const refKey = r => !r ? "" : typeof r === "string" ? "s:" + r.slice(0, 200) + r.length : r.asset ? "a:" + r.asset : r instanceof Blob ? "b:" + (blobIds.get(r) || (blobIds.set(r, ++blobN), blobN)) : "";
+  const addMedia = (key, img) => { if (key && mediaKey.has(key)) return mediaKey.get(key); const name = `image${media.length + 1}.${img.ext}`; media.push([name, img.blob]); if (key) mediaKey.set(key, name); return name; };
+  const getImg = async (ref, opt = {}) => { const key = refKey(ref) + (opt.tag || ""); if (key && mediaKey.has(key)) return { name: mediaKey.get(key), ...(mediaKey.get(key + "|dims") || {}) }; const img = await pxImage(ref, opt); if (!img) return null; const name = addMedia(key, img); if (key) mediaKey.set(key + "|dims", { w: img.w, h: img.h }); return { name, w: img.w, h: img.h }; };
+  // shapes on one slide; positions are fractions of the slide
+  const ctx = () => { const c = { id: 1, xml: [], rels: [], bg: "" }; c.rel = target => { let k = c.rels.indexOf(target); if (k < 0) { c.rels.push(target); k = c.rels.length - 1; } return "rId" + (k + 2); }; return c; };
+  const xfrm = (r, flip = "") => `<a:xfrm${r.rot ? ` rot="${E(r.rot * 60000)}"` : ""}${flip}><a:off x="${E(r.x * CX)}" y="${E(r.y * CY)}"/><a:ext cx="${Math.max(0, E(r.w * CX))}" cy="${Math.max(0, E(r.h * CY))}"/></a:xfrm>`;
+  const geomOk = g => /^[a-zA-Z0-9]+$/.test(g || "") ? g : "rect";
+  const sp = (c, r, { fill = "", line = "", body = "", geom = "rect", name = "Text", txBox = true } = {}) => { const id = ++c.id; c.xml.push(`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="${name} ${id}"/><p:cNvSpPr${txBox ? ' txBox="1"' : ""}/><p:nvPr/></p:nvSpPr><p:spPr>${xfrm(r)}<a:prstGeom prst="${geomOk(geom)}"><a:avLst/></a:prstGeom>${fill || "<a:noFill/>"}${line}</p:spPr>${body ? `<p:txBody>${body}</p:txBody>` : ""}</p:sp>`); };
+  const pic = (c, r, img, { crop = null, geom = "rect", name = "Picture" } = {}) => { const id = ++c.id; c.xml.push(`<p:pic><p:nvPicPr><p:cNvPr id="${id}" name="${name} ${id}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="${c.rel("../media/" + img.name)}"/>${crop ? `<a:srcRect l="${E(crop[0] * 100000)}" t="${E(crop[1] * 100000)}" r="${E(crop[2] * 100000)}" b="${E(crop[3] * 100000)}"/>` : ""}<a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr>${xfrm(r)}<a:prstGeom prst="${geomOk(geom)}"><a:avLst/></a:prstGeom></p:spPr></p:pic>`); };
+  const cover = (img, r) => { const ia = img.w / img.h, ba = (r.w * CX) / (r.h * CY); if (!isFinite(ia) || !isFinite(ba)) return null; if (ia > ba) { const k = (1 - ba / ia) / 2; return [k, 0, k, 0]; } const k = (1 - ia / ba) / 2; return [0, k, 0, k]; };
+  const contain = (img, r) => { const ia = img.w / img.h, ba = (r.w * CX) / (r.h * CY); if (ia > ba) { const h = r.h * ba / ia; return { ...r, y: r.y + (r.h - h) / 2, h }; } const w = r.w * ia / ba; return { ...r, x: r.x + (r.w - w) / 2, w }; };
+  const bgPicture = (c, img) => { c.bg = `<p:bg><p:bgPr><a:blipFill dpi="0" rotWithShape="1"><a:blip r:embed="${c.rel("../media/" + img.name)}"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:effectLst/></p:bgPr></p:bg>`; };
+  const bgColor = (c, color) => { const f = pxSolid(color); if (f) c.bg = `<p:bg><p:bgPr>${f}<a:effectLst/></p:bgPr></p:bg>`; };
+  const FULL = { x: 0, y: 0, w: 1, h: 1 };
+
+  // a slide made here: its theme's background as a picture, then its words as one editable text box
+  async function made(c, s) {
+    const th = s.theme || { bg: "#1c2433", fg: "#f3f1ea", accent: "#e2b55e" }, fg = th.fg || "#f3f1ea", acc = th.accent || "#e2b55e";
+    const head = th.head || "Literata", body = th.body || "Literata";
+    const hdr = s.made === "title" && !s.noImg ? (s.img || th.img || null) : null;
+    const bgTheme = { ...th, bg: th.bg || "#1c2433", bg2: th.bg2 || stMix(fg, th.bg || "#1c2433", 0.14), img: hdr };
+    const bkey = `bg|${bgTheme.bg}|${bgTheme.bg2}|${fg}|${th.tex || ""}|${BGW}x${BGH}|${refKey(hdr)}`;
+    let bgImg = mediaKey.has(bkey) ? { name: mediaKey.get(bkey) } : null;
+    if (!bgImg) { try { const blob = await thBackground(bgTheme, hdr ? "title" : "content", BGW, BGH, hdr ? "image/jpeg" : "image/png"); bgImg = { name: addMedia(bkey, { blob, ext: hdr ? "jpeg" : "png" }) }; } catch { bgColor(c, bgTheme.bg); } }
+    if (bgImg) bgPicture(c, bgImg);
+    const pt = v => v / 100 * PT, wd = t => words(scPlainText(t || "")).length;
+    const R = (text, o = {}) => ({ text, sz: pt(o.size), b: o.b, i: o.i, u: o.u, caps: o.caps, spc: o.spc ? pt(o.spc) : 0, sup: o.sup, color: o.color || fg, font: o.font || body });
+    const blocks = [];   // each block is one or more paragraphs; blocks after the first get the slide's gap above them
+    const P = (runs, o = {}) => ({ runs: [].concat(runs), algn: o.algn || "l", lnSpc: o.lh || 0, bullet: o.bullet || null });
+    const ref = algn => { if (s.ref) blocks.push([P(R(s.ver ? `${s.ref} · ${s.ver}` : s.ref, { size: 2.3, b: true, caps: true, spc: 0.23, color: acc }), { algn })]); };
+    const kicker = (t, size = 2.2) => blocks.push([P(R(t, { size, b: true, caps: true, spc: size * 0.14, color: acc }), { algn: "ctr" })]);
+    // words with verse numbers ({{5}}), italics (_word_), and line breaks, as the slide shows them
+    const rich = (t, o, algn) => { const runs = []; const src = String(t || ""); let last = 0; const re = /\{\{(\d{1,3}(?::\d{1,3})?)\}\}|_([^_\n]+)_|\n+/g; let m;
+      while ((m = re.exec(src))) { if (m.index > last) runs.push(R(src.slice(last, m.index), o)); if (m[1]) runs.push(R(m[1] + " ", { ...o, size: o.size * 0.52, b: true, sup: true, color: acc })); else if (m[2]) runs.push(R(m[2], { ...o, i: true })); else runs.push(R("\n", o)); last = re.lastIndex; }
+      if (last < src.length) runs.push(R(src.slice(last), o)); blocks.push([P(runs, { algn, lh: o.lh })]); };
+    const w = wd(s.text);
+    let anchor = "ctr", box = { x: 0.08, y: 0.06 * CX / CY, w: 0.84, h: 1 - 0.12 * CX / CY };
+    switch (s.made) {
+      case "statement": rich(s.text, { size: fitSize(w, true), b: true, font: head, lh: 1.15 / 1.2 }, "ctr"); ref("ctr"); break;
+      case "title":
+        if (s.kicker) kicker(s.kicker, 2);
+        blocks.push([P(R(s.title || "", { size: s.section ? 5.6 : 7, b: true, font: head }), { algn: "ctr", lh: 1.08 / 1.2 })]);
+        if (s.ref) blocks.push([P(R(s.ref, { size: 2.4, b: true, caps: true, spc: 0.24, color: acc }), { algn: "ctr" })]);
+        if (hdr) { anchor = "b"; box = { x: 0.08, y: 0.3, w: 0.84, h: 0.7 - 0.07 * CX / CY }; }
+        break;
+      case "question": kicker(s.kicker || "Ask yourself"); rich(s.text, { size: fitSize(w) * 1.15, lh: 1.38 / 1.2 }, "ctr"); break;
+      case "points":
+        blocks.push([P(R(s.title || "", { size: 5.2, b: true, font: head }), { lh: 1.15 / 1.2 })]);
+        { const pts = (s.points || []).filter(Boolean); if (pts.length) blocks.push(pts.map((p, i) => ({ ...P(R(p, { size: 3.6 }), { lh: 1.3 / 1.2, bullet: { char: "●", color: acc } }), marL: E(0.03 * CX), indent: -E(0.03 * CX), spcBef: i ? pt(1.6) : 0 }))); }
+        ref("l"); break;
+      case "point":
+        if (s.num) blocks.push([P(R(s.num, { size: 8, b: true, font: head, color: acc }))]);
+        rich(s.text, { size: fitSize(w, true), b: true, font: head, lh: 1.15 / 1.2 }, "l"); break;
+      case "blanks": {
+        const t = String(s.text || ""), size = fitSize(words(t.replace(/[[\]]/g, "")).length), runs = []; let last = 0; const re = /\[\[([^\]]+?)\]\]/g; let m;
+        while ((m = re.exec(t))) { if (m.index > last) runs.push(R(t.slice(last, m.index), { size })); runs.push(s.reveal ? R(m[1], { size, b: true, u: true, color: acc }) : R(" ".repeat(Math.max(6, Math.round(m[1].length * 1.6))), { size, u: true, color: acc })); last = re.lastIndex; }
+        if (last < t.length) runs.push(R(t.slice(last), { size })); blocks.push([P(runs, { algn: "ctr", lh: 1.38 / 1.2 })]); ref("ctr"); break;
+      }
+      case "photo": case "art": {
+        const full = s.made === "photo" || !!s.img;
+        if (s.img) { const img = await getImg(s.img, { jpeg: true }); if (img) pic(c, FULL, img, { crop: cover(img, FULL), name: "Picture" }); }
+        else if (s.svg) { const img = await getImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.svg), { w: 1600, h: 900 }); if (img) pic(c, contain(img, { x: 0.1, y: 0.06, w: 0.8, h: 0.74 }), img, { name: "Illustration" }); }
+        if (full && s.caption) sp(c, FULL, { name: "Shade", txBox: false, fill: '<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:srgbClr val="000000"><a:alpha val="5000"/></a:srgbClr></a:gs><a:gs pos="35000"><a:srgbClr val="000000"><a:alpha val="5000"/></a:srgbClr></a:gs><a:gs pos="100000"><a:srgbClr val="000000"><a:alpha val="72000"/></a:srgbClr></a:gs></a:gsLst><a:lin ang="5400000" scaled="0"/></a:gradFill>' });
+        if (s.caption) { const cw = words(s.caption).length; blocks.push([P(R(s.caption, full ? { size: fitSize(cw, true) * 0.8, b: true, color: "#ffffff", font: "Literata" } : { size: 3.4, b: true }), { algn: full ? "l" : "ctr", lh: full ? 1.15 / 1.2 : 0 })]); anchor = "b"; }
+        ref("l"); break;
+      }
+      case "quote": blocks.push([P(R("“", { size: 10, font: "Literata", color: rgba(fg, 0.3) }), { algn: "ctr", lh: 0.6 })]); rich(s.text, { size: fitSize(w), b: true, font: head, lh: 1.38 / 1.2 }, "ctr"); ref("l"); break;
+      case "keyverse": rich(s.text, { size: fitSize(w) * 1.25, lh: 1.38 / 1.2 }, "ctr"); ref("ctr"); break;
+      case "scripture": rich(s.text, { size: fitSize(w), lh: 1.38 / 1.2 }, "l"); ref("r"); break;
+      default: rich(s.text, { size: fitSize(w), lh: 1.38 / 1.2 }, "l"); ref("l");
+    }
+    const paras = []; blocks.forEach((b, i) => b.forEach((p, j) => paras.push(j === 0 && i > 0 ? { ...p, spcBef: pt(2.6) } : p)));
+    if (paras.length) sp(c, box, { name: "Text", body: pxBody(paras, { anchor, fit: true }) });
+  }
+  // text read from a PowerPoint slide, back into PowerPoint's terms
+  const modelParas = tx => tx.paras.map(p => ({ algn: ["l", "ctr", "r", "just", "dist"].includes(p.algn) ? p.algn : null, lnSpc: p.lh ? p.lh / 1.2 : 0, spcBef: (p.spcBef || 0) * PT, marL: (p.marL || 0) * CX, indent: (p.indent || 0) * CX,
+    bullet: p.bullet ? (p.bullet === "#" ? { auto: true, color: p.buColor } : { char: p.bullet, color: p.buColor }) : null, endSz: (p.endFs || 0) * PT,
+    runs: p.runs.map(r => ({ text: r.text, sz: r.fs * PT, b: r.b, i: r.i, u: r.u, spc: (r.spc || 0) * PT, color: r.color, font: pxFont(r.font) })) }));
+  const modelBody = (tx, wrap = "p") => `<${wrap}:txBody>${pxBody(modelParas(tx), { anchor: { ctr: "ctr", b: "b" }[tx.anchor] || "t", ins: (tx.ins || [0, 0, 0, 0]).map(v => v * CX) })}</${wrap}:txBody>`;
+  async function model(c, m) {
+    if (m.bg && m.bg.img) { const img = await getImg(m.bg.img); if (img) bgPicture(c, img); } else bgColor(c, (m.bg && m.bg.color) || "#ffffff");
+    for (const it of m.items || []) {
+      try {
+        if (it.t === "img") { const img = await getImg(it.img); if (img) pic(c, it, img, { crop: it.crop, geom: it.geom }); }
+        else if (it.t === "box") {
+          let fill = it.fill ? pxSolid(it.fill) : "";
+          if (it.fillImg) { const img = await getImg(it.fillImg); if (img) fill = `<a:blipFill rotWithShape="1"><a:blip r:embed="${c.rel("../media/" + img.name)}"/><a:stretch><a:fillRect/></a:stretch></a:blipFill>`; }
+          const line = it.line && pxSolid(it.line.color) ? `<a:ln w="${E(Math.max(0, it.line.w * CX))}">${pxSolid(it.line.color)}</a:ln>` : "";
+          const id = ++c.id; c.xml.push(`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="Shape ${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr>${xfrm(it)}<a:prstGeom prst="${geomOk(it.geom)}"><a:avLst/></a:prstGeom>${fill || "<a:noFill/>"}${line || "<a:ln><a:noFill/></a:ln>"}</p:spPr>${it.text ? modelBody(it.text) : ""}</p:sp>`);
+        } else if (it.t === "line") {
+          const id = ++c.id; c.xml.push(`<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="${id}" name="Line ${id}"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr><p:spPr>${xfrm(it, `${it.fh ? ' flipH="1"' : ""}${it.fv ? ' flipV="1"' : ""}`)}<a:prstGeom prst="line"><a:avLst/></a:prstGeom><a:ln w="${E(Math.max(0, (it.lw || 0) * CX))}">${pxSolid(it.color) || pxSolid("#000000")}</a:ln></p:spPr></p:cxnSp>`);
+        } else if (it.t === "table" && it.rows && it.rows.length) {
+          const ncol = Math.max(it.cols.length, ...it.rows.map(r => r.length)), cols = Array.from({ length: ncol }, (_, k) => it.cols[k] || 1), tot = cols.reduce((a, b) => a + b, 0);
+          const W = E(it.w * CX), widths = cols.map(v => E(W * v / tot)); widths[ncol - 1] += W - widths.reduce((a, b) => a + b, 0);
+          const rowH = E(it.h * CY / it.rows.length), hcov = it.rows.map(() => new Array(ncol).fill(false));
+          it.rows.forEach((row, ri) => row.forEach((cell, ci) => { if (cell && cell.span > 1) for (let k = 1; k < cell.span && ci + k < ncol; k++) hcov[ri][ci + k] = true; }));
+          const rows = it.rows.map((row, ri) => `<a:tr h="${rowH}">${Array.from({ length: ncol }, (_, ci) => { const cell = row[ci];
+            const tb = cell && cell.text ? modelBody(cell.text, "a") : `<a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:endParaRPr lang="en-US"/></a:p></a:txBody>`;
+            if (!cell) return `<a:tc${hcov[ri][ci] ? ' hMerge="1"' : ' vMerge="1"'}>${tb}<a:tcPr/></a:tc>`;
+            return `<a:tc${cell.span > 1 ? ` gridSpan="${cell.span}"` : ""}${cell.rspan > 1 ? ` rowSpan="${cell.rspan}"` : ""}>${tb}<a:tcPr>${cell.fill ? pxSolid(cell.fill) : ""}</a:tcPr></a:tc>`; }).join("")}</a:tr>`).join("");
+          const id = ++c.id; c.xml.push(`<p:graphicFrame><p:nvGraphicFramePr><p:cNvPr id="${id}" name="Table ${id}"/><p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr><p:nvPr/></p:nvGraphicFramePr><p:xfrm><a:off x="${E(it.x * CX)}" y="${E(it.y * CY)}"/><a:ext cx="${W}" cy="${rowH * it.rows.length}"/></p:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table"><a:tbl><a:tblPr/><a:tblGrid>${widths.map(v => `<a:gridCol w="${v}"/>`).join("")}</a:tblGrid>${rows}</a:tbl></a:graphicData></a:graphic></p:graphicFrame>`);
+        }
+      } catch (e) { console.warn("Skipped one shape in the PowerPoint", e); }
+    }
+  }
+  // a slide read as plain words (title and points), with its first picture
+  async function plain(c, s) {
+    bgColor(c, "#1c2433");
+    const p0 = (s.images || [])[0], img = p0 && p0.blob ? await getImg(p0.blob) : null;
+    if (img) { pic(c, contain(img, FULL), img); sp(c, FULL, { name: "Shade", txBox: false, fill: '<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:srgbClr val="000000"><a:alpha val="0"/></a:srgbClr></a:gs><a:gs pos="15000"><a:srgbClr val="000000"><a:alpha val="0"/></a:srgbClr></a:gs><a:gs pos="100000"><a:srgbClr val="000000"><a:alpha val="78000"/></a:srgbClr></a:gs></a:gsLst><a:lin ang="5400000" scaled="0"/></a:gradFill>' }); }
+    const pt = v => v / 100 * PT, paras = [];
+    if (s.title) paras.push({ runs: [{ text: s.title, sz: pt(6), b: true, color: "#f3f1ea", font: "Literata" }], lnSpc: 1.12 / 1.2 });
+    (s.body || []).filter(Boolean).forEach((b, i) => paras.push({ runs: [{ text: b, sz: pt(3.1), color: "#c9cbd2" }], lnSpc: 1.35 / 1.2, bullet: { char: "•" }, marL: E(0.035 * CX), indent: -E(0.035 * CX), spcBef: i === 0 && s.title ? pt(2.2) : 0 }));
+    if (paras.length) sp(c, { x: 0.07, y: 0.06 * CX / CY, w: 0.86, h: 1 - 0.12 * CX / CY }, { body: pxBody(paras, { anchor: img ? "b" : "ctr", fit: true }) });
+  }
+
+  const notes = deckNotes(), slides = [];
+  for (let i = 0; i < S.slides.length; i++) {
+    const s = S.slides[i], c = ctx(); if (onStep) onStep(i + 1, S.slides.length);
+    if (s.made) await made(c, s);
+    else if (s.exact) { bgColor(c, "#ffffff"); const img = await getImg(s.exact); if (img) pic(c, contain(img, FULL), img, { name: "Slide picture" }); }
+    else if (s.model) await model(c, s.model);
+    else await plain(c, s);
+    slides.push({ c, hidden: !!s.hidden, notes: notes[i] || "" });
+  }
+
+  // the package around the slides: one blank layout, a plain theme, and a notes page
+  const z = new JSZip(), n = slides.length, title = S.meta.title || "Sermon";
+  const theme = name => `${PX_HEAD}<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="${name}"><a:themeElements><a:clrScheme name="Pulpit Binder"><a:dk1><a:srgbClr val="000000"/></a:dk1><a:lt1><a:srgbClr val="FFFFFF"/></a:lt1><a:dk2><a:srgbClr val="1C2433"/></a:dk2><a:lt2><a:srgbClr val="F3F1EA"/></a:lt2><a:accent1><a:srgbClr val="8A5D0B"/></a:accent1><a:accent2><a:srgbClr val="2F5D8A"/></a:accent2><a:accent3><a:srgbClr val="2F7A4B"/></a:accent3><a:accent4><a:srgbClr val="7A4A9A"/></a:accent4><a:accent5><a:srgbClr val="1F7A80"/></a:accent5><a:accent6><a:srgbClr val="B0456B"/></a:accent6><a:hlink><a:srgbClr val="2F5D8A"/></a:hlink><a:folHlink><a:srgbClr val="7A4A9A"/></a:folHlink></a:clrScheme><a:fontScheme name="Pulpit Binder"><a:majorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="Pulpit Binder"><a:fillStyleLst>${'<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'.repeat(3)}</a:fillStyleLst><a:lnStyleLst>${[9525, 25400, 38100].map(w => `<a:ln w="${w}" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln>`).join("")}</a:lnStyleLst><a:effectStyleLst>${"<a:effectStyle><a:effectLst/></a:effectStyle>".repeat(3)}</a:effectStyleLst><a:bgFillStyleLst>${'<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'.repeat(3)}</a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults/><a:extraClrSchemeLst/></a:theme>`;
+  const clrMap = 'bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"';
+  const lvl = (sz, font) => `<a:lvl1pPr marL="0" algn="l" rtl="0"><a:defRPr sz="${sz}" kern="1200"><a:solidFill><a:schemeClr val="tx1"/></a:solidFill><a:latin typeface="${font}"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:defRPr></a:lvl1pPr>`;
+  const types = [["/ppt/presentation.xml", PX_CT + "presentation.main+xml"], ["/ppt/slideMasters/slideMaster1.xml", PX_CT + "slideMaster+xml"], ["/ppt/slideLayouts/slideLayout1.xml", PX_CT + "slideLayout+xml"], ["/ppt/notesMasters/notesMaster1.xml", PX_CT + "notesMaster+xml"],
+    ["/ppt/theme/theme1.xml", "application/vnd.openxmlformats-officedocument.theme+xml"], ["/ppt/theme/theme2.xml", "application/vnd.openxmlformats-officedocument.theme+xml"], ["/ppt/presProps.xml", PX_CT + "presProps+xml"], ["/ppt/viewProps.xml", PX_CT + "viewProps+xml"], ["/ppt/tableStyles.xml", PX_CT + "tableStyles+xml"],
+    ["/docProps/core.xml", "application/vnd.openxmlformats-package.core-properties+xml"], ["/docProps/app.xml", "application/vnd.openxmlformats-officedocument.extended-properties+xml"]];
+  for (let i = 1; i <= n; i++) types.push([`/ppt/slides/slide${i}.xml`, PX_CT + "slide+xml"], [`/ppt/notesSlides/notesSlide${i}.xml`, PX_CT + "notesSlide+xml"]);
+  z.file("[Content_Types].xml", `${PX_HEAD}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="gif" ContentType="image/gif"/>${types.map(([p, t]) => `<Override PartName="${p}" ContentType="${t}"/>`).join("")}</Types>`);
+  z.file("_rels/.rels", pxRels([["rId1", "officeDocument", "ppt/presentation.xml"], ["rId2", "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties", "docProps/core.xml"], ["rId3", "extended-properties", "docProps/app.xml"]]));
+  const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+  z.file("docProps/core.xml", `${PX_HEAD}<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${xe(title)}</dc:title>${S.meta.speaker ? `<dc:creator>${xe(S.meta.speaker)}</dc:creator>` : ""}<dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`);
+  z.file("docProps/app.xml", `${PX_HEAD}<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Pulpit Binder</Application><Slides>${n}</Slides><Notes>${n}</Notes><HiddenSlides>${slides.filter(x => x.hidden).length}</HiddenSlides></Properties>`);
+  z.file("ppt/presentation.xml", `${PX_HEAD}<p:presentation ${PX_NS} saveSubsetFonts="1"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:notesMasterIdLst><p:notesMasterId r:id="rId2"/></p:notesMasterIdLst><p:sldIdLst>${slides.map((_, i) => `<p:sldId id="${256 + i}" r:id="rId${7 + i}"/>`).join("")}</p:sldIdLst><p:sldSz cx="${CX}" cy="${CY}"/><p:notesSz cx="6858000" cy="9144000"/><p:defaultTextStyle><a:defPPr><a:defRPr lang="en-US"/></a:defPPr>${lvl(1800, "+mn-lt")}</p:defaultTextStyle></p:presentation>`);
+  z.file("ppt/_rels/presentation.xml.rels", pxRels([["rId1", "slideMaster", "slideMasters/slideMaster1.xml"], ["rId2", "notesMaster", "notesMasters/notesMaster1.xml"], ["rId3", "theme", "theme/theme1.xml"], ["rId4", "presProps", "presProps.xml"], ["rId5", "viewProps", "viewProps.xml"], ["rId6", "tableStyles", "tableStyles.xml"], ...slides.map((_, i) => [`rId${7 + i}`, "slide", `slides/slide${i + 1}.xml`])]));
+  z.file("ppt/presProps.xml", `${PX_HEAD}<p:presentationPr ${PX_NS}/>`);
+  z.file("ppt/viewProps.xml", `${PX_HEAD}<p:viewPr ${PX_NS}><p:normalViewPr><p:restoredLeft sz="15620"/><p:restoredTop sz="80000"/></p:normalViewPr><p:gridSpacing cx="76200" cy="76200"/></p:viewPr>`);
+  z.file("ppt/tableStyles.xml", `${PX_HEAD}<a:tblStyleLst xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" def="{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}"/>`);
+  z.file("ppt/theme/theme1.xml", theme("Pulpit Binder"));
+  z.file("ppt/theme/theme2.xml", theme("Pulpit Binder Notes"));
+  z.file("ppt/slideMasters/slideMaster1.xml", `${PX_HEAD}<p:sldMaster ${PX_NS}><p:cSld><p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg><p:spTree>${PX_GRP}</p:spTree></p:cSld><p:clrMap ${clrMap}/><p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst><p:txStyles><p:titleStyle>${lvl(4400, "+mj-lt")}</p:titleStyle><p:bodyStyle>${lvl(2800, "+mn-lt")}</p:bodyStyle><p:otherStyle>${lvl(1800, "+mn-lt")}</p:otherStyle></p:txStyles></p:sldMaster>`);
+  z.file("ppt/slideMasters/_rels/slideMaster1.xml.rels", pxRels([["rId1", "slideLayout", "../slideLayouts/slideLayout1.xml"], ["rId2", "theme", "../theme/theme1.xml"]]));
+  z.file("ppt/slideLayouts/slideLayout1.xml", `${PX_HEAD}<p:sldLayout ${PX_NS} type="blank" preserve="1"><p:cSld name="Blank"><p:spTree>${PX_GRP}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`);
+  z.file("ppt/slideLayouts/_rels/slideLayout1.xml.rels", pxRels([["rId1", "slideMaster", "../slideMasters/slideMaster1.xml"]]));
+  const imgH = Math.min(3429000, E(6096000 / aspect)), imgW = E(imgH * aspect);
+  z.file("ppt/notesMasters/notesMaster1.xml", `${PX_HEAD}<p:notesMaster ${PX_NS}><p:cSld><p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg><p:spTree>${PX_GRP}<p:sp><p:nvSpPr><p:cNvPr id="2" name="Slide Image Placeholder 1"/><p:cNvSpPr><a:spLocks noGrp="1" noRot="1" noChangeAspect="1"/></p:cNvSpPr><p:nvPr><p:ph type="sldImg" idx="2"/></p:nvPr></p:nvSpPr><p:spPr><a:xfrm><a:off x="${E((6858000 - imgW) / 2)}" y="685800"/><a:ext cx="${imgW}" cy="${imgH}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln w="12700"><a:solidFill><a:prstClr val="black"/></a:solidFill></a:ln></p:spPr></p:sp><p:sp><p:nvSpPr><p:cNvPr id="3" name="Notes Placeholder 2"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="body" sz="quarter" idx="3"/></p:nvPr></p:nvSpPr><p:spPr><a:xfrm><a:off x="685800" y="${685800 + imgH + 228600}"/><a:ext cx="5486400" cy="${9144000 - 685800 - imgH - 228600 - 685800}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr vert="horz" lIns="91440" tIns="45720" rIns="91440" bIns="45720" rtlCol="0"/><a:lstStyle/><a:p><a:endParaRPr lang="en-US"/></a:p></p:txBody></p:sp></p:spTree></p:cSld><p:clrMap ${clrMap}/><p:notesStyle>${lvl(1200, "+mn-lt")}</p:notesStyle></p:notesMaster>`);
+  z.file("ppt/notesMasters/_rels/notesMaster1.xml.rels", pxRels([["rId1", "theme", "../theme/theme2.xml"]]));
+  slides.forEach(({ c, hidden, notes: nt }, i) => {
+    const k = i + 1;
+    z.file(`ppt/slides/slide${k}.xml`, `${PX_HEAD}<p:sld ${PX_NS}${hidden ? ' show="0"' : ""}><p:cSld>${c.bg}<p:spTree>${PX_GRP}${c.xml.join("")}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`);
+    z.file(`ppt/slides/_rels/slide${k}.xml.rels`, pxRels([["rId1", "slideLayout", "../slideLayouts/slideLayout1.xml"], ...c.rels.map((t, j) => [`rId${j + 2}`, "image", t]), [`rId${c.rels.length + 2}`, "notesSlide", `../notesSlides/notesSlide${k}.xml`]]));
+    const paras = nt ? nt.split(/\n+/).map(t => t.trim()).filter(Boolean).map(t => `<a:p><a:r><a:rPr lang="en-US" dirty="0"/><a:t>${xe(t)}</a:t></a:r></a:p>`).join("") : '<a:p><a:endParaRPr lang="en-US"/></a:p>';
+    z.file(`ppt/notesSlides/notesSlide${k}.xml`, `${PX_HEAD}<p:notes ${PX_NS}><p:cSld><p:spTree>${PX_GRP}<p:sp><p:nvSpPr><p:cNvPr id="2" name="Slide Image Placeholder 1"/><p:cNvSpPr><a:spLocks noGrp="1" noRot="1" noChangeAspect="1"/></p:cNvSpPr><p:nvPr><p:ph type="sldImg" idx="2"/></p:nvPr></p:nvSpPr><p:spPr/></p:sp><p:sp><p:nvSpPr><p:cNvPr id="3" name="Notes Placeholder 2"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr><p:ph type="body" idx="3"/></p:nvPr></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/>${paras}</p:txBody></p:sp></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:notes>`);
+    z.file(`ppt/notesSlides/_rels/notesSlide${k}.xml.rels`, pxRels([["rId1", "notesMaster", "../notesMasters/notesMaster1.xml"], ["rId2", "slide", `../slides/slide${k}.xml`]]));
+  });
+  media.forEach(([name, blob]) => z.file("ppt/media/" + name, blob));
+  return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation", compression: "DEFLATE" });
+}
+let pptxBusy = false;
+async function savePptx(btn) {
+  if (pptxBusy) return;
+  if (!S.slides.length) { toast("There are no slides to save yet. Make some from the manuscript, or drop a .pptx in Details."); return; }
+  if (!window.JSZip) { toast("The PowerPoint writer did not load. Check your connection and reload."); return; }
+  if (!downloads) { toast("Saving files is not available in this view."); return; }
+  pptxBusy = true; const label = btn ? btn.textContent : ""; if (btn) btn.disabled = true;
+  try {
+    const blob = await deckPptx((i, n) => { if (btn) btn.textContent = `Building slide ${i} of ${n}…`; });
+    if (btn) btn.textContent = label;
+    try { await downloads.save({ filename: `${matSlug()}-slides.pptx`, data: blob }); toast("PowerPoint saved"); }
+    catch (e) { if (e && e.code !== "declined") toast(e && e.code === "extension_not_enabled" ? "Saving PowerPoint files is turned off in this view." : "The PowerPoint could not be saved here."); }
+  } catch (e) { console.error(e); toast("Couldn't build the PowerPoint: " + ((e && e.message) || e)); }
+  if (btn) { btn.textContent = label; btn.disabled = false; }
+  pptxBusy = false;
 }
 function thBindOnce() {
   if (thBindOnce.done) return; thBindOnce.done = true;
@@ -7692,7 +7940,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
-  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; matSaveState(); }).catch(() => {});
+  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
 const setCollapsed = c => { const h = $("header.top"); h.classList.toggle("collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
 $("#btn-collapse").onclick = () => setCollapsed(!$("header.top").classList.contains("collapsed"));
