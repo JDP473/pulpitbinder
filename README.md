@@ -13,6 +13,7 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
   - **Bindings:** which slide goes with which part of the text.
   - **Edit manuscript:** rich text manuscript with headings H1 to H4, highlights, pauses, slide cues, and Scripture sections (type a reference, press Tab, choose among favorite translations). Slides sit in a column beside the text and stay in sync. Side panel, which you can drag wider, with Claude's suggestions, an outline view (auto outline, add headings, and Write, which drafts a section's text with Claude from your prompt and places it under that heading), and the Text Study. Highlight text or use a Scripture section to make new slides (quote, key verse, big idea, summary points, fill in the blank, question, Canva illustration, photo).
 - **Present:** the manuscript scrolls and the matching slide follows along. Works on phones, with smaller slides so the text leads.
+- **Materials:** slide themes (Claude proposes colors, typefaces, a texture, and a Canva header picture from the sermon's text; previews on the sermon's own words; styles new slides, restyles made slides, adds title and Scripture slides, saves backgrounds), the bulletin notes page, social invitations, and quote cards.
 - **Analysis:** word count, timing, passages cited, recurring words, voice, as-preached comparison, share text and chapters, and Claude's substance analysis.
 
 ## Repository layout

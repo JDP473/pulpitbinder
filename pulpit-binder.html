@@ -1,7 +1,7 @@
 <title>Pulpit Binder</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@600;700&family=Cormorant+Garamond:wght@500;600;700&family=DM+Serif+Display&family=Lora:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Montserrat:wght@500;700&family=Oswald:wght@500;600&family=Inter:wght@400;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 /* Layout: a working bench (Build), a pulpit view (Present: manuscript left, slide right), and a study sheet (Analysis). */
@@ -171,17 +171,26 @@ main{padding-block:18px 40px}
 @media (pointer:coarse){.sel-pop button{padding:9px 14px;font-size:14px}}
 /* slides made in the app: colors come from the deck, set on each slide */
 .slide.made .mk{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:2.6cqw;padding:6cqw 8cqw}
-.slide.made .mk-text{font-family:var(--f-read);line-height:1.38;text-wrap:pretty}
+.slide.made .mk-text{font-family:var(--mk-body,var(--f-read));line-height:1.38;text-wrap:pretty}
 .slide.made-quote .mk-text{font-weight:600;text-align:center;text-wrap:balance}
 .slide.made-quote .mk::before{content:"\201C";font-family:var(--f-read);font-size:14cqw;line-height:.5;opacity:.3;text-align:center;height:5cqw}
 .slide.made .mk-ref{font:700 2.3cqw/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase}
 .slide.made-scripture .mk-ref{align-self:flex-end}
 .slide.made .vn{font:700 .52em/1 var(--f-ui);vertical-align:.7em;margin:0 .18em 0 .05em}
 .slide.made-statement .mk-text,.slide.made-question .mk-text,.slide.made-keyverse .mk-text,.slide.made-blanks .mk-text{text-align:center;text-wrap:balance}
-.slide.made-statement .mk-text{font-weight:700;line-height:1.15}
+.slide.made-statement .mk-text{font-weight:700;line-height:1.15;font-family:var(--mk-head,var(--f-read))}
 .slide.made-statement .mk-ref,.slide.made-keyverse .mk-ref,.slide.made-blanks .mk-ref{align-self:center}
 .slide.made .mk-kicker{font:700 2.2cqw/1 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;text-align:center}
-.slide.made .mk-title{font:700 5.2cqw/1.15 var(--f-read);text-wrap:balance}
+.slide.made .mk-title{font:700 5.2cqw/1.15 var(--mk-head,var(--f-read));text-wrap:balance}
+.slide.made .mk-num,.slide.made-point .mk-text,.slide.made-quote .mk-text{font-family:var(--mk-head,var(--f-read))}
+.slide.made .mk-hdr{position:absolute;left:0;top:0;width:100%;height:58%;object-fit:cover;max-width:none}
+.slide.made .mk-hdr-fade{position:absolute;left:0;right:0;top:28%;height:31%;background:linear-gradient(to bottom,transparent,var(--mk-bg))}
+.slide.made-title .mk{justify-content:center;text-align:center;z-index:1}
+.slide.made-title .mk.has-hdr{justify-content:flex-end;padding-bottom:7cqw}
+.slide.made-title .mk-title{font-size:7cqw;line-height:1.08}
+.slide.made-title .mk-title.is-sec{font-size:5.6cqw}
+.slide.made-title .mk-kicker{font-size:2cqw}
+.slide.made-title .mk-ref{align-self:center;font-size:2.4cqw}
 .slide.made .mk-points{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1.6cqw;font:500 3.6cqw/1.3 var(--f-ui)}
 .slide.made .mk-points li{display:flex;gap:1.6cqw;align-items:baseline}
 .slide.made .mk-points li::before{content:"";flex:none;width:1.4cqw;height:1.4cqw;border-radius:50%;background:var(--acc);transform:translateY(-.3cqw)}
@@ -415,6 +424,26 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 .nx-ref{font:600 12.5px var(--f-mono);color:var(--accent)}
 .nx-src{font:600 10px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--sunk);border-radius:4px;padding:3px 5px;margin-left:6px;vertical-align:1px}
 @media (pointer:coarse){.nx-opt{padding:13px 12px}}
+/* slide themes */
+.th-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:8px}
+.th-card{display:flex;flex-direction:column;gap:5px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.th-card:hover{border-color:var(--muted)}
+.th-card[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.th-sw{display:flex;gap:0;border-radius:6px;overflow:hidden;height:22px;border:1px solid var(--line)}
+.th-sw i{flex:1}
+.th-ct{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.th-ct b{font-family:var(--f-read)}
+.th-fonts{font-size:11.5px;color:var(--muted)}
+.th-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:900px){.th-grid{grid-template-columns:minmax(0,1fr)}}
+.th-edit,.th-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+.th-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.th-col{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer}
+.th-col input{width:44px;flex:none}
+.th-pic{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.th-prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.th-fig{margin:0;display:flex;flex-direction:column;gap:4px}
+.th-fig .slide{border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 /* deleting sermons */
 .del-card{width:min(620px,100%)}
 .del-tools{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
@@ -1260,6 +1289,21 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
       <div class="panel mat-brand">
         <div class="mat-brand-id"><div class="mat-brand-logo" id="mat-brand-logo" aria-hidden="true"></div><div class="mat-brand-text"><b id="mat-brand-name"></b><span class="hint" id="mat-brand-sub"></span></div></div>
         <div class="mat-brand-act"><button type="button" class="btn" id="mat-edit-brand">Edit branding</button><button type="button" class="btn primary" id="mat-all" hidden>Save all as .zip</button></div>
+      </div>
+
+      <div class="panel" id="mat-theme">
+        <div class="bind-head"><h2>Slide theme</h2><div class="spacer"></div><span class="hint">The look of the slides made here, drawn from this sermon's text</span></div>
+        <div class="mat-act"><button type="button" class="btn primary" id="th-ai">Suggest themes with Claude</button><button type="button" class="btn" id="th-local">Themes from my slides and branding</button></div>
+        <div class="hint" id="th-status" aria-live="polite"></div>
+        <div class="th-list" id="th-list" role="radiogroup" aria-label="Themes"></div>
+        <div class="th-grid">
+          <div class="th-edit" id="th-edit"></div>
+          <div class="th-right">
+            <div class="th-prev" id="th-prev" aria-label="This sermon's slides in the theme"></div>
+            <div class="mat-act"><button type="button" class="btn primary" id="th-use">Use for new slides</button><button type="button" class="btn" id="th-restyle">Restyle slides made here</button><button type="button" class="btn" id="th-add-title">Add a title slide</button><button type="button" class="btn" id="th-add-sc">Add Scripture slides</button><button type="button" class="btn" id="th-save">Save backgrounds (.zip)</button></div>
+            <div class="hint">New slides you make from the manuscript (quotes, points, Scripture, title and section slides) take this theme. Backgrounds save as 1920 × 1080 pictures for ProPresenter, PowerPoint, or Keynote.</div>
+          </div>
+        </div>
       </div>
 
       <div class="panel" id="mat-bulletin">
@@ -4518,7 +4562,8 @@ $("#settings-form").addEventListener("submit", e => {
 const colorRGB = c => { const m = String(c || "").match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/) || String(c || "").match(/#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i); if (!m) return null; return m[0][0] === "#" ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [+m[1], +m[2], +m[3]]; };
 const lum = rgb => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
 const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-function deckTheme() {
+function deckTheme(raw) {
+  const chosen = !raw && S.mat && S.mat.slideTheme; if (chosen && chosen.bg) return { ...chosen };   // a theme chosen in Materials styles new slides
   const counts = new Map(), runs = [];
   for (const s of S.slides) {
     if (s.made) continue;
@@ -4611,13 +4656,21 @@ function blanksHtml(t, reveal, accent) {
 }
 function renderMade(box, s) {
   const th = s.theme || { bg: "#1c2433", fg: "#f3f1ea", accent: "#e2b55e" };
-  box.classList.add("made", "made-" + s.made); box.style.background = th.bg; box.style.color = th.fg;
+  box.classList.add("made", "made-" + s.made); box.style.background = themeBg(th); box.style.color = th.fg; box.style.setProperty("--mk-bg", th.bg);
+  if (th.head) box.style.setProperty("--mk-head", fontStack(th.head)); if (th.body) box.style.setProperty("--mk-body", fontStack(th.body));
   const wrap = el("div", { class: "mk" });
   const refLine = () => { if (!s.ref) return; const r = el("div", { class: "mk-ref", text: s.ver ? `${s.ref} · ${s.ver}` : s.ref }); r.style.color = th.accent; wrap.append(r); };
   const textBlock = (html, size, cls = "") => { const d = el("div", { class: "mk-text " + cls }); d.innerHTML = html; d.style.fontSize = size + "cqw"; d.querySelectorAll(".vn").forEach(v => { v.style.color = th.accent; }); wrap.append(d); return d; };
   const w = words(scPlainText(s.text || "")).length;
   switch (s.made) {
     case "statement": textBlock(esc(s.text || ""), fitSize(w, true)); refLine(); break;
+    case "title": {   // a title or section slide, with the theme's header picture when there is one
+      const pic = s.img || th.img; if (pic) { box.append(el("img", { class: "mk-hdr", src: blobURL(pic), alt: "" }), el("div", { class: "mk-hdr-fade" })); wrap.classList.add("has-hdr"); }
+      if (s.kicker) { const k = el("div", { class: "mk-kicker", text: s.kicker }); k.style.color = th.accent; wrap.append(k); }
+      wrap.append(el("div", { class: "mk-title" + (s.section ? " is-sec" : ""), text: s.title || "" }));
+      if (s.ref) { const r = el("div", { class: "mk-ref", text: s.ref }); r.style.color = th.accent; wrap.append(r); }
+      break;
+    }
     case "question": { const k = el("div", { class: "mk-kicker", text: s.kicker || "Ask yourself" }); k.style.color = th.accent; wrap.append(k); textBlock(esc(s.text || ""), fitSize(w) * 1.15); break; }
     case "points": {
       const t = el("div", { class: "mk-title", text: s.title || "" }); wrap.append(t);
@@ -7138,7 +7191,7 @@ function renderMaterials() {
   const m = matM();
   if (m.outline == null) { m.outline = matLocalOutline(); if (!m.bigIdea && S.ai && S.ai.bigIdea) m.bigIdea = S.ai.bigIdea; }
   if (!m.quotes.length && !m.quotesDone) { m.quotes = matLocalQuotes(); m.quotes.slice(0, 3).forEach(q => { q.on = true; }); m.quotesDone = true; m.qSel = m.quotes[0] && m.quotes[0].id; }
-  matBrandStrip(); matFill(); matBind();
+  matBrandStrip(); matFill(); matBind(); thBindOnce(); renderThemePanel();
   matSaveState(); matDraw();
 }
 function matBind() {
@@ -7193,6 +7246,218 @@ function readBrandFields() {
 $("#set-logo-pick").onclick = () => $("#set-logo-file").click();
 $("#set-logo-file").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { setDraft.brandLogo = await logoFromFile(f); setLogoBox(); } catch (err) { $("#set-msg").textContent = err && err.message === "big" ? "That logo is too detailed to keep small. Try a simpler version." : "Couldn't read that picture. Try a PNG or SVG."; } };
 $("#set-logo-clear").onclick = () => { setDraft.brandLogo = ""; setLogoBox(); };
+
+/* ---------------- Slide themes ---------------- */
+/* A theme is the look of the slides made in Pulpit Binder: colors, a texture, a heading and a body typeface, and an
+   optional header picture for title and section slides. Claude proposes themes from the sermon's text and mood; the
+   chosen one styles new slides, can restyle the ones already made, and saves as backgrounds for other software. */
+const FONTS = {
+  "Literata": '"Literata", Georgia, serif', "Playfair Display": '"Playfair Display", Georgia, serif', "Cormorant Garamond": '"Cormorant Garamond", Garamond, Georgia, serif',
+  "DM Serif Display": '"DM Serif Display", Georgia, serif', "Lora": '"Lora", Georgia, serif', "Source Serif 4": '"Source Serif 4", Georgia, serif',
+  "Montserrat": '"Montserrat", "Segoe UI", sans-serif', "Oswald": '"Oswald", "Arial Narrow", sans-serif', "Inter": '"Inter", "Segoe UI", sans-serif', "Schibsted Grotesk": '"Schibsted Grotesk", "Segoe UI", sans-serif'
+};
+const TEXTURES = { plain: "Plain", gradient: "Soft gradient", vignette: "Glow", lines: "Fine lines", dots: "Paper dots" };
+const fontStack = f => FONTS[f] || FONTS.Literata;
+const hexOf = c => { const r = stHex(c); return "#" + r.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0")).join(""); };
+const rgba = (c, a) => { const [r, g, b] = stHex(c); return `rgba(${r},${g},${b},${a})`; };
+function themeBg(th) {
+  const bg = th.bg || "#1c2433", bg2 = th.bg2 || stMix(th.fg || "#ffffff", bg, 0.14);
+  switch (th.tex) {
+    case "gradient": return `linear-gradient(160deg, ${bg2}, ${bg} 72%)`;
+    case "vignette": return `radial-gradient(ellipse at 50% 38%, ${bg2}, ${bg} 74%)`;
+    case "lines": return `repeating-linear-gradient(135deg, ${rgba(th.fg || "#fff", 0.045)} 0 0.15cqw, transparent 0.15cqw 1.4cqw), linear-gradient(160deg, ${bg2}, ${bg} 80%)`;
+    case "dots": return `radial-gradient(${rgba(th.fg || "#fff", 0.07)} 0.09cqw, transparent 0.12cqw) 0 0 / 1.1cqw 1.1cqw, ${bg}`;
+    default: return bg;
+  }
+}
+/* a theme Claude or a person typed, made safe and readable: hex colors, known fonts, enough contrast */
+function cleanTheme(t, base = {}) {
+  const hx = v => /^#?[0-9a-f]{6}$/i.test(String(v || "").trim()) ? "#" + String(v).trim().replace("#", "").toLowerCase() : null;
+  const th = { id: t.id || uid(), name: cleanStr(t.name, 40) || base.name || "Theme", mood: cleanStr(t.mood, 160), why: cleanStr(t.why, 200),
+    bg: hx(t.bg) || base.bg || "#1c2433", bg2: hx(t.bg2) || base.bg2 || "", fg: hx(t.fg) || base.fg || "#f3f1ea", accent: hx(t.accent) || base.accent || "#e2b55e",
+    head: FONTS[t.head] ? t.head : base.head || "Literata", body: FONTS[t.body] ? t.body : base.body || "Literata", tex: TEXTURES[t.tex] ? t.tex : base.tex || "gradient",
+    imagery: cleanStr(t.imagery, 500), img: t.img || null, link: t.link || "" };
+  const bgR = stHex(th.bg), dark = lum(bgR) < 0.35;
+  if (contrast(stHex(th.fg), bgR) < 7) th.fg = dark ? "#f5f2ea" : "#1b1f27";
+  let a = th.accent, g = 0; while (contrast(stHex(a), bgR) < 3 && g++ < 14) a = stMix(a, dark ? "#ffffff" : "#000000", 0.8); th.accent = hexOf(a);
+  if (!th.bg2) th.bg2 = stMix(th.fg, th.bg, dark ? 0.12 : 0.06);
+  return th;
+}
+/* themes made without Claude: from the deck, from the church's branding, and two classics */
+function localThemes() {
+  const out = [], br = brandInfo();
+  if (S.slides.some(x => !x.made && x.model)) { const d = deckTheme(true); out.push(cleanTheme({ name: "From your slides", mood: "The colors of the deck you loaded.", bg: hexOf(d.bg), fg: hexOf(d.fg), accent: hexOf(d.accent), tex: "gradient", head: "Literata", body: "Literata" })); }
+  if (br.color) out.push(cleanTheme({ name: "Church colors", mood: "Your accent color on a deep, quiet background.", bg: stMix(br.color, "#0e1219", 0.18), fg: "#f5f2ea", accent: stMix(br.color, "#ffffff", 0.75), tex: "vignette", head: "Playfair Display", body: "Source Serif 4" }));
+  out.push(cleanTheme({ name: "Lamplight", mood: "Warm and reverent, dark with a gold accent.", bg: "#171310", bg2: "#3a2a17", fg: "#f6efe2", accent: "#e2b55e", tex: "vignette", head: "Cormorant Garamond", body: "Lora" }));
+  out.push(cleanTheme({ name: "Morning page", mood: "Light, clean, and easy to read in a bright room.", bg: "#f5f1e8", bg2: "#ffffff", fg: "#1d2230", accent: "#8a5d0b", tex: "dots", head: "DM Serif Display", body: "Source Serif 4" }));
+  return out;
+}
+const thM = () => { const m = matM(); m.themes = Array.isArray(m.themes) ? m.themes : []; return m; };
+const curTheme = () => { const m = thM(); return m.themes.find(t => t.id === m.themeSel) || m.themes[0] || null; };
+
+/* sample slides from this sermon, to see the theme on real words */
+function themeSamples(th) {
+  const m = S.meta, items = (() => { try { return outlineModel().items; } catch { return []; } })();
+  const pts = items.filter(i => i.lv === 2), firstPt = pts[0] || items[0];
+  const sc = [...ed.querySelectorAll(".pb-scripture")].map(readSc).find(d => d.texts[d.ver]) || null;
+  let scr = null;
+  if (sc) { const units = scUnits(sc).slice(0, 2); if (units.length) scr = { made: "scripture", text: units.map(u => u.t).join("").trim(), ref: unitRef(bookOf(sc.ref), units[0], units[units.length - 1]), ver: sc.ver }; }
+  if (!scr) scr = { made: "scripture", text: m.text ? `{{1}} Load ${m.text} as a Scripture section in the manuscript to see it here.` : "{{1}} Add a Scripture section to the manuscript to see a passage here.", ref: m.text || "", ver: settings.defVer };
+  const ai = S.ai && !S.ai.error ? S.ai : null, qm = (matM().quotes || []).find(q => q.on) || (matM().quotes || [])[0];
+  const quote = qm ? qm.text : (sections.map(s => (s.text.match(/[^.!?]{30,140}[.!?]/) || [])[0]).find(Boolean) || "Faith is walking by the light you have.");
+  return [
+    { made: "title", kicker: m.series ? tagsOf(m)[0] : "", title: m.title || "Sermon title", ref: m.text || "", label: "Title" },
+    scr && { ...scr, label: "Scripture" },
+    { made: "title", kicker: firstPt && firstPt.num ? `Point ${firstPt.num.replace(".", "")}` : "Main point", title: (firstPt && firstPt.text) || (ai && ai.bigIdea) || "The next faithful step", ref: "", section: true, label: "Section header" },
+    { made: "quote", text: quote, ref: "", label: "Quote" },
+    { made: "points", title: "This week", points: (() => { const a = (ai && ai.applicationPoints || []).slice(0, 3); if (a.length) return a; const b = pts.slice(0, 3).map(p => p.text); return b.length ? b : ["Read the passage each morning", "Ask what it shows you", "Take the next faithful step"]; })(), label: "Points" },
+    { made: "question", text: (matLines(matM().questions)[0]) || "What is the next faithful step this light shows you today?", kicker: "Ask yourself", label: "Question" }
+  ].filter(Boolean).map(x => ({ ...x, theme: th, title: x.title || "", body: [] }));
+}
+function renderThemePanel() {
+  const m = thM(), list = $("#th-list"); list.replaceChildren();
+  if (!m.themes.length) m.themes = localThemes();
+  if (!m.themes.some(t => t.id === m.themeSel)) m.themeSel = m.themes[0] && m.themes[0].id;
+  m.themes.forEach(t => {
+    const on = t.id === m.themeSel, used = m.slideTheme && m.slideTheme.id === t.id;
+    const sw = el("span", { class: "th-sw" }, ...[t.bg, t.bg2, t.fg, t.accent].map(c => { const i = el("i"); i.style.background = c; return i; }));
+    list.append(el("button", { type: "button", class: "th-card", role: "radio", "aria-checked": String(on), onclick: () => { m.themeSel = t.id; save(); renderThemePanel(); } },
+      sw, el("span", { class: "th-ct" }, el("b", { text: t.name }), used ? el("span", { class: "chip accent", text: "In use" }) : null), t.mood ? el("span", { class: "hint", text: t.mood }) : null,
+      el("span", { class: "th-fonts", text: `${t.head} · ${t.body}` })));
+  });
+  const th = curTheme(); const ed2 = $("#th-edit"), prev = $("#th-prev"); ed2.replaceChildren(); prev.replaceChildren();
+  if (!th) return;
+  // the look
+  const color = (label, key) => { const i = el("input", { type: "color", id: "th-" + key, class: "brand-color", "aria-label": label }); i.value = hexOf(th[key]); i.oninput = () => { th[key] = i.value; thChanged(true); }; return el("label", { class: "th-col", for: "th-" + key }, i, el("span", { text: label })); };
+  const sel = (label, key, opts) => { const s = el("select", { id: "th-" + key, class: "sm" }, ...Object.entries(opts).map(([v, t]) => el("option", { value: v, text: typeof t === "string" ? t : v }))); s.value = th[key]; s.onchange = () => { th[key] = s.value; thChanged(true); }; return el("div", { class: "field" }, el("label", { for: "th-" + key, text: label }), s); };
+  const name = el("input", { type: "text", id: "th-name", maxlength: "40" }); name.value = th.name; name.oninput = () => { th.name = name.value; thChanged(false); };
+  ed2.append(el("div", { class: "field" }, el("label", { for: "th-name", text: "Theme name" }), name),
+    el("div", { class: "th-cols" }, color("Background", "bg"), color("Second background", "bg2"), color("Text", "fg"), color("Accent", "accent")),
+    el("div", { class: "row2" }, sel("Headings", "head", Object.fromEntries(Object.keys(FONTS).map(f => [f, f]))), sel("Body text", "body", Object.fromEntries(Object.keys(FONTS).map(f => [f, f])))),
+    sel("Texture", "tex", TEXTURES));
+  // the header picture
+  const pic = el("div", { class: "th-pic" });
+  const ta = el("textarea", { id: "th-img-p", rows: "2", placeholder: "What the header picture shows, for example: a single oil lamp on a stone path at dusk" }); ta.value = th.imagery || ""; ta.oninput = () => { th.imagery = ta.value; save(); };
+  pic.append(el("label", { class: "set-h", for: "th-img-p", text: "Header picture for title and section slides" }), ta,
+    el("div", { class: "mat-act" },
+      el("button", { type: "button", class: "btn", id: "th-paint", text: th.img ? "Paint another with Canva" : "Paint with Canva", disabled: mcpNs && !thBusy ? null : "", onclick: thPaint }),
+      el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
+      th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; thChanged(true); } }) : null,
+      th.link ? el("a", { class: "btn ghost", href: th.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }) : null));
+  if (!mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
+  if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), "Canva is painting… usually under a minute"));
+  ed2.append(pic);
+  // previews on this sermon's own words
+  themeSamples(th).forEach(sl => { const f = el("div", { class: "slide" }); f.style.aspectRatio = String(S.aspect || 16 / 9); renderMade(f, sl); prev.append(el("figure", { class: "th-fig" }, f, el("figcaption", { class: "hint", text: sl.label }))); });
+  const made = S.slides.filter(x => x.made).length, inUse = m.slideTheme && m.slideTheme.id === th.id;
+  $("#th-use").textContent = inUse ? "In use for new slides" : "Use for new slides"; $("#th-use").disabled = false;
+  $("#th-restyle").textContent = made ? `Restyle the ${made} slide${made === 1 ? "" : "s"} made here` : "Restyle slides made here"; $("#th-restyle").disabled = !made;
+  const sc = [...ed.querySelectorAll(".pb-scripture")].map(readSc).find(d => d.texts[d.ver]);
+  $("#th-add-sc").textContent = sc ? `Add Scripture slides for ${sc.ref}` : "Add Scripture slides"; $("#th-add-sc").disabled = !sc;
+  $("#th-save").hidden = !downloads; $("#th-ai").hidden = !sample;
+}
+let thT = 0, thBusy = false;
+function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
+async function thAsk() {
+  if (!sample) return;
+  const m = S.meta, ai = S.ai && !S.ai.error ? S.ai : null, heads = (() => { try { return outlineModel().items.map(i => `${i.num || ""} ${i.text}`.trim()); } catch { return []; } })();
+  const v = await matAsk(`You are designing the look of the slides for one sermon in a church of Christ: reverent, simple, readable from the back of the room, never flashy or trendy. Propose three distinct slide themes that fit this sermon's text, imagery, and mood.
+
+Sermon: ${m.title || "(untitled)"}${m.text ? ", text " + m.text : ""}${m.series ? ", series " + m.series : ""}.
+${ai ? `Big idea: ${ai.bigIdea || ""}. Themes: ${(ai.themes || []).join(", ")}. Tone: ${(ai.tone || []).join(", ")}.` : ""}
+${heads.length ? "Outline: " + heads.join(" / ") : ""}
+Opening of the manuscript: """${S.transcript.slice(0, 2500)}"""
+
+Rules: background and text must contrast strongly (at least 7 to 1); the accent must stand out from the background; at most one light theme. Fonts must come from this list exactly: ${Object.keys(FONTS).join(", ")}. Texture is one of: ${Object.keys(TEXTURES).join(", ")}. The imagery is a description for an image generator of one header picture drawn from the passage's own imagery: concrete, reverent, no words or letters, no faces in close-up, nothing that depicts God the Father.
+
+Return ONLY JSON: {"themes":[{"name":"2 or 3 words","mood":"one sentence","why":"one sentence on how it fits the text","bg":"#rrggbb","bg2":"#rrggbb a second background for the texture","fg":"#rrggbb","accent":"#rrggbb","head":"font","body":"font","tex":"texture","imagery":"1 to 2 sentences"}]}`, "th", "#th-status", [$("#th-ai")]);
+  if (!v) return;
+  const got = (Array.isArray(v.themes) ? v.themes : []).slice(0, 4).map(t => cleanTheme(t)).map(t => ({ ...t, src: "claude" }));
+  if (!got.length) { $("#th-status").textContent = "Claude didn't return any themes. Try again."; return; }
+  const mm = thM(); mm.themes = [...got, ...mm.themes.filter(t => t.src !== "claude" || (mm.slideTheme && mm.slideTheme.id === t.id))].slice(0, 9); mm.themeSel = got[0].id; save(); renderThemePanel();
+}
+/* Canva paints the header picture; the same connection the Illustration slide uses */
+async function canvaImage(prompt, onLink) {
+  const intent = "Make a header picture for sermon slides in Pulpit Binder";
+  const start = await mcpNs.callTool("Canva", "generate-image", { prompt, aspectRatio: "LANDSCAPE_16_9", user_intent: intent });
+  let img = findImage(start), link = findLink(start);
+  const p = start && (start.structuredContent || start.payload); const jobId = (p && (p.jobId || p.job_id || (p.job && p.job.id))) || (JSON.stringify(p || "").match(/"job_?[Ii]d"\s*:\s*"([^"]+)"/) || [])[1];
+  const t0 = Date.now();
+  while (!img && jobId && Date.now() - t0 < 150000) {
+    await new Promise(r => setTimeout(r, 3000));
+    const res = await mcpNs.callTool("Canva", "get-generate-image-job", { jobId, user_intent: intent });
+    img = findImage(res); link = findLink(res) || link;
+    const st = jobStatus(res); if (/FAIL/.test(st)) throw { code: "canva_failed" };
+    if (st === "SUCCESS" && !img && !link && Date.now() - t0 > 60000) break;
+  }
+  if (onLink) onLink(link);
+  if (!img) throw { code: link ? "no_inline" : "timeout" };
+  const bin = atob(img.data), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: img.mime });
+}
+async function thStoreImg(blob) { const small = await shrinkImage(blob, 1920); return (cdb && cassets ? await upBlob(small).catch(() => null) : null) || small; }
+async function thPaint() {
+  const th = curTheme(); if (!th || !mcpNs || thBusy) return;
+  const prompt = `${(th.imagery || "").trim() || `A reverent picture drawn from ${S.meta.text || "the sermon's passage"}`}. Wide header image for church worship slides, ${th.tex === "plain" ? "simple" : "soft"} light, colors in harmony with ${th.bg} and ${th.accent}, generous empty space, no words or letters.`;
+  thBusy = true; renderThemePanel();
+  try { const blob = await canvaImage(prompt, l => { th.link = l || th.link; }); th.img = await thStoreImg(blob); toast("Header picture in place"); }
+  catch (e) { toast(e && e.code === "server_not_connected" ? "Canva isn't connected in your Claude settings." : e && e.code === "not_granted" ? "This page wasn't allowed to use Canva." : e && e.code === "no_inline" ? "Canva made the picture but didn't send it here. Open it in Canva, download it, and use Use my own picture." : "Canva couldn't make that picture. Try different words."); }
+  thBusy = false; thChanged(true);
+}
+function thOwnPic() {
+  const th = curTheme(); if (!th) return;
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
+  inp.onchange = async () => { const f = inp.files[0]; if (!f) return; try { th.img = await thStoreImg(f); th.link = ""; thChanged(true); } catch { toast("Couldn't read that picture. Try a JPG or PNG."); } };
+  inp.click();
+}
+/* backgrounds as 1920 x 1080 pictures, for ProPresenter, PowerPoint, or Keynote */
+async function thBackground(th, kind) {
+  const W = 1920, H = 1080, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
+  const bg = th.bg, bg2 = th.bg2 || bg;
+  if (th.tex === "gradient" || th.tex === "lines") { const g = x.createLinearGradient(0, 0, W * 0.6, H); g.addColorStop(0, bg2); g.addColorStop(th.tex === "lines" ? 0.8 : 0.72, bg); g.addColorStop(1, bg); x.fillStyle = g; }
+  else if (th.tex === "vignette") { const g = x.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.38, W * 0.62); g.addColorStop(0, bg2); g.addColorStop(1, bg); x.fillStyle = g; }
+  else x.fillStyle = bg;
+  x.fillRect(0, 0, W, H);
+  if (th.tex === "lines") { x.strokeStyle = rgba(th.fg, 0.045); x.lineWidth = 3; for (let i = -H; i < W; i += 27) { x.beginPath(); x.moveTo(i, H); x.lineTo(i + H, 0); x.stroke(); } }
+  if (th.tex === "dots") { x.fillStyle = rgba(th.fg, 0.07); for (let yy = 10; yy < H; yy += 21) for (let xx = 10; xx < W; xx += 21) { x.beginPath(); x.arc(xx, yy, 1.8, 0, 7); x.fill(); } }
+  if (kind === "title" && th.img) {
+    const src = blobURL(th.img); const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+    const hh = H * 0.58, r = Math.max(W / im.width, hh / im.height), dw = im.width * r, dh = im.height * r;
+    x.save(); x.beginPath(); x.rect(0, 0, W, hh); x.clip(); x.drawImage(im, (W - dw) / 2, (hh - dh) / 2, dw, dh); x.restore();
+    const g = x.createLinearGradient(0, H * 0.3, 0, hh); g.addColorStop(0, rgba(bg, 0)); g.addColorStop(1, bg); x.fillStyle = g; x.fillRect(0, H * 0.3, W, hh - H * 0.3 + 1);
+  }
+  if (kind === "scripture") { x.fillStyle = th.accent; x.fillRect(W * 0.08, H * 0.12, 6, H * 0.76); }
+  return canvasBlob(c, "image/png");
+}
+function thBindOnce() {
+  if (thBindOnce.done) return; thBindOnce.done = true;
+  $("#th-ai").onclick = thAsk;
+  $("#th-local").onclick = () => { const m = thM(), keep = m.themes.filter(t => t.src === "claude" || (m.slideTheme && m.slideTheme.id === t.id)), loc = localThemes(); m.themes = [...keep, ...loc]; m.themeSel = loc[0].id; save(); renderThemePanel(); };
+  $("#th-use").onclick = () => { const m = thM(), th = curTheme(); if (!th) return; m.slideTheme = { ...th }; save(); renderThemePanel(); toast(`${th.name} will style the slides you make from here on`); };
+  $("#th-restyle").onclick = () => {
+    const th = curTheme(); if (!th) return; const n = S.slides.filter(x => x.made).length; if (!n) return;
+    snapshot(); S.slides = S.slides.map(x => x.made ? { ...x, theme: { ...th } } : x); thM().slideTheme = { ...th }; deckEdited(); renderThemePanel(); toast(`Restyled ${n} slide${n === 1 ? "" : "s"}. Undo in Edit manuscript puts them back.`);
+  };
+  $("#th-add-title").onclick = () => {
+    const th = curTheme(); if (!th) return; thM().slideTheme = { ...th };
+    const first = [...ed.children].find(e => !e.classList.contains("pb-slide")) || ed.firstElementChild; if (!first) { toast("Add some of the manuscript first"); return; }
+    insertMadeSlides(first, [{ made: "title", kicker: tagsOf(S.meta)[0] || "", title: S.meta.title || "Sermon title", ref: S.meta.text || "", theme: { ...th }, notes: "", body: [] }]);
+    renderThemePanel();
+  };
+  $("#th-add-sc").onclick = () => {
+    const th = curTheme(); const e = [...ed.querySelectorAll(".pb-scripture")].find(x => { const d = readSc(x); return d.texts[d.ver]; }); if (!th || !e) return;
+    thM().slideTheme = { ...th }; const d = readSc(e), units = scUnits(d), book = bookOf(d.ref), out = [];
+    for (let i = 0; i < units.length; i += 2) { const cs = units.slice(i, i + 2), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...th }, notes: "" }); }
+    insertMadeSlides(e, out); renderThemePanel();
+  };
+  $("#th-save").onclick = async () => {
+    const th = curTheme(); if (!th) return; const slug = (th.name || "theme").toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "");
+    toast("Drawing the backgrounds…");
+    const files = [[`${slug}-content.png`, await thBackground(th, "content")], [`${slug}-scripture.png`, await thBackground(th, "scripture")]];
+    if (th.img) files.unshift([`${slug}-title.png`, await thBackground(th, "title")]);
+    await matZip(files, `${matSlug()}-${slug}-backgrounds.zip`);
+  };
+}
 
 /* ---------------- views ---------------- */
 /* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
