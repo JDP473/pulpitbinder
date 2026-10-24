@@ -1342,6 +1342,25 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
         </div>
       </div>
 
+      <div class="panel" id="mat-reading">
+        <div class="bind-head"><h2>Scripture reading</h2><div class="spacer"></div><span class="hint">A page for whoever reads the text: the sermon's name and the passage</span></div>
+        <div class="mat-grid">
+          <div class="mat-fields">
+            <div class="field"><label for="mr-sec">Passage</label><select id="mr-sec"></select></div>
+            <div class="row2">
+              <div class="field"><label for="mr-ver">Translation</label><select id="mr-ver"></select></div>
+              <div class="field"><label for="mr-size">Page size</label><select id="mr-size"><option value="full">Full page, 8.5 × 11 in</option><option value="half">Half page, 5.5 × 8.5 in</option></select></div>
+            </div>
+            <div class="field"><label for="mr-note">A line above the passage (optional)</label><input type="text" id="mr-note" placeholder="For example: Please stand for the reading of God's word"></div>
+            <div class="hint" id="mr-status" aria-live="polite">The passage comes from a Scripture section in your manuscript, with the formatting you gave it. Add a Scripture section in Edit manuscript if the list is empty.</div>
+          </div>
+          <div class="mat-side">
+            <div class="mat-prev" id="mr-prev"><canvas id="mr-canvas" width="850" height="1100" role="img" aria-label="Preview of the Scripture reading page"></canvas></div>
+            <div class="mat-act"><button type="button" class="btn primary mat-save" id="mr-pdf">Save PDF</button><button type="button" class="btn mat-save" id="mr-png">Save picture</button><button type="button" class="btn ghost" id="mr-copy">Copy text</button></div>
+          </div>
+        </div>
+      </div>
+
       <div class="panel" id="mat-social">
         <div class="bind-head"><h2>Social media invitations</h2><div class="spacer"></div><span class="hint">A picture and words to post</span></div>
         <div class="mat-grid">
@@ -7263,6 +7282,7 @@ async function matSave(name, data) {
 async function matFiles() {   // everything chosen, as named blobs
   const m = matM(), out = [], tmp = document.createElement("canvas");
   const bd = await drawBulletin(tmp); out.push([`${matSlug()}-bulletin-notes.pdf`, await canvasPdf(tmp, bd.wIn, bd.hIn)]);
+  if (rdPick()) { const rd = await drawReading(tmp); out.push([`${matSlug()}-scripture-reading.pdf`, await canvasPdf(tmp, rd.wIn, rd.hIn)]); }
   await drawInvite(tmp); out.push([`${matSlug()}-invitation-${m.sFmt}.png`, await canvasBlob(tmp)]);
   let n = 0; for (const q of m.quotes.filter(x => x.on)) { n++; await drawQuote(tmp, q); out.push([`${matSlug()}-quote-${n}-${m.qFmt}.png`, await canvasBlob(tmp)]); }
   return out;
@@ -7365,6 +7385,85 @@ ${S.transcript.slice(0, 60000)}
   m.qSel = m.quotes[0] && m.quotes[0].id; save(); matRenderQuotes(); matDraw();
   if (dropped) $("#mq-status").textContent = `${dropped} suggestion${dropped === 1 ? " was" : "s were"} left out because the wording was not in the manuscript.`;
 }
+/* ---- the Scripture reading page: sermon name, passage, and the words to read ---- */
+const rdSections = () => [...ed.querySelectorAll(".pb-scripture")].map(readSc).filter(d => Object.keys(d.texts).length);
+function rdPick() {   // the chosen section and translation, falling back to the sermon's text and then the first loaded passage
+  const m = matM(), all = rdSections(); if (!all.length) return null;
+  const want = String(S.meta.text || "").toLowerCase().replace(/\s+/g, " ").trim();
+  const d = all.find(x => x.id === m.rdSec) || all.find(x => want && x.ref.toLowerCase() === want) || all[0];
+  const ver = d.texts[m.rdVer] && m.rdSec === d.id ? m.rdVer : d.texts[d.ver] ? d.ver : Object.keys(d.texts)[0];
+  return { d, ver, text: d.texts[ver].t };
+}
+const rdPlain = t => scPieces(t).map(p => p.k === "v" ? (p.s.replace(/[{}]/g, "") + " ") : p.k === "n" ? "\n" : p.s).join("").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").replace(/[ \t]+/g, " ").trim();
+function rdLayout(ctx, ps, px, cw) {
+  const fnt = p => mfont("read", px, p.b ? 700 : 400, p.i ? "italic" : "");
+  let cur = { items: [], x: 0, gap: 0 }; const lines = [cur]; let vn = null, nn = 0;
+  const newLine = gap => { cur = { items: [], x: 0, gap }; lines.push(cur); };
+  for (const p of ps) {
+    if (p.k === "v") { vn = p.s.replace(/[{}]/g, ""); nn = 0; continue; }
+    if (p.k === "n") { nn++; if (nn === 1) { if (cur.items.length) newLine(0); } else if (nn === 2) cur.gap = px * 0.75; continue; }
+    nn = 0;
+    for (const w of p.s.split(/(\s+)/).filter(x => x !== "")) {
+      ctx.font = fnt(p);
+      if (/^\s+$/.test(w)) { if (cur.items.length) cur.x += ctx.measureText(" ").width; continue; }
+      let vw = 0; if (vn) { ctx.font = mfont("ui", px * 0.55, 700); vw = ctx.measureText(vn).width + px * 0.2; ctx.font = fnt(p); }
+      const ww = ctx.measureText(w).width;
+      if (cur.items.length && cur.x + vw + ww > cw) newLine(0);
+      if (vn) { cur.items.push({ vn, x: cur.x }); cur.x += vw; vn = null; }
+      cur.items.push({ t: w, x: cur.x, w: ww, p }); cur.x += ww;
+    }
+  }
+  return lines.filter(l => l.items.length);
+}
+async function drawReading(canvas) {
+  await matFonts(); const logo = await matLogo(), m = matM(), br = brandInfo(), half = m.rdSize === "half", pick = rdPick();
+  const DPI = 200, W = Math.round((half ? 5.5 : 8.5) * DPI), H = Math.round((half ? 8.5 : 11) * DPI), k = half ? 0.84 : 1, pt = v => v * DPI / 72 * k, M = (half ? 0.5 : 0.7) * DPI, cw = W - 2 * M;
+  canvas.width = W; canvas.height = H; const ctx = canvas.getContext("2d"); ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+  const pal = { bg: "#ffffff", ink: "#1b1f27", sub: "#5a6270", accent: stMix(br.color, "#000000", 0.85), line: "#c9ccd3" }, HL = { yellow: "#fff0a6", green: "#d4f2d0", blue: "#d6e6ff", pink: "#fbd9e8" };
+  ctx.fillStyle = pal.bg; ctx.fillRect(0, 0, W, H);
+  let y = M; const hh = 0.5 * DPI * (half ? 0.88 : 1);
+  ctx.fillStyle = pal.accent; ctx.font = mfont("ui", pt(8.5), 700); spaced(ctx, "Scripture reading", W - M, y + hh * 0.55, pt(1.6), "right");
+  if (logo) { const r = Math.min(hh / logo.height, (half ? 1.6 : 2.2) * DPI / logo.width); ctx.drawImage(logo, M, y + (hh - logo.height * r) / 2, logo.width * r, logo.height * r); }
+  else { ctx.fillStyle = pal.ink; ctx.font = mfont("read", pt(14), 600); ctx.fillText(br.name, M, y + hh * 0.6); }
+  y += hh + 0.12 * DPI; ctx.fillStyle = pal.accent; ctx.fillRect(M, y, cw, Math.max(3, pt(2))); y += 0.3 * DPI * k;
+  const title = S.meta.title || "Sermon title"; ctx.font = mfont("read", pt(24), 600);
+  const tf = fitBlock(ctx, title, "read", 600, "", cw, pt(24) * 1.15 * 2, pt(24), pt(16), 1.15); ctx.fillStyle = pal.ink; ctx.font = mfont("read", tf.px, 600);
+  tf.lines.forEach((ln, i) => ctx.fillText(ln, M, y + tf.px + i * tf.px * 1.15)); y += tf.lines.length * tf.px * 1.15 + pt(6);
+  const meta = [S.meta.when ? new Date(S.meta.when).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "", S.meta.speaker].filter(Boolean).join("  ·  ");
+  if (meta) { ctx.fillStyle = pal.sub; ctx.font = mfont("ui", pt(10.5), 400); ctx.fillText(meta, M, y + pt(11)); y += pt(22); }
+  y += pt(8);
+  const ref = pick ? `${pick.d.ref}  ·  ${pick.ver}` : (S.meta.text || "Passage");
+  ctx.fillStyle = pal.accent; ctx.font = mfont("read", pt(18), 700); ctx.fillText(wrapText(ctx, ref, cw)[0], M, y + pt(18)); y += pt(30);
+  const note = (m.rdNote || "").trim(); if (note) { ctx.fillStyle = pal.sub; ctx.font = mfont("read", pt(11.5), 400, "italic"); const nl = wrapText(ctx, note, cw); nl.forEach((ln, i) => ctx.fillText(ln, M, y + pt(11.5) + i * pt(16))); y += nl.length * pt(16) + pt(8); }
+  const foot = [br.name, [br.times, br.web].filter(Boolean).join("  ·  ")].filter(Boolean), footH = foot.length ? 0.32 * DPI : 0, bottom = H - M - footH;
+  if (!pick) { ctx.fillStyle = pal.sub; ctx.font = mfont("read", pt(13), 400, "italic"); wrapText(ctx, "Add a Scripture section in Edit manuscript, and the passage will appear here.", cw).forEach((ln, i) => ctx.fillText(ln, M, y + pt(13) + i * pt(20))); }
+  else {
+    const ps = scPieces(pick.text), avail = bottom - y - pt(6); let px = pt(22), lines, LH = 1.5;
+    for (; px >= pt(9); px -= pt(0.5)) { lines = rdLayout(ctx, ps, px, cw); const h = lines.reduce((a, l) => a + px * LH + l.gap, 0); if (h <= avail) break; }
+    lines = lines || rdLayout(ctx, ps, px, cw); let ly = y;
+    lines.forEach(l => {
+      ly += l.gap; const base = ly + px * 1.05;
+      l.items.forEach((it, i) => {
+        if (it.vn) { ctx.fillStyle = pal.accent; ctx.font = mfont("ui", px * 0.55, 700); ctx.fillText(it.vn, M + it.x, base - px * 0.38); return; }
+        const p = it.p, nx = l.items[i + 1], end = nx && nx.t && nx.p.u === p.u && nx.p.h === p.h ? nx.x : it.x + it.w;
+        if (p.h) { ctx.fillStyle = HL[p.h]; ctx.fillRect(M + it.x - 1, base - px * 0.92, end - it.x + 2, px * 1.2); }
+        ctx.fillStyle = pal.ink; ctx.font = mfont("read", px, p.b ? 700 : 400, p.i ? "italic" : ""); ctx.fillText(it.t, M + it.x, base);
+        if (p.u) { ctx.fillRect(M + it.x, base + px * 0.1, end - it.x, Math.max(2, px * 0.05)); }
+      });
+      ly += px * LH;
+    });
+  }
+  if (foot.length) { const fy = H - M - footH + pt(2); ctx.fillStyle = pal.accent; ctx.fillRect(M, fy, cw, Math.max(2, pt(1.2))); foot.forEach((t, i) => { ctx.fillStyle = i === 0 ? pal.ink : pal.sub; ctx.font = mfont("ui", pt(i === 0 ? 9.5 : 8.5), i === 0 ? 700 : 400); ctx.fillText(t, M, fy + pt(14) + i * pt(13)); }); }
+  return { w: W, h: H, wIn: half ? 5.5 : 8.5, hIn: half ? 8.5 : 11 };
+}
+function matFillReading() {
+  const m = matM(), all = rdSections(), pick = rdPick(), sec = $("#mr-sec"), ver = $("#mr-ver");
+  sec.replaceChildren(...(all.length ? all.map(d => el("option", { value: d.id, text: d.ref })) : [el("option", { value: "", text: "No Scripture sections yet" })])); sec.disabled = !all.length;
+  ver.replaceChildren(...(pick ? Object.keys(pick.d.texts).map(v => el("option", { value: v, text: VER_NAME[v] ? `${v} · ${VER_NAME[v]}` : v })) : [])); ver.disabled = !pick;
+  if (pick) { sec.value = pick.d.id; ver.value = pick.ver; }
+  $("#mr-size").value = m.rdSize === "half" ? "half" : "full"; $("#mr-note").value = m.rdNote || "";
+}
+function rdCopyText() { const pick = rdPick(), t = [S.meta.title || "", pick ? `${pick.d.ref} (${pick.ver})` : S.meta.text || ""].filter(Boolean).join("\n"); return pick ? `${t}\n\n${rdPlain(pick.text)}` : t; }
 /* ---- the tab ---- */
 let matBound = false, matT = 0, matSeq = 0;
 function matBrandStrip() {
@@ -7380,7 +7479,7 @@ function matFill() {
   $("#ms-when").placeholder = matWhenAuto() || "Sunday at 10:00 AM"; $("#ms-topic").placeholder = [S.meta.title, S.meta.text].filter(Boolean).join("  ·  ") || "The title and passage";
   $("#mq-fmt").value = m.qFmt; $("#mq-pal").value = m.qPal; $("#mq-who").value = m.qWho != null ? m.qWho : ""; $("#mq-who").placeholder = [S.meta.speaker, S.meta.title].filter(Boolean).join("  ·  ") || "Name and sermon title";
   const deck = S.slides.some(x => !x.made && x.model); for (const id of ["#ms-pal", "#mq-pal"]) { const o = $(id).querySelector("option[value=deck]"); o.hidden = !deck; o.disabled = !deck; }
-  matRenderCaps(); matRenderQuotes();
+  matRenderCaps(); matRenderQuotes(); matFillReading();
 }
 function matRenderCaps() {
   const m = matM(), box = $("#ms-caps"); box.replaceChildren();
@@ -7411,6 +7510,7 @@ function matQueue() { clearTimeout(matT); matT = setTimeout(matDraw, 120); }
 async function matDraw() {
   if (view !== "materials") return; const seq = ++matSeq, m = matM();
   await drawBulletin($("#mb-canvas")); if (seq !== matSeq) return;
+  await drawReading($("#mr-canvas")); if (seq !== matSeq) return;
   await drawInvite($("#ms-canvas")); if (seq !== matSeq) return;
   const q = m.quotes.find(x => x.id === m.qSel) || m.quotes.find(x => x.on) || m.quotes[0]; await drawQuote($("#mq-canvas"), q);
 }
@@ -7433,6 +7533,12 @@ function matBind() {
   on("#mb-copy", "click", () => copyText(`${S.meta.title || ""}\n${S.meta.text || ""}\n\n${m().bigIdea ? "The big idea: " + m().bigIdea + "\n\n" : ""}${parseOutline(m().outline).map(i => (i.lv === 2 ? "    " : "") + i.num + " " + i.text.replace(/\[\[|\]\]/g, "_____")).join("\n")}`, $("#mb-outline")));
   on("#mb-pdf", "click", async () => { const c = document.createElement("canvas"), d = await drawBulletin(c); await matSave(`${matSlug()}-bulletin-notes.pdf`, await canvasPdf(c, d.wIn, d.hIn)); });
   on("#mb-png", "click", async () => { const c = document.createElement("canvas"); await drawBulletin(c); await matSave(`${matSlug()}-bulletin-notes.png`, await canvasBlob(c)); });
+  on("#mr-sec", "change", () => { m().rdSec = $("#mr-sec").value; m().rdVer = ""; save(); matFillReading(); matQueue(); });
+  on("#mr-ver", "change", () => { m().rdSec = $("#mr-sec").value; m().rdVer = $("#mr-ver").value; save(); matQueue(); });
+  on("#mr-size", "change", () => { m().rdSize = $("#mr-size").value; save(); matQueue(); }); field("#mr-note", "rdNote");
+  on("#mr-copy", "click", () => copyText(rdCopyText(), $("#mr-note")));
+  on("#mr-pdf", "click", async () => { const c = document.createElement("canvas"), d = await drawReading(c); await matSave(`${matSlug()}-scripture-reading.pdf`, await canvasPdf(c, d.wIn, d.hIn)); });
+  on("#mr-png", "click", async () => { const c = document.createElement("canvas"); await drawReading(c); await matSave(`${matSlug()}-scripture-reading.png`, await canvasBlob(c)); });
   on("#ms-fmt", "change", () => { m().sFmt = $("#ms-fmt").value; save(); matQueue(); }); on("#ms-pal", "change", () => { m().sPal = $("#ms-pal").value; save(); matQueue(); });
   field("#ms-head", "sHead"); field("#ms-when", "sWhen"); field("#ms-topic", "sTopic");
   on("#ms-ai", "click", matDraftCaptions);
