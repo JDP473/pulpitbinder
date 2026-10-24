@@ -1015,6 +1015,104 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
   input.brand-color{min-height:44px}
   .mat-q textarea,.mat-cap textarea{min-height:64px}
 }
+
+/* ================= App shell, 2026 =================
+   Desktop: a sidebar in the order you prepare (write, study, present, share, review), the open sermon named at the top of
+   the page, and Settings as its own page. Tablets keep the top bar; phones keep the bottom bar. */
+:root{--app-nav:0px;--r:12px;--r-sm:8px;--shadow-1:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.04);--shadow-2:0 8px 24px rgba(16,24,40,.10)}
+.panel{border-radius:14px;box-shadow:var(--shadow-1);border-color:color-mix(in srgb,var(--line) 85%,transparent)}
+.panel h2{font-size:11.5px;letter-spacing:.1em}
+.btn{border-radius:9px;transition:background-color .15s,border-color .15s,box-shadow .15s}
+.btn.primary{box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn:focus-visible,.tab:focus-visible,.subtab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text],input[type=datetime-local],input[type=number],input[type=time],textarea,.tagin{border-radius:9px}
+select:focus,input:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.chip.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface));border-color:transparent}
+.tool-l{display:none}
+.hdr-title{display:none!important}
+/* the open sermon, named at the top of the page */
+.sermon-bar{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.sb-head{display:flex;align-items:center;gap:10px;min-width:0}
+.sb-title{margin:0;font:600 clamp(1.25rem,1rem + 1vw,1.7rem)/1.2 var(--f-read);letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.sermon-bar .tagbar{padding:0}
+body.sb-collapsed .tagbar{display:none}
+body.sb-collapsed .hdr-toggle svg{transform:rotate(180deg)}
+body[data-view="dash"] .sermon-bar,body.set-open .sermon-bar{display:none}
+body[data-view="present"] .sermon-bar{display:none}
+@media (max-width:1099px){.sb-head{display:none}.sermon-bar{margin-bottom:10px}}
+@media (max-width:700px){.sermon-bar .tagbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}.sermon-bar .tagbar::-webkit-scrollbar{display:none}}
+.subtabs{margin:0 0 16px}
+/* desktop sidebar */
+@media (min-width:1100px){
+  :root{--app-nav:236px}
+  body::before{display:none}
+  header.top{position:fixed;top:0;left:0;bottom:0;width:var(--app-nav);border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;z-index:11;padding-top:env(safe-area-inset-top,0px)}
+  header.top .wrap{padding:0;min-height:100%;display:flex}
+  header.top .top-row{flex:1;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:14px;padding:18px 12px 14px}
+  .top-row .brand{order:1;padding:0 8px 4px;font-size:1.12rem}
+  .top-row .lib{order:2;flex:none;flex-direction:column;align-items:stretch;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+  .top-row .lib #library{width:100%;max-width:none;font-weight:600}
+  .top-row .lib .sync-pill{align-self:flex-start}
+  .top-row .lib .menu-wrap{margin:0}
+  .top-row .lib #btn-sermon{width:100%;justify-content:space-between}
+  .top-row .lib .menu{left:0;right:auto;min-width:220px}
+  .tabs{order:3;flex-direction:column;background:transparent;padding:0;gap:2px;border-radius:0}
+  .tab{justify-content:flex-start;gap:12px;min-height:40px;padding:0 12px;font-size:14.5px;border-radius:9px;color:var(--muted)}
+  .tab-ic{display:block;width:19px;height:19px;flex:none}
+  .tab:hover{background:var(--sunk);color:var(--ink)}
+  .tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:none;font-weight:600}
+  .tab[aria-selected="true"] .tab-ic{color:var(--accent)}
+  body.set-open .tab[aria-selected="true"]{background:transparent;font-weight:500;color:var(--muted)}
+  body.set-open .tab[aria-selected="true"] .tab-ic{color:inherit}
+  .top-row .spacer{order:4;flex:1}
+  .top-row .hdr-tools{order:5;flex-direction:column;align-items:stretch;gap:2px;border-top:1px solid var(--line);padding-top:10px}
+  .hdr-tools .icon-btn{width:auto;height:38px;border:0;background:transparent;justify-content:flex-start;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:9px;color:var(--muted);font-size:14px;font-weight:500}
+  .hdr-tools .icon-btn:hover{background:var(--sunk);color:var(--ink)}
+  .hdr-tools .icon-btn svg{width:18px;height:18px;flex:none}
+  .hdr-tools .icon-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+  .tool-l{display:inline}
+  main{margin-left:var(--app-nav);padding-inline:clamp(20px,2.6vw,40px)!important;padding-top:24px!important;max-width:calc(1560px + var(--app-nav))}
+  .toast{left:calc(50% + var(--app-nav) / 2)}
+  body[data-view="present"] header.top{position:fixed}
+  /* Present gets the screen: the sidebar folds to icons */
+  body[data-view="present"]{--app-nav:68px}
+  body[data-view="present"] .top-row .brand,body[data-view="present"] .top-row .lib{display:none}
+  body[data-view="present"] .tab-tx,body[data-view="present"] .tool-l{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  body[data-view="present"] .tab,body[data-view="present"] .hdr-tools .icon-btn{justify-content:center;padding:0}
+  body[data-view="present"] .top-row{padding-inline:10px}
+}
+/* Settings is a page of its own */
+#settings.set-page{position:fixed;z-index:10;top:0;bottom:var(--nav-h,0px);left:var(--app-nav);right:0;display:block;padding:0;background:var(--bg);overflow:auto;place-items:initial}
+#settings.set-page[hidden]{display:none}
+@media (min-width:701px) and (max-width:1099px){#settings.set-page{top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px))}}
+.set-card{width:auto;max-width:1040px;max-height:none;margin:0 auto;padding:clamp(18px,3vw,36px) clamp(16px,3vw,40px) 0;background:transparent;box-shadow:none;border-radius:0;display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-areas:"head head" "nav body" "foot foot";gap:18px 28px;align-items:start;overflow:visible}
+.set-head{grid-area:head;display:flex;flex-direction:column;gap:4px}
+.set-head h2{font:600 clamp(1.4rem,1.1rem + 1vw,1.9rem)/1.15 var(--f-read);margin:0}
+.set-card .set-tabs{grid-area:nav;position:sticky;top:16px;flex-direction:column;align-items:stretch;background:transparent;padding:0;gap:2px}
+.set-card .set-tabs .set-tab{flex:none;text-align:left;justify-content:flex-start;padding:9px 12px;border-radius:9px;font-size:14.5px;white-space:nowrap}
+.set-card .set-tabs .set-tab[aria-selected="true"]{background:var(--accent-soft);box-shadow:none;font-weight:600;color:var(--ink)}
+.set-body{grid-area:body;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-1);padding:clamp(16px,2vw,24px)}
+.set-body .set-pane{gap:16px}
+.set-foot{grid-area:foot;position:sticky;bottom:0;z-index:2;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-top:1px solid var(--line);margin:0 calc(-1 * clamp(16px,3vw,40px));padding:12px clamp(16px,3vw,40px) calc(12px + env(safe-area-inset-bottom,0px))}
+@media (max-width:760px){
+  .set-card{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "nav" "body" "foot";gap:12px}
+  .set-card .set-tabs{position:static;flex-direction:row;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  .set-card .set-tabs::-webkit-scrollbar{display:none}
+  .set-card .set-tabs .set-tab{padding:8px 12px;font-size:14px;white-space:nowrap}
+}
+/* AI and images */
+.ai-card{display:flex;flex-direction:column;gap:10px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0;min-width:0}
+.ai-card-h{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:0;font-size:15px}
+.ai-opts{display:flex;flex-direction:column;gap:6px}
+.ai-opt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.ai-opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.ai-opt input{margin-top:3px;accent-color:var(--accent);width:18px;height:18px}
+.ai-opt-t{display:flex;flex-direction:column;gap:2px}
+.ai-later{background:var(--sunk);border-style:dashed}
+.ai-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:6px}
+.ai-list li{display:flex;flex-direction:column;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:14px}
+@media (max-width:700px){body.set-open .tab[aria-selected="true"]{color:var(--muted)}body.set-open .tab[aria-selected="true"]::before{display:none}body.set-open #btn-settings{color:var(--accent);border-color:var(--accent)}}
 </style>
 
 <a class="skip" href="#main" id="skip-link">Skip to content</a>
@@ -1026,8 +1124,8 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
         Pulpit Binder
       </div>
       <nav class="tabs" role="tablist" aria-label="Sections">
-        <button class="tab" role="tab" id="tab-dash" aria-selected="false" aria-controls="view-dash" tabindex="-1" data-view="dash"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span class="tab-tx">Dashboard</span></button>
-        <button class="tab" role="tab" id="tab-build" aria-selected="true" aria-controls="view-build" tabindex="0" data-view="build"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg><span class="tab-tx">Build</span></button>
+        <button class="tab" role="tab" id="tab-dash" aria-selected="false" aria-controls="view-dash" tabindex="-1" data-view="dash"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span class="tab-tx">Overview</span></button>
+        <button class="tab" role="tab" id="tab-build" aria-selected="true" aria-controls="view-build" tabindex="0" data-view="build"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg><span class="tab-tx">Write</span></button>
         <button class="tab" role="tab" id="tab-study" aria-selected="false" aria-controls="view-study" tabindex="-1" data-view="study"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 22H20v-4"/><path d="M9 8h7"/></svg><span class="tab-tx">Study</span></button>
         <button class="tab" role="tab" id="tab-present" aria-selected="false" aria-controls="view-present" tabindex="-1" data-view="present"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M10 8v4l4-2-4-2z"/><path d="M8 20h8M12 16v4"/></svg><span class="tab-tx">Present</span></button>
         <button class="tab" role="tab" id="tab-materials" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-view="materials"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span class="tab-tx">Materials</span></button>
@@ -1050,18 +1148,20 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
         </div>
       </div>
       <div class="hdr-tools">
-        <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+        <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="tool-l">Settings</span></button>
         <button class="icon-btn" id="btn-theme" aria-label="Toggle light or dark mode" title="Light / dark">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"/></svg><span class="tool-l">Light or dark</span>
         </button>
-        <button class="icon-btn hdr-toggle" id="btn-collapse" aria-expanded="true" aria-controls="tagbar" title="Hide sermon details" aria-label="Hide sermon details"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     </div>
-    <div class="tagbar" id="tagbar"></div>
   </div>
 </header>
 
 <main class="wrap" id="main" tabindex="-1">
+  <div class="sermon-bar" id="sermon-bar">
+    <div class="sb-head"><h1 class="sb-title" id="sb-title"></h1><button class="icon-btn hdr-toggle" id="btn-collapse" aria-expanded="true" aria-controls="tagbar" title="Hide sermon details" aria-label="Hide sermon details"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <div class="tagbar" id="tagbar"></div>
+  </div>
   <div class="subtabs" id="subtabs" role="tablist" aria-label="Build sections" hidden>
     <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
     <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
@@ -1561,16 +1661,18 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
     <div class="sc-pop-row"><span class="hint" id="del-msg" role="status" aria-live="polite"></span><div class="spacer"></div><button type="button" class="btn ghost" id="del-cancel">Cancel</button><button type="button" class="btn danger" id="del-go" disabled>Delete</button></div>
   </div>
 </div>
-<div class="modal" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="set-title">
-  <form class="modal-card" id="settings-form">
-    <h2 id="set-title">Settings</h2>
+<div class="modal set-page" id="settings" hidden role="region" aria-labelledby="set-title">
+  <form class="modal-card set-card" id="settings-form">
+    <div class="set-head"><h2 id="set-title">Settings</h2><span class="hint">Shared by every sermon. Changes take effect when you press Save.</span></div>
     <div class="side-tabs set-tabs" role="tablist" aria-label="Settings sections">
       <button type="button" class="set-tab" role="tab" id="set-tab-scripture" data-pane="scripture" aria-controls="set-pane-scripture" aria-selected="true">Scripture</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-services" data-pane="services" aria-controls="set-pane-services" aria-selected="false">Services</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-places" data-pane="places" aria-controls="set-pane-places" aria-selected="false">Places</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-defaults" data-pane="defaults" aria-controls="set-pane-defaults" aria-selected="false">New sermons</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-brand" data-pane="brand" aria-controls="set-pane-brand" aria-selected="false">Branding</button>
+      <button type="button" class="set-tab" role="tab" id="set-tab-ai" data-pane="ai" aria-controls="set-pane-ai" aria-selected="false">AI and images</button>
     </div>
+    <div class="set-body">
     <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
       <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
       <fieldset class="field"><legend>Favorite translations</legend><span class="hint">These show as tabs along the top of every Scripture section, so you can switch the one that's displayed. Up to six.</span><div class="fav-list" id="set-favs"></div></fieldset>
@@ -1611,7 +1713,23 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
       </div>
       <div class="field"><label for="set-bcolor">Accent color</label><input type="color" id="set-bcolor" class="brand-color"></div>
     </div>
-    <div class="sc-pop-row"><span class="hint" id="set-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="set-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+    <div class="set-pane" id="set-pane-ai" role="tabpanel" aria-labelledby="set-tab-ai" hidden>
+      <span class="hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
+      <div class="ai-card"><div class="ai-card-h"><b>Writing and study help</b><span class="chip" id="ai-claude-st"></span></div>
+        <span class="hint">Claude drafts outlines, slides, captions, study notes, and suggestions throughout the app.</span>
+        <div class="field"><label for="set-tier">How much care Claude takes</label><select id="set-tier"><option value="fast">Faster answers</option><option value="balanced">Balanced (recommended)</option><option value="careful">Most careful, slower</option></select><span class="hint">Most careful uses Claude's strongest model for everything, which takes longer. Faster suits quick slides and captions.</span></div>
+      </div>
+      <fieldset class="ai-card"><legend class="ai-card-h"><b>Pictures</b></legend>
+        <span class="hint">Used by the Illustration slide and a slide theme's header picture.</span>
+        <div class="ai-opts" id="set-img"></div>
+      </fieldset>
+      <div class="ai-card ai-later"><div class="ai-card-h"><b>Your own API keys</b><span class="chip">Hosted version</span></div>
+        <span class="hint">This page runs inside Claude, which keeps it from contacting other AI companies directly, so keys entered here could not be used. Pulpit Binder is built so a hosted version can add these, with your keys kept on its server rather than in your browser:</span>
+        <ul class="ai-list" id="set-later"></ul>
+      </div>
+    </div>
+    </div>
+    <div class="sc-pop-row set-foot"><span class="hint" id="set-msg"></span><div class="spacer"></div><button type="button" class="btn ghost" id="set-cancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
   </form>
 </div>
 
@@ -2296,6 +2414,7 @@ function fmtWhen(v) { if (!v) return ""; const d = new Date(v); if (isNaN(d)) re
 const bgLink = ref => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=ESV`;
 function renderTags() {
   const bar = $("#tagbar"); bar.replaceChildren();
+  $("#sb-title").textContent = S.meta.title || "Untitled sermon";
   $("#hdr-title").textContent = [S.meta.title || "Untitled sermon", S.meta.when ? new Date(S.meta.when).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""].filter(Boolean).join(" · ");
   const m = S.meta;
   const chip = (k, v, cls = "") => v ? bar.append(el("span", { class: "chip " + cls }, el("b", { text: k }), v)) : null;
@@ -3095,6 +3214,7 @@ const askFresh = new Set();   // buttons whose last answer came from the saved c
 let aiPuts = 0;
 async function askJson(prompt, { tier = "default", fresh = false, id = "" } = {}) {
   if (!sample) throw { code: "not_granted" };
+  tier = aiTier(tier);
   if (id && askFresh.has(id)) fresh = true;
   const key = "ai-" + fingerprint(tier + "\n" + prompt);
   if (!fresh) {
@@ -4197,7 +4317,26 @@ const DEF_SERVICES = [
   { name: "Sunday AM", day: 0, time: "10:00" }, { name: "Sunday PM", day: 0, time: "18:00" }, { name: "Wednesday Bible Study", day: 3, time: "19:00" },
   { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
 ];
-let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
+/* AI services. The page reaches Claude through claude.use("sample") and Canva through the viewer's own connector; the rest are
+   listed for a hosted Pulpit Binder, where a server would hold each church's keys. Every picture request goes through
+   makePicture, and every Claude request through askJson, so another provider is one more entry and one more branch. */
+const AI_SERVICES = {
+  claude: { kind: "text", name: "Claude", where: "here", desc: "Through your Claude account" },
+  canva: { kind: "image", name: "Canva", where: "here", desc: "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
+  "claude-draw": { kind: "image", name: "Claude drawing", where: "here", desc: "Claude draws a simple, clean illustration. Always sharp on the projector; plainer than a painting." },
+  none: { kind: "image", name: "My own pictures only", where: "here", desc: "No generated pictures. Use Photo and Use my own picture instead." },
+  "openai-text": { kind: "text", name: "OpenAI (ChatGPT models)", where: "hosted" },
+  "gemini-text": { kind: "text", name: "Google Gemini", where: "hosted" },
+  "openai-image": { kind: "image", name: "OpenAI image generation", where: "hosted" },
+  "google-image": { kind: "image", name: "Google Imagen", where: "hosted" },
+  "adobe-firefly": { kind: "image", name: "Adobe Firefly", where: "hosted" },
+  "stability": { kind: "image", name: "Stability AI", where: "hosted" }
+};
+const AI_TIERS = { fast: "Faster answers", balanced: "Balanced", careful: "Most careful" };
+const aiTier = t => { const s = settings.aiTier; if (s === "careful") return "complex"; if (s === "fast") return t === "complex" ? "default" : "quick"; return t; };
+const imgService = () => settings.imgService || "canva";
+const imgReady = () => imgService() === "canva" ? !!mcpNs : imgService() === "claude-draw" ? !!sample : false;
+let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
 const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
 const cleanTime = t => typeof t === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : "";
@@ -4225,7 +4364,7 @@ function normSettings(j, base) {
   const dp = typeof j.defPlace === "string" ? j.defPlace : base.defPlace;
   return { ...base, defVer: cleanVer(j.defVer) || base.defVer, favs: favs.length ? favs : base.favs, claudeFallback: j.claudeFallback !== false,
     services: services && services.length ? services : base.services, places, defPlace: places.find(p => sameName(p, dp)) || "",
-    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, brand: j.brand ? cleanBrand(j.brand, base.brand) : base.brand, updatedAt: +j.updatedAt || 0 };
+    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, aiTier: AI_TIERS[j.aiTier] ? j.aiTier : base.aiTier, imgService: AI_SERVICES[j.imgService] && AI_SERVICES[j.imgService].where === "here" && AI_SERVICES[j.imgService].kind === "image" ? j.imgService : base.imgService, brand: j.brand ? cleanBrand(j.brand, base.brand) : base.brand, updatedAt: +j.updatedAt || 0 };
 }
 try { const j = JSON.parse(localStorage.getItem("pb-settings") || "null"); if (j && typeof j === "object") settings = normSettings(j, settings); } catch {}
 const svcByName = n => settings.services.find(s => sameName(s.name, n));
@@ -4581,15 +4720,27 @@ function openSettings(opts = {}) {
   renderSetServices(opts.add && opts.tab === "services" ? setDraft.services.length - 1 : -1);
   renderSetPlaces(opts.add && opts.tab === "places" ? setDraft.places.length - 1 : -1);
   renderSetFound(); gatherUsed().catch(() => {});
-  $("#set-speaker").value = settings.speaker; $("#set-wpm").value = settings.wpm; openBrandFields();
+  $("#set-speaker").value = settings.speaker; $("#set-wpm").value = settings.wpm; openBrandFields(); renderAiPane();
   $("#set-msg").textContent = "";
   setTab(opts.tab || "scripture");
-  m.hidden = false; if (!opts.add) (document.querySelector(".set-tab[aria-selected=true]") || $("#set-def")).focus();
+  m.hidden = false; document.body.classList.add("set-open"); $("#btn-settings").setAttribute("aria-pressed", "true"); m.scrollTop = 0;
+  if (!opts.add) (document.querySelector(".set-tab[aria-selected=true]") || $("#set-def")).focus();
 }
-$("#btn-settings").onclick = () => openSettings();
-$("#set-cancel").onclick = () => { $("#settings").hidden = true; };
-$("#settings").addEventListener("click", e => { if (e.target.id === "settings") $("#settings").hidden = true; });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#settings").hidden) $("#settings").hidden = true; });
+function closeSettings() { $("#settings").hidden = true; document.body.classList.remove("set-open"); $("#btn-settings").setAttribute("aria-pressed", "false"); }
+function renderAiPane() {
+  $("#set-tier").value = settings.aiTier || "balanced";
+  const st = $("#ai-claude-st"); st.textContent = sample ? "Connected" : "Not available in this view"; st.className = "chip " + (sample ? "ok" : "warn-chip");
+  const box = $("#set-img"); box.replaceChildren();
+  Object.entries(AI_SERVICES).filter(([, v]) => v.kind === "image" && v.where === "here").forEach(([id, v]) => {
+    const ready = id === "canva" ? !!mcpNs : id === "claude-draw" ? !!sample : true;
+    const inp = el("input", { type: "radio", name: "set-img", id: "set-img-" + id, value: id }); inp.checked = (settings.imgService || "canva") === id;
+    box.append(el("label", { class: "ai-opt", for: "set-img-" + id }, inp, el("span", { class: "ai-opt-t" }, el("b", { text: v.name }), el("span", { class: "hint", text: v.desc })), ready ? null : el("span", { class: "chip warn-chip", text: id === "canva" ? "Connect Canva" : "Needs Claude" })));
+  });
+  $("#set-later").replaceChildren(...Object.values(AI_SERVICES).filter(v => v.where === "hosted").map(v => el("li", {}, el("span", { text: v.name }), el("span", { class: "hint", text: v.kind === "image" ? "Pictures" : "Writing and study" }))));
+}
+$("#btn-settings").onclick = () => $("#settings").hidden ? openSettings() : closeSettings();
+$("#set-cancel").onclick = closeSettings;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#settings").hidden && !e.target.closest("input,textarea,select")) closeSettings(); });
 $("#set-favs").addEventListener("change", e => {
   const on = [...$("#set-favs").querySelectorAll("input:checked")];
   if (on.length > MAX_FAVS) { e.target.checked = false; $("#set-msg").textContent = `Choose up to ${MAX_FAVS} favorites so the tabs fit.`; } else $("#set-msg").textContent = "";
@@ -4613,7 +4764,9 @@ $("#settings-form").addEventListener("submit", e => {
   settings.services = svcs.map(({ name, day, time }) => ({ name, day, time })); settings.places = places.map(p => p.name);
   settings.defPlace = (places.find(p => p.key === setDraft.defKey) || {}).name || "";
   settings.speaker = cleanStr($("#set-speaker").value, 80); settings.wpm = wpm; settings.brand = readBrandFields();
-  saveSettings(); $("#settings").hidden = true;
+  settings.aiTier = AI_TIERS[$("#set-tier").value] ? $("#set-tier").value : "balanced";
+  const img = ($("#set-img input:checked") || {}).value; if (AI_SERVICES[img]) settings.imgService = img;
+  saveSettings(); closeSettings(); toast("Settings saved"); if (view === "materials") renderThemePanel();
   // Follow a rename through to the open sermon; past sermons keep the name they were saved with.
   let changed = false;
   const sv = svcs.find(s => s.orig && s.orig !== s.name && s.orig === S.meta.service); if (sv) { S.meta.service = sv.name; changed = true; }
@@ -4780,7 +4933,7 @@ const KINDS = {
   section: { name: "Section header", icon: "§", desc: "Opens a new division or main point, large, with the header picture.", for: ["text", "scripture"] },
   blanks: { name: "Fill in the blank", icon: "_", desc: "Key words blanked, then revealed on the next click. Good with sermon notes.", ai: true, for: ["text", "scripture"] },
   question: { name: "Reflection question", icon: "?", desc: "A question for the congregation to take home.", ai: true, for: ["text", "scripture"] },
-  art: { name: "Illustration", icon: "✎", desc: "Canva paints a picture of the idea, full-screen, with an optional line over it.", canva: true, for: ["text", "scripture"] },
+  art: { name: "Illustration", icon: "✎", desc: "A picture of the idea, full-screen, with an optional line over it. Choose who paints it in Settings.", canva: true, for: ["text", "scripture"] },
   photo: { name: "Photo", icon: "▣", desc: "A picture from your device, with an optional line of text over it.", for: ["text", "scripture"] }
 };
 let mk = null;   // {src, kind, draft, busy}
@@ -4791,9 +4944,9 @@ function openPicker(src) {
   const grid = $("#mk-kinds"); grid.replaceChildren();
   let lastKind = null; try { lastKind = localStorage.getItem("pb-kind-" + src.kind); } catch {}
   Object.entries(KINDS).filter(([, k]) => k.for.includes(src.kind)).forEach(([key, k]) => {
-    const off = (k.ai && !sample) || (k.canva && !mcpNs);
+    const off = (k.ai && !sample) || (k.canva && !imgReady()), who = imgService() === "claude-draw" ? "Claude" : imgService() === "none" ? "Pictures" : "Canva";
     const b = el("button", { type: "button", class: "mk-kind" + (key === lastKind ? " last" : ""), disabled: off ? "" : null, onclick: () => chooseKind(key) },
-      el("span", { class: "mk-ico", text: k.icon }), el("span", { class: "mk-kn" }, el("b", { text: k.name }), k.ai ? el("span", { class: "mk-ai", text: off ? "Needs Claude" : "Claude" }) : k.canva ? el("span", { class: "mk-ai", text: off ? "Needs Canva" : "Canva" }) : null), el("span", { class: "mk-kd", text: k.desc }));
+      el("span", { class: "mk-ico", text: k.icon }), el("span", { class: "mk-kn" }, el("b", { text: k.name }), k.ai ? el("span", { class: "mk-ai", text: off ? "Needs Claude" : "Claude" }) : k.canva ? el("span", { class: "mk-ai", text: off ? (imgService() === "none" ? "Off in Settings" : "Needs " + who) : who }) : null), el("span", { class: "mk-kd", text: k.desc }));
     grid.append(b);
   });
   $("#mk-step1").hidden = false; $("#mk-step2").hidden = true;
@@ -4843,7 +4996,7 @@ async function chooseKind(key) {
   else { mk.draft = { ...base, made: key, text: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" }; }
   renderMkFields(); renderMkPreview();
   if (k.ai) await askClaude(false);
-  if (key === "art") { if (sample) await askClaude(false); else mk.draft.prompt = `${srcPlain().slice(0, 300)}`; if (mk && mk.kind === "art") canvaPaint(); }
+  if (key === "art") { if (sample) await askClaude(false); else mk.draft.prompt = `${srcPlain().slice(0, 300)}`; if (mk && mk.kind === "art") artPaint(); }
 }
 const AI_ASK = {
   statement: `Boil this down to one short, memorable statement of 4 to 10 words, in the preacher's own voice and wording where possible. Return JSON {"text": "..."}`,
@@ -4898,14 +5051,14 @@ function draftSlides() {
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
   if (d.made === "photo") return d.img ? [{ ...d, title: d.caption || "Photo", body: d.caption ? [d.caption] : [] }] : [];
-  if (d.made === "art") return d.img ? [{ made: "art", img: d.img, caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", media: d.media || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
+  if (d.made === "art") return d.img || d.svg ? [{ made: "art", img: d.img || null, svg: d.img ? "" : d.svg || "", caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", media: d.media || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
   return [{ ...d, title: title(d.text), body: [String(d.text || "").replace(/\[\[|\]\]/g, "")] }];
 }
 function renderMkPreview() {
   const box = $("#mk-preview"); box.replaceChildren();
   if (!mk || !mk.draft) return;
-  if (mk.busy) { box.append(el("div", { class: "mk-wait" }, el("span", { class: "spin" }), mk.busy === "canva" ? "Canva is painting… usually under a minute" : mk.kind === "art" ? "Claude is describing the picture…" : "Claude is writing…")); return; }
-  if (mk.kind === "art" && !mk.draft.img && mk.draft.err) { box.append(el("div", { class: "mk-wait mk-err" }, mk.draft.err, mk.draft.hdUrl ? el("a", { href: mk.draft.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size image" }) : null, mk.draft.link ? el("a", { href: mk.draft.link, target: "_blank", rel: "noopener", text: "Open in Canva" }) : null)); $("#mk-add").disabled = true; return; }
+  if (mk.busy) { box.append(el("div", { class: "mk-wait" }, el("span", { class: "spin" }), mk.busy === "canva" ? "Canva is painting… usually under a minute" : mk.busy === "draw" ? "Claude is drawing…" : mk.kind === "art" ? "Claude is describing the picture…" : "Claude is writing…")); return; }
+  if (mk.kind === "art" && !mk.draft.img && !mk.draft.svg && mk.draft.err) { box.append(el("div", { class: "mk-wait mk-err" }, mk.draft.err, mk.draft.hdUrl ? el("a", { href: mk.draft.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size image" }) : null, mk.draft.link ? el("a", { href: mk.draft.link, target: "_blank", rel: "noopener", text: "Open in Canva" }) : null)); $("#mk-add").disabled = true; return; }
   const slides = draftSlides();
   if (!slides.length) { box.append(el("div", { class: "mk-wait", text: mk.kind === "photo" ? "Choose a picture to see the slide." : "Nothing to show yet." })); $("#mk-add").disabled = true; return; }
   $("#mk-add").disabled = false;
@@ -4986,7 +5139,26 @@ async function shrinkImage(file, maxW = 1920) {
   c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
   return await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), "image/jpeg", 0.92));
 }
-$("#mk-again").onclick = () => { if (mk && mk.kind === "art") canvaPaint(); else askClaude(true); };
+$("#mk-again").onclick = () => { if (mk && mk.kind === "art") artPaint(true); else askClaude(true); };
+const artPaint = fresh => imgService() === "claude-draw" ? claudeDraw(fresh) : canvaPaint();
+const DRAW_ASK = (subject, th) => `Draw one simple illustration as SVG for a worship slide in a church of Christ.
+Subject: ${subject}
+Rules: viewBox "0 0 1600 900". Flat shapes and clean lines, a few large forms, generous empty space, reverent and calm. Colors that sit well on ${(th && th.bg) || "#1c2433"} with ${(th && th.accent) || "#e2b55e"} as the accent; no background rectangle. No text or letters, no faces in close-up, no depiction of God the Father, no symbols of other religions. No scripts, links, or external images. Keep it under 30,000 characters.
+Return ONLY JSON: {"svg":"<svg ...>...</svg>","caption":"a short line for the slide, 3 to 8 words"}`;
+async function claudeDraw(fresh) {
+  if (!mk || mk.kind !== "art" || !sample) return;
+  const d = mk.draft, key = mk.kind; const run = (d.run || 0) + 1; d.run = run; d.err = "";
+  mk.busy = "draw"; renderMkPreview(); $("#mk-again").disabled = true; $("#mk-add").disabled = true;
+  const live = () => mk && mk.kind === key && mk.draft === d && d.run === run;
+  try {
+    const { value: r } = await askJson(DRAW_ASK(`${d.prompt.trim() || srcPlain().slice(0, 300)}. Style: ${ART_STYLES[d.style][1]}.`, d.theme), { tier: "complex", fresh: !!fresh });
+    if (!live()) return;
+    const svg = cleanSvg(String(r.svg || "")); if (!svg) throw { code: "empty" };
+    d.svg = svg; d.img = null; d.link = ""; d.hdUrl = ""; d.media = ""; if (!d.caption && r.caption) d.caption = String(r.caption).slice(0, 80);
+  } catch (e) { if (live()) d.err = e && e.code === "not_granted" ? "Claude wasn't allowed for this page." : "Claude couldn't draw that. Try Paint another, or different words."; }
+  if (!live()) return;
+  mk.busy = false; $("#mk-again").disabled = false; $("#mk-add").disabled = false; renderMkFields(); renderMkPreview();
+}
 /* Illustration: Canva's image generator, through the viewer's Canva connection */
 const ART_STYLES = { painterly: ["Painterly", "soft painterly illustration, warm natural light, gentle texture"], flat: ["Flat illustration", "clean flat vector illustration, simple shapes, limited palette"], line: ["Line art", "elegant minimal line art on a plain dark background"], photo: ["Photographic", "cinematic photograph, natural light, shallow depth of field"], watercolor: ["Watercolor", "loose watercolor illustration, soft washes of color"] };
 function findImage(res) {
@@ -7673,12 +7845,12 @@ function renderThemePanel() {
   const ta = el("textarea", { id: "th-img-p", rows: "2", placeholder: "What the header picture shows, for example: a single oil lamp on a stone path at dusk" }); ta.value = th.imagery || ""; ta.oninput = () => { th.imagery = ta.value; save(); };
   pic.append(el("label", { class: "set-h", for: "th-img-p", text: "Header picture for title and section slides" }), ta,
     el("div", { class: "mat-act" },
-      el("button", { type: "button", class: "btn", id: "th-paint", text: th.img ? "Paint another with Canva" : "Paint with Canva", disabled: mcpNs && !thBusy ? null : "", onclick: thPaint }),
+      el("button", { type: "button", class: "btn", id: "th-paint", text: (th.img ? "Paint another with " : "Paint with ") + (imgService() === "claude-draw" ? "Claude" : "Canva"), hidden: imgService() === "none" ? "" : null, disabled: imgReady() && !thBusy ? null : "", onclick: thPaint }),
       el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
       th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.media = ""; th.hd = false; thChanged(true); } }) : null));
   if (th.img) { const box = el("div", { id: "th-hd-box" }); fillThHd(box, th); pic.append(box); }
-  if (!mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
-  if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), "Canva is painting… usually under a minute"));
+  if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
+  if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), imgService() === "claude-draw" ? "Claude is drawing…" : "Canva is painting… usually under a minute"));
   ed2.append(pic);
   // previews on this sermon's own words
   themeSamples(th).forEach(sl => { const f = el("div", { class: "slide" }); f.style.aspectRatio = String(S.aspect || 16 / 9); renderMade(f, sl); prev.append(el("figure", { class: "th-fig" }, f, el("figcaption", { class: "hint", text: sl.label }))); });
@@ -7754,8 +7926,20 @@ async function canvaImage(prompt, onMeta) {
   return new Blob([bytes], { type: img.mime });
 }
 async function thStoreImg(blob, maxW = 1920) { const small = await shrinkImage(blob, maxW); return (cdb && cassets ? await upBlob(small).catch(() => null) : null) || small; }
+async function svgPicture(svg, W = 1920, H = 1080) {   // a drawing as a PNG, so it works like any other header picture
+  const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); });
+  const c = document.createElement("canvas"); c.width = W; c.height = H; c.getContext("2d").drawImage(im, 0, 0, W, H); return canvasBlob(c, "image/png");
+}
 async function thPaint() {
-  const th = curTheme(); if (!th || !mcpNs || thBusy) return;
+  const th = curTheme(); if (!th || thBusy || !imgReady()) return;
+  if (imgService() === "claude-draw") {
+    thBusy = true; renderThemePanel();
+    try { const { value: r } = await askJson(DRAW_ASK(`${(th.imagery || "").trim() || `a reverent picture drawn from ${S.meta.text || "the sermon's passage"}`}. A wide header picture for the top of title slides.`, th), { tier: "complex", fresh: true });
+      const svg = cleanSvg(String(r.svg || "")); if (!svg) throw { code: "empty" };
+      th.img = await thStoreImg(await svgPicture(svg), 1920); th.dims = [1920, 1080]; th.hd = true; th.link = ""; th.hdUrl = ""; th.media = ""; toast("Header picture in place"); }
+    catch { toast("Claude couldn't draw that. Try again, or different words."); }
+    thBusy = false; thChanged(true); return;
+  }
   const prompt = `${(th.imagery || "").trim() || `A reverent picture drawn from ${S.meta.text || "the sermon's passage"}`}. Wide header image for church worship slides, ${th.tex === "plain" ? "simple" : "soft"} light, colors in harmony with ${th.bg} and ${th.accent}, generous empty space, no words or letters.`;
   thBusy = true; renderThemePanel();
   try {
@@ -8076,6 +8260,7 @@ let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") 
 if (!["details", "edit", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
+  if (!$("#settings").hidden) closeSettings();
   if (v === "bindings" || v === "series") { buildSub = v; v = "build"; }
   if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
@@ -8165,8 +8350,8 @@ if (window.claude && window.claude.use) {
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
   claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
-const setCollapsed = c => { const h = $("header.top"); h.classList.toggle("collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
-$("#btn-collapse").onclick = () => setCollapsed(!$("header.top").classList.contains("collapsed"));
+const setCollapsed = c => { document.body.classList.toggle("sb-collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
+$("#btn-collapse").onclick = () => setCollapsed(!document.body.classList.contains("sb-collapsed"));
 try { if (localStorage.getItem("pb-hdr") === "1") setTimeout(() => setCollapsed(true), 0); } catch {}
 const measureHeader = () => { const h = $("header.top"); const px = h.offsetHeight; root.style.setProperty("--hdr-full", px + "px"); root.style.setProperty("--hdr-h", (getComputedStyle(h).position === "sticky" ? px : 0) + "px"); };
 try { new ResizeObserver(measureHeader).observe($("header.top")); } catch {}

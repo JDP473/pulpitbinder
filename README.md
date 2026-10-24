@@ -6,8 +6,8 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
 
 ## What it does
 
-- **Dashboard:** every sermon at once: frequency, length, Bible coverage by book and section, themes, doctrines, approach, tone, themes over time, and Claude's read across all of it.
-- **Build**, in three sections:
+- **Overview:** every sermon at once: frequency, length, Bible coverage by book and section, themes, doctrines, approach, tone, themes over time, and Claude's read across all of it.
+- **Write** (once called Build), in three sections:
   - **Details:** sermon details (date, time, place, service, text, tags), the slide deck (.pptx rendered to match PowerPoint, or a PDF export), and a recording link or file with an as-preached transcript.
   - **Series documents:** shown when a sermon has a series or tag; the other sermons that share it, readable in place, with a button to open one, and **Next sermon in the series**, which recommends the next text (the next passage in order, plus Claude's options) and creates the sermon with the series, text, title, and date filled in.
   - **Bindings:** which slide goes with which part of the text.
@@ -34,6 +34,7 @@ cd tests/node && npm install && cd ../..
 pip install playwright        # uses an installed Chromium
 python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
+python3 tests/browser/shell.py   # sidebar, Settings page, AI and images
 python3 tests/browser/reading.py   # Scripture reading page on Materials
 python3 tests/browser/scfmt.py   # formatting Scripture and slides following it
 python3 tests/browser/pptxout.py   # saves the deck as .pptx (open tests/out/export.pptx to check it)
