@@ -6,7 +6,7 @@ Owner: Jarred Pettijohn, pulpit minister at Bridge Creek church of Christ, also 
 
 - The app is one file, `pulpit-binder.html`, published as a Claude artifact at https://claude.ai/artifact/6mMDoGKaPf3qKzRHE9mMUn
 - Always publish updates to that URL (Artifact publish with `file_path: pulpit-binder.html` and `url` set to the link above, after reading it if this conversation has not published it yet). Never create a new artifact: his synced sermons live under that page, and a new page would start empty.
-- Leave `capabilities` out of publishes so the current set carries forward: sample, downloads, db, user, assets, and mcp (Firecrawl `firecrawl_scrape`; Canva `generate-image`, `get-generate-image-job`).
+- Leave `capabilities` out of publishes so the current set carries forward: sample, downloads, db, user, assets, and mcp (Firecrawl `firecrawl_scrape`; Canva `generate-image`, `get-generate-image-job`, `search-designs`, `create-design`, `get-create-design-async-job`, `read-design`, `edit-design`, `export-design`).
 - Order of work: edit, syntax-check the script, run the relevant browser test, commit, publish, push.
 
 Syntax check:

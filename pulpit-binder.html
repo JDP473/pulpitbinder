@@ -211,6 +211,8 @@ main{padding-block:18px 40px}
 .hd-box.warn > b{color:var(--warn)}
 .hd-box ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:2px}
 .hd-links{display:flex;gap:6px;flex-wrap:wrap}
+.hd-wait{display:flex;gap:8px;align-items:center}
+.hd-wait .spin{flex:none}
 .hd-links .btn{text-decoration:none;font-size:13px;padding:6px 10px}
 .hd-links .btn:not(.primary){color:var(--ink)}
 /* slide kind picker */
@@ -3943,6 +3945,21 @@ function renderEditStats() {
 /* slide gutter: thumbnails beside the paragraph that brings each slide up */
 let gutterT = null, gutterPop = null;
 const queueGutter = () => { clearTimeout(gutterT); gutterT = setTimeout(renderGutter, 60); };
+/* a Canva picture on a slide: its full-size export (made again once the link expires) and the picture in Canva */
+function slideHdLinks(sl) {
+  if (!sl || !(sl.hdUrl || sl.canva || sl.media)) return null;
+  const box = el("div", { class: "hd-links" });
+  const fill = (busy, err) => {
+    box.replaceChildren();
+    if (hdLive(sl.hdUrl)) box.append(el("a", { class: "btn", href: sl.hdUrl, target: "_blank", rel: "noopener", text: "Full-size picture ↗" }));
+    else if (sl.media && mcpNs) box.append(el("button", { type: "button", class: "btn", text: busy ? "Getting full-size picture…" : "Get full-size picture", disabled: busy ? "" : null, onclick: get }));
+    if (sl.canva) box.append(el("a", { class: "btn", href: sl.canva, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }));
+    if (err) box.append(el("span", { class: "hint", text: err }));
+  };
+  const get = () => { fill(true); canvaFullSize(sl.media).then(url => { sl.hdUrl = url; if (S.slides.includes(sl)) save(); fill(false); }).catch(e => fill(false, hdErrText(e))); };
+  fill(false);
+  return box.children.length ? box : null;
+}
 function closeGutterPop() { if (gutterPop) { gutterPop.remove(); gutterPop = null; } }
 function renderGutter() {
   if (view !== "edit") return;
@@ -4009,7 +4026,7 @@ function openGutterPop(anchorEl, x) {
     el("div", { class: "g-pop-h", text: `Slide ${x.slide + 1} · paragraph ${x.sec + 1}` }),
     el("div", { class: "hint", text: x.extra ? "No paragraph matched this slide, so it comes up on a click during this paragraph. Put the cursor where it belongs and use Slide cue in the toolbar, or start it at this paragraph." : "Choose which slide this paragraph brings up. A pin lasts until the paragraph's wording changes; a slide cue is permanent." }),
     el("label", { class: "g-pop-h", for: "g-pop-sel", text: "This paragraph shows" }), sel,
-    (S.slides[x.slide] && (S.slides[x.slide].hdUrl || S.slides[x.slide].canva)) ? el("div", { class: "hd-links" }, S.slides[x.slide].hdUrl ? el("a", { class: "btn", href: S.slides[x.slide].hdUrl, target: "_blank", rel: "noopener", text: "Full-size image ↗" }) : null, S.slides[x.slide].canva ? el("a", { class: "btn", href: S.slides[x.slide].canva, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }) : null) : null,
+    slideHdLinks(S.slides[x.slide]),
     el("div", { class: "sg-act" }, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
   pop.style.top = anchorEl.style.top; pop.onclick = e => e.stopPropagation();
   $("#gutter").append(pop); gutterPop = pop; sel.focus({ preventScroll: true });
@@ -4821,7 +4838,7 @@ function draftSlides() {
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
   if (d.made === "photo") return d.img ? [{ ...d, title: d.caption || "Photo", body: d.caption ? [d.caption] : [] }] : [];
-  if (d.made === "art") return d.img ? [{ made: "art", img: d.img, caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
+  if (d.made === "art") return d.img ? [{ made: "art", img: d.img, caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", media: d.media || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
   return [{ ...d, title: title(d.text), body: [String(d.text || "").replace(/\[\[|\]\]/g, "")] }];
 }
 function renderMkPreview() {
@@ -4873,26 +4890,35 @@ function renderMkFields() {
     field("Style", st);
     field("What to paint", ta("mk-f-prompt", d.prompt, 3, v => d.prompt = v), "Change the description or style, then press Paint another.");
     field("Line over the picture (optional)", tx("mk-f-cap", d.caption, v => d.caption = v));
-    if (d.img) {
-      /* Canva hands this page only a preview; the full picture stays behind Canva links the page isn't allowed to load. */
-      const small = !d.hd && (!d.dims || d.dims[0] < 1600);
-      const box = el("div", { class: "hd-box" + (small ? " warn" : "") });
-      box.append(el("b", { text: d.hd ? "Full quality picture in place" : small ? `Preview quality${d.dims ? ` (${d.dims[0]} × ${d.dims[1]})` : ""}` : `Good quality (${d.dims[0]} × ${d.dims[1]})` }));
-      const links = el("div", { class: "hd-links" });
-      if (d.hdUrl) links.append(el("a", { class: "btn primary", href: d.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size image ↗" }));
-      if (d.link) links.append(el("a", { class: "btn", href: d.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }));
-      if (links.children.length) box.append(links);
-      if (small) {
-        const ol = el("ol");
-        ol.append(el("li", { text: d.hdUrl ? "Open the full-size image above and save it (right-click or long-press, then Save image)" : d.link ? "Open it in Canva above and download it" : "Open Canva and download the newest picture in your uploads" }), el("li", { text: "Choose the saved file here" }));
-        box.append(el("span", { class: "hint", text: "Canva sends this page a smaller preview. For a sharp picture on the projector:" }), ol);
-        const inp = el("input", { type: "file", id: "mk-f-hd", accept: "image/*", "aria-label": "Full quality picture from Canva" });
-        inp.onchange = async () => { const file = inp.files[0]; if (!file) return; try { const bm = await createImageBitmap(file); d.dims = [bm.width, bm.height]; d.img = await shrinkImage(file, 2560); d.hd = true; renderMkFields(); renderMkPreview(); toast("Full quality picture in place"); } catch { toast("Couldn't read that picture. Try the JPG or PNG from Canva."); } };
-        box.append(inp);
-      }
-      f.append(box);
-    }
+    if (d.img) { const box = el("div", { id: "mk-hd" }); fillArtHd(box, d); f.append(box); }
   }
+}
+/* Canva hands this page only a preview, so the full-size picture comes from a Canva export the viewer saves and chooses here */
+function fillArtHd(box, d) {
+  const ready = hdLive(d.hdUrl), small = !d.hd && (!d.dims || d.dims[0] < 1600);
+  box.className = "hd-box" + (small && !ready && !d.hdBusy ? " warn" : ""); box.replaceChildren();
+  box.append(el("b", { text: d.hd ? "Full quality picture in place" : ready ? "Full-size picture ready" : d.hdBusy ? "Getting the full-size picture from Canva" : small ? `Preview quality${d.dims ? ` (${d.dims[0]} × ${d.dims[1]})` : ""}` : `Good quality (${d.dims[0]} × ${d.dims[1]})` }));
+  if (d.hdBusy && !d.hd) box.append(el("span", { class: "hint hd-wait" }, el("span", { class: "spin" }), el("span", { text: "Canva is exporting it at 1920 × 1080, usually under a minute. You can keep working." })));
+  if (d.hdErr && !d.hd) box.append(el("span", { class: "hint", text: d.hdErr }));
+  const links = el("div", { class: "hd-links" });
+  if (ready) links.append(el("a", { class: "btn" + (d.hd ? "" : " primary"), href: d.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size picture ↗" }));
+  else if (d.media && mcpNs && !d.hdBusy && !d.hd) links.append(el("button", { type: "button", class: "btn primary", text: d.hdErr ? "Try again" : "Get full-size picture", onclick: () => artFullSize(d) }));
+  if (d.link) links.append(el("a", { class: "btn", href: d.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }));
+  if (links.children.length) box.append(links);
+  if (!small) return;
+  const ol = el("ol");
+  ol.append(el("li", { text: ready ? "Open the full-size picture and save it (right-click or long-press, then Save image)" : d.hdBusy ? "When it's ready, open the full-size picture and save it" : d.media && mcpNs ? "Get the full-size picture, open it, and save it" : d.link ? "Open it in Canva above and download it" : "Open Canva and download the newest picture in your uploads" }), el("li", { text: "Choose the saved file here" }));
+  box.append(el("span", { class: "hint", text: "Canva sends this page a smaller preview. For a sharp picture on the projector:" }), ol);
+  const inp = el("input", { type: "file", id: "mk-f-hd", accept: "image/*", "aria-label": "Full quality picture from Canva" });
+  inp.onchange = async () => { const file = inp.files[0]; if (!file) return; try { const bm = await createImageBitmap(file); d.dims = [bm.width, bm.height]; d.img = await shrinkImage(file, 2560); d.hd = true; renderMkFields(); renderMkPreview(); toast("Full quality picture in place"); } catch { toast("Couldn't read that picture. Try the JPG or PNG from Canva."); } };
+  box.append(inp);
+}
+function artFullSize(d) {
+  const media = d.media; if (!media || !mcpNs || (d.hdBusy && d.hdFor === media)) return;
+  const redraw = () => { const b = $("#mk-hd"); if (b && mk && mk.draft === d) fillArtHd(b, d); };
+  d.hdBusy = true; d.hdFor = media; d.hdErr = ""; redraw();
+  canvaFullSize(media).then(url => { if (d.media === media) d.hdUrl = url; }).catch(e => { if (d.media === media) d.hdErr = hdErrText(e); })
+    .finally(() => { if (d.hdFor === media) d.hdBusy = false; redraw(); });
 }
 async function shrinkImage(file, maxW = 1920) {
   const bmp = await createImageBitmap(file); const scale = Math.min(1, maxW / bmp.width);
@@ -4919,6 +4945,68 @@ function findImageUrl(res) {
 }
 const findLink = res => { const m = JSON.stringify(res || "").match(/https:\/\/(?:www\.)?canva\.com\/[^"\s\\)]+/); return m ? m[0] : ""; };
 const jobStatus = res => { const p = res && (res.structuredContent || res.payload); const str = typeof p === "string" ? p : JSON.stringify(p || ""); const m = str.match(/"?status"?\s*[:=]\s*"?(SUCCESS|FAILURE|FAILED|PENDING|IN_PROGRESS|RUNNING)/i) || str.match(/\b(SUCCESS|FAILURE|PENDING)\b/); return m ? m[1].toUpperCase() : ""; };
+const canvaPayload = res => { const p = res && (res.structuredContent || res.payload); if (p && typeof p === "object") return p; try { return JSON.parse(typeof p === "string" ? p : "") || {}; } catch { return {}; } };
+/* the generated picture's Canva media id, which the full-size export needs */
+function findMediaId(res) {
+  const p = canvaPayload(res), r = p.result && Array.isArray(p.result.results) ? p.result.results.find(x => x && x.type === "MEDIA" && x.id) : null;
+  if (r) return String(r.id);
+  const s = JSON.stringify(res || ""), m = s.match(/canva\.com\/M\/(M[\w-]{6,})/) || s.match(/media id is (M[\w-]{6,})/);
+  return m ? m[1] : "";
+}
+/* Full-size Canva pictures. Canva sends this page only a small preview and the page can't download from Canva itself,
+   so the picture goes onto the one 1920 x 1080 page of a design kept for this in the viewer's Canva, and Canva exports
+   that page as a PNG behind a link the viewer opens and saves. One export at a time, since they share the page. */
+const HD_TITLE = "Pulpit Binder full-size pictures";
+let hdQueue = Promise.resolve();
+async function canvaHolder(fresh) {
+  const intent = "Keep a page in Canva that Pulpit Binder uses to export pictures at full size";
+  if (!fresh) { try { const id = localStorage.getItem("pb-canva-holder"); if (id) return id; } catch {} }
+  const found = canvaPayload(await mcpNs.callTool("Canva", "search-designs", { query: HD_TITLE, ownership: "owned", sort_by: "relevance", limit: 5, user_intent: intent }));
+  let id = ((found.items || []).find(d => d && d.title === HD_TITLE) || {}).id;
+  if (!id) {
+    let job = canvaPayload(await mcpNs.callTool("Canva", "create-design", { brief: `A completely blank single page titled "${HD_TITLE}". Plain white background, no text, no images, no decorations.`, format: "Presentation (16:9)", user_intent: intent }));
+    const t0 = Date.now();
+    while (!(job.design && job.design.id)) {
+      if (/fail|error/i.test(job.status || "") || !job.job_id || !job.continuation_token || Date.now() - t0 > 180000) throw { code: "holder_failed" };
+      await new Promise(r => setTimeout(r, 1000 * Math.min(30, Math.max(5, +(job.polling_policy && job.polling_policy.wait_seconds) || 10))));
+      job = { ...job, ...canvaPayload(await mcpNs.callTool("Canva", "get-create-design-async-job", { job_id: job.job_id, continuation_token: job.continuation_token, user_intent: intent })) };
+    }
+    id = job.design.id;
+  }
+  try { localStorage.setItem("pb-canva-holder", id); } catch {}
+  return id;
+}
+function canvaFullSize(mediaId) { const run = hdQueue.then(() => canvaFullSizeNow(mediaId)); hdQueue = run.catch(() => {}); return run; }
+async function canvaFullSizeNow(mediaId, retried) {
+  if (!mcpNs || !mediaId) throw { code: "no_media" };
+  const intent = "Export a Canva picture at full size for sermon slides in Pulpit Binder", design_id = await canvaHolder(retried);
+  let rd;
+  try { rd = canvaPayload(await mcpNs.callTool("Canva", "read-design", { design_id, open_transaction: true, filter: { fields: ["page_metadata"] }, user_intent: intent })); }
+  catch (e) { if (!retried && e && e.code === "tool_error") { try { localStorage.removeItem("pb-canva-holder"); } catch {} return canvaFullSizeNow(mediaId, true); } throw e; }   // the kept design was deleted
+  const transaction_id = rd.transaction && rd.transaction.transaction_id, page = (rd.page_metadata || [])[0];
+  if (!transaction_id || !page || !page.id) throw { code: "holder_failed" };
+  try {
+    const ed = canvaPayload(await mcpNs.callTool("Canva", "edit-design", { transaction_id, page_index: 1, finalize: "keep_open", operations: [{ type: "update_fill", locator_id: page.id, asset_type: "image", asset_id: mediaId, alt_text: "Sermon picture" }], user_intent: intent }));
+    if ((ed.edit_operation_results || []).some(r => r && /fail|reject|error|invalid/i.test(r.status || ""))) throw { code: "holder_failed" };
+    await mcpNs.callTool("Canva", "edit-design", { transaction_id, finalize: "commit", user_intent: intent });
+  } catch (e) { mcpNs.callTool("Canva", "edit-design", { transaction_id, finalize: "cancel", user_intent: intent }).catch(() => {}); throw e; }
+  const fmt = { type: "png", pages: [1], width: 1920, height: 1080 };
+  let ex;
+  try { ex = await mcpNs.callTool("Canva", "export-design", { design_id, format: { ...fmt, export_quality: "pro" }, user_intent: intent }); }
+  catch (e) { if (!e || e.code !== "tool_error") throw e; ex = await mcpNs.callTool("Canva", "export-design", { design_id, format: fmt, user_intent: intent }); }   // pro quality needs Canva Pro
+  const p = canvaPayload(ex), url = (p.job && Array.isArray(p.job.urls) && p.job.urls[0]) || (JSON.stringify(p).replace(/\\u0026/g, "&").match(/https:\/\/export-download\.canva\.com\/[^"\s\\]+/) || [])[0];
+  if (!url) throw { code: "export_failed" };
+  return url;
+}
+/* export links are signed and expire (most within a day); a link with no expiry is kept */
+function hdLive(url) {
+  if (!url) return false;
+  const d = (url.match(/X-Amz-Date=(\d{8}T\d{6}Z)/) || [])[1], s = +((url.match(/X-Amz-Expires=(\d+)/) || [])[1] || 0);
+  if (!d || !s) return true;
+  const t = Date.UTC(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), +d.slice(9, 11), +d.slice(11, 13), +d.slice(13, 15));
+  return t + s * 1000 - Date.now() > 10 * 60000;
+}
+const hdErrText = e => e && e.code === "server_not_connected" ? "Canva isn't connected in your Claude settings." : e && e.code === "needs_reauth" ? "Reconnect Canva in your Claude settings, then try again." : e && (e.code === "not_granted" || e.code === "not_in_manifest" || e.code === "approval_required") ? "This page wasn't allowed to use Canva's design tools. Allow them from the page's Permissions menu, then try again." : "Canva couldn't make the full-size picture just now. Try again, or open the picture in Canva and download it there.";
 async function canvaPaint() {
   if (!mk || mk.kind !== "art" || !mcpNs) return;
   const d = mk.draft, key = mk.kind; const run = (d.run || 0) + 1; d.run = run; d.err = ""; 
@@ -4928,24 +5016,25 @@ async function canvaPaint() {
     const intent = "Make an illustration for a sermon slide in Pulpit Binder";
     const prompt = `${d.prompt.trim()}. Style: ${ART_STYLES[d.style][1]}. For a church worship slide: reverent, uncluttered, room for a line of text, no words or letters in the image.`;
     const start = await mcpNs.callTool("Canva", "generate-image", { prompt, aspectRatio: "LANDSCAPE_16_9", user_intent: intent });
-    let img = findImage(start), link = findLink(start), hdUrl = findImageUrl(start);
+    let img = findImage(start), link = findLink(start), hdUrl = findImageUrl(start), media = findMediaId(start);
     const p = start && (start.structuredContent || start.payload); const jobId = (p && (p.jobId || p.job_id || (p.job && p.job.id))) || (JSON.stringify(p || "").match(/"job_?[Ii]d"\s*:\s*"([^"]+)"/) || [])[1];
     const t0 = Date.now();
     while (!img && jobId && Date.now() - t0 < 150000) {
       await new Promise(r => setTimeout(r, 3000)); if (!live()) return;
       const res = await mcpNs.callTool("Canva", "get-generate-image-job", { jobId, user_intent: intent });
-      img = findImage(res); link = findLink(res) || link; hdUrl = findImageUrl(res) || hdUrl;
+      img = findImage(res); link = findLink(res) || link; hdUrl = findImageUrl(res) || hdUrl; media = findMediaId(res) || media;
       const st = jobStatus(res);
       if (/FAIL/.test(st)) throw { code: "canva_failed", message: (JSON.stringify(res.payload || "").match(/failureMessage"?\s*:\s*"([^"]+)/) || [])[1] };
       if (st === "SUCCESS" && !img && !link && Date.now() - t0 > 60000) break;
     }
     if (!live()) return;
-    d.hdUrl = hdUrl;
+    d.hdUrl = hdUrl; d.media = media; d.hdErr = "";
     if (!img) { d.link = link; throw { code: link || hdUrl ? "no_inline" : "timeout" }; }
     const bin = atob(img.data); const bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     const raw = new Blob([bytes], { type: img.mime });
     try { const bm = await createImageBitmap(raw); d.dims = [bm.width, bm.height]; } catch { d.dims = null; }
     d.img = await shrinkImage(raw); d.link = link; d.hdUrl = hdUrl; d.hd = false;
+    if (!hdLive(d.hdUrl) && (!d.dims || d.dims[0] < 1600)) artFullSize(d);
   } catch (e) {
     if (!live()) return;
     d.err = e && e.code === "server_not_connected" ? "Canva isn't connected in your Claude settings. Connect it, or use Photo instead." : e && e.code === "not_granted" ? "This page wasn't allowed to use Canva. Allow it from the page's Permissions menu." : e && e.code === "no_inline" ? "Canva made the picture but didn't send it back to this page. Open it in Canva, download it, and add it with Photo." : e && e.code === "timeout" ? "Canva is taking longer than usual. Try Paint another." : `Canva couldn't make that picture${e && e.message ? ": " + e.message : ""}. Try different wording or another style.`;
@@ -7296,7 +7385,7 @@ function cleanTheme(t, base = {}) {
   const th = { id: t.id || uid(), name: cleanStr(t.name, 40) || base.name || "Theme", mood: cleanStr(t.mood, 160), why: cleanStr(t.why, 200),
     bg: hx(t.bg) || base.bg || "#1c2433", bg2: hx(t.bg2) || base.bg2 || "", fg: hx(t.fg) || base.fg || "#f3f1ea", accent: hx(t.accent) || base.accent || "#e2b55e",
     head: FONTS[t.head] ? t.head : base.head || "Literata", body: FONTS[t.body] ? t.body : base.body || "Literata", tex: TEXTURES[t.tex] ? t.tex : base.tex || "gradient",
-    imagery: cleanStr(t.imagery, 500), img: t.img || null, link: t.link || "", hdUrl: t.hdUrl || "", hd: !!t.hd, dims: Array.isArray(t.dims) ? t.dims.slice(0, 2) : null };
+    imagery: cleanStr(t.imagery, 500), img: t.img || null, link: t.link || "", hdUrl: t.hdUrl || "", media: /^M[\w-]{6,40}$/.test(t.media || "") ? t.media : "", hd: !!t.hd, dims: Array.isArray(t.dims) ? t.dims.slice(0, 2) : null };
   const bgR = stHex(th.bg), dark = lum(bgR) < 0.35;
   if (contrast(stHex(th.fg), bgR) < 7) th.fg = dark ? "#f5f2ea" : "#1b1f27";
   let a = th.accent, g = 0; while (contrast(stHex(a), bgR) < 3 && g++ < 14) a = stMix(a, dark ? "#ffffff" : "#000000", 0.8); th.accent = hexOf(a);
@@ -7362,17 +7451,8 @@ function renderThemePanel() {
     el("div", { class: "mat-act" },
       el("button", { type: "button", class: "btn", id: "th-paint", text: th.img ? "Paint another with Canva" : "Paint with Canva", disabled: mcpNs && !thBusy ? null : "", onclick: thPaint }),
       el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
-      th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.hd = false; thChanged(true); } }) : null));
-  if (th.img && (th.link || th.hdUrl) && !th.hd) {
-    /* Canva sends this page only a preview; the page isn't allowed to download from Canva itself, so the full-size file comes through you */
-    const box = el("div", { class: "hd-box warn" }, el("b", { text: `Preview quality${th.dims ? ` (${th.dims[0]} × ${th.dims[1]})` : ""}` }));
-    const links = el("div", { class: "hd-links" });
-    if (th.hdUrl) links.append(el("a", { class: "btn primary", href: th.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size image ↗" }));
-    if (th.link) links.append(el("a", { class: "btn", href: th.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }));
-    const inp = el("input", { type: "file", id: "th-hd", accept: "image/*", "aria-label": "Full-size picture from Canva" }); inp.onchange = () => thSetPic(inp.files[0], true);
-    box.append(links, el("span", { class: "hint", text: th.hdUrl ? "For a sharp picture on the projector: open the full-size image, save it (right-click or long-press, then Save image), and choose the saved file here." : "For a sharp picture on the projector: open it in Canva, download it, and choose the downloaded file here." }), inp);
-    pic.append(box);
-  } else if (th.img && th.hd && th.link) pic.append(el("div", { class: "hd-links" }, el("span", { class: "hint", text: `Full size${th.dims ? ` (${th.dims[0]} × ${th.dims[1]})` : ""}` }), el("a", { class: "btn ghost", href: th.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" })));
+      th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.media = ""; th.hd = false; thChanged(true); } }) : null));
+  if (th.img) { const box = el("div", { id: "th-hd-box" }); fillThHd(box, th); pic.append(box); }
   if (!mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
   if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), "Canva is painting… usually under a minute"));
   ed2.append(pic);
@@ -7385,7 +7465,32 @@ function renderThemePanel() {
   $("#th-add-sc").textContent = sc ? `Add Scripture slides for ${sc.ref}` : "Add Scripture slides"; $("#th-add-sc").disabled = !sc;
   $("#th-save").hidden = !downloads; $("#th-ai").hidden = !sample;
 }
-let thT = 0, thBusy = false;
+let thT = 0, thBusy = false, thHd = {};
+/* Canva sends this page only a preview; the full-size picture comes from a Canva export, saved and chosen here */
+function fillThHd(box, th) {
+  const ready = hdLive(th.hdUrl), busy = thHd.media === th.media && thHd.busy, err = thHd.media === th.media ? thHd.err : "";
+  box.replaceChildren(); box.className = "";
+  if (th.hd) { if (th.link || ready) box.append(el("div", { class: "hd-links" }, el("span", { class: "hint", text: `Full size${th.dims ? ` (${th.dims[0]} × ${th.dims[1]})` : ""}` }), ready ? el("a", { class: "btn ghost", href: th.hdUrl, target: "_blank", rel: "noopener", text: "Full-size picture ↗" }) : null, th.link ? el("a", { class: "btn ghost", href: th.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }) : null)); return; }
+  if (!(th.link || th.hdUrl || th.media)) return;
+  box.className = "hd-box" + (ready || busy ? "" : " warn");
+  box.append(el("b", { text: ready ? "Full-size picture ready" : busy ? "Getting the full-size picture from Canva" : `Preview quality${th.dims ? ` (${th.dims[0]} × ${th.dims[1]})` : ""}` }));
+  if (busy) box.append(el("span", { class: "hint hd-wait" }, el("span", { class: "spin" }), el("span", { text: "Canva is exporting it at 1920 × 1080, usually under a minute." })));
+  if (err) box.append(el("span", { class: "hint", text: err }));
+  const links = el("div", { class: "hd-links" });
+  if (ready) links.append(el("a", { class: "btn primary", href: th.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size picture ↗" }));
+  else if (th.media && mcpNs && !busy) links.append(el("button", { type: "button", class: "btn primary", text: err ? "Try again" : "Get full-size picture", onclick: () => thFullSize(th) }));
+  if (th.link) links.append(el("a", { class: "btn", href: th.link, target: "_blank", rel: "noopener", text: "Open in Canva ↗" }));
+  if (links.children.length) box.append(links);
+  const inp = el("input", { type: "file", id: "th-hd", accept: "image/*", "aria-label": "Full-size picture from Canva" }); inp.onchange = () => thSetPic(inp.files[0], true);
+  box.append(el("span", { class: "hint", text: ready ? "For a sharp picture on the projector: open the full-size picture, save it (right-click or long-press, then Save image), and choose the saved file here." : busy ? "For a sharp picture on the projector: when it's ready, open the full-size picture, save it, and choose the saved file here." : th.media && mcpNs ? "For a sharp picture on the projector: get the full-size picture, save it, and choose the saved file here." : "For a sharp picture on the projector: open it in Canva, download it, and choose the downloaded file here." }), inp);
+}
+function thFullSize(th) {
+  const media = th && th.media; if (!media || !mcpNs || (thHd.media === media && thHd.busy)) return;
+  const redraw = () => { const b = $("#th-hd-box"), cur = curTheme(); if (b && cur && cur.id === th.id) fillThHd(b, cur); };
+  thHd = { media, busy: true, err: "" }; redraw();
+  canvaFullSize(media).then(url => { if (th.media === media) { th.hdUrl = url; thChanged(false); } }).catch(e => { if (thHd.media === media) thHd.err = hdErrText(e); })
+    .finally(() => { if (thHd.media === media) thHd.busy = false; redraw(); });
+}
 function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
 async function thAsk() {
   if (!sample) return;
@@ -7409,17 +7514,17 @@ Return ONLY JSON: {"themes":[{"name":"2 or 3 words","mood":"one sentence","why":
 async function canvaImage(prompt, onMeta) {
   const intent = "Make a header picture for sermon slides in Pulpit Binder";
   const start = await mcpNs.callTool("Canva", "generate-image", { prompt, aspectRatio: "LANDSCAPE_16_9", user_intent: intent });
-  let img = findImage(start), link = findLink(start), hdUrl = findImageUrl(start);
+  let img = findImage(start), link = findLink(start), hdUrl = findImageUrl(start), media = findMediaId(start);
   const p = start && (start.structuredContent || start.payload); const jobId = (p && (p.jobId || p.job_id || (p.job && p.job.id))) || (JSON.stringify(p || "").match(/"job_?[Ii]d"\s*:\s*"([^"]+)"/) || [])[1];
   const t0 = Date.now();
   while (!img && jobId && Date.now() - t0 < 150000) {
     await new Promise(r => setTimeout(r, 3000));
     const res = await mcpNs.callTool("Canva", "get-generate-image-job", { jobId, user_intent: intent });
-    img = findImage(res); link = findLink(res) || link; hdUrl = findImageUrl(res) || hdUrl;
+    img = findImage(res); link = findLink(res) || link; hdUrl = findImageUrl(res) || hdUrl; media = findMediaId(res) || media;
     const st = jobStatus(res); if (/FAIL/.test(st)) throw { code: "canva_failed" };
     if (st === "SUCCESS" && !img && !link && Date.now() - t0 > 60000) break;
   }
-  if (onMeta) onMeta({ link, hdUrl });
+  if (onMeta) onMeta({ link, hdUrl, media });
   if (!img) throw { code: link ? "no_inline" : "timeout" };
   const bin = atob(img.data), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return new Blob([bytes], { type: img.mime });
@@ -7430,17 +7535,18 @@ async function thPaint() {
   const prompt = `${(th.imagery || "").trim() || `A reverent picture drawn from ${S.meta.text || "the sermon's passage"}`}. Wide header image for church worship slides, ${th.tex === "plain" ? "simple" : "soft"} light, colors in harmony with ${th.bg} and ${th.accent}, generous empty space, no words or letters.`;
   thBusy = true; renderThemePanel();
   try {
-    const blob = await canvaImage(prompt, m => { th.link = m.link || ""; th.hdUrl = m.hdUrl || ""; });
+    const blob = await canvaImage(prompt, m => { th.link = m.link || ""; th.hdUrl = m.hdUrl || ""; th.media = m.media || ""; });
     try { const bm = await createImageBitmap(blob); th.dims = [bm.width, bm.height]; } catch { th.dims = null; }
     th.img = await thStoreImg(blob); th.hd = !!(th.dims && th.dims[0] >= 1600);
-    toast(th.hd ? "Header picture in place" : "Preview in place. Swap in the full-size picture from Canva for the projector.");
+    if (!th.hd && !hdLive(th.hdUrl)) setTimeout(() => thFullSize(th), 0);
+    toast(th.hd ? "Header picture in place" : th.media ? "Preview in place. Canva is getting the full-size picture." : "Preview in place. Swap in the full-size picture from Canva for the projector.");
   }
   catch (e) { toast(e && e.code === "server_not_connected" ? "Canva isn't connected in your Claude settings." : e && e.code === "not_granted" ? "This page wasn't allowed to use Canva." : e && e.code === "no_inline" ? "Canva made the picture but didn't send it here. Open it in Canva, download it, and use Use my own picture." : "Canva couldn't make that picture. Try different words."); }
   thBusy = false; thChanged(true);
 }
 async function thSetPic(f, fromCanva) {
   const th = curTheme(); if (!th || !f) return;
-  try { const bm = await createImageBitmap(f); th.dims = [bm.width, bm.height]; th.img = await thStoreImg(f, 2560); th.hd = true; if (!fromCanva) { th.link = ""; th.hdUrl = ""; } thChanged(true); toast(fromCanva ? "Full-size picture in place" : "Picture in place"); }
+  try { const bm = await createImageBitmap(f); th.dims = [bm.width, bm.height]; th.img = await thStoreImg(f, 2560); th.hd = true; if (!fromCanva) { th.link = ""; th.hdUrl = ""; th.media = ""; } thChanged(true); toast(fromCanva ? "Full-size picture in place" : "Picture in place"); }
   catch { toast("Couldn't read that picture. Try a JPG or PNG."); }
 }
 function thOwnPic() { const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => thSetPic(inp.files[0], false); inp.click(); }

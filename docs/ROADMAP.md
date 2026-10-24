@@ -31,5 +31,5 @@ Sonnet 5.5 is about $0.25 per sermon worked through end to end, roughly $1.50 pe
 
 ## Open items
 
-- Confirm a real Canva job result includes a direct full-size image URL (only tested with a mock).
+- The full-size export flow (search, place on the kept design, export) was checked by hand against the live Canva connector in a session; from the page it is tested with a mock.
 - Firecrawl and Canva calls are built against their documented inputs but have not been observed live from the page in a development session.

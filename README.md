@@ -34,6 +34,7 @@ cd tests/node && npm install && cd ../..
 pip install playwright        # uses an installed Chromium
 python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
+python3 tests/browser/canvahd.py   # full-size Canva pictures through the export flow
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.

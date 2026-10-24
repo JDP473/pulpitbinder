@@ -62,7 +62,8 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 
 - Claude (sample): substance analysis, suggestions, auto outline, slide drafts, picture descriptions, Scripture fallback, dashboard read.
 - Firecrawl: Bible Gateway print view for Scripture text, parsed by `parseBG()`.
-- Canva: `generate-image`, polled with `get-generate-image-job`. Only a preview comes back inline; the full-size link and Canva link are kept on the slide (`hdUrl`, `canva`).
+- Canva: `generate-image`, polled with `get-generate-image-job`. Only a small preview (about 200 pixels wide) comes back inline, plus the picture's Canva media id.
+- Full-size pictures: the page can't download from Canva, so it places the media on the one 1920 x 1080 page of a design in the viewer's Canva titled "Pulpit Binder full-size pictures" (`read-design` with a transaction, `edit-design` `update_fill` on the page background, then commit) and exports that page with `export-design` as a PNG. The export link is signed and expires within about a day; the viewer opens it, saves the file, and chooses it to swap in. The design is found with `search-designs` (its id cached in `localStorage` as `pb-canva-holder`) or made once with `create-design` and `get-create-design-async-job`. Exports run one at a time because they share that page. Slides and themes keep `media`, `hdUrl`, and `canva`; a saved slide's popup exports again once the link has expired.
 
 ## Dashboard
 
