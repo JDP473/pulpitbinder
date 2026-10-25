@@ -1873,7 +1873,7 @@ body[data-view="present"] .sermon-bar{display:none}
     <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
       <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
       <fieldset class="field"><legend>Favorite translations</legend><span class="hint">These show as tabs along the top of every Scripture section, so you can switch the one that's displayed. Up to six.</span><div class="fav-list" id="set-favs"></div></fieldset>
-      <div class="field"><span class="set-h">Where the text comes from</span><span class="hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
+      <div class="field"><span class="set-h">Where the text comes from</span><span class="hint" id="set-src-hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
         <label class="fav" for="set-claude"><input type="checkbox" id="set-claude"> <span>If Bible Gateway can't be reached, let Claude fill in the text. It's marked so you can check the wording.</span></label></div>
     </div>
     <div class="set-pane" id="set-pane-services" role="tabpanel" aria-labelledby="set-tab-services" hidden>
@@ -1911,7 +1911,7 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="field"><label for="set-bcolor">Accent color</label><input type="color" id="set-bcolor" class="brand-color"></div>
     </div>
     <div class="set-pane" id="set-pane-ai" role="tabpanel" aria-labelledby="set-tab-ai" hidden>
-      <span class="hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
+      <span class="hint" id="set-svc-hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
       <div class="ai-card"><div class="ai-card-h"><b>Writing and study help</b><span class="chip" id="ai-claude-st"></span></div>
         <span class="hint">Claude drafts outlines, slides, captions, study notes, and suggestions throughout the app.</span>
         <div class="field"><label for="set-tier">How much care Claude takes</label><select id="set-tier"><option value="fast">Faster answers</option><option value="balanced">Balanced (recommended)</option><option value="careful">Most careful, slower</option></select><span class="hint">Most careful uses Claude's strongest model for everything, which takes longer. Faster suits quick slides and captions.</span></div>
@@ -1942,6 +1942,14 @@ const localNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(
 
 /* ---------------- theme ---------------- */
 const root = document.documentElement;
+/* On sermon.freely.church the page runs on that site's server instead of inside Claude: Claude through the preacher's own
+   Anthropic key, no connectors (Firecrawl, Canva, Pulpit Live). See saas/web/shim.js. */
+const HOSTED = !!(window.claude && window.claude.hosted);
+if (HOSTED) {
+  $("#set-src-hint").textContent = "Claude supplies the text of each passage, or you paste it in. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.";
+  $("#set-svc-hint").textContent = "Which services Pulpit Binder uses for writing help and pictures. Claude runs on the Anthropic key in your Account.";
+  $("#btn-live").hidden = true;
+}
 try { const t = localStorage.getItem("pb-theme"); if (t) root.dataset.theme = t; } catch {}
 $("#btn-theme").onclick = () => {
   const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -4781,8 +4789,8 @@ const DEF_SERVICES = [
    listed for a hosted Pulpit Binder, where a server would hold each church's keys. Every picture request goes through
    makePicture, and every Claude request through askJson, so another provider is one more entry and one more branch. */
 const AI_SERVICES = {
-  claude: { kind: "text", name: "Claude", where: "here", desc: "Through your Claude account" },
-  canva: { kind: "image", name: "Canva", where: "here", desc: "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
+  claude: { kind: "text", name: "Claude", where: "here", desc: HOSTED ? "Through the Anthropic key in your Account" : "Through your Claude account" },
+  canva: { kind: "image", name: "Canva", where: "here", desc: HOSTED ? "Not offered on sermon.freely.church. Choose Claude drawing, or use your own pictures." : "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
   "claude-draw": { kind: "image", name: "Claude drawing", where: "here", desc: "Claude draws a simple, clean illustration. Always sharp on the projector; plainer than a painting." },
   none: { kind: "image", name: "My own pictures only", where: "here", desc: "No generated pictures. Use Photo and Use my own picture instead." },
   "openai-text": { kind: "text", name: "OpenAI (ChatGPT models)", where: "hosted" },
@@ -4797,6 +4805,7 @@ const aiTier = t => { const s = settings.aiTier; if (s === "careful") return "co
 const imgService = () => settings.imgService || "canva";
 const imgReady = () => imgService() === "canva" ? !!mcpNs : imgService() === "claude-draw" ? !!sample : false;
 let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
+if (HOSTED) settings = { ...settings, places: [], defPlace: "", speaker: window.claude.hosted.name || "", imgService: "claude-draw" };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
 const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
 const cleanTime = t => typeof t === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : "";
@@ -5105,6 +5114,7 @@ async function fetchPassage(ref, ver) {
       return { t, s: "claude" };
     } catch (e) { if (e && e.code === "not_granted") why = why || "not_granted"; }
   }
+  if (HOSTED) throw new Error(`Couldn't load ${ref} in the ${ver}. Paste the text, or check that your Anthropic key is in Account and Settings lets Claude supply the text.`);
   throw new Error(why === "no_connector" || why === "server_not_connected" ? `Couldn't load the ${ver} text. Connect Firecrawl in your Claude settings so this page can read Bible Gateway, or paste the text.` : why === "not_granted" ? `Couldn't load the ${ver} text because this page wasn't allowed to use your connections. Allow it from the page's Permissions menu, or paste the text.` : `Couldn't load ${ref} in the ${ver}. Check the reference, try again, or paste the text.`);
 }
 async function loadSc(id, ver, force) {
@@ -7599,7 +7609,7 @@ function stRenderCompare() {
   const bad = Object.entries(sd.errors);
   if (!vs.length) {
     if (sd.busy.has("text")) p.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:18px" }, el("span", { class: "spin" }), "Loading the text…"));
-    else if (bad.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: bad[0][1] }), el("div", { class: "hint", text: "The text comes from Bible Gateway through your Firecrawl connection in Claude, or from Claude if you allow that in Settings." }));
+    else if (bad.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: bad[0][1] }), el("div", { class: "hint", text: HOSTED ? "The text comes from Claude when Settings allows it, or you can paste it." : "The text comes from Bible Gateway through your Firecrawl connection in Claude, or from Claude if you allow that in Settings." }));
     else p.append(el("div", { class: "hint", text: "Choose a passage above and press Study this text." }));
     return;
   }
@@ -7681,7 +7691,7 @@ async function stXrefFor(vref, fresh) {
       const items = (r && Array.isArray(r.refs) ? r.refs : []).map(x => ({ ref: normalizeRef(String(x.ref || "")), text: String(x.why || "") })).filter(x => x.ref);
       if (items.length) return { items, src: "claude" };
     }
-    throw new Error("Couldn't find cross references. Connect Firecrawl in your Claude settings, or allow Claude on this page.");
+    throw new Error(HOSTED ? "Couldn't find cross references. Check that your Anthropic key is in Account." : "Couldn't find cross references. Connect Firecrawl in your Claude settings, or allow Claude on this page.");
   }, { fresh });
 }
 async function stFindXrefs(only) {
@@ -7784,7 +7794,7 @@ const unhtml = s => { const d = document.createElement("div"); d.innerHTML = Str
 async function stSefaria(vs, who) {
   const book = sefBook(study().ref); if (!book) return null;
   return (await stGet(stKey("sef", `${book} ${vs.ch}:${vs.v}`, who), async () => {
-    if (!mcpNs) throw new Error("Connect Firecrawl in your Claude settings to read Sefaria.");
+    if (!mcpNs) throw new Error(HOSTED ? "Reading Sefaria isn't offered on sermon.freely.church yet." : "Connect Firecrawl in your Claude settings to read Sefaria.");
     const title = `${who} on ${book}`, url = `https://www.sefaria.org/api/texts/${encodeURIComponent(title.replace(/ /g, "_"))}.${vs.ch}.${vs.v}?context=0&commentary=0&pad=0`;
     const md = mdFrom(await mcpNs.callTool("Firecrawl", "firecrawl_scrape", { url, formats: ["markdown"], onlyMainContent: true }));
     const m = md.match(/\{[\s\S]*\}/); let j = null; try { j = m && JSON.parse(m[0]); } catch {}
@@ -7840,7 +7850,7 @@ function stRenderHistory() {
       src.append(el("div", { class: "st-card" }, el("b", { text: who }), ...(r.en || []).map(t => el("p", { text: t })), ...(r.he || []).slice(0, 2).map(t => el("p", { class: "st-hebtext", lang: "he", dir: "rtl", text: t })),
         el("a", { class: "link-btn", style: "margin:0", href: `https://www.sefaria.org/${encodeURIComponent((r.ref || "").replace(/ /g, "_"))}`, target: "_blank", rel: "noopener", text: "Open on Sefaria ↗" })));
     }
-    if (!got && !mcpNs) src.append(el("div", { class: "hint", text: "Connect Firecrawl in your Claude settings to read Sefaria from here." }));
+    if (!got && !mcpNs) src.append(el("div", { class: "hint", text: HOSTED ? "Reading Sefaria here isn't offered on sermon.freely.church yet. Use the Sefaria link below." : "Connect Firecrawl in your Claude settings to read Sefaria from here." }));
     else if (!got) src.append(el("div", { class: "hint", text: "Rashi, Ibn Ezra, and others on this verse, from Sefaria (English translations, CC licenses). Each is read once and kept." }));
   }
   p.append(ch, jw, src);
@@ -8748,7 +8758,7 @@ function renderThemePanel() {
       el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
       th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.media = ""; th.hd = false; thChanged(true); } }) : null));
   if (th.img) { const box = el("div", { id: "th-hd-box" }); fillThHd(box, th); pic.append(box); }
-  if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
+  if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: HOSTED ? "Canva isn't offered on sermon.freely.church. Choose Claude drawing in Settings, or use your own picture." : "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
   if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), imgService() === "claude-draw" ? "Claude is drawing…" : "Canva is painting… usually under a minute"));
   ed2.append(pic);
   // previews on this sermon's own words

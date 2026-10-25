@@ -2,7 +2,7 @@
 
 A sermon workspace for preachers: write the manuscript, bind it to the PowerPoint, preach from a unified view, and see the whole body of preaching on a dashboard.
 
-Today it runs inside Claude as a published page on Jarred Pettijohn's account, which supplies the Claude analysis, sync across devices, file storage, and the Canva connection. The long-term plan is a standalone app with its own server (see [docs/ROADMAP.md](docs/ROADMAP.md)).
+Today it runs inside Claude as a published page on Jarred Pettijohn's account, which supplies the Claude analysis, sync across devices, file storage, and the Canva connection. The same file also runs for any preacher at sermon.freely.church, with accounts, sync, and Claude on each preacher's own Anthropic key (see [saas/README.md](saas/README.md)).
 
 ## What it does
 
@@ -18,6 +18,7 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
 |---|---|
 | `pulpit-binder.html` | The whole app: markup, styles, and script in one file. This is what gets published. |
 | `docs/ARCHITECTURE.md` | How the file is organized, the data model, sync layout, and integrations. |
+| `saas/` | sermon.freely.church: the server, public page, account pages, and the shim that runs this file outside Claude. |
 | `docs/ROADMAP.md` | The path from the Claude-hosted version to a standalone product. |
 | `tests/browser/` | Playwright scripts that load the page with mocked Claude, Canva, and Firecrawl. |
 | `tests/node/` | jsdom checks for boot and sync. |
@@ -32,6 +33,7 @@ python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
 python3 tests/browser/scauto.py   # passage slides made when a Scripture section is added
 python3 tests/browser/slideedit.py   # editing slides and changing their kind
+python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, account and admin pages
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.
@@ -40,4 +42,4 @@ Screenshots go to `tests/out/`.
 
 ## Your sermons are not in this repo
 
-Manuscripts, slides, recordings, and analyses sync to the Claude account under the published page. This repository holds code only.
+Manuscripts, slides, recordings, and analyses sync to the Claude account under the published page, or to the sermon.freely.church server for preachers there. This repository holds code only.
