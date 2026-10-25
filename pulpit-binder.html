@@ -1129,6 +1129,7 @@ body[data-view="present"] .sermon-bar{display:none}
   .est-pill{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--nav-h) + 10px);z-index:14;height:32px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.18)}
   body[data-view="edit"] .est-pill{bottom:calc(var(--nav-h) + 84px)}
   body[data-view="present"] .est-pill{position:static;box-shadow:none;height:var(--ctl)}
+  body.set-open .est-pill,body:has(.sg-col.open) .est-pill{display:none}
 }
 /* desktop sidebar */
 @media (min-width:1100px){
