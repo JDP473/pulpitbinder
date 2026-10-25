@@ -36,6 +36,8 @@ python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
 python3 tests/browser/sermons.py   # finding and starting sermons
 python3 tests/browser/editsel.py   # Edit with suggestions
+python3 tests/browser/editreplace.py   # every shape of highlight is replaced exactly, then undone and redone
+python3 tests/browser/undoredo.py   # undo and redo for typing, formatting, and changes made by the app
 python3 tests/browser/infographic.py   # infographic slides
 python3 tests/browser/shell.py   # sidebar, Settings page, AI and images
 python3 tests/browser/reading.py   # Scripture reading page on Materials

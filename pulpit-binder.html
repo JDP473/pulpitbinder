@@ -3184,6 +3184,7 @@ $("#del-go").onclick = async () => {
 };
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
+  undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
@@ -3980,7 +3981,7 @@ ed.addEventListener("keydown", e => {
   const map = { Digit0: "p", Digit1: "h1", Digit2: "h2", Digit3: "h3", Digit4: "h4", Digit5: "blockquote" };
   const tag = map[e.code]; if (!tag) return;
   e.preventDefault(); savedRange = document.getSelection().rangeCount ? document.getSelection().getRangeAt(0).cloneRange() : savedRange;
-  $("#ed-block").value = tag; cmd("formatBlock", `<${tag}>`);
+  snapshot(); $("#ed-block").value = tag; cmd("formatBlock", `<${tag}>`);
 });
 ed.addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } onEdit(); });
 ed.addEventListener("paste", e => {
@@ -4008,12 +4009,13 @@ $("#ed-toolbar").addEventListener("mousedown", e => { if (e.target.closest("butt
 $("#ed-toolbar").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   const a = b.dataset.cmd;
-  if (a === "bold" || a === "italic" || a === "underline" || a === "insertUnorderedList" || a === "insertOrderedList" || a === "undo" || a === "redo") cmd(a);
-  else if (a === "hl") { const c = HL[b.dataset.c]; cmd("hiliteColor", `rgb(${c.join(",")})`); }
+  if (a === "undo") undoEdit(); else if (a === "redo") redoEdit();
+  else if (a === "bold" || a === "italic" || a === "underline" || a === "insertUnorderedList" || a === "insertOrderedList") { restoreSel(); snapshot(); cmd(a); }
+  else if (a === "hl") { const c = HL[b.dataset.c]; restoreSel(); snapshot(); cmd("hiliteColor", `rgb(${c.join(",")})`); }
   else if (a === "unhl") { restoreSel(); const r = savedRange; if (!r) return; snapshot(); ed.querySelectorAll("mark").forEach(m => { if (r.intersectsNode(m)) m.replaceWith(...m.childNodes); }); onEdit(); }
-  else if (a === "pause") { restoreSel(); document.execCommand("insertHTML", false, pauseHtml + "&nbsp;"); onEdit(); }
+  else if (a === "pause") { restoreSel(); snapshot(); document.execCommand("insertHTML", false, pauseHtml + "&nbsp;"); onEdit(); }
 });
-$("#ed-block").onchange = () => { cmd("formatBlock", `<${$("#ed-block").value}>`); };
+$("#ed-block").onchange = () => { restoreSel(); snapshot(); cmd("formatBlock", `<${$("#ed-block").value}>`); };
 $("#ed-slide").onchange = () => {
   const v = $("#ed-slide").value; $("#ed-slide").value = ""; if (!v) return;
   snapshot();
@@ -4022,14 +4024,49 @@ $("#ed-slide").onchange = () => {
   if (b) ed.insertBefore(tpl.content, b); else ed.append(tpl.content);
   refreshCueLabels(); onEdit(true); toast("Slide cue placed before the paragraph with the cursor");
 };
-function snapshot(opts) { undoStack.push({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: opts && opts.meta ? { ...S.meta } : null }); if (undoStack.length > 40) undoStack.shift(); $("#sg-undo").disabled = false; }
-$("#sg-undo").onclick = () => {
-  const u = undoStack.pop(); if (u == null) return;
+/* One undo and redo for everything in the manuscript: typing (each burst of typing is one step), formatting, and every change
+   the app makes in code (suggestions, slide cues, Scripture sections, Edit with suggestions). The browser's own undo can't follow
+   changes made in code, so it is not used. */
+let redoStack = [], burstT = 0, burstKind = "";
+const edOff = (node, off) => { const r = document.createRange(); r.setStart(ed, 0); r.setEnd(node, off); return r.toString().length; };
+function edPoint(o) { const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let n, pos = 0; while ((n = w.nextNode())) { const L = n.length; if (o <= pos + L) return [n, o - pos]; pos += L; } return [ed, ed.childNodes.length]; }
+function edCaret() { const s = getSelection(); if (!s || !s.rangeCount) return null; const r = s.getRangeAt(0); if (!ed.contains(r.startContainer) || !ed.contains(r.endContainer)) return null; return [edOff(r.startContainer, r.startOffset), edOff(r.endContainer, r.endOffset)]; }
+const histState = withMeta => ({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: withMeta ? { ...S.meta } : null, caret: edCaret() });
+function updateHist() {
+  $("#sg-undo").disabled = !undoStack.length;
+  const u = document.querySelector('#ed-toolbar [data-cmd="undo"]'), r = document.querySelector('#ed-toolbar [data-cmd="redo"]');
+  if (u) u.disabled = !undoStack.length; if (r) r.disabled = !redoStack.length;
+}
+function snapshot(opts) { undoStack.push(histState(opts && opts.meta)); if (undoStack.length > 80) undoStack.shift(); redoStack = []; burstT && clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist(); }
+function applyHist(u) {
   ed.innerHTML = typeof u === "string" ? u : u.h;
   if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
   if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
-  refreshCueLabels(); onEdit(true); $("#sg-undo").disabled = !undoStack.length; toast("Undid the last change");
-};
+  refreshCueLabels(); onEdit(true);
+  if (u.caret) { try { ed.focus({ preventScroll: true }); const [a, ao] = edPoint(u.caret[0]), [b, bo] = edPoint(u.caret[1]), r = document.createRange(); r.setStart(a, ao); r.setEnd(b, bo); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch {} }
+}
+function undoEdit() {
+  clearTimeout(burstT); burstT = 0; burstKind = "";
+  const u = undoStack.pop(); if (u == null) { toast("Nothing to undo"); updateHist(); return; }
+  redoStack.push(histState(!!u.meta)); applyHist(u); updateHist(); toast("Undid the last change");
+}
+function redoEdit() {
+  clearTimeout(burstT); burstT = 0; burstKind = "";
+  const u = redoStack.pop(); if (u == null) { toast("Nothing to redo"); updateHist(); return; }
+  undoStack.push(histState(!!u.meta)); applyHist(u); updateHist(); toast("Redid the change");
+}
+$("#sg-undo").onclick = undoEdit;
+ed.addEventListener("beforeinput", e => {
+  if (e.inputType === "historyUndo") { e.preventDefault(); undoEdit(); return; }
+  if (e.inputType === "historyRedo") { e.preventDefault(); redoEdit(); return; }
+  const kind = /^delete/.test(e.inputType) ? "del" : /^insert(Composition)?Text$/.test(e.inputType) ? "ins" : e.inputType;
+  if (!burstT || kind !== burstKind) { const keep = burstT; snapshot(); burstKind = kind; }
+  clearTimeout(burstT); burstT = setTimeout(() => { burstT = 0; burstKind = ""; }, 900);
+});
+ed.addEventListener("keydown", e => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return; const k = e.key.toLowerCase();
+  if (k === "z" && !e.shiftKey) { e.preventDefault(); undoEdit(); } else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); redoEdit(); }
+});
 $("#btn-load-text").onclick = () => $("#file-text").click();
 $("#file-text").onchange = async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -5119,13 +5156,28 @@ function rangeText(r) {   // paragraphs kept apart, so the words can come back t
 }
 const esWords = t => (String(t).match(/\S+/g) || []).length;
 function esCount() { const n = esWords(es.text), t = ES_LEN[+$("#es-len").value][2]; $("#es-lenhint").textContent = `About ${Math.max(5, Math.round(n * t))} words (now ${n}).`; }
+/* a highlight made by triple-click or by dragging past the end of a paragraph ends at the start of the next block; move both ends onto the words */
+function normRange(r) {
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(".pb-slide,.pb-scripture") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  let first = null, last = null, n;
+  while ((n = w.nextNode())) {
+    if (!first && r.comparePoint(n, n.length) >= 0) first = n;
+    if (r.comparePoint(n, 0) <= 0) last = n; else break;
+  }
+  if (!first || !last) return r;
+  const out = document.createRange();
+  out.setStart(first, first === r.startContainer ? r.startOffset : 0);
+  out.setEnd(last, last === r.endContainer ? r.endOffset : last.length);
+  return out.collapsed ? r : out;
+}
 function openEdit() {
   const info = selInfo(); if (!info || !sample) return;
-  if (info.r.cloneContents().querySelector(".pb-slide,.pb-scripture")) { toast("Highlight words without a slide cue or Scripture section inside. Choose one stretch of your own words."); return; }
-  const text = rangeText(info.r); if (esWords(text) < 3) { toast("Highlight a few more words to rework."); return; }
-  const pre = document.createRange(); pre.setStart(ed, 0); pre.setEnd(info.r.startContainer, info.r.startOffset);
-  const post = document.createRange(); post.setStart(info.r.endContainer, info.r.endOffset); post.setEnd(ed, ed.childNodes.length);
-  es = { r: info.r.cloneRange(), text, before: pre.toString().replace(/\s+/g, " ").slice(-700), after: post.toString().replace(/\s+/g, " ").slice(0, 500), busy: false, out: "" };
+  const r = normRange(info.r.cloneRange());
+  if (r.cloneContents().querySelector(".pb-slide,.pb-scripture")) { toast("Highlight words without a slide cue or Scripture section inside. Choose one stretch between slide cues, or take the cue out first."); return; }
+  const text = rangeText(r); if (esWords(text) < 3) { toast("Highlight a few more words to rework."); return; }
+  const pre = document.createRange(); pre.setStart(ed, 0); pre.setEnd(r.startContainer, r.startOffset);
+  const post = document.createRange(); post.setStart(r.endContainer, r.endOffset); post.setEnd(ed, ed.childNodes.length);
+  es = { a: edOff(r.startContainer, r.startOffset), z: edOff(r.endContainer, r.endOffset), text, before: pre.toString().replace(/\s+/g, " ").slice(-700), after: post.toString().replace(/\s+/g, " ").slice(0, 500), busy: false, out: "" };
   $("#es-orig").textContent = text; $("#es-ask").value = ""; $("#es-msg").textContent = "";
   const len = $("#es-len"); len.replaceChildren(...ES_LEN.map(([, l], i) => el("option", { value: String(i), text: l }))); len.value = "2"; esCount();
   $("#es-chips").replaceChildren(...ES_IDEAS.map(t => el("button", { type: "button", class: "chip", text: t, onclick: () => { const a = $("#es-ask"); a.value = a.value.trim() ? a.value.trim().replace(/[.]?$/, ". ") + t : t; a.focus(); } })));
@@ -5166,23 +5218,33 @@ Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlig
   if (!$("#es-step1").hidden && $("#es-msg").textContent.startsWith("Claude is")) $("#es-msg").textContent = "";
 }
 const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}`; };
-/* put the new words where the old ones were: inside one paragraph the surrounding words stay, and blank lines become new paragraphs */
+/* put the new words exactly where the highlighted ones were: everything before the highlight stays, everything after it follows the
+   last new paragraph, and blank lines in the suggestion become new paragraphs */
+function esRange() {   // the highlight, found again by its position, and checked to still be the same words
+  if (!es) return null;
+  const [sn, so] = edPoint(es.a), [en, eo] = edPoint(es.z), r = document.createRange();
+  try { r.setStart(sn, so); r.setEnd(en, eo); } catch { return null; }
+  return rangeText(r) === es.text ? r : null;
+}
 function esReplace(r, text) {
-  snapshot();
   const paras = text.split(/\n{2,}/).map(t => t.replace(/\n/g, " ").trim()).filter(Boolean); if (!paras.length) return false;
-  const first = topBlock(r.startContainer);
-  r.deleteContents(); r.collapse(true);
-  let tail = null;
-  if (paras.length > 1 && first) { const t = document.createRange(); t.setStart(r.startContainer, r.startOffset); t.setEndAfter(first.lastChild || first); tail = t.extractContents(); }
-  r.insertNode(document.createTextNode(paras[0]));
-  let at = first;
-  paras.slice(1).forEach((t, i) => { const p = document.createElement("p"); p.textContent = t; if (tail && i === paras.length - 2) p.append(...tail.childNodes); (at && at.parentNode === ed ? at : ed.lastChild).after(p); at = p; });
-  if (first && first.parentNode === ed && !first.textContent.trim() && first.children.length === 0) first.remove();
+  const sb = topBlock(r.startContainer), eb = topBlock(r.endContainer); if (!sb || !eb) return false;
+  snapshot();
+  const sn = r.startContainer, so = r.startOffset;   // where the highlight began; after deleting across paragraphs the browser leaves the range after the first one
+  const t = document.createRange(); t.setStart(r.endContainer, r.endOffset); t.setEndAfter(eb.lastChild || eb);
+  const tail = t.extractContents();   // what follows the highlight in its last paragraph
+  r.deleteContents();
+  if (eb !== sb && eb.parentNode === ed) eb.remove();
+  const at0 = document.createRange(); at0.setStart(sn, Math.min(so, sn.nodeType === 3 ? sn.length : sn.childNodes.length)); at0.collapse(true); at0.insertNode(document.createTextNode(paras[0]));
+  let at = sb, last = sb;
+  paras.slice(1).forEach(x => { const p = document.createElement("p"); p.textContent = x; at.after(p); at = last = p; });
+  last.append(tail);
+  if (!sb.textContent.trim() && !sb.querySelector("img,.pb-scripture,.pb-slide")) sb.remove();
   normalizeEditor(); onEdit(true); return true;
 }
 function esAccept() {
   if (!es) return; const out = $("#es-out").value.trim(); if (!out) { toast("The suggested wording is empty."); return; }
-  const r = es.r; if (!r.startContainer.isConnected || !ed.contains(r.commonAncestorContainer)) { closeEdit(); toast("The manuscript changed while you worked. Highlight the words again."); return; }
+  const r = esRange(); if (!r) { closeEdit(); toast("The manuscript changed while you worked. Highlight the words again."); return; }
   const ok = esReplace(r, out); closeEdit(); getSelection().removeAllRanges();
   if (ok) { toast("Replaced. Undo brings your words back."); renderSuggestions(); }
 }
