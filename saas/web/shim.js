@@ -216,9 +216,15 @@
   // ---------- Account and sign out ----------
   addEventListener("DOMContentLoaded", () => {
     const menu = document.getElementById("sermon-menu"); if (!menu) return;
-    const item = (text, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "menu-item"; b.setAttribute("role", "menuitem"); b.textContent = text; b.onclick = fn; return b; };
+    const icon = d => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const ICONS = {
+      "Account": '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+      "Site admin": '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/>',
+      "Sign out": '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>'
+    };
+    const item = (text, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "menu-item"; b.setAttribute("role", "menuitem"); b.innerHTML = icon(ICONS[text] || ""); const t = document.createElement("span"); t.textContent = text; b.append(t); b.onclick = fn; return b; };
     const sep = document.createElement("div"); sep.className = "menu-sep"; sep.setAttribute("role", "separator");
-    menu.append(sep, item("Account and Claude key", () => { location.href = "/account"; }));
+    menu.append(sep, item("Account", () => { location.href = "/account"; }));
     if (boot.owner) menu.append(item("Site admin", () => { location.href = "/admin"; }));
     menu.append(item("Sign out", signOut));
     // Sign out beside Settings and Light or dark: in the side column on a computer, in the header on a phone.
