@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Hono } from 'hono';
@@ -102,7 +103,15 @@ export function createApp() {
   app.get('/_blob/:id', sessionMiddleware, blobRoute);
 
   // ---- Pages ----
-  const read = (f) => fs.readFileSync(path.join(env.webDir, f), 'utf8');
+  // Scripts and styles are linked with their content's hash (/shim.js?v=...), so a deploy reaches every browser at
+  // once even though Cloudflare tells browsers to keep them for hours.
+  const versions = new Map();
+  const version = (f) => {
+    if (!versions.has(f) || !env.isProd) versions.set(f, crypto.createHash('sha256').update(fs.readFileSync(path.join(env.webDir, f))).digest('hex').slice(0, 12));
+    return versions.get(f);
+  };
+  const stamp = (html) => html.replace(/(src|href)="\/(shim\.js|site\.js|site\.css)"/g, (_, attr, f) => `${attr}="/${f}?v=${version(f)}"`);
+  const read = (f) => stamp(fs.readFileSync(path.join(env.webDir, f), 'utf8'));
   const site = (c, html, csp = SITE_CSP) => {
     c.header('Cache-Control', 'no-cache');
     return c.html(html);
@@ -130,7 +139,7 @@ export function createApp() {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="robots" content="noindex">
 <style>body{margin:0}[hidden]{display:none!important}</style>
-<script>window.__PB__=${scriptJson(boot)};</script><script src="/shim.js"></script>
+<script>window.__PB__=${scriptJson(boot)};</script><script src="/shim.js?v=${version('shim.js')}"></script>
 </head><body>
 `;
     c.header('Cache-Control', 'no-store');
@@ -146,7 +155,8 @@ export function createApp() {
     const file = path.join(env.webDir, c.req.param('file'));
     if (!fs.existsSync(file) || path.basename(file) === 'site.html') return c.text('Not found', 404);
     c.header('Content-Type', STATIC[path.extname(file)]);
-    c.header('Cache-Control', 'public, max-age=300');
+    // A stamped link is that exact content forever; an unstamped one is checked each time.
+    c.header('Cache-Control', c.req.query('v') ? 'public, max-age=31536000, immutable' : 'no-cache');
     return c.body(fs.readFileSync(file));
   });
   pages.get('/shots/:file{[a-z0-9_-]+\\.(png|webp)}', (c) => {

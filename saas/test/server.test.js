@@ -101,7 +101,8 @@ test('public page, sign up, and the app page', async () => {
   const app = await c.call('GET', '/app');
   assert.equal(app.status, 200);
   assert.match(app.text, /window\.__PB__=\{"id":"[0-9a-f-]+","name":"Pat Preacher"/);
-  assert.match(app.text, /<script src="\/shim\.js"><\/script>/);
+  assert.match(app.text, /<script src="\/shim\.js\?v=[0-9a-f]{12}"><\/script>/);
+  assert.match(home.text, /href="\/site\.css\?v=[0-9a-f]{12}"/);
   assert.match(app.text, /<title>Pulpit Binder<\/title>/);
   assert.match(app.headers.get('content-security-policy'), /script-src 'self' 'unsafe-inline' https:\/\/cdnjs\.cloudflare\.com/);
   assert.equal((await c.call('POST', '/api/auth/register', { name: 'X', email: 'pat@example.com', password: 'another password' })).status, 409);
