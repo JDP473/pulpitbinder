@@ -3005,7 +3005,7 @@ $("#nx-form").addEventListener("submit", async e => {
   const r = blank(), tag = nx.tag, svc = $("#nx-svc").value;
   r.meta.series = tag; r.meta.text = ref; r.meta.title = title; r.meta.when = $("#nx-when").value || r.meta.when; r.meta.service = svc || r.meta.service;
   const src = nx.rows.slice(-1)[0]; if (src && src.meta) { if (src.meta.place) r.meta.place = src.meta.place; if (src.meta.speaker) r.meta.speaker = src.meta.speaker; }
-  if ($("#nx-sc").checked && normalizeRef(ref)) r.html = scElement({ id: uid(), ref: normalizeRef(ref), ver: settings.defVer, texts: {} }).outerHTML + "<p><br></p>";
+  if ($("#nx-sc").checked && normalizeRef(ref)) { const id = uid(); scAuto.add(id); r.html = scElement({ id, ref: normalizeRef(ref), ver: settings.defVer, texts: {} }).outerHTML + "<p><br></p>"; }
   else r.html = "<p><br></p>";
   r.transcript = plainFromHtml(r.html);
   closeNext();
@@ -5116,7 +5116,7 @@ async function loadSc(id, ver, force) {
     const e2 = edSc(id); if (e2) { const d2 = readSc(e2); d2.texts[ver] = r; writeSc(e2, d2); syncScSlides(id); }
     scBusy.delete(k);
   } catch (err) { scBusy.set(k, { err: err.message }); }
-  rerenderSc(id); onEdit(true);
+  rerenderSc(id); onEdit(true); autoScSlides(id);
 }
 
 /* inserting */
@@ -5138,7 +5138,7 @@ function insertScripture(ref, ver, opts = {}) {
   if (!rest) { const nx = node.nextElementSibling; if (nx && nx.tagName === "P" && !nx.textContent.trim()) rest = nx; else { rest = document.createElement("p"); rest.append(document.createElement("br")); } }
   if (!rest.isConnected) node.after(rest);
   try { ed.focus({ preventScroll: true }); const r = document.createRange(); r.setStart(rest, 0); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch {}
-  hideHint(); onEdit(true); loadSc(d.id, d.ver);
+  hideHint(); onEdit(true); scAuto.add(d.id); loadSc(d.id, d.ver);
   return d.id;
 }
 ed.addEventListener("keydown", e => {
@@ -5231,7 +5231,7 @@ document.addEventListener("click", e => {
     const save = el("button", { type: "button", class: "pb-sc-btn", text: "Save" });
     bodyEl.replaceChildren(ta, el("p", {}, save)); ta.focus();
     ["keydown", "input"].forEach(t => ta.addEventListener(t, ev => ev.stopPropagation()));
-    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); syncScSlides(id); onEdit(true); };
+    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); syncScSlides(id); onEdit(true); autoScSlides(id); };
   }
 }, true);
 
@@ -5424,7 +5424,7 @@ function insertMadeSlides(target, newSlides, opts = {}) {
   if (cue) { const start = sections[si].slide; cue.dataset.n = String(start + 1); cue.dataset.k = String((sections[si].span || 1) + count); }
   else { const t = document.createElement("template"); t.innerHTML = slideCueHtml(pos + 1, count); first.before(t.content); }
   deckEdited();
-  toast(count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`);
+  toast((count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`) + (opts.from ? ` for ${opts.from}` : ""));
   return pos;
 }
 function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
@@ -5726,6 +5726,12 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !mkModal.h
 function scUnits(d) { const cur = d.texts[d.ver]; return cur ? unitsFromTokens(cur.t, d.ref) : []; }
 const bookOf = ref => (ref.match(/^(.*?)\s+\d/) || [, ref])[1];
 const unitRef = (book, a, z) => a.ch === z.ch ? `${book} ${a.ch}:${a.v}${z.v !== a.v ? "-" + z.v : ""}` : `${book} ${a.ch}:${a.v}-${z.ch}:${z.v}`;
+// a Scripture section as passage slides, a few verses each, each one following its verses in the section
+function passageSlides(d, per, theme) {
+  const units = scUnits(d), book = bookOf(d.ref), out = [];
+  for (let i = 0; i < units.length; i += per) { const cs = units.slice(i, i + per), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...theme }, notes: "", sc: { id: d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
+  return out;
+}
 function headingAbove(target) {
   let c1 = 0, c2 = 0, hit = null;
   for (const e of ed.children) { if (e === target) break; const lv = levelOf(e); if (lv === 1) { c1++; c2 = 0; hit = { lv, e }; } else if (lv === 2) { c2++; hit = { lv, e, num: ROMAN(c2) }; } }
@@ -5825,11 +5831,7 @@ function cleanSvg(svg) {
 function draftSlides() {
   const d = mk.draft, s = mk.src;
   const title = t => { const w = String(t || "").replace(/\[\[|\]\]/g, "").split(/\s+/); return w.slice(0, 8).join(" ") + (w.length > 8 ? "…" : ""); };
-  if (d.made === "passage") {
-    const units = scUnits(s.d), book = bookOf(s.ref), out = [];
-    for (let i = 0; i < units.length; i += d.per) { const cs = units.slice(i, i + d.per); const ref = unitRef(book, cs[0], cs[cs.length - 1]); const text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
-    return out;
-  }
+  if (d.made === "passage") return passageSlides(s.d, d.per, d.theme);
   if (d.made === "keyverse") { const units = scUnits(s.d), u = units[d.vi] || units[0]; if (!u) return []; const ref = unitRef(bookOf(s.ref), u, u); const text = u.t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim(); return [{ made: "keyverse", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(u), z: scKey(u) } }]; }
   if (d.made === "blanks") { const one = { ...d, title: title(d.text), body: [d.text.replace(/\[\[|\]\]/g, "")] }; return /\[\[[^\]]+\]\]/.test(d.text) ? [{ ...one, reveal: false }, { ...one, reveal: true }] : [{ ...one, made: "quote" }]; }
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
@@ -6173,6 +6175,18 @@ function makeScriptureSlides(id) {
   const d = readSc(e);
   if (!d.texts[d.ver]) { toast(`Load the ${d.ver} text first, then make slides`); return; }
   openPicker({ kind: "scripture", d, ref: d.ref, ver: d.ver, tokens: d.texts[d.ver].t, text: scPlainText(d.texts[d.ver].t), target: e });
+}
+/* Every Scripture section you add gets its passage slides on its own, two verses a slide, cued where the section sits.
+   The section waits here until its text is in (loaded, or pasted after a failed load); one that already has slides is left alone. */
+const scAuto = new Set();
+function autoScSlides(id) {
+  if (!scAuto.has(id)) return;
+  const e = edSc(id); if (!e || !S) { scAuto.delete(id); return; }
+  const d = readSc(e); if (!d.texts[d.ver]) return;
+  scAuto.delete(id);
+  if (S.slides.some(s => s.sc && s.sc.id === id)) return;
+  const out = passageSlides(d, 2, deckTheme()); if (!out.length) return;
+  insertMadeSlides(e, out, { from: d.ref });
 }
 
 /* ---------------- side panel tabs: Suggestions | Outline ---------------- */
@@ -9070,9 +9084,7 @@ function thBindOnce() {
   };
   $("#th-add-sc").onclick = () => {
     const th = curTheme(); const e = [...ed.querySelectorAll(".pb-scripture")].find(x => { const d = readSc(x); return d.texts[d.ver]; }); if (!th || !e) return;
-    thM().slideTheme = { ...th }; const d = readSc(e), units = scUnits(d), book = bookOf(d.ref), out = [];
-    for (let i = 0; i < units.length; i += 2) { const cs = units.slice(i, i + 2), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...th }, notes: "", sc: { id: d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
-    insertMadeSlides(e, out); renderThemePanel();
+    thM().slideTheme = { ...th }; insertMadeSlides(e, passageSlides(readSc(e), 2, th)); renderThemePanel();
   };
   $("#th-save").onclick = async () => {
     const th = curTheme(); if (!th) return; const slug = (th.name || "theme").toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "");
