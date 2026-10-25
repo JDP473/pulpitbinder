@@ -4917,7 +4917,7 @@ function rerenderSc(id) { document.querySelectorAll(`.pb-scripture[data-id="${id
 /* ---- stacked translations ----
    In a Scripture section, "Stack translations" lets you tick other translations; the words where they differ from the
    section's translation are highlighted, and each one you tap shows the other readings under it. The choices live on the
-   section (data-stack: {vers: [the translations ticked], sel: [{b: the translation they were chosen in, v: "ch:v", a, e: the word positions in that verse, k: the words}]}) and ride along to the slides made from the section. */
+   section (data-stack: {vers: [the translations ticked], sel: [{b: the translation they were chosen in, v: "ch:v", a, e: the word positions in that verse, k: the words}]}) and ride along to the slides made from the section (the slide keeps its own copy, in slide.stk). */
 const cleanStack = x => {
   const vers = Array.isArray(x && x.vers) ? [...new Set(x.vers.map(cleanVer).filter(Boolean))].slice(0, 5) : [];
   const sel = Array.isArray(x && x.sel) ? x.sel.filter(s => s && cleanVer(s.b) && /^\d{1,3}:\d{1,3}$/.test(String(s.v)) && Number.isInteger(s.a) && Number.isInteger(s.e) && s.a >= 0 && s.e >= s.a).slice(0, 300).map(s => ({ b: s.b, v: String(s.v), a: s.a, e: s.e, k: String(s.k || "").slice(0, 120) })) : [];
