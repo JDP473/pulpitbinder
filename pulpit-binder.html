@@ -5364,9 +5364,21 @@ Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlig
 const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}`; };
 /* put the new words exactly where the highlighted ones were: everything before the highlight stays, everything after it follows the
    last new paragraph, and blank lines in the suggestion become new paragraphs */
+/* A position between two blocks belongs to both: the end of one and the start of the next. The start of the highlight is
+   found in the words after it and the end in the words before it, never inside a slide cue or Scripture section. */
+function esPoint(o, forward) {
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let n, pos = 0, back = null;
+  while ((n = w.nextNode())) {
+    const L = n.length, skip = n.parentElement.closest(".pb-slide,.pb-scripture,.pb-cue");
+    if (!skip && o >= pos && o <= pos + L) { if (!forward) return [n, o - pos]; if (o < pos + L) return [n, o - pos]; back = back || [n, o - pos]; }
+    pos += L;
+  }
+  return back;
+}
 function esRange() {   // the highlight, found again by its position, and checked to still be the same words
   if (!es) return null;
-  const [sn, so] = edPoint(es.a), [en, eo] = edPoint(es.z), r = document.createRange();
+  const a = esPoint(es.a, true), z = esPoint(es.z, false); if (!a || !z) return null;
+  const [sn, so] = a, [en, eo] = z, r = document.createRange();
   try { r.setStart(sn, so); r.setEnd(en, eo); } catch { return null; }
   return rangeText(r) === es.text ? r : null;
 }
