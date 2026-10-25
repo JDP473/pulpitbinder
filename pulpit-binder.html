@@ -583,7 +583,7 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 .g-pop{position:absolute;left:0;z-index:8;width:280px;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:10px;display:flex;flex-direction:column;gap:8px}
 .g-pop-h{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
 .editor .hot{outline:2px solid var(--accent);outline-offset:4px;border-radius:3px}
-@media (max-width:640px){.ed-wrap{grid-template-columns:minmax(0,1fr)}.gutter{display:none}}
+@media (max-width:640px){.ed-wrap{grid-template-columns:minmax(0,1fr)}.gutter{display:none}#editor .pb-slide{cursor:pointer}}
 .ed-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .ed-toolbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) - 1px);z-index:7;box-shadow:0 6px 14px -10px rgba(0,0,0,.35);display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px}
 .ed-toolbar .sep{width:1px;height:22px;background:var(--line);margin:0 4px}
@@ -1746,6 +1746,7 @@ body[data-view="present"] .sermon-bar{display:none}
     <div id="mk-step1" class="mk-step">
       <h2 id="mk-title">What kind of slide?</h2>
       <div class="mk-src" id="mk-src"></div>
+      <p class="hint" id="mk-note" style="margin:0" hidden></p>
       <div class="mk-kinds" id="mk-kinds"></div>
       <div class="sc-pop-row"><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel">Cancel</button></div>
     </div>
@@ -2786,6 +2787,7 @@ function renderBindings() {
     const side = el("div", { class: "side" }, renderSlide(sec.slide, { small: true }), sel);
     const ride = steps.filter(s => s.sec === i && s.extra).map(s => s.slide + 1);
     if (ride.length) side.append(el("div", { class: "hint", text: `Also shows slide${ride.length > 1 ? "s" : ""} ${ride.join(", ")} during this section` }));
+    if (sec.slide != null && S.slides[sec.slide]) side.append(el("button", { type: "button", class: "btn", text: S.slides[sec.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(sec.slide) }));
     if (sec.how === "manual") side.append(el("button", { class: "btn ghost", text: "Unpin", onclick: () => { delete S.manual[sec.key]; rebuild(); renderBindings(); save(); } }));
     list.append(el("div", { class: "bind" },
       el("div", {}, el("div", { class: "num" }, `§${i + 1}`, badge, `${words(sec.text).length} words`), el("div", { class: "txt", text: sec.text })),
@@ -2839,7 +2841,7 @@ function renderDeckStatus() {
     if (S.pdfName && S.pdfPages && S.pdfPages.length) row(S.pdfName, S.pdfNote || "", () => { S.pdfPages = null; S.pdfName = ""; applyPdf(); deckChanged("Removed the PDF"); });
   }
   const made = S.slides.filter(x => x.made).length;
-  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Delete one from the slide column in Edit manuscript.`, null);
+  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Edit, change, or delete one from the slide column in Edit manuscript, or from Bindings.`, null);
   const tip = $("#deck-tip");
   tip.hidden = !(S.slides.length && !(S.pdfPages && S.pdfPages.length));
 }
@@ -4642,6 +4644,7 @@ function openGutterPop(anchorEl, x) {
     el("div", { class: "hint", text: x.extra ? "No paragraph matched this slide, so it comes up on a click during this paragraph. Put the cursor where it belongs and use Slide cue in the toolbar, or start it at this paragraph." : "Choose which slide this paragraph brings up. A pin lasts until the paragraph's wording changes; a slide cue is permanent." }),
     el("label", { class: "g-pop-h", for: "g-pop-sel", text: "This paragraph shows" }), sel,
     slideHdLinks(S.slides[x.slide]),
+    S.slides[x.slide] ? el("button", { type: "button", class: "btn primary", text: S.slides[x.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(x.slide) }) : null,
     el("div", { class: "sg-act" }, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
   pop.style.top = anchorEl.style.top; pop.onclick = e => e.stopPropagation();
   $("#gutter").append(pop); gutterPop = pop; sel.focus({ preventScroll: true });
@@ -5701,11 +5704,16 @@ const KINDS = {
 };
 let mk = null;   // {src, kind, draft, busy}
 const mkModal = $("#mk-modal");
-function openPicker(src) {
-  mk = { src, kind: null, draft: null };
+function openPicker(src, edit) {
+  mk = { src, kind: null, draft: null, edit: edit || null };
+  const cur = edit && edit.orig.made ? draftFromSlide(edit.orig, src)[0] : null;
+  $("#mk-title").textContent = !edit ? "What kind of slide?" : edit.orig.made ? "Change the kind of slide" : "Make this slide into a new kind";
+  $("#mk-note").hidden = !edit; $("#mk-note").textContent = edit ? (edit.orig.made ? "The slide keeps its place in the deck and its speaker notes." : "The new slide takes this one's place, with its words and speaker notes. Undo brings the old one back.") : "";
+  $("#mk-back").textContent = edit ? "‹ Change the kind" : "‹ Other kinds";
   $("#mk-src").textContent = src.kind === "scripture" ? `${src.ref} · ${src.ver}` : `“${src.text.length > 140 ? src.text.slice(0, 140) + "…" : src.text}”`;
   const grid = $("#mk-kinds"); grid.replaceChildren();
   let lastKind = null; try { lastKind = localStorage.getItem("pb-kind-" + src.kind); } catch {}
+  if (edit) lastKind = cur;   // the kind the slide is now
   Object.entries(KINDS).filter(([, k]) => k.for.includes(src.kind)).forEach(([key, k]) => {
     const off = (k.ai && !sample) || (k.canva && !imgReady()), who = imgService() === "claude-draw" ? "Claude" : imgService() === "none" ? "Pictures" : "Canva";
     const b = el("button", { type: "button", class: "mk-kind" + (key === lastKind ? " last" : ""), disabled: off ? "" : null, onclick: () => chooseKind(key) },
@@ -5759,13 +5767,20 @@ function infoText(items, layout) {
 }
 const IG_HINT = { steps: "One step per line, as Label | detail. Up to five.", timeline: "One moment per line, as When or what | detail. Up to six.", stats: "One figure per line, as Big word or number | what it means. Up to four. Use only numbers that are true.", compare: "Two groups, with a blank line between them. The first line of each is its heading, and the lines under it are its points." };
 /* drafts */
+function showKind(key, draft) {
+  mk.kind = key; mk.draft = draft;
+  $("#mk-step1").hidden = true; $("#mk-step2").hidden = false;
+  $("#mk-kind-title").textContent = KINDS[key].name;
+  renderMkFields(); renderMkPreview();
+}
 async function chooseKind(key) {
   if (!mk) return;
+  if (mk.edit && mk.edit.orig.made) { const [k0, d0] = draftFromSlide(mk.edit.orig, mk.src); if (k0 === key) { showKind(key, d0); return; } }
   mk.kind = key; try { localStorage.setItem("pb-kind-" + mk.src.kind, key); } catch {}
   const k = KINDS[key];
   $("#mk-step1").hidden = true; $("#mk-step2").hidden = false;
   $("#mk-kind-title").textContent = k.name;
-  const s = mk.src, theme = deckTheme();
+  const s = mk.src, theme = mk.edit && mk.edit.orig.made && mk.edit.orig.theme ? { ...mk.edit.orig.theme } : deckTheme();
   const base = { theme, notes: "" };
   if (key === "quote") mk.draft = { ...base, made: "quote", text: s.text, ref: "" };
   else if (key === "passage") mk.draft = { ...base, made: "passage", per: 2 };
@@ -5849,7 +5864,7 @@ function renderMkPreview() {
   const slides = draftSlides();
   if (!slides.length) { box.append(el("div", { class: "mk-wait", text: mk.kind === "photo" ? "Choose a picture to see the slide." : "Nothing to show yet." })); $("#mk-add").disabled = true; return; }
   $("#mk-add").disabled = false;
-  $("#mk-add").textContent = slides.length > 1 ? `Add ${slides.length} slides` : "Add slide";
+  $("#mk-add").textContent = mk.edit ? (slides.length > 1 ? `Save as ${slides.length} slides` : "Save slide") : slides.length > 1 ? `Add ${slides.length} slides` : "Add slide";
   const show = slides.slice(0, 4);
   show.forEach(sl => { const f = el("div", { class: "slide" }); f.style.aspectRatio = String(S.aspect || 16 / 9); renderMade(f, sl); box.append(f); });
   if (slides.length > 4) box.append(el("div", { class: "hint", text: `and ${slides.length - 4} more` }));
@@ -6070,6 +6085,7 @@ async function canvaPaint() {
 $("#mk-add").onclick = () => {
   if (!mk || mk.busy) return;
   const slides = draftSlides(); if (!slides.length) return;
+  if (mk.edit) { const { idx, count } = mk.edit; closePicker(); replaceSlides(idx, count, slides); return; }
   const s = mk.src; let target = s.target, snapped = false;
   if (s.kind === "text" && s.range) {   // the slide appears when you reach the highlighted words, so the paragraph splits there
     const b = topBlock(s.range.startContainer);
@@ -6082,6 +6098,82 @@ $("#mk-add").onclick = () => {
   closePicker();
   insertMadeSlides(target, slides, { noSnap: snapped });
 };
+
+/* ---- editing a slide already in the deck, or making it a different kind ----
+   The slide opens in the same picker it was made in, filled with what it says now. "Change the kind" offers every kind that
+   fits its words (a slide from Scripture keeps its verses), and Save puts the result in the slide's place: cues, pins, and
+   speaker notes stay with it, and Undo brings the old slide back. A slide read from a PowerPoint becomes a slide made here. */
+function slideTarget(idx) {   // the first block of the paragraph that brings the slide up, for kinds that read the outline
+  const x = buildSteps().find(st => st.slide === idx && st.sec != null), g = x && groupBlocks([...ed.children])[x.sec];
+  return g ? g.els[0] : null;
+}
+function slideWords(s) {
+  if (!s.made) return [s.title, ...(s.body || [])].filter(Boolean).join("\n");
+  if (s.made === "points") return [s.title, ...(s.points || [])].filter(Boolean).join("\n");
+  if (s.made === "infographic") return [s.title, ...(s.body || [])].filter(Boolean).join("\n");
+  if (s.made === "title") return [s.kicker, s.title].filter(Boolean).join("\n");
+  if (s.made === "photo" || s.made === "art") return s.caption || "";
+  return scPlainText(String(s.text || "").replace(/\[\[|\]\]/g, ""));
+}
+function slideSource(s, idx) {
+  const target = slideTarget(idx);
+  if ((s.made === "scripture" || s.made === "keyverse") && s.ver && s.ref) {
+    let t = String(s.text || "");
+    if (s.made === "keyverse" && !/^\{\{/.test(t)) t = `{{${s.sc ? String(s.sc.a).split(":")[1] : refStart(s.ref).v}}} ${t}`;
+    const d = { id: s.sc ? s.sc.id : uid(), ref: s.ref, ver: s.ver, texts: { [s.ver]: { t, s: "typed" } } };
+    return { kind: "scripture", d, ref: s.ref, ver: s.ver, tokens: t, text: scPlainText(t), target };
+  }
+  return { kind: "text", text: slideWords(s), target };
+}
+// a made slide back into the picker's draft for its kind
+function draftFromSlide(s, src) {
+  const base = { theme: s.theme ? { ...s.theme } : deckTheme(), notes: s.notes || "" }, rv = { ref: s.ref || "", ver: s.ver || "" };
+  switch (s.made) {
+    case "scripture": return ["passage", { ...base, made: "passage", per: Math.max(1, Math.min(3, scUnits(src.d).length || 1)) }];
+    case "keyverse": return ["keyverse", { ...base, made: "keyverse", vi: 0 }];
+    case "quote": return ["quote", { ...base, made: "quote", text: s.text || "", ref: s.ref || "" }];
+    case "statement": case "question": case "blanks": return [s.made, { ...base, made: s.made, text: s.text || "", ...(s.kicker ? { kicker: s.kicker } : {}), ...rv }];
+    case "points": return ["points", { ...base, made: "points", title: s.title || "", points: [...(s.points || [])], ...rv }];
+    case "point": return ["point", { ...base, made: "point", num: s.num || "", text: s.text || "" }];
+    case "title": return [s.section ? "section" : "title", { ...base, made: "title", section: !!s.section, kicker: s.kicker || "", ttl: s.title || "", ref: s.ref || "", pic: s.img ? "own" : s.noImg ? "none" : "theme", img: s.img || null }];
+    case "infographic": return ["infographic", { ...base, made: "infographic", layout: s.layout || "steps", title: s.title || "", info: infoText(s.items, s.layout || "steps") }];
+    case "photo": return ["photo", { ...base, made: "photo", img: s.img || null, caption: s.caption || "", ...rv }];
+    case "art": return ["art", { ...base, made: "art", img: s.img || null, svg: s.svg || "", style: "painterly", prompt: "", caption: s.caption || "", link: s.canva || "", hdUrl: s.hdUrl || "", media: s.media || "", hd: !!s.hd, ...rv }];
+  }
+  return [null, null];
+}
+function editSlide(idx) {
+  const s = S.slides[idx]; if (!s) return;
+  let start = idx, count = 1;
+  if (s.made === "blanks") { const j = s.reveal ? idx - 1 : idx + 1, o = S.slides[j]; if (o && o.made === "blanks" && o.text === s.text && !!o.reveal !== !!s.reveal) { start = Math.min(idx, j); count = 2; } }   // the blanks and the answers are one slide to edit
+  const orig = S.slides[start], src = slideSource(orig, start);
+  closeGutterPop(); getSelection().removeAllRanges();
+  openPicker(src, { idx: start, count, orig });
+  const [key, draft] = orig.made ? draftFromSlide(orig, src) : [null, null];
+  if (key && KINDS[key] && KINDS[key].for.includes(src.kind)) showKind(key, draft);
+}
+// phones have no slide column, so tapping a slide cue opens the slide it brings up
+ed.addEventListener("click", e => {
+  const c = e.target.closest(".pb-slide"); if (!c || !matchMedia("(max-width:640px)").matches) return;
+  let b = c.nextElementSibling; while (b && b.classList.contains("pb-slide")) b = b.nextElementSibling;
+  const i = b ? groupBlocks([...ed.children]).findIndex(g => g.els.includes(b)) : -1, at = i >= 0 && sections[i] ? sections[i].slide : +c.dataset.n - 1;
+  if (at >= 0 && S.slides[at]) { e.preventDefault(); editSlide(at); }
+});
+function replaceSlides(idx, count, newSlides) {
+  const old = S.slides[idx]; if (!newSlides.length || !old) return;
+  newSlides.forEach((sl, i) => { sl.notes = i === 0 ? old.notes || "" : sl.notes || ""; if (sl.sc) { const se = edSc(sl.sc.id); if (se) { const stk = scStkFor(readSc(se), sl); if (stk) sl.stk = stk; } } });
+  snapshot();
+  const n = newSlides.length, delta = n - count, map = p => p < idx ? p : p >= idx + count ? p + delta : Math.min(p, idx + n - 1);
+  ed.querySelectorAll(".pb-slide").forEach(c => {
+    const a0 = +c.dataset.n - 1; if (a0 < 0) return; const b0 = a0 + (+c.dataset.k || 1) - 1;
+    const [a, b] = a0 <= idx && b0 >= idx ? [a0, b0 + delta] : [map(a0), map(b0)], k = Math.max(1, b - a + 1);
+    c.dataset.n = String(a + 1); if (k > 1) c.dataset.k = String(k); else delete c.dataset.k;
+  });
+  for (const [k, v] of Object.entries(S.manual)) if (v != null) S.manual[k] = map(v);
+  S.slides.splice(idx, count, ...newSlides);
+  deckEdited();
+  toast((n === 1 ? `Slide ${idx + 1} saved` : `Slides ${idx + 1}–${idx + n} saved`) + ". Undo brings the old one back.");
+}
 
 /* entry points */
 $("#btn-make-slide").onclick = () => {
