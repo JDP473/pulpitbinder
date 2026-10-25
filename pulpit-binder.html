@@ -175,7 +175,7 @@ main{padding-block:18px 40px}
 .sc-fmt button.txt{font-size:12.5px}
 .sc-fmt-sep{width:1px;height:20px;background:rgba(127,127,127,.5);margin:0 3px}
 @media (pointer:coarse){.sc-fmt button{min-width:40px;height:40px}.sc-fmt button.sw{width:28px;min-width:28px;height:28px}}
-.sel-pop{position:fixed;z-index:26}
+.sel-pop{position:fixed;z-index:26;display:flex;gap:6px}
 .sel-pop[hidden]{display:none}
 .sel-pop button{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-ui);padding:6px 11px;border-radius:8px;border:0;background:var(--ink);color:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
 @media (pointer:coarse){.sel-pop button{padding:9px 14px;font-size:14px}}
@@ -1116,6 +1116,17 @@ body[data-view="present"] .sermon-bar{display:none}
 .ai-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:6px}
 .ai-list li{display:flex;flex-direction:column;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:14px}
 @media (max-width:700px){body.set-open .tab[aria-selected="true"]{color:var(--muted)}body.set-open .tab[aria-selected="true"]::before{display:none}body.set-open #btn-settings{color:var(--accent);border-color:var(--accent)}}
+.es-card{width:min(980px,100%)}
+.es-orig{font:14px/1.55 var(--f-read);color:var(--muted);border-left:3px solid var(--accent);padding:4px 12px;max-height:9.5em;overflow:auto;white-space:pre-wrap}
+.es-orig-full{max-height:min(46vh,420px);color:var(--ink)}
+.es-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.es-chips .chip{cursor:pointer;min-height:30px}
+.es-chips .chip:hover{border-color:var(--accent)}
+.es-cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+@media (max-width:760px){.es-cmp{grid-template-columns:minmax(0,1fr)}}
+.es-col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.es-h{display:flex;align-items:baseline;gap:10px}
+.es-out{flex:1;min-height:min(46vh,420px);font:15px/1.6 var(--f-read);resize:vertical}
 </style>
 
 <a class="skip" href="#main" id="skip-link">Skip to content</a>
@@ -1596,7 +1607,7 @@ body[data-view="present"] .sermon-bar{display:none}
   <span class="sc-fmt-sep"></span><button type="button" data-h="yellow" class="sw hl-yellow" aria-label="Highlight yellow" title="Highlight yellow"></button><button type="button" data-h="green" class="sw hl-green" aria-label="Highlight green" title="Highlight green"></button><button type="button" data-h="blue" class="sw hl-blue" aria-label="Highlight blue" title="Highlight blue"></button><button type="button" data-h="pink" class="sw hl-pink" aria-label="Highlight pink" title="Highlight pink"></button>
   <span class="sc-fmt-sep"></span><button type="button" data-f="clear" class="txt" title="Remove bold, underline, and highlight">Clear</button>
 </div>
-<div class="sel-pop" id="sel-pop" hidden><button type="button" id="btn-make-slide" title="Make a slide from the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M12 9v4M10 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Make slide</button></div>
+<div class="sel-pop" id="sel-pop" hidden><button type="button" id="btn-make-slide" title="Make a slide from the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M12 9v4M10 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Make slide</button><button type="button" id="btn-edit-sel" title="Ask Claude to rework the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Edit with suggestions</button></div>
 <div class="sc-hint" id="sc-hint" hidden><button type="button" id="sc-hint-btn"><kbd>Tab</kbd><span>Insert</span><b id="sc-hint-ref"></b><span class="sc-hint-ver" id="sc-hint-ver"></span></button></div>
 <div class="modal" id="mk-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mk-title">
   <div class="modal-card mk-card">
@@ -1610,6 +1621,27 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="mk-top"><button type="button" class="btn ghost" id="mk-back">‹ Other kinds</button><h2 id="mk-kind-title"></h2></div>
       <div class="mk-body"><div class="mk-preview" id="mk-preview" aria-live="polite"></div><div class="mk-fields" id="mk-fields"></div></div>
       <div class="sc-pop-row"><button type="button" class="btn" id="mk-again">Ask Claude again</button><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel2">Cancel</button><button type="button" class="btn primary" id="mk-add">Add slide</button></div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="es-modal" hidden role="dialog" aria-modal="true" aria-labelledby="es-title">
+  <div class="modal-card es-card">
+    <div id="es-step1" class="mk-step">
+      <h2 id="es-title">Edit with suggestions</h2>
+      <div class="es-orig" id="es-orig" aria-label="The words you highlighted"></div>
+      <div class="field"><label for="es-ask">What should change?</label><textarea id="es-ask" rows="3" placeholder="For example: say this more simply, add a short illustration from daily life, or make the application stronger"></textarea>
+        <div class="es-chips" id="es-chips"></div></div>
+      <div class="field"><label for="es-len">How long should it be?</label><select id="es-len"></select><span class="hint" id="es-lenhint"></span></div>
+      <div class="sc-pop-row"><span class="hint" id="es-msg" role="status" aria-live="polite"></span><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel">Cancel</button><button type="button" class="btn primary" id="es-go">Create</button></div>
+    </div>
+    <div id="es-step2" class="mk-step" hidden>
+      <h2>Preview</h2>
+      <div class="es-cmp">
+        <div class="es-col"><div class="es-h"><b>Yours</b><span class="hint" id="es-n0"></span></div><div class="es-orig es-orig-full" id="es-orig2"></div></div>
+        <div class="es-col"><div class="es-h"><b>Suggested</b><span class="hint" id="es-n1"></span></div><textarea id="es-out" class="es-out" aria-label="The suggested wording. You can change it before you accept."></textarea></div>
+      </div>
+      <span class="hint">You can change the suggested wording before you accept it. Accepting replaces the highlighted words, and Undo brings yours back.</span>
+      <div class="sc-pop-row"><button type="button" class="btn" id="es-back">‹ Change the request</button><button type="button" class="btn" id="es-again">Try again</button><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel2">Cancel</button><button type="button" class="btn primary" id="es-accept">Accept</button></div>
     </div>
   </div>
 </div>
@@ -4871,7 +4903,7 @@ function updateSelPop() {
   if (view !== "edit") { selPop.hidden = true; return; }
   const info = selInfo(); if (!info) { selPop.hidden = true; return; }
   const rect = info.r.getBoundingClientRect(); if (!rect.width && !rect.height) { selPop.hidden = true; return; }
-  selPop.hidden = false;
+  $("#btn-edit-sel").hidden = !sample; selPop.hidden = false;
   const w = selPop.offsetWidth, h = selPop.offsetHeight;
   const coarse = matchMedia("(pointer:coarse)").matches;   // phones put their own menu above the selection
   let y = coarse ? rect.bottom + 10 : rect.top - h - 8; if (y < 8 || (!coarse && y < (parseFloat(getComputedStyle(root).getPropertyValue("--hdr-h")) || 0) + 60)) y = rect.bottom + 10;
@@ -4880,6 +4912,95 @@ function updateSelPop() {
 let selT = 0; document.addEventListener("selectionchange", () => { cancelAnimationFrame(selT); selT = requestAnimationFrame(updateSelPop); });
 window.addEventListener("scroll", () => { if (!selPop.hidden) updateSelPop(); }, { passive: true });
 selPop.addEventListener("mousedown", e => e.preventDefault());
+/* ---- Edit with suggestions: highlight words, say what should change and how long, preview, accept ---- */
+const ES_LEN = [["much shorter", "Much shorter, about half", 0.5], ["a bit shorter", "A bit shorter, about three quarters", 0.75], ["about the same", "About the same length", 1], ["a bit longer", "A bit longer, about a third more", 1.35], ["much longer", "Much longer, about twice as long", 2]];
+const ES_IDEAS = ["Say it more simply", "Add a short illustration", "Make the application stronger", "Tighten it up", "Make it warmer", "Make it flow better when read aloud"];
+let es = null;
+function rangeText(r) {   // paragraphs kept apart, so the words can come back the same way
+  const kids = [...r.cloneContents().childNodes];
+  if (kids.some(n => n.nodeType === 1 && /^(P|DIV|H[1-6]|UL|OL|BLOCKQUOTE|LI)$/.test(n.tagName))) return kids.map(n => n.textContent.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n\n");
+  return kids.map(n => n.textContent).join("").replace(/\s+/g, " ").trim();
+}
+const esWords = t => (String(t).match(/\S+/g) || []).length;
+function esCount() { const n = esWords(es.text), t = ES_LEN[+$("#es-len").value][2]; $("#es-lenhint").textContent = `About ${Math.max(5, Math.round(n * t))} words (now ${n}).`; }
+function openEdit() {
+  const info = selInfo(); if (!info || !sample) return;
+  if (info.r.cloneContents().querySelector(".pb-slide,.pb-scripture")) { toast("Highlight words without a slide cue or Scripture section inside. Choose one stretch of your own words."); return; }
+  const text = rangeText(info.r); if (esWords(text) < 3) { toast("Highlight a few more words to rework."); return; }
+  const pre = document.createRange(); pre.setStart(ed, 0); pre.setEnd(info.r.startContainer, info.r.startOffset);
+  const post = document.createRange(); post.setStart(info.r.endContainer, info.r.endOffset); post.setEnd(ed, ed.childNodes.length);
+  es = { r: info.r.cloneRange(), text, before: pre.toString().replace(/\s+/g, " ").slice(-700), after: post.toString().replace(/\s+/g, " ").slice(0, 500), busy: false, out: "" };
+  $("#es-orig").textContent = text; $("#es-ask").value = ""; $("#es-msg").textContent = "";
+  const len = $("#es-len"); len.replaceChildren(...ES_LEN.map(([, l], i) => el("option", { value: String(i), text: l }))); len.value = "2"; esCount();
+  $("#es-chips").replaceChildren(...ES_IDEAS.map(t => el("button", { type: "button", class: "chip", text: t, onclick: () => { const a = $("#es-ask"); a.value = a.value.trim() ? a.value.trim().replace(/[.]?$/, ". ") + t : t; a.focus(); } })));
+  $("#es-step1").hidden = false; $("#es-step2").hidden = true; $("#es-go").disabled = false; $("#es-go").textContent = "Create";
+  $("#es-modal").hidden = false; selPop.hidden = true; $("#es-ask").focus();
+}
+function closeEdit() { $("#es-modal").hidden = true; es = null; }
+async function esRun(fresh) {
+  if (!es || es.busy || !sample) return;
+  const ask = $("#es-ask").value.trim();
+  if (!ask) { $("#es-msg").textContent = "Say what should change, or choose one of the ideas above."; $("#es-ask").focus(); return; }
+  const [lenName, , factor] = ES_LEN[+$("#es-len").value], n = esWords(es.text), target = Math.max(5, Math.round(n * factor)), m = S.meta;
+  es.busy = true; $("#es-go").disabled = true; $("#es-go").textContent = "Writing…"; $("#es-again").disabled = true; $("#es-again").textContent = "Writing…"; $("#es-msg").textContent = "Claude is working on it…";
+  const prompt = `You are helping a preacher in the churches of Christ rework part of his sermon manuscript, which he will read aloud at the pulpit. Keep his voice, vocabulary, and reading level. Be faithful to Scripture and to what the sermon already teaches; do not add doctrine it does not teach. Do not invent facts, statistics, quotations, or personal stories. If you add a Scripture reference it must be real and accurate, and quote it only when you are certain of the wording. Plain, warm sentences meant to be heard. No emojis, headings, or bullet lists. Separate paragraphs with a blank line.
+
+Sermon: ${m.title || "(untitled)"}${m.text ? ", text " + m.text : ""}.
+Just before the highlighted words: """${es.before}"""
+Just after them: """${es.after}"""
+
+The highlighted words (${n} words):
+"""${es.text}"""
+
+His request: ${ask}
+Length: ${lenName}, about ${target} words in all (the original is ${n}).
+
+Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlighted words, so they fit between what comes before and after"}`;
+  try {
+    const { value: r } = await askJson(prompt, { tier: "default", fresh: !!fresh });
+    const out = String((r && r.text) || "").replace(/\r/g, "").trim(); if (!out) throw { code: "empty" };
+    if (!es) return; es.out = out;
+    $("#es-orig2").textContent = es.text; $("#es-out").value = out; $("#es-n0").textContent = `${n} words`; esOutCount();
+    $("#es-step1").hidden = true; $("#es-step2").hidden = false; $("#es-out").focus();
+  } catch (e) {
+    const why = e && e.code === "not_granted" ? "Claude wasn't allowed for this page." : e && e.code === "rate_limited" ? "Too many requests right now. Try again in a minute." : "Claude didn't finish that. Try again, or change the request.";
+    if (es) { if ($("#es-step1").hidden) toast(why); else $("#es-msg").textContent = why; }
+  }
+  if (!es) return; es.busy = false; $("#es-go").disabled = false; $("#es-go").textContent = "Create"; $("#es-again").disabled = false; $("#es-again").textContent = "Try again";
+  if (!$("#es-step1").hidden && $("#es-msg").textContent.startsWith("Claude is")) $("#es-msg").textContent = "";
+}
+const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}`; };
+/* put the new words where the old ones were: inside one paragraph the surrounding words stay, and blank lines become new paragraphs */
+function esReplace(r, text) {
+  snapshot();
+  const paras = text.split(/\n{2,}/).map(t => t.replace(/\n/g, " ").trim()).filter(Boolean); if (!paras.length) return false;
+  const first = topBlock(r.startContainer);
+  r.deleteContents(); r.collapse(true);
+  let tail = null;
+  if (paras.length > 1 && first) { const t = document.createRange(); t.setStart(r.startContainer, r.startOffset); t.setEndAfter(first.lastChild || first); tail = t.extractContents(); }
+  r.insertNode(document.createTextNode(paras[0]));
+  let at = first;
+  paras.slice(1).forEach((t, i) => { const p = document.createElement("p"); p.textContent = t; if (tail && i === paras.length - 2) p.append(...tail.childNodes); (at && at.parentNode === ed ? at : ed.lastChild).after(p); at = p; });
+  if (first && first.parentNode === ed && !first.textContent.trim() && first.children.length === 0) first.remove();
+  normalizeEditor(); onEdit(true); return true;
+}
+function esAccept() {
+  if (!es) return; const out = $("#es-out").value.trim(); if (!out) { toast("The suggested wording is empty."); return; }
+  const r = es.r; if (!r.startContainer.isConnected || !ed.contains(r.commonAncestorContainer)) { closeEdit(); toast("The manuscript changed while you worked. Highlight the words again."); return; }
+  const ok = esReplace(r, out); closeEdit(); getSelection().removeAllRanges();
+  if (ok) { toast("Replaced. Undo brings your words back."); renderSuggestions(); }
+}
+$("#btn-edit-sel").onclick = openEdit;
+$("#es-cancel").onclick = $("#es-cancel2").onclick = closeEdit;
+$("#es-go").onclick = () => esRun(false);
+$("#es-again").onclick = () => esRun(true);
+$("#es-back").onclick = () => { $("#es-step2").hidden = true; $("#es-step1").hidden = false; $("#es-msg").textContent = ""; $("#es-ask").focus(); };
+$("#es-accept").onclick = esAccept;
+$("#es-len").onchange = () => { if (es) esCount(); };
+$("#es-out").addEventListener("input", () => { if (es) esOutCount(); });
+$("#es-modal").addEventListener("click", e => { if (e.target.id === "es-modal" && !(es && es.busy)) closeEdit(); });
+document.addEventListener("keydown", e => { if (!$("#es-modal").hidden && e.key === "Escape") { e.preventDefault(); closeEdit(); } else if (!$("#es-modal").hidden && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!$("#es-step1").hidden) esRun(false); else esAccept(); } });
+
 /* ---------------- slide kinds ---------------- */
 /* Every made slide is {made: kind, theme, ...fields}. renderMade draws each kind from its fields,
    so a slide looks right at any size, from the gutter thumbnail to full screen. */
