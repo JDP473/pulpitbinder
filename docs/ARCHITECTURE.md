@@ -76,3 +76,12 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 ## Dashboard
 
 `dashSummary(rec)` reduces a sermon to word count, references, reading grade, voice counts, and the key analysis fields. Summaries are cached, saved with each sermon's sync metadata, and pulled from `core` and `html` parts for older sermons that lack one.
+
+## Live view (Pulpit Live relay)
+A Claude-hosted page needs sign-in and cannot be embedded or fetched from, so the public viewer cannot live in the page. `live/worker.js` is a small Cloudflare Worker (`pulpit-live`, custom domain `live.pettijohn.me`) with one SQLite Durable Object per link.
+- Page side: Present, Share live view. Each sermon keeps a stable link in `S.meta.live` (`code` public, `secret` private, synced with the sermon). Slides are drawn to 1600 px JPEGs in the page with html2canvas 1.4.1 (loaded from cdnjs on first use), fingerprinted by content, and only new or changed slides are sent. The current slide is sent on every step change (debounced).
+- Transport: the Worker is an authless MCP server at `/mcp/<MCP_TOKEN>` (tools `live_open`, `live_slide`, `live_show`, `live_close`). The owner adds it in Claude as a custom connector named exactly "Pulpit Live". Each call carries at most 1 MiB, so pictures are sent one at a time under about 800 KB.
+- Viewer: `/v/<code>` returns a bare full-screen page (`frame-ancestors *`, so it embeds), updated by server-sent events with a polling fallback. Options: `?bg=transparent`, `?bg=RRGGBB`, `?fit=cover`. A link is claimed by the secret of the first `live_open`; `live_close` deletes the pictures.
+- Test: `tests/browser/livedeck.py` runs the whole path against the deployed relay when `PULPIT_LIVE_TOKEN` is set.
+- Deploy: upload `live/worker.js` as a module Worker with a Durable Object binding `ROOM` (class `Room`, `new_sqlite_classes` migration) and secret binding `MCP_TOKEN`. Browser Integrity Check is off for the host so the connector, which has no browser user agent, gets through.
+

@@ -1193,6 +1193,12 @@ body[data-view="present"] .sermon-bar{display:none}
 .ai-list li{display:flex;flex-direction:column;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:14px}
 @media (max-width:700px){body.set-open .tab[aria-selected="true"]{color:var(--muted)}body.set-open .tab[aria-selected="true"]::before{display:none}body.set-open #btn-settings{color:var(--accent);border-color:var(--accent)}}
 .es-card{width:min(980px,100%)}
+.lv-card{width:min(600px,100%)}
+.lv-row{display:flex;gap:8px;align-items:center}a.btn{text-decoration:none;color:var(--ink)}a.btn:not([href]){opacity:.5;pointer-events:none}.lv-row input{flex:1;min-width:0}
+.lv-state{display:flex;align-items:center;gap:8px;font-size:14px}.lv-state i{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.lv-state.on i{background:#2e9e5b;box-shadow:0 0 0 3px rgba(46,158,91,.25)}.lv-state.err i{background:#c2452d}
+.lv-setup{border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13.5px;line-height:1.5}.lv-setup code{word-break:break-all}
+#btn-live.on{border-color:#2e9e5b;color:#2e9e5b}
 .es-orig{font:14px/1.55 var(--f-read);color:var(--muted);border-left:3px solid var(--accent);padding:4px 12px;max-height:9.5em;overflow:auto;white-space:pre-wrap}
 .es-orig-full{max-height:min(46vh,420px);color:var(--ink)}
 .es-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -1486,6 +1492,7 @@ body[data-view="present"] .sermon-bar{display:none}
           <div class="spacer"></div>
           <button class="icon-btn" id="btn-font-dn" aria-label="Smaller text">A-</button>
           <button class="icon-btn" id="btn-font-up" aria-label="Larger text">A+</button>
+          <button class="btn" id="btn-live" title="A link that shows these slides full screen on a projector or in OBS">Share live view</button>
           <button class="btn" id="btn-full">Full screen</button>
         </div>
         <div class="next-wrap" id="next-wrap"></div>
@@ -1741,6 +1748,20 @@ body[data-view="present"] .sermon-bar{display:none}
       <span class="hint">You can change the suggested wording before you accept it. Accepting replaces the highlighted words, and Undo brings yours back.</span>
       <div class="sc-pop-row"><button type="button" class="btn" id="es-back">‹ Change the request</button><button type="button" class="btn" id="es-again">Try again</button><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel2">Cancel</button><button type="button" class="btn primary" id="es-accept">Accept</button></div>
     </div>
+  </div>
+</div>
+<div class="modal" id="lv-modal" hidden role="dialog" aria-modal="true" aria-labelledby="lv-title">
+  <div class="modal-card lv-card">
+    <h2 id="lv-title">Share live view</h2>
+    <p class="hint" id="lv-intro">A link that shows the slide you are on, full screen, with nothing else on it. Open it on the projector or booth screen, or add it to OBS for the livestream. It follows you as you scroll or press Next.</p>
+    <div class="lv-state" id="lv-state" role="status" aria-live="polite"></div>
+    <div class="field" id="lv-f-url"><label for="lv-url">Link to open on the screen</label>
+      <div class="lv-row"><input type="text" id="lv-url" readonly><button type="button" class="btn" id="lv-copy-url">Copy</button><a class="btn" id="lv-open" target="_blank" rel="noopener">Open</a></div></div>
+    <div class="field" id="lv-f-embed"><label for="lv-embed">To embed it in another page</label>
+      <div class="lv-row"><input type="text" id="lv-embed" readonly><button type="button" class="btn" id="lv-copy-embed">Copy</button></div>
+      <span class="hint">OBS: add a Browser source, paste the link, and set it to 1920 by 1080. Add <b>?bg=transparent</b> to the end of the link for a see-through background.</span></div>
+    <div class="lv-setup" id="lv-setup" hidden></div>
+    <div class="sc-pop-row"><button type="button" class="btn ghost" id="lv-new" title="Make a different link and end the old one">New link</button><div class="spacer"></div><button type="button" class="btn ghost" id="lv-close">Close</button><button type="button" class="btn primary" id="lv-toggle">Start live view</button></div>
   </div>
 </div>
 <div class="modal" id="import-modal" hidden role="dialog" aria-modal="true" aria-labelledby="imp-title">
@@ -2746,7 +2767,7 @@ async function loadDeckFiles(files) {
   if (pptx) await loadPptx(pptx);
   if (pdf) await loadPdf(pdf);
 }
-function deckChanged(msg) { S.deckVer = Date.now(); cacheDeck = null; rebuild(); renderBindings(); renderDeckStatus(); renderTags(); if (view === "present") renderPresent(); save(); if (msg) toast(msg); }
+function deckChanged(msg) { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; rebuild(); renderBindings(); renderDeckStatus(); renderTags(); if (view === "present") renderPresent(); save(); if (msg) toast(msg); }
 async function loadPptx(f) {
   progress("Reading slides…");
   try {
@@ -3274,7 +3295,7 @@ function updatePresent(scroll = true) {
   if (st.sec != null) parts.push(`Section ${st.sec + 1} of ${sections.length}`);
   $("#pos").textContent = parts.join(" · ");
   $("#prog").style.width = steps.length ? `${((cur + 1) / steps.length) * 100}%` : "0";
-  updateClock();
+  updateClock(); liveShowSoon();
 }
 /* Slides are drawn once and reused, and the next few are decoded ahead of time,
    so changing slides while scrolling does not stall the scroll. */
@@ -3331,6 +3352,129 @@ $("#btn-font-up").onclick = () => { setRead(0.1); secGeo = null; }; $("#btn-font
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { secGeo = null; });
 const full = async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await $("#view-present").requestFullscreen(); } catch { toast("Full screen is not available here"); } };
 $("#btn-full").onclick = full;
+
+/* ---------------- live view ----------------
+   A link that shows the current slide full screen (projector, booth screen, OBS, or an iframe elsewhere).
+   This page cannot serve the public, so slides are drawn to pictures here and handed to a small relay
+   (Cloudflare, reached through the "Pulpit Live" connector); the relay serves the viewer. See live/worker.js. */
+const LIVE_SRV = "Pulpit Live", LIVE_HOST = "https://live.pettijohn.me";
+var lv = { on: false, busy: false, gen: 0, sent: 0, total: 0, err: "", shown: -1, showing: false, want: -1, timer: 0, deckTimer: 0, hashes: [], running: false, again: false };
+let h2cP = null;
+const loadH2c = () => h2cP || (h2cP = new Promise((res, rej) => {
+  if (window.html2canvas) return res(window.html2canvas);
+  const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+  sc.onload = () => res(window.html2canvas); sc.onerror = () => { h2cP = null; rej(new Error("The slide picture tool could not load")); }; document.head.append(sc);
+}));
+const liveRand = (n, alpha) => { const b = new Uint8Array(n); crypto.getRandomValues(b); return [...b].map(x => alpha[x % alpha.length]).join(""); };
+function liveLink(make) {
+  let l = S.meta.live;
+  if (!l || !l.code || !l.secret || make) { l = S.meta.live = { code: liveRand(12, "abcdefghijkmnpqrstuvwxyz23456789"), secret: liveRand(32, "0123456789abcdef") }; save(); }
+  return l;
+}
+const liveUrl = () => (S.meta.live && S.meta.live.code) ? `${LIVE_HOST}/v/${S.meta.live.code}` : "";
+const livePayload = res => { const t = res && Array.isArray(res.content) ? res.content.find(c => c && c.type === "text") : null; try { const o = JSON.parse(t ? t.text : ""); if (o && typeof o === "object") return o; } catch {} const p = canvaPayload(res); return p && typeof p === "object" ? p : {}; };
+async function liveCall(tool, args) {
+  if (!mcpNs) throw new Error("Live view needs the Pulpit Live connector");
+  const l = liveLink();
+  const res = await mcpNs.callTool(LIVE_SRV, tool, { code: l.code, secret: l.secret, ...args });
+  const out = livePayload(res);
+  if (out.error) throw new Error(out.error === "link_taken" ? "That link belongs to another sermon. Choose New link." : "The live service refused that (" + out.error + ")");
+  return out;
+}
+const liveSig = i => {
+  const sl = S.slides[i]; if (!sl) return "";
+  const str = JSON.stringify(sl, (k, v) => v instanceof Blob ? "blob:" + v.size + ":" + v.type : v);
+  return keyOf(str + "|" + (S.aspect || "")) + keyOf(str.slice(0, 997)).slice(-3) + "x" + str.length.toString(36);
+};
+async function liveShot(i) {
+  const h2c = await loadH2c();
+  const host = el("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1600px;pointer-events:none";
+  const box = renderSlide(i); box.style.width = "1600px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
+  host.append(box); document.body.append(host);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: 1600, height: Math.round(1600 / (S.aspect || 16 / 9)) });
+    let q = 0.85, d = c.toDataURL("image/jpeg", q);
+    while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
+    return d.slice(d.indexOf(",") + 1);
+  } finally { host.remove(); }
+}
+function liveRender() {
+  const st = $("#lv-state"), on = lv.on;
+  st.className = "lv-state" + (lv.err ? " err" : on ? " on" : "");
+  let msg;
+  if (lv.err) msg = lv.err;
+  else if (!on) msg = "Not live";
+  else if (lv.total && lv.sent < lv.total) msg = `Live. Preparing slides, ${lv.sent} of ${lv.total} ready`;
+  else msg = `Live. All ${S.slides.length} slides ready` + (lv.shown >= 0 ? `, showing slide ${lv.shown + 1}` : "");
+  st.replaceChildren(el("i"), el("span", { text: msg }));
+  $("#lv-toggle").textContent = on ? "Stop live view" : "Start live view"; $("#lv-toggle").disabled = lv.busy;
+  $("#btn-live").classList.toggle("on", on); $("#btn-live").textContent = on ? "Live view on" : "Share live view";
+  const url = liveUrl(); $("#lv-url").value = url;
+  $("#lv-embed").value = url ? `<iframe src="${url}" style="border:0;width:100%;aspect-ratio:16/9" allow="fullscreen" allowfullscreen></iframe>` : "";
+  const o = $("#lv-open"); if (url) o.href = url; else o.removeAttribute("href");
+  $("#lv-f-url").hidden = $("#lv-f-embed").hidden = !url;
+}
+async function liveDeck() {
+  if (!lv.on) return;
+  if (lv.running) { lv.again = true; return; }
+  lv.running = true; lv.again = false;
+  try {
+    const hashes = S.slides.map((_, i) => liveSig(i)), gen = ++lv.gen;
+    const r = await liveCall("live_open", { title: S.meta.title || "", hashes });
+    const order = (r.needs || []).slice().sort((a, b) => { const c = steps[cur] ? steps[cur].slide : 0; return Math.abs(a - c) - Math.abs(b - c); });
+    lv.total = order.length; lv.sent = 0; lv.err = ""; liveRender();
+    for (const i of order) {
+      if (!lv.on || gen !== lv.gen || lv.again) break;
+      const image = await liveShot(i);
+      await liveCall("live_slide", { index: i, hash: hashes[i], image });
+      lv.sent++; liveRender();
+      if (lv.sent === 1 || i === (steps[cur] ? steps[cur].slide : 0)) { lv.shown = -1; liveShowSoon(); }
+    }
+    lv.shown = -1; liveShowSoon();
+  } catch (e) { lv.err = (e && e.message) || "Live view stopped"; }
+  lv.running = false; liveRender();
+  if (lv.again && lv.on) liveDeck();
+}
+function liveDeckSoon() { if (!lv || !lv.on) return; clearTimeout(lv.deckTimer); lv.deckTimer = setTimeout(liveDeck, 1500); }
+function liveShowSoon() {
+  if (!lv || !lv.on) return; clearTimeout(lv.timer);
+  lv.timer = setTimeout(async () => {
+    const st = steps[cur]; const i = st && st.slide != null ? st.slide : -1;
+    if (i < 0 || i === lv.shown || lv.showing) { if (lv.showing && i !== lv.shown) liveShowSoon(); return; }
+    lv.showing = true;
+    try { await liveCall("live_show", { index: i }); lv.shown = i; lv.err = ""; } catch (e) { lv.err = (e && e.message) || "Live view stopped"; }
+    lv.showing = false; liveRender();
+    const nx = steps[cur]; if (nx && nx.slide != null && nx.slide !== lv.shown && !lv.err) liveShowSoon();
+  }, 150);
+}
+async function liveStart() {
+  if (!mcpNs) { lv.err = "Live view needs the Pulpit Live connector. Steps are below."; $("#lv-setup").hidden = false; liveRender(); return; }
+  lv.busy = true; lv.on = true; lv.err = ""; lv.shown = -1; lv.sent = 0; lv.total = S.slides.length; liveRender();
+  try { await liveCall("live_open", { title: S.meta.title || "", hashes: S.slides.map((_, i) => liveSig(i)) }); }
+  catch (e) { lv.on = false; lv.busy = false; const m = (e && e.message) || ""; lv.err = /not_in_manifest|not found|unknown|connector|manifest/i.test(m + " " + (e && e.code)) ? "The Pulpit Live connector is not set up yet. Steps are below." : m || "Live view could not start"; $("#lv-setup").hidden = false; liveRender(); return; }
+  lv.busy = false; liveRender(); liveDeck();
+}
+async function liveStop() {
+  lv.busy = true; liveRender(); clearTimeout(lv.timer); clearTimeout(lv.deckTimer); lv.gen++;
+  try { await liveCall("live_close", {}); } catch {}
+  lv.on = false; lv.busy = false; lv.err = ""; lv.sent = lv.total = 0; lv.shown = -1; liveRender();
+}
+function openLive() {
+  const sm = $("#lv-setup"); sm.replaceChildren(
+    el("b", { text: "One-time setup" }),
+    el("div", { text: "In Claude, open Settings, Connectors, add a custom connector named exactly " }, el("b", { text: LIVE_SRV }), el("span", { text: " and paste the connector address you were given. Then open this page again." })));
+  $("#lv-setup").hidden = !!mcpNs && !lv.err; liveRender(); $("#lv-modal").hidden = false; $("#lv-toggle").focus();
+}
+const closeLive = () => { $("#lv-modal").hidden = true; };
+$("#btn-live").onclick = openLive; $("#lv-close").onclick = closeLive;
+$("#lv-modal").addEventListener("click", e => { if (e.target.id === "lv-modal") closeLive(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#lv-modal").hidden) closeLive(); });
+$("#lv-toggle").onclick = () => lv.on ? liveStop() : liveStart();
+const liveCopy = async (id, what) => { const v = $("#" + id).value; try { await navigator.clipboard.writeText(v); toast(what + " copied"); } catch { $("#" + id).select(); toast("Press Ctrl+C to copy"); } };
+$("#lv-copy-url").onclick = () => liveCopy("lv-url", "Link"); $("#lv-copy-embed").onclick = () => liveCopy("lv-embed", "Embed code");
+$("#lv-new").onclick = async () => { if (lv.on) await liveStop(); else { try { await liveCall("live_close", {}); } catch {} } liveLink(true); liveRender(); toast("New link made"); if (mcpNs) liveStart(); };
 
 /* timer */
 let tStart = 0, tAcc = 0, tRun = false, tInt = null, wake = null;
@@ -5099,7 +5243,7 @@ function insertMadeSlides(target, newSlides, opts = {}) {
   toast(count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`);
   return pos;
 }
-function deckEdited() { S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
+function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
 function replacePicture(idx) {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
   inp.onchange = async () => {
