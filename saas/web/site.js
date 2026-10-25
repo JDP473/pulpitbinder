@@ -232,11 +232,7 @@
     page(h("div", { class: "page" },
       h("div", { class: "row", style: "justify-content:space-between" }, h("h1", { style: "font-size:32px", text: "Account" }), h("div", { class: "row" },
         u.isOwner ? h("a", { class: "btn", href: "/admin", text: "Site admin" }) : null,
-        h("button", { class: "btn", type: "button", text: "Sign out", onclick: async () => {
-          await api("POST", "/api/auth/logout").catch(() => {});
-          try { indexedDB.deleteDatabase("pulpit-binder"); for (const k of Object.keys(localStorage)) if (k.startsWith("pb-") && !["pb-theme", "pb-read", "pb-follow"].includes(k)) localStorage.removeItem(k); } catch {}
-          location.href = "/";
-        } }))),
+        h("button", { class: "btn", type: "button", text: "Sign out", onclick: signOut }))),
       u.ownerNeedsConfirmation ? msg("This is the site owner's address. Confirm it below to open the admin page.", "ok") : null,
       card(h("h2", { id: "claude", text: "Claude" }), h("p", { class: "muted", style: "margin-bottom:16px", text: "Claude's help in your binder (analysis, suggestions, outlines, slide drafts, passage text) runs on your own Anthropic API key. Anthropic bills you directly for what you use." }), claudeBox,
         usage ? h("p", { class: "muted small", style: "margin-top:18px", text: `Last 30 days: ${usage.claude.reduce((a, r) => a + r.requests, 0)} Claude requests.` }) : null, usageTable),
@@ -349,6 +345,13 @@
     title("Not found");
     page(h("div", { class: "narrow" }, card(h("h1", { text: "Page not found" }), h("p", { class: "muted", style: "margin-bottom:16px", text: "That address isn't part of Pulpit Binder." }), h("a", { class: "btn primary", href: "/", text: "Go home" }))));
   }
+
+  async function signOut() {
+    await api("POST", "/api/auth/logout").catch(() => {});
+    try { indexedDB.deleteDatabase("pulpit-binder"); for (const k of Object.keys(localStorage)) if (k.startsWith("pb-") && !["pb-theme", "pb-read", "pb-follow"].includes(k)) localStorage.removeItem(k); } catch {}
+    location.href = "/";
+  }
+  document.getElementById("signout")?.addEventListener("click", signOut);
 
   // ---------- Route ----------
   (async () => {

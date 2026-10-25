@@ -135,10 +135,28 @@ async def main():
             await pg.goto(base + "/register"); await pg.fill("input[name=name]", "Sam Preacher"); await pg.fill("input[name=email]", "owner@example.com"); await pg.fill("input[name=password]", "correct horse battery")
             await pg.click("button[type=submit]"); await pg.wait_for_url(base + "/app"); await pg.wait_for_timeout(2500)
             print("next account on the same browser holds", await pg.evaluate(IDB))
-            # Signing out from the menu clears this browser's copy too
-            await pg.click("#btn-sermon"); await pg.wait_for_timeout(200)
-            await pg.click("#sermon-menu .menu-item:has-text('Sign out')"); await pg.wait_for_url(base + "/"); await pg.wait_for_timeout(500)
+            # The Sign out button beside Settings clears this browser's copy too
+            await pg.screenshot(path=str(OUT / "hosted_signout_1400_light.png"))
+            print("sign out button", await pg.evaluate("(b => b && [b.textContent, b.getAttribute('aria-label'), b.getBoundingClientRect().width > 0])(document.querySelector('#btn-signout'))"))
+            await pg.click("#btn-signout"); await pg.wait_for_url(base + "/"); await pg.wait_for_timeout(500)
             print("after sign out", await pg.evaluate(IDB), "signed-in data attr", await pg.evaluate("document.documentElement.dataset.auth"))
+            await ctx.close()
+
+            # On a phone, Sign out sits in the header beside Settings and Light or dark
+            ctx, pg = await new_page(390, "dark")
+            await pg.goto(base + "/login"); await pg.fill("input[name=email]", "pat2@example.com"); await pg.fill("input[name=password]", "correct horse battery")
+            await pg.click("button[type=submit]"); await pg.wait_for_url(base + "/app"); await pg.wait_for_timeout(2500)
+            await pg.screenshot(path=str(OUT / "hosted_signout_390_dark.png"))
+            print("phone sign out visible", await pg.is_visible("#btn-signout"), "scrollW", await pg.evaluate("[document.documentElement.scrollWidth, innerWidth]"))
+            await pg.click("#btn-signout"); await pg.wait_for_url(base + "/"); await pg.wait_for_timeout(300)
+            print("phone signed out", await pg.evaluate("document.documentElement.dataset.auth"), "errors", pg.errs)
+            # The account pages' header has one too
+            await pg.goto(base + "/login"); await pg.fill("input[name=email]", "pat2@example.com"); await pg.fill("input[name=password]", "correct horse battery")
+            await pg.click("button[type=submit]"); await pg.wait_for_url(base + "/app")
+            await pg.goto(base + "/account"); await pg.wait_for_selector("#claude")
+            await pg.screenshot(path=str(OUT / "hosted_account_header_390_dark.png"))
+            print("header sign out hidden on phone", not await pg.is_visible("header #signout")); await pg.set_viewport_size({"width": 1000, "height": 800}); await pg.click("header #signout"); await pg.wait_for_url(base + "/"); await pg.wait_for_timeout(300)
+            print("account header sign out", await pg.evaluate("document.documentElement.dataset.auth"))
             await ctx.close()
 
             # 6. The owner's admin page (address confirmed, as the emailed link would)

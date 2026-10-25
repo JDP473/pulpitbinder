@@ -48,11 +48,11 @@
       if (!noteEl) {
         noteEl = document.createElement("div");
         noteEl.setAttribute("role", "status");
-        noteEl.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483000;max-width:min(560px,calc(100vw - 32px));box-sizing:border-box;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:#1a2130;color:#fff;font:500 14px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.25)";
+        noteEl.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483000;width:min(560px,calc(100vw - 32px));box-sizing:border-box;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:12px 14px;border-radius:12px;background:#1a2130;color:#fff;font:500 14px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.25)";
         document.body.append(noteEl);
       }
       noteEl.replaceChildren();
-      const t = document.createElement("span"); t.textContent = text; t.style.flex = "1"; noteEl.append(t);
+      const t = document.createElement("span"); t.textContent = text; t.style.flex = "1 1 240px"; noteEl.append(t);
       if (link) { const a = document.createElement("a"); a.href = link; a.textContent = label; a.style.cssText = "color:#f4ead6;font-weight:700;white-space:nowrap"; noteEl.append(a); }
       const x = document.createElement("button"); x.type = "button"; x.textContent = "Close"; x.style.cssText = "background:none;border:0;color:#c9cbd2;font:inherit;cursor:pointer;padding:4px";
       x.onclick = () => { noteEl.remove(); noteEl = null; }; noteEl.append(x);
@@ -206,19 +206,31 @@
     hosted: { name: boot.name || "", email: boot.email || "", claude: boot.claude, owner: !!boot.owner }
   };
 
-  // ---------- Account and sign out, in the app's More menu ----------
+  async function signOut() {
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); } catch {}
+    forgetLocal();
+    try { localStorage.removeItem("pb-hosted-user"); } catch {}
+    location.href = "/";
+  }
+
+  // ---------- Account and sign out ----------
   addEventListener("DOMContentLoaded", () => {
     const menu = document.getElementById("sermon-menu"); if (!menu) return;
     const item = (text, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "menu-item"; b.setAttribute("role", "menuitem"); b.textContent = text; b.onclick = fn; return b; };
     const sep = document.createElement("div"); sep.className = "menu-sep"; sep.setAttribute("role", "separator");
     menu.append(sep, item("Account and Claude key", () => { location.href = "/account"; }));
     if (boot.owner) menu.append(item("Site admin", () => { location.href = "/admin"; }));
-    menu.append(item("Sign out", async () => {
-      try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); } catch {}
-      forgetLocal();
-      try { localStorage.removeItem("pb-hosted-user"); } catch {}
-      location.href = "/";
-    }));
+    menu.append(item("Sign out", signOut));
+    // Sign out beside Settings and Light or dark: in the side column on a computer, in the header on a phone.
+    const tools = document.querySelector(".hdr-tools");
+    if (tools) {
+      const b = document.createElement("button");
+      b.className = "icon-btn"; b.id = "btn-signout"; b.type = "button";
+      b.setAttribute("aria-label", "Sign out" + (boot.email ? ` (${boot.email})` : "")); b.title = "Sign out" + (boot.email ? ` of ${boot.email}` : "");
+      b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span class="tool-l">Sign out</span>';
+      b.onclick = signOut;
+      tools.append(b);
+    }
     if (!boot.claude) notice("Claude's help (analysis, suggestions, outlines, slides) needs an Anthropic API key. Add yours in Account.", "/account#claude", "Add a key");
   });
 })();
