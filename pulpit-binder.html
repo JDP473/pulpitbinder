@@ -1216,6 +1216,7 @@ body[data-view="present"] .sermon-bar{display:none}
 .es-orig{font:14px/1.55 var(--f-read);color:var(--muted);border-left:3px solid var(--accent);padding:4px 12px;max-height:9.5em;overflow:auto;white-space:pre-wrap}
 .es-orig-full{max-height:min(46vh,420px);color:var(--ink)}
 .es-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.es-lenrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.es-lenrow select{flex:1 1 220px;min-width:0}.es-lenrow input{width:6.5em}.es-or{font-size:13px;color:var(--muted)}
 .es-chips .chip{cursor:pointer;min-height:30px}
 .es-chips .chip:hover{border-color:var(--accent)}
 .es-cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
@@ -1751,7 +1752,7 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="es-orig" id="es-orig" aria-label="The words you highlighted"></div>
       <div class="field"><label for="es-ask">What should change?</label><textarea id="es-ask" rows="3" placeholder="For example: say this more simply, add a short illustration from daily life, or make the application stronger"></textarea>
         <div class="es-chips" id="es-chips"></div></div>
-      <div class="field"><label for="es-len">How long should it be?</label><select id="es-len"></select><span class="hint" id="es-lenhint"></span></div>
+      <div class="field"><label for="es-len">How long should it be?</label><div class="es-lenrow"><select id="es-len"></select><span class="es-or">or</span><input type="number" id="es-words" min="5" max="3000" step="1" inputmode="numeric" aria-label="Number of words"><span class="es-or">words</span></div><span class="hint" id="es-lenhint"></span></div>
       <div class="sc-pop-row"><span class="hint" id="es-msg" role="status" aria-live="polite"></span><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel">Cancel</button><button type="button" class="btn primary" id="es-go">Create</button></div>
     </div>
     <div id="es-step2" class="mk-step" hidden>
@@ -5317,7 +5318,16 @@ function rangeText(r) {   // paragraphs kept apart, so the words can come back t
   return kids.map(n => n.textContent).join("").replace(/\s+/g, " ").trim();
 }
 const esWords = t => (String(t).match(/\S+/g) || []).length;
-function esCount() { const n = esWords(es.text), t = ES_LEN[+$("#es-len").value][2]; $("#es-lenhint").textContent = `About ${Math.max(5, Math.round(n * t))} words (now ${n}).`; }
+/* the length is a choice of size or a number typed in; the choices fill in the number, and typing a number picks "Exact number" */
+const esPreset = i => Math.max(5, Math.round(esWords(es.text) * ES_LEN[i][2]));
+const esTarget = () => { const v = Math.round(+$("#es-words").value); return v >= 5 ? Math.min(3000, v) : esPreset($("#es-len").value === "x" ? 2 : +$("#es-len").value); };
+function esCount(fromNumber) {
+  const n = esWords(es.text), sel = $("#es-len");
+  if (fromNumber) { const v = Math.round(+$("#es-words").value), hit = ES_LEN.findIndex((_, i) => esPreset(i) === v); sel.value = hit >= 0 ? String(hit) : "x"; }
+  else if (sel.value !== "x") $("#es-words").value = String(esPreset(+sel.value));
+  const v = Math.round(+$("#es-words").value);
+  $("#es-lenhint").textContent = v >= 5 ? `About ${Math.min(3000, v)} words (now ${n}).` : `Type at least 5 words (now ${n}).`;
+}
 /* a highlight made by triple-click or by dragging past the end of a paragraph ends at the start of the next block; move both ends onto the words */
 function normRange(r) {
   const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(".pb-slide,.pb-scripture") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
@@ -5341,7 +5351,7 @@ function openEdit() {
   const post = document.createRange(); post.setStart(r.endContainer, r.endOffset); post.setEnd(ed, ed.childNodes.length);
   es = { a: edOff(r.startContainer, r.startOffset), z: edOff(r.endContainer, r.endOffset), text, before: pre.toString().replace(/\s+/g, " ").slice(-700), after: post.toString().replace(/\s+/g, " ").slice(0, 500), busy: false, out: "" };
   $("#es-orig").textContent = text; $("#es-ask").value = ""; $("#es-msg").textContent = "";
-  const len = $("#es-len"); len.replaceChildren(...ES_LEN.map(([, l], i) => el("option", { value: String(i), text: l }))); len.value = "2"; esCount();
+  const len = $("#es-len"); len.replaceChildren(...ES_LEN.map(([, l], i) => el("option", { value: String(i), text: l })), el("option", { value: "x", text: "Exact number of words" })); len.value = "2"; esCount();
   $("#es-chips").replaceChildren(...ES_IDEAS.map(t => el("button", { type: "button", class: "chip", text: t, onclick: () => { const a = $("#es-ask"); a.value = a.value.trim() ? a.value.trim().replace(/[.]?$/, ". ") + t : t; a.focus(); } })));
   $("#es-step1").hidden = false; $("#es-step2").hidden = true; $("#es-go").disabled = false; $("#es-go").textContent = "Create";
   $("#es-modal").hidden = false; selPop.hidden = true; $("#es-ask").focus();
@@ -5351,7 +5361,8 @@ async function esRun(fresh) {
   if (!es || es.busy || !sample) return;
   const ask = $("#es-ask").value.trim();
   if (!ask) { $("#es-msg").textContent = "Say what should change, or choose one of the ideas above."; $("#es-ask").focus(); return; }
-  const [lenName, , factor] = ES_LEN[+$("#es-len").value], n = esWords(es.text), target = Math.max(5, Math.round(n * factor)), m = S.meta;
+  if (Math.round(+$("#es-words").value) < 5) { $("#es-msg").textContent = "Type how many words you want, 5 or more, or choose a length."; $("#es-words").focus(); return; }
+  const exact = $("#es-len").value === "x", n = esWords(es.text), target = esTarget(), lenName = exact ? "a set number of words" : ES_LEN[+$("#es-len").value][0], m = S.meta;
   es.busy = true; $("#es-go").disabled = true; $("#es-go").textContent = "Writing…"; $("#es-again").disabled = true; $("#es-again").textContent = "Writing…"; $("#es-msg").textContent = "Claude is working on it…";
   const prompt = `You are helping a preacher in the churches of Christ rework part of his sermon manuscript, which he will read aloud at the pulpit. Keep his voice, vocabulary, and reading level. Be faithful to Scripture and to what the sermon already teaches; do not add doctrine it does not teach. Do not invent facts, statistics, quotations, or personal stories. If you add a Scripture reference it must be real and accurate, and quote it only when you are certain of the wording. Plain, warm sentences meant to be heard. No emojis, headings, or bullet lists. Separate paragraphs with a blank line.
 
@@ -5363,13 +5374,13 @@ The highlighted words (${n} words):
 """${es.text}"""
 
 His request: ${ask}
-Length: ${lenName}, about ${target} words in all (the original is ${n}).
+Length: ${lenName}, about ${target} words in all (the original is ${n}).${exact ? ` He asked for ${target} words, so land within a few words of ${target}.` : ""}
 
 Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlighted words, so they fit between what comes before and after"}`;
   try {
     const { value: r } = await askJson(prompt, { tier: "default", fresh: !!fresh });
     const out = String((r && r.text) || "").replace(/\r/g, "").trim(); if (!out) throw { code: "empty" };
-    if (!es) return; es.out = out;
+    if (!es) return; es.out = out; es.target = target;
     $("#es-orig2").textContent = es.text; $("#es-out").value = out; $("#es-n0").textContent = `${n} words`; esOutCount();
     $("#es-step1").hidden = true; $("#es-step2").hidden = false; $("#es-out").focus();
   } catch (e) {
@@ -5379,7 +5390,7 @@ Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlig
   if (!es) return; es.busy = false; $("#es-go").disabled = false; $("#es-go").textContent = "Create"; $("#es-again").disabled = false; $("#es-again").textContent = "Try again";
   if (!$("#es-step1").hidden && $("#es-msg").textContent.startsWith("Claude is")) $("#es-msg").textContent = "";
 }
-const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}`; };
+const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}${es.target ? `, asked for ${es.target}` : ""}`; };
 /* put the new words exactly where the highlighted ones were: everything before the highlight stays, everything after it follows the
    last new paragraph, and blank lines in the suggestion become new paragraphs */
 /* A position between two blocks belongs to both: the end of one and the start of the next. The start of the highlight is
@@ -5429,6 +5440,8 @@ $("#es-again").onclick = () => esRun(true);
 $("#es-back").onclick = () => { $("#es-step2").hidden = true; $("#es-step1").hidden = false; $("#es-msg").textContent = ""; $("#es-ask").focus(); };
 $("#es-accept").onclick = esAccept;
 $("#es-len").onchange = () => { if (es) esCount(); };
+$("#es-words").addEventListener("input", () => { if (es) esCount(true); });
+$("#es-words").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); esRun(false); } });
 $("#es-out").addEventListener("input", () => { if (es) esOutCount(); });
 $("#es-modal").addEventListener("click", e => { if (e.target.id === "es-modal" && !(es && es.busy)) closeEdit(); });
 document.addEventListener("keydown", e => { if (!$("#es-modal").hidden && e.key === "Escape") { e.preventDefault(); closeEdit(); } else if (!$("#es-modal").hidden && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!$("#es-step1").hidden) esRun(false); else esAccept(); } });
