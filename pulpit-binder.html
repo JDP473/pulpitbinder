@@ -1038,6 +1038,61 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
 .slide.made .ig-pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1.2cqw;font:400 2.5cqw/1.3 var(--mk-body,var(--f-read))}
 .slide.made .ig-pts li{display:flex;gap:1.4cqw;align-items:baseline}
 .slide.made .ig-pts li::before{content:"";flex:none;width:1.2cqw;height:1.2cqw;border-radius:50%;background:var(--acc);transform:translateY(-.2cqw)}
+/* the sermon card and panel */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sermon-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k chev" "t chev" "m chev";gap:1px 8px;align-items:center;text-align:left;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 12px;cursor:pointer;color:var(--ink)}
+.sermon-card:hover{border-color:var(--muted)}
+.sc-k{grid-area:k;font:700 10px/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.sc-t{grid-area:t;font:600 15px/1.25 var(--f-read);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-m{grid-area:m;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-chev{grid-area:chev;color:var(--muted)}
+.lib-row{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+#btn-new-top{flex:1 1 auto;gap:7px}
+.sp-modal{place-items:start center;padding-top:min(10vh,90px)}
+.sp-card{width:min(760px,100%);padding:0;gap:0;overflow:hidden;max-height:min(82vh,760px);display:flex;flex-direction:column}
+.sp-top{display:flex;gap:8px;align-items:center;padding:14px 14px 10px;flex:none}
+.sp-search{flex:1;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:0 12px;background:var(--bg);min-width:0}
+.sp-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.sp-search svg{flex:none;color:var(--muted)}
+.sp-search input{flex:1;min-width:0;height:44px;border:0;background:transparent;font-size:16px;outline:none;box-shadow:none}
+.sp-search input:focus{box-shadow:none}
+.sp-x{flex:none;font-size:20px}
+.sp-filters{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto;scrollbar-width:none;flex:none}
+.sp-filters::-webkit-scrollbar{display:none}
+.sp-filters:empty{display:none}
+.sp-filters .chip{cursor:pointer;flex:none;min-height:30px}
+.sp-filters .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sp-count{padding:0 16px 6px;flex:none}
+.sp-list{list-style:none;margin:0;padding:0 8px 8px;overflow:auto;flex:1;min-height:120px}
+.sp-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 12px;border-radius:10px;cursor:pointer;align-items:center;border:1px solid transparent}
+.sp-item:hover{background:var(--sunk)}
+.sp-item[aria-selected="true"]{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.sp-item.cur .sp-t::after{content:"Open now";margin-left:8px;font:700 10px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);vertical-align:2px}
+.sp-t{font:600 16px/1.3 var(--f-read);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-d{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.sp-m{grid-column:1 / -1;font-size:13px;color:var(--muted);display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center}
+.sp-m .chip{font-size:11.5px;padding:1px 8px}
+.sp-snip{grid-column:1 / -1;font:13.5px/1.45 var(--f-read);color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sp-item mark{background:var(--hl-yellow);color:inherit;border-radius:2px;padding:0 1px}
+.sp-none{padding:22px 16px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.sp-foot{flex:none;display:flex;gap:14px;flex-wrap:wrap;padding:9px 16px;border-top:1px solid var(--line);background:var(--sunk)}
+.sp-foot kbd{font:600 10.5px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--muted);background:var(--surface)}
+@media (pointer:coarse){.sp-foot{display:none}.sp-item{padding:13px 12px}}
+@media (max-width:700px){.sp-modal{padding:0;place-items:stretch}.sp-card{width:100%;max-height:none;height:100dvh;border-radius:0}.sp-top{flex-wrap:wrap}.sp-search{flex:1 1 100%}#sp-new{flex:1}}
+@media (max-width:1099px){
+  .top-row .lib{flex-direction:row;flex-wrap:nowrap;align-items:center}
+  .top-row .lib .sermon-card{flex:1 1 auto;min-width:0;order:1}
+  .top-row .lib .lib-row{flex:none;flex-wrap:nowrap;order:2}
+  #btn-new-top span{display:none}
+  #btn-new-top{width:var(--ctl);padding:0;flex:none}
+  .top-row .lib .menu-wrap .btn{padding:0 10px}
+}
+@media (min-width:1100px){
+  .top-row .lib .sermon-card{width:100%}
+  .top-row .lib .lib-row{width:100%}
+  #btn-new-top{min-height:40px}
+  .top-row .lib{padding:10px;gap:8px}
+}
 /* ================= App shell, 2026 =================
    Desktop: a sidebar in the order you prepare (write, study, present, share, review), the open sermon named at the top of
    the page, and Settings as its own page. Tablets keep the top bar; phones keep the bottom bar. */
@@ -1077,7 +1132,6 @@ body[data-view="present"] .sermon-bar{display:none}
   .top-row .lib #library{width:100%;max-width:none;font-weight:600}
   .top-row .lib .sync-pill{align-self:flex-start}
   .top-row .lib .menu-wrap{margin:0}
-  .top-row .lib #btn-sermon{width:100%;justify-content:space-between}
   .top-row .lib .menu{left:0;right:auto;min-width:220px}
   .tabs{order:3;flex-direction:column;background:transparent;padding:0;gap:2px;border-radius:0}
   .tab{justify-content:flex-start;gap:12px;min-height:40px;padding:0 12px;font-size:14.5px;border-radius:9px;color:var(--muted)}
@@ -1170,17 +1224,24 @@ body[data-view="present"] .sermon-bar{display:none}
       <span class="hdr-title" id="hdr-title"></span>
       <div class="spacer"></div>
       <div class="lib">
-        <select id="library" aria-label="Saved sermons"></select>
+        <button type="button" class="sermon-card" id="sermon-card" aria-haspopup="dialog" aria-controls="sp-modal" title="Find a sermon (Ctrl+K)">
+          <span class="sc-k">Open sermon</span><span class="sc-t" id="sc-title">Untitled sermon</span><span class="sc-m" id="sc-meta"></span>
+          <svg class="sc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <select id="library" aria-label="Saved sermons" hidden></select>
+        <div class="lib-row">
+          <button type="button" class="btn primary" id="btn-new-top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
         <span class="sync-pill" id="sync" data-state="off" role="status">On this device</span>
         <div class="menu-wrap">
-          <button class="btn" id="btn-sermon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sermon-menu">Sermon <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <button class="btn" id="btn-sermon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sermon-menu">More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
           <div class="menu" id="sermon-menu" role="menu" aria-label="Sermon actions" hidden>
-            <button class="menu-item" role="menuitem" id="btn-new" type="button">New sermon</button>
+            <button class="menu-item" role="menuitem" id="btn-new" type="button">New blank sermon</button>
             <button class="menu-item" role="menuitem" id="btn-import" type="button" title="Bring in sermons from a folder or files">Import from a folder or files</button>
             <div class="menu-sep" role="separator"></div>
             <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete the sermon that is open now">Delete this sermon</button>
             <button class="menu-item danger" role="menuitem" id="btn-del-many" type="button" title="Tick several sermons and delete them together">Choose sermons to delete…</button>
           </div>
+        </div>
         </div>
       </div>
       <div class="hdr-tools">
@@ -1644,6 +1705,21 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="mk-body"><div class="mk-preview" id="mk-preview" aria-live="polite"></div><div class="mk-fields" id="mk-fields"></div></div>
       <div class="sc-pop-row"><button type="button" class="btn" id="mk-again">Ask Claude again</button><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel2">Cancel</button><button type="button" class="btn primary" id="mk-add">Add slide</button></div>
     </div>
+  </div>
+</div>
+<div class="modal sp-modal" id="sp-modal" hidden role="dialog" aria-modal="true" aria-labelledby="sp-title">
+  <div class="modal-card sp-card">
+    <h2 id="sp-title" class="sr-only">Find or start a sermon</h2>
+    <div class="sp-top">
+      <div class="sp-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="sp-q" role="combobox" aria-expanded="true" aria-controls="sp-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Search by title, text, tag, speaker, date, or words in the manuscript"></div>
+      <button type="button" class="btn primary" id="sp-new"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
+      <button type="button" class="icon-btn sp-x" id="sp-close" aria-label="Close">×</button>
+    </div>
+    <div class="sp-filters" id="sp-filters" role="group" aria-label="Narrow by tag"></div>
+    <div class="sp-count hint" id="sp-count" aria-live="polite"></div>
+    <ul class="sp-list" id="sp-list" role="listbox" aria-label="Sermons"></ul>
+    <div class="sp-foot hint"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> start a new sermon from what you typed</span><span><kbd>Esc</kbd> close</span></div>
   </div>
 </div>
 <div class="modal" id="es-modal" hidden role="dialog" aria-modal="true" aria-labelledby="es-title">
@@ -2471,7 +2547,7 @@ function fmtWhen(v) { if (!v) return ""; const d = new Date(v); if (isNaN(d)) re
 const bgLink = ref => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=ESV`;
 function renderTags() {
   const bar = $("#tagbar"); bar.replaceChildren();
-  $("#sb-title").textContent = S.meta.title || "Untitled sermon";
+  $("#sb-title").textContent = S.meta.title || "Untitled sermon"; updateSermonCard();
   $("#hdr-title").textContent = [S.meta.title || "Untitled sermon", S.meta.when ? new Date(S.meta.when).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""].filter(Boolean).join(" · ");
   const m = S.meta;
   const chip = (k, v, cls = "") => v ? bar.append(el("span", { class: "chip " + cls }, el("b", { text: k }), v)) : null;
@@ -2896,17 +2972,115 @@ function drawLibrary() {
   library.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const sel = $("#library"); sel.replaceChildren();
   library.forEach(r => sel.append(el("option", { value: r.id, text: `${(r.meta && r.meta.title) || "Untitled sermon"}${r.meta && r.meta.when ? " · " + new Date(r.meta.when).toLocaleDateString() : ""}${r.cloudOnly ? " · from your account" : ""}` })));
-  sel.value = S.id;
+  sel.value = S.id; updateSermonCard();
   queueDash(); if (view === "build" && buildSub === "series") renderSeries();
 }
-$("#library").onchange = async () => {
-  let r = library.find(x => x.id === $("#library").value); if (!r) return;
+async function openSermonById(id) {
+  let r = library.find(x => x.id === id); if (!r) return false;
   const c = cloudMetas.get(r.id);
   if (cdb && c && (r.cloudOnly || c.updatedAt > (r.updatedAt || 0) + 1000)) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync("synced"); } catch { setSync("error"); } }
-  if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return; }
-  const v = view; openRec(r); setView(v);
-};
-$("#btn-new").onclick = () => { const r = blank(); store.put(r); openRec(r); refreshLibrary(); goBuild("details"); $("#m-title").focus(); };
+  if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return false; }
+  const v = view; openRec(r); setView(v); return true;
+}
+$("#library").onchange = () => openSermonById($("#library").value);
+function newSermon(title, passage) {
+  const r = blank(); if (title) r.meta.title = title; if (passage) r.meta.text = passage;
+  store.put(r); openRec(r); refreshLibrary(); goBuild("details"); if (!title) setTimeout(() => $("#m-title").focus(), 60);
+  toast(title ? `Started “${title}”` : "New sermon started. Give it a title.");
+}
+$("#btn-new").onclick = () => newSermon();
+$("#btn-new-top").onclick = () => newSermon();
+/* ---- the sermon card and the sermon panel: find any sermon, or start one ---- */
+const sermonLine = r => { const m = (r && r.meta) || {}; return [m.text, m.when ? new Date(m.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : ""].filter(Boolean).join(" · "); };
+function updateSermonCard() { if (!S) return; $("#sc-title").textContent = (S.meta && S.meta.title) || "Untitled sermon"; $("#sc-meta").textContent = sermonLine(S) || "Not dated yet"; }
+const sp = { open: false, q: "", tag: "", idx: 0, rows: [], cache: new Map() };
+const spNorm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9: ]+/g, " ").replace(/\s+/g, " ").trim();
+function spHay(r) {   // what can be searched on a sermon, worked out once per version of it
+  const key = r.id + "|" + (r.updatedAt || 0), hit = sp.cache.get(key); if (hit) return hit;
+  const m = r.meta || {}, d = m.when ? new Date(m.when) : null, dates = d && !isNaN(d) ? [d.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), d.toLocaleDateString(undefined, { month: "short" }), d.toLocaleDateString(), String(d.getFullYear()), d.toLocaleDateString(undefined, { weekday: "long" })].join(" ") : "";
+  const h = { title: spNorm(m.title), text: spNorm(m.text), tags: spNorm(tagsOf(m).join(" ")), who: spNorm([m.speaker, m.place, m.service].join(" ")), date: spNorm(dates), body: spNorm(r.transcript || "") };
+  sp.cache.set(key, h); if (sp.cache.size > 800) sp.cache.delete(sp.cache.keys().next().value); return h;
+}
+function spSearch() {
+  const toks = spNorm(sp.q).split(" ").filter(Boolean); let rows = library.slice();
+  if (sp.tag) rows = rows.filter(r => tagsOf(r.meta || {}).some(t => sameName(t, sp.tag)));
+  if (!toks.length) return rows.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).map(r => ({ r, score: 0 }));
+  const out = [];
+  for (const r of rows) {
+    const h = spHay(r); let score = 0, ok = true, snip = "";
+    for (const t of toks) {
+      let best = 0; if (h.title.includes(t)) best = h.title.startsWith(t) || h.title.includes(" " + t) ? 60 : 40; else if (h.text.includes(t)) best = 45; else if (h.tags.includes(t)) best = 35; else if (h.who.includes(t)) best = 25; else if (h.date.includes(t)) best = 25;
+      else if (h.body.includes(t)) { best = 8; if (!snip) { const i = h.body.indexOf(t); snip = (r.transcript || "").replace(/\s+/g, " ").slice(Math.max(0, i - 60), i + 120); } }
+      if (!best) { ok = false; break; } score += best;
+    }
+    if (ok && toks.length > 1) { const ph = spNorm(sp.q); if (h.text.includes(ph)) score += 70; if (h.title.includes(ph)) score += 40; }   // a whole phrase or reference beats scattered words
+    if (ok) out.push({ r, score, snip });
+  }
+  return out.sort((a, b) => b.score - a.score || (b.r.updatedAt || 0) - (a.r.updatedAt || 0));
+}
+function spMark(text, toks) {   // the matching words, marked
+  const frag = document.createDocumentFragment(); if (!toks.length) { frag.append(text); return frag; }
+  const re = new RegExp("(" + toks.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "ig");
+  text.split(re).forEach((part, i) => frag.append(i % 2 ? el("mark", { text: part }) : part)); return frag;
+}
+function spRender() {
+  const list = $("#sp-list"), toks = spNorm(sp.q).split(" ").filter(Boolean), found = spSearch();
+  sp.rows = found.slice(0, 120); sp.idx = Math.min(sp.idx, Math.max(0, sp.rows.length - 1));
+  // tags, most used first, to narrow the list
+  const counts = new Map(); library.forEach(r => tagsOf(r.meta || {}).forEach(t => { const k = [...counts.keys()].find(x => sameName(x, t)) || t; counts.set(k, (counts.get(k) || 0) + 1); }));
+  const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 10);
+  $("#sp-filters").replaceChildren(...top.map(([t, n]) => el("button", { type: "button", class: "chip", text: `${t} · ${n}`, "aria-pressed": String(sameName(sp.tag, t)), onclick: () => { sp.tag = sameName(sp.tag, t) ? "" : t; sp.idx = 0; spRender(); $("#sp-q").focus(); } })));
+  $("#sp-count").textContent = !library.length ? "" : toks.length || sp.tag ? `${found.length} sermon${found.length === 1 ? "" : "s"} found${found.length > 120 ? ", showing the best 120" : ""}` : `${library.length} sermon${library.length === 1 ? "" : "s"}, most recently worked on first`;
+  list.replaceChildren();
+  if (!sp.rows.length) {
+    const q = sp.q.trim();
+    list.append(el("li", { class: "sp-none", role: "presentation" }, el("span", { text: library.length ? "No sermon matches that." : "No sermons yet." }),
+      el("button", { type: "button", class: "btn primary", text: q ? `Start a sermon called “${q.slice(0, 60)}”` : "Start your first sermon", onclick: () => spCreate() })));
+  }
+  sp.rows.forEach(({ r, snip }, i) => {
+    const m = r.meta || {}, tags = tagsOf(m).slice(0, 3), cur = S && r.id === S.id;
+    const li = el("li", { class: "sp-item" + (cur ? " cur" : ""), role: "option", id: "sp-o" + i, "aria-selected": String(i === sp.idx), onclick: () => spOpen(r.id), onmousemove: () => { if (sp.idx !== i) { sp.idx = i; spSelect(); } } });
+    const t = el("div", { class: "sp-t" }); t.append(spMark(m.title || "Untitled sermon", toks));
+    li.append(t, el("div", { class: "sp-d", text: m.when ? new Date(m.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "" }));
+    const meta = el("div", { class: "sp-m" }); if (m.text) { const x = el("span"); x.append(spMark(m.text, toks)); meta.append(x); }
+    if (m.speaker) meta.append(el("span", { text: m.speaker })); tags.forEach(tg => meta.append(el("span", { class: "chip", text: tg })));
+    if (r.example && !tags.some(t => sameName(t, "Example"))) meta.append(el("span", { class: "chip example", text: "Example" })); if (r.cloudOnly) meta.append(el("span", { class: "chip", text: "From your account" }));
+    li.append(meta); if (snip) { const sn = el("div", { class: "sp-snip" }); sn.append("…", spMark(snip, toks), "…"); li.append(sn); }
+    list.append(li);
+  });
+  spSelect();
+}
+function spSelect() {
+  const items = [...$("#sp-list").querySelectorAll(".sp-item")]; items.forEach((li, i) => li.setAttribute("aria-selected", String(i === sp.idx)));
+  const cur = items[sp.idx]; if (cur) { $("#sp-q").setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); } else $("#sp-q").removeAttribute("aria-activedescendant");
+}
+function openSermons(q) {
+  if (!S) return; sp.open = true; sp.q = q || ""; sp.tag = ""; sp.idx = 0; $("#sp-q").value = sp.q;
+  $("#sp-modal").hidden = false; spRender(); $("#sp-q").focus(); $("#sp-q").select();
+  const cur = sp.rows.findIndex(x => x.r.id === S.id); if (!sp.q && cur > 0) { sp.idx = 0; }
+}
+function closeSermons(refocus) { sp.open = false; $("#sp-modal").hidden = true; if (refocus) $("#sermon-card").focus(); }
+async function spOpen(id) { if (S && id === S.id) { closeSermons(); return; } closeSermons(); await openSermonById(id); }
+function spCreate() {
+  const q = sp.q.trim(), ref = q ? normalizeRef(q) : null; closeSermons();
+  newSermon(ref ? "" : q.slice(0, 120), ref || "");
+}
+$("#sermon-card").onclick = () => openSermons();
+$("#sp-new").onclick = spCreate;
+$("#sp-close").onclick = () => closeSermons(true);
+$("#sp-modal").addEventListener("mousedown", e => { if (e.target.id === "sp-modal") closeSermons(true); });
+$("#sp-q").addEventListener("input", () => { sp.q = $("#sp-q").value; sp.idx = 0; spRender(); });
+$("#sp-q").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); sp.idx = Math.min(sp.rows.length - 1, sp.idx + 1); spSelect(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); sp.idx = Math.max(0, sp.idx - 1); spSelect(); }
+  else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); spCreate(); }
+  else if (e.key === "Enter") { e.preventDefault(); const row = sp.rows[sp.idx]; if (row) spOpen(row.r.id); else if (sp.q.trim()) spCreate(); }
+  else if (e.key === "Home" && !sp.q) { e.preventDefault(); sp.idx = 0; spSelect(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && sp.open) { e.preventDefault(); closeSermons(true); return; }
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") { e.preventDefault(); sp.open ? closeSermons(true) : openSermons(); }
+});
 /* ---------------- deleting sermons, one or many ---------------- */
 /* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
    Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */

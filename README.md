@@ -34,6 +34,9 @@ cd tests/node && npm install && cd ../..
 pip install playwright        # uses an installed Chromium
 python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
+python3 tests/browser/sermons.py   # finding and starting sermons
+python3 tests/browser/editsel.py   # Edit with suggestions
+python3 tests/browser/infographic.py   # infographic slides
 python3 tests/browser/shell.py   # sidebar, Settings page, AI and images
 python3 tests/browser/reading.py   # Scripture reading page on Materials
 python3 tests/browser/scfmt.py   # formatting Scripture and slides following it
