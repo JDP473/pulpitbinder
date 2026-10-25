@@ -15,6 +15,7 @@ import { accountRoutes } from './routes/account.js';
 import { adminRoutes } from './routes/admin.js';
 import { blobRoute, dataRoutes } from './routes/data.js';
 import { stripeWebhook, supportRoutes } from './routes/support.js';
+import { shareLink, shareRoutes } from './routes/shares.js';
 import { keyFor } from './ai.js';
 
 // The site's own pages: scripts from this site only.
@@ -82,6 +83,7 @@ export function createApp() {
   api.route('/account', accountRoutes);
   api.route('/admin', adminRoutes);
   api.route('/support', supportRoutes);
+  api.route('/shares', shareRoutes);
   api.post('/stripe/webhook', stripeWebhook);
   api.route('/', dataRoutes);
   api.all('*', (c) => c.json({ error: 'Not found' }, 404));
@@ -126,6 +128,7 @@ export function createApp() {
 
   pages.get('/', (c) => site(c, withAuth(landing(), c)));
   pages.get('/about', (c) => c.redirect('/', 301));
+  pages.get('/s/:token', shareLink);
 
   // Pulpit Binder, signed in. The shim (shim.js) gives it the platform it expects on Claude, backed by this server.
   let appHtml = null;

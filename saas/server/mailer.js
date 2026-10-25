@@ -105,3 +105,15 @@ export async function sendSupportManageEmail(to, url) {
   });
   await sendMail(to, 'Manage your monthly support for Pulpit Binder', html, `Manage your monthly support: ${url}\n\nThis link works for 60 minutes.`);
 }
+
+export async function sendShareEmail(to, { from, title, note, url, hasAccount }) {
+  const html = layout({
+    heading: `${from} shared a sermon with you`,
+    body: `<p>${esc(from)} shared <strong>${esc(title)}</strong> with you on Pulpit Binder. Add it to your binder to get your own copy, with its manuscript, Scripture, and slides, to read or adapt.</p>${
+      note ? `<p style="border-left:3px solid #e6d3ad;padding-left:12px;color:#374151">${esc(note)}</p>` : ''
+    }${hasAccount ? '' : '<p>Pulpit Binder is a free sermon workspace for preachers. Sign up with this email address and the sermon will be waiting.</p>'}`,
+    cta: { label: hasAccount ? 'Open Pulpit Binder' : 'Sign up and see it', url },
+  });
+  const text = `${from} shared "${title}" with you on Pulpit Binder.${note ? `\n\n${note}` : ''}\n\n${hasAccount ? 'Open Pulpit Binder' : 'Sign up with this email address to see it'}: ${url}\n`;
+  await sendMail(to, `${from} shared "${title}" with you`, html, text);
+}

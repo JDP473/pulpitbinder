@@ -70,7 +70,7 @@
   function login() {
     title("Sign in");
     const err = ERRORS[params.get("error")];
-    const pw = form([field("Email", { type: "email", name: "email", autocomplete: "email", required: true }), field("Password", { type: "password", name: "password", autocomplete: "current-password", required: true })], "Sign in", async v => {
+    const pw = form([field("Email", { type: "email", name: "email", autocomplete: "email", required: true, value: params.get("email") || null }), field("Password", { type: "password", name: "password", autocomplete: "current-password", required: true })], "Sign in", async v => {
       await api("POST", "/api/auth/login", { email: v.email, password: v.password });
       location.href = next();
     });
@@ -94,7 +94,7 @@
     title("Start free");
     const f = form([
       field("Your name", { type: "text", name: "name", autocomplete: "name", required: true }),
-      field("Email", { type: "email", name: "email", autocomplete: "email", required: true }),
+      field("Email", { type: "email", name: "email", autocomplete: "email", required: true, value: params.get("email") || null }),
       field("Password", { type: "password", name: "password", autocomplete: "new-password", required: true, minlength: "8" }, "At least 8 characters.")
     ], "Create my binder", async v => {
       await api("POST", "/api/auth/register", { name: v.name, email: v.email, password: v.password });

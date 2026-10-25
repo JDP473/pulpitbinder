@@ -206,6 +206,95 @@
     hosted: { name: boot.name || "", email: boot.email || "", claude: boot.claude, owner: !!boot.owner }
   };
 
+  // ---------- Sharing a sermon by email ----------
+  const el = (tag, attrs = {}, ...kids) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (k === "text") e.textContent = v; else if (k === "class") e.className = v; else e.setAttribute(k, v === true ? "" : v);
+    }
+    for (const k of kids.flat()) if (k != null && k !== false) e.append(k);
+    return e;
+  };
+  const when = iso => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  let shareEl = null, shareBack = null;
+  // Escape closes the dialog before the app's own Escape handling sees it.
+  document.addEventListener("keydown", ev => { if (shareEl && ev.key === "Escape") { ev.preventDefault(); ev.stopImmediatePropagation(); closeShare(); } }, true);
+  function closeShare() { if (!shareEl) return; shareEl.remove(); shareEl = null; if (shareBack) shareBack.focus(); }
+  async function openShare() {
+    const hosted = window.claude.hosted, cur = hosted.current && hosted.current();
+    if (!cur) { notice("Open one of your own sermons to share it. The example sermon can't be shared."); return; }
+    shareBack = document.activeElement;
+    // Let a burst of typing reach the server first, so they get what is on screen.
+    for (let i = 0; i < 24 && document.getElementById("sync")?.dataset.state === "saving"; i++) await new Promise(r => setTimeout(r, 250));
+    const email = el("input", { type: "email", id: "sh-email", autocomplete: "email", placeholder: "name@example.com", required: true });
+    const note = el("textarea", { id: "sh-note", rows: "3", maxlength: "1000", placeholder: "Optional: a word about why you're sending it" });
+    const out = el("div", { role: "status", "aria-live": "polite" });
+    const send = el("button", { class: "btn primary", type: "submit", text: "Send" });
+    const list = el("div", { class: "sh-list" });
+    const drawSent = async () => {
+      const r = await api("GET", "/api/shares").catch(() => null); if (!r) return;
+      const mine = r.sent.filter(x => x.sermonId === cur.id);
+      list.replaceChildren(...(mine.length ? [el("div", { class: "set-h", text: "Shared so far" }), ...mine.map(x => el("div", { class: "sh-row" },
+        el("span", { class: "sh-to", text: x.to }),
+        el("span", { class: "hint", text: x.status === "added" ? `Added ${when(x.at)}` : x.status === "declined" ? "Declined" : `Waiting since ${when(x.at)}` }),
+        x.status === "waiting" ? el("button", { class: "btn ghost sm", type: "button", text: "Cancel", onclick: async () => { await api("DELETE", "/api/shares/" + x.id).catch(e => out.replaceChildren(msgEl(e.message))); drawSent(); } }) : null))] : []));
+    };
+    const msgEl = (t, ok) => el("p", { class: "hint", style: `margin:0;color:var(${ok ? "--ok" : "--warn"})`, text: t });
+    const form = el("form", { class: "modal-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "sh-title", novalidate: true, onsubmit: async ev => {
+      ev.preventDefault(); out.replaceChildren();
+      const to = email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { out.append(msgEl("Enter their email address.")); email.focus(); return; }
+      send.disabled = true;
+      try {
+        const r = await api("POST", "/api/shares", { sermonId: cur.id, email: to, note: note.value.trim() || undefined });
+        out.append(msgEl(r.emailed ? `Sent. ${to} will get an email${r.hasAccount ? "" : " inviting them to sign up"}, and the sermon waits in their binder until they add it.` : `Shared. It waits in ${to}'s binder until they add it${r.hasAccount ? "" : " (they need to sign up with that address first)"}.`, true));
+        email.value = ""; note.value = ""; drawSent();
+      } catch (e) { out.append(msgEl(e.message)); }
+      send.disabled = false;
+    } },
+      el("h2", { id: "sh-title", text: "Share this sermon" }),
+      el("p", { class: "hint", style: "margin:0;font-size:14px", text: `They get their own copy of “${cur.title}”, with its manuscript, Scripture, and slides, to read or adapt. Later changes stay with each copy.` }),
+      el("div", { class: "field" }, el("label", { for: "sh-email", text: "Their email" }), email),
+      el("div", { class: "field" }, el("label", { for: "sh-note", text: "Note" }), note),
+      out,
+      el("div", { style: "display:flex;gap:8px;justify-content:flex-end" }, el("button", { class: "btn", type: "button", text: "Close", onclick: closeShare }), send),
+      list);
+    shareEl = el("div", { class: "modal sh-modal", onclick: ev => { if (ev.target === shareEl) closeShare(); } }, form);
+    document.body.append(shareEl);
+    email.focus();
+    drawSent();
+  }
+
+  // Sermons shared with this preacher: a card for each, to add it to the binder or decline it.
+  let inboxEl = null;
+  async function checkInbox() {
+    const r = await api("GET", "/api/shares").catch(() => null); if (!r) return;
+    if (r.needsConfirm) notice(`${r.needsConfirm === 1 ? "A sermon has" : r.needsConfirm + " sermons have"} been shared with you. Confirm your email address in Account to see ${r.needsConfirm === 1 ? "it" : "them"}.`, "/account", "Open Account");
+    if (!inboxEl) { inboxEl = el("div", { class: "sh-inbox", role: "region", "aria-label": "Sermons shared with you" }); document.body.append(inboxEl); }
+    inboxEl.replaceChildren(...r.incoming.map(x => {
+      const status = el("p", { class: "hint", style: "margin:0" });
+      const add = el("button", { class: "btn primary sm", type: "button", text: "Add to my binder" });
+      const no = el("button", { class: "btn ghost sm", type: "button", text: "No thanks" });
+      const card = el("div", { class: "sh-card" },
+        el("div", { class: "sh-k", text: "Shared with you" }),
+        el("div", {}, el("b", { text: x.from }), ` shared “${x.title}”.`),
+        x.note ? el("p", { class: "sh-note", text: x.note }) : null,
+        status, el("div", { class: "sh-btns" }, no, add));
+      add.onclick = async () => {
+        add.disabled = no.disabled = true; status.textContent = "Adding…";
+        try {
+          const r = await api("POST", `/api/shares/${x.id}/accept`);
+          card.remove();
+          const opened = window.claude.hosted.open ? await window.claude.hosted.open(r.sermonId).catch(() => false) : false;
+          if (!opened) notice(`“${x.title}” is in your binder. Find it under Open sermon.`);
+        } catch (e) { status.textContent = e.message; add.disabled = no.disabled = false; }
+      };
+      no.onclick = async () => { no.disabled = true; await api("POST", `/api/shares/${x.id}/decline`).catch(() => {}); card.remove(); };
+      return card;
+    }));
+  }
+
   async function signOut() {
     try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); } catch {}
     forgetLocal();
@@ -218,13 +307,14 @@
     const menu = document.getElementById("sermon-menu"); if (!menu) return;
     const icon = d => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
     const ICONS = {
+      "Share this sermon…": '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
       "Account": '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
       "Site admin": '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/>',
       "Sign out": '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>'
     };
     const item = (text, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "menu-item"; b.setAttribute("role", "menuitem"); b.innerHTML = icon(ICONS[text] || ""); const t = document.createElement("span"); t.textContent = text; b.append(t); b.onclick = fn; return b; };
     const sep = document.createElement("div"); sep.className = "menu-sep"; sep.setAttribute("role", "separator");
-    menu.append(sep, item("Account", () => { location.href = "/account"; }));
+    menu.append(sep, item("Share this sermon…", openShare), item("Account", () => { location.href = "/account"; }));
     if (boot.owner) menu.append(item("Site admin", () => { location.href = "/admin"; }));
     menu.append(item("Sign out", signOut));
     // Sign out beside Settings and Light or dark: in the side column on a computer, in the header on a phone.
@@ -237,6 +327,25 @@
       b.onclick = signOut;
       tools.append(b);
     }
+    const css = document.createElement("style");
+    css.textContent = `.sh-modal .modal-card{width:min(520px,100%)}
+.sh-modal textarea{width:100%;font:15px/1.45 var(--f-ui)}
+.sh-modal input[type=email]{width:100%;height:var(--ctl);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:0 10px;font-size:15px}
+.sh-list{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px}
+.sh-list:empty{display:none}
+.sh-row{display:flex;gap:6px 12px;align-items:center;flex-wrap:wrap}
+.sh-to{font-weight:600;overflow-wrap:anywhere;flex:1 1 12em}
+.sh-inbox{position:fixed;right:16px;bottom:16px;z-index:29;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px))}
+.sh-inbox:empty{display:none}
+@media (max-width:700px){.sh-inbox{bottom:calc(var(--nav-h,0px) + 76px);right:16px}}
+.sh-card{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:14px;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.sh-k{font:700 11px var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.sh-note{margin:0;font-family:var(--f-read);color:var(--muted);border-left:2px solid var(--line);padding-left:10px}
+.sh-btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}`;
+    document.head.append(css);
+    checkInbox();
+    setInterval(checkInbox, 5 * 60000);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkInbox(); });
     if (!boot.claude) notice("Claude's help (analysis, suggestions, outlines, slides) needs an Anthropic API key. Add yours in Account.", "/account#claude", "Add a key");
   });
 })();

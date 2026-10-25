@@ -119,7 +119,41 @@ async def main():
             Anthropic.calls.clear()
             r = await pg.evaluate("window.claude.use('sample').then(s => s.json('Return ONLY JSON {\"text\":\"\"}', { modelTier: 'default' })).then(v => ['ok', v], e => ['err', e.code])")
             print("claude with key", r, "model", Anthropic.calls and Anthropic.calls[-1]["model"])
+
+            # 4b. Share "Walking in the Light" by email from the More menu
+            await pg.click("#sc-title"); await pg.wait_for_timeout(300)
+            await pg.click("#sp-modal .sp-item:has-text('Walking in the Light')"); await pg.wait_for_timeout(800)
+            await pg.click("#btn-sermon"); await pg.wait_for_timeout(200)
+            await pg.click("#sermon-menu .menu-item:has-text('Share this sermon')"); await pg.wait_for_selector("#sh-email")
+            await pg.fill("#sh-email", "ivy@example.com"); await pg.fill("#sh-note", "For Sunday night, if it helps.")
+            await pg.click(".sh-modal button[type=submit]"); await pg.wait_for_selector(".sh-row"); await pg.wait_for_timeout(300)
+            print("share: dialog says", await pg.evaluate("document.querySelector('.sh-modal [role=status]').textContent"), "| list", await pg.evaluate("[...document.querySelectorAll('.sh-row')].map(r => r.textContent)"))
+            await pg.screenshot(path=str(OUT / "hosted_share_dialog_1400_light.png"))
+            await pg.keyboard.press("Escape"); await pg.wait_for_timeout(200)
+            print("share: Escape closes", await pg.evaluate("!document.querySelector('.sh-modal')"))
             await ctx.close()
+
+            for w, scheme in [(1400, "light"), (390, "dark")]:
+                ctx, pg = await new_page(w, scheme)
+                email = f"ivy{w}@example.com"
+                await pg.goto(base + "/register"); await pg.fill("input[name=name]", "Ivy Receiver"); await pg.fill("input[name=email]", email); await pg.fill("input[name=password]", "correct horse battery")
+                await pg.click("button[type=submit]"); await pg.wait_for_url(base + "/app"); await pg.wait_for_timeout(1500)
+                db = sqlite3.connect(os.path.join(data, "pulpit.db"))
+                db.execute("UPDATE shares SET to_email = ? WHERE to_email = 'ivy@example.com'", (email,)); db.commit()
+                await pg.reload(); await pg.wait_for_timeout(2500)
+                print(w, "share: unconfirmed sees", await pg.evaluate("[document.querySelectorAll('.sh-card').length, [...document.querySelectorAll('[role=status]')].some(e => e.textContent.includes('Confirm your email'))]"))
+                db.execute("UPDATE users SET email_verified_at = '2026-10-25T00:00:00Z' WHERE email = ?", (email,)); db.commit(); db.close()
+                await pg.reload(); await pg.wait_for_selector(".sh-card"); await pg.wait_for_timeout(500)
+                await pg.screenshot(path=str(OUT / f"hosted_share_card_{w}_{scheme}.png"))
+                print(w, "share: card", await pg.text_content(".sh-card"))
+                await pg.click(".sh-card button:has-text('Add to my binder')"); await pg.wait_for_timeout(2500)
+                print(w, "share: opened", await pg.text_content("#sc-title"), "cards left", await pg.evaluate("document.querySelectorAll('.sh-card').length"), "errors", pg.errs)
+                await pg.evaluate("document.querySelector('#sub-edit').click()"); await pg.wait_for_timeout(800)
+                print(w, "share: words came along", await pg.evaluate("document.querySelector('#editor').textContent.includes('Walking in the light is a daily choice')"), "scrollW", await pg.evaluate("[document.documentElement.scrollWidth, innerWidth]"))
+                await pg.screenshot(path=str(OUT / f"hosted_share_added_{w}_{scheme}.png"))
+                # put the share back for the next size
+                db = sqlite3.connect(os.path.join(data, "pulpit.db")); db.execute("UPDATE shares SET to_email = 'ivy@example.com', accepted_at = NULL, accepted_by = NULL, copy_id = NULL WHERE to_email = ?", (email,)); db.commit(); db.close()
+                await ctx.close()
 
             # 5. Another account on the same browser starts with an empty binder
             ctx, pg = await new_page()

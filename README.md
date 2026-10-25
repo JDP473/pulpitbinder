@@ -33,7 +33,8 @@ python3 tests/browser/dash.py # dashboard with 26 seeded sermons
 python3 tests/browser/pk.py   # slide picker, Canva mock, Scripture slides
 python3 tests/browser/scauto.py   # passage slides made when a Scripture section is added
 python3 tests/browser/slideedit.py   # editing slides and changing their kind
-python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, account and admin pages
+python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, sharing, account and admin pages
+python3 tests/browser/libmenu.py   # the open-sermon card and More menu at every width
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.

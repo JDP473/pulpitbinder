@@ -138,6 +138,25 @@ const MIGRATIONS = [
     value TEXT NOT NULL
   );
   `,
+  // 2: sermons shared by email. The recipient gets their own copy when they add it; until then it waits here.
+  `
+  CREATE TABLE shares (
+    id TEXT PRIMARY KEY,
+    from_user TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    sermon_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    to_email TEXT NOT NULL COLLATE NOCASE,
+    note TEXT,
+    created_at TEXT NOT NULL,
+    accepted_at TEXT,
+    accepted_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+    copy_id TEXT,
+    declined_at TEXT,
+    token_hash TEXT UNIQUE
+  );
+  CREATE INDEX shares_to ON shares(to_email);
+  CREATE INDEX shares_from ON shares(from_user);
+  `,
 ];
 
 export function migrate() {

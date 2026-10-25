@@ -78,9 +78,11 @@ function client() {
   return { call, get cookie() { return cookie; } };
 }
 
+let ipSeq = 0;
 async function signUp(name, email) {
   const c = client();
-  const r = await c.call('POST', '/api/auth/register', { name, email, password: 'correct horse battery' });
+  // Each sign-up from its own address, so the per-address sign-up limit doesn't trip across the tests.
+  const r = await c.call('POST', '/api/auth/register', { name, email, password: 'correct horse battery' }, { 'cf-connecting-ip': `10.0.0.${++ipSeq}` });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   const me = await c.call('GET', '/api/auth/me');
   return { c, id: me.json.user.id, me: me.json };
@@ -257,4 +259,72 @@ test('deleting an account removes its documents and files', async () => {
   assert.equal((await g.c.call('DELETE', '/api/auth/account', { password: 'correct horse battery' })).status, 200);
   assert.equal(fs.existsSync(path.join(dir, 'assets', g.id)), false);
   assert.equal((await g.c.call('GET', '/api/auth/me')).json.user, null);
+});
+
+test('sharing a sermon by email: a copy of its own, with its files, only for a confirmed address', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const sql = (q, ...a) => { const db = new DatabaseSync(path.join(dir, 'pulpit.db')); try { return db.prepare(q).run(...a); } finally { db.close(); } };
+  const a = await signUp('Hal Sender', 'hal@example.com');
+  const b = await signUp('Ivy Receiver', 'ivy@example.com');
+  const root = `data/users/${a.id}`;
+  // A sermon as the app saves it: the meta document, and parts in chunks that name a picture by its asset id.
+  const pic = (await a.c.call('POST', '/api/assets', new TextEncoder().encode('generic slide picture'), { 'content-type': 'image/png' })).json.id;
+  const slide = JSON.stringify({ title: 'Light', bg: { asset: pic } });
+  const half = Math.floor(slide.indexOf(pic) + 10); // the id straddles two chunks
+  await a.c.call('PUT', '/api/db/doc', { path: `${root}/abc12345/parts/s0.0`, data: { s: slide.slice(0, half) } });
+  await a.c.call('PUT', '/api/db/doc', { path: `${root}/abc12345/parts/s0.1`, data: { s: slide.slice(half) } });
+  await a.c.call('PUT', '/api/db/doc', { path: `${root}/abc12345/parts/html.0`, data: { s: '<p>Walk in the light.</p>' } });
+  await a.c.call('PUT', '/api/db/doc', { path: `${root}/abc12345`, data: { id: 'abc12345', title: 'Walking in the Light', updatedAt: 1, device: 'd1', meta: { title: 'Walking in the Light' }, slideCount: 1, chunks: { s0: 2, html: 1 }, hashes: { s0: 'x', html: 'y' } } });
+
+  assert.equal((await a.c.call('POST', '/api/shares', { sermonId: 'nope0000', email: 'ivy@example.com' })).status, 400);
+  assert.equal((await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'hal@example.com' })).status, 400);
+  const sent = await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'IVY@example.com', note: 'For Sunday night.' });
+  assert.equal(sent.status, 200, JSON.stringify(sent.json));
+  assert.equal(sent.json.hasAccount, true);
+  assert.equal((await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'ivy@example.com' })).status, 400, 'no second share while one waits');
+
+  // Ivy's address isn't confirmed yet, so she is told to confirm it and sees nothing to add.
+  let inbox = (await b.c.call('GET', '/api/shares')).json;
+  assert.deepEqual([inbox.incoming.length, inbox.needsConfirm], [0, 1]);
+  assert.equal((await b.c.call('POST', `/api/shares/${sent.json.id}/accept`)).status, 403);
+
+  // The emailed link confirms it once she opens it signed in (here with a token we set, as the email would carry).
+  sql('UPDATE shares SET token_hash = ? WHERE id = ?', (await import('node:crypto')).createHash('sha256').update('tok-ivy').digest('hex'), sent.json.id);
+  const anon = await client().call('GET', '/s/tok-ivy');
+  assert.equal(anon.headers.get('location'), '/login?email=ivy%40example.com&next=%2Fs%2Ftok-ivy');
+  assert.equal((await a.c.call('GET', '/s/tok-ivy')).headers.get('location'), '/app?share=other', 'someone else opening it confirms nothing');
+  assert.equal((await b.c.call('GET', '/s/tok-ivy')).headers.get('location'), '/app');
+  inbox = (await b.c.call('GET', '/api/shares')).json;
+  assert.equal(inbox.incoming.length, 1);
+  assert.deepEqual([inbox.incoming[0].from, inbox.incoming[0].title, inbox.incoming[0].note], ['Hal Sender', 'Walking in the Light', 'For Sunday night.']);
+  assert.equal((await b.c.call('GET', '/api/shares')).json.sent.length, 0);
+
+  const added = await b.c.call('POST', `/api/shares/${sent.json.id}/accept`);
+  assert.equal(added.status, 200, JSON.stringify(added.json));
+  const copy = added.json.sermonId;
+  assert.match(copy, /^[a-z0-9]{8}$/);
+  const broot = `data/users/${b.id}/${copy}`;
+  const meta = (await b.c.call('GET', `/api/db/doc?path=${broot}`)).json.data;
+  assert.deepEqual([meta.id, meta.title, meta.device, meta.hashes, meta.chunks], [copy, 'Walking in the Light', 'shared', {}, { s0: 1, html: 1 }]);
+  const s0 = JSON.parse((await b.c.call('GET', `/api/db/doc?path=${broot}/parts/s0.0`)).json.data.s);
+  assert.notEqual(s0.bg.asset, pic, 'the picture is copied under a new id');
+  const got = await b.c.call('GET', `/_blob/${s0.bg.asset}`);
+  assert.equal(got.text, 'generic slide picture');
+  assert.equal((await b.c.call('GET', `/_blob/${pic}`)).status, 404, "the sender's file stays theirs");
+  assert.equal((await b.c.call('GET', `/api/db/doc?path=${broot}/parts/html.0`)).json.data.s, '<p>Walk in the light.</p>');
+  assert.equal((await b.c.call('POST', `/api/shares/${sent.json.id}/accept`)).status, 400, 'added once');
+
+  // The sender sees it was added; a share still waiting can be cancelled, and one can be declined.
+  const mine = (await a.c.call('GET', '/api/shares')).json.sent;
+  assert.equal(mine[0].status, 'added');
+  assert.equal((await a.c.call('DELETE', `/api/shares/${sent.json.id}`)).status, 400);
+  const other = await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'nobody-yet@example.com' });
+  assert.equal(other.json.hasAccount, false);
+  assert.equal((await a.c.call('DELETE', `/api/shares/${other.json.id}`)).status, 200);
+  const again = await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'ivy@example.com' });
+  assert.equal((await b.c.call('POST', `/api/shares/${again.json.id}/decline`)).status, 200);
+  assert.equal((await b.c.call('GET', '/api/shares')).json.incoming.length, 0);
+  // Nobody else can answer a share meant for Ivy.
+  const third = await a.c.call('POST', '/api/shares', { sermonId: 'abc12345', email: 'ivy@example.com' });
+  assert.equal((await a.c.call('POST', `/api/shares/${third.json.id}/accept`)).status, 404);
 });

@@ -6861,6 +6861,12 @@ const pushed = {};
 const DEVICE = (() => { try { let d = localStorage.getItem("pb-device"); if (!d) { d = uid() + uid(); localStorage.setItem("pb-device", d); } return d; } catch { return uid() + uid(); } })();
 const CHUNK = 60000, MAX_ASSET = 20 * 1048576;
 const sermonPath = id => `data/users/${userId}/${id}`;   // data/users/<you> is your private collection; each sermon is one document in it
+/* On sermon.freely.church the site's own controls (sharing a sermon by email) need the open sermon, and to open one
+   that was just added to this binder. */
+if (HOSTED) Object.assign(window.claude.hosted, {
+  current: () => S && !S.example ? { id: S.id, title: S.meta.title || "Untitled sermon" } : null,
+  open: async id => { if (!cdb) return false; const rec = await pullRecord(id); if (!rec) return false; openRec(rec); refreshLibrary(); goBuild("details"); return true; }
+});
 function setSync(state, detail) {
   const p = $("#sync"); if (!p) return;
   p.dataset.state = state;

@@ -15,6 +15,12 @@ The app is the same `pulpit-binder.html` that is published on Claude. The server
 | `/admin` | The owner only: every preacher, lending the shared key, turning an account off |
 | `/support` | Giving once or monthly through Stripe Checkout |
 
+## Sharing a sermon
+
+From the More menu, "Share this sermon…" sends a sermon to another preacher by email, with an optional note. They get an email (an invitation to sign up, if they have no account), and a card in their binder to add it or decline. Adding it gives them their own copy, with the manuscript, Scripture, slides, and the pictures those slides use copied into their storage; later changes stay with each copy. The sender sees who has added it and can cancel a share that is still waiting.
+
+Shares are matched by email address, so a preacher sees one only once their address is confirmed (Google sign-in, an emailed sign-in link, or "Confirm my email"). The link in the share email counts: opening it signed in with that address confirms it.
+
 ## Claude
 
 Each preacher pastes an Anthropic API key in Account. It is encrypted at rest (AES-256-GCM, with `KEY_SECRET` or a key made once in `DATA_DIR`). The owner can set `ANTHROPIC_API_KEY` and lend it from `/admin` to the preachers they choose; a preacher's own key is always used first. Every request is logged by model and key, so the admin page shows what the shared key costs.
