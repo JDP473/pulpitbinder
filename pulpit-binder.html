@@ -1016,6 +1016,28 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
   .mat-q textarea,.mat-cap textarea{min-height:64px}
 }
 
+/* infographics */
+.slide.made .mk.ig-wrap{justify-content:center;gap:3.4cqw}
+.slide.made .ig-title{text-align:center;font-size:4.6cqw}
+.slide.made .ig-row{display:flex;gap:2.2cqw;align-items:stretch;position:relative}
+.slide.made .ig-cell{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1.4cqw;position:relative}
+.slide.made .ig-card{border-radius:1.4cqw;padding:2.2cqw 1.8cqw;flex:1;width:100%;display:flex;flex-direction:column;gap:.8cqw;text-align:center;justify-content:center}
+.slide.made .ig-h{font:700 3cqw/1.2 var(--mk-head,var(--f-read));text-wrap:balance}
+.slide.made .ig-t{font:400 2.2cqw/1.35 var(--mk-body,var(--f-read));opacity:.92;text-wrap:pretty}
+.slide.made .ig-num{width:5.6cqw;height:5.6cqw;border-radius:50%;display:grid;place-items:center;font:700 2.9cqw/1 var(--f-ui);flex:none;z-index:1}
+.slide.made .ig-steps .ig-cell:not(:last-child)::after{content:"";position:absolute;top:2.8cqw;left:calc(50% + 3.4cqw);right:calc(-1.1cqw - 50% + 3.4cqw);height:.35cqw;background:currentColor;opacity:.35}
+.slide.made .ig-timeline{align-items:flex-start;padding-top:0}
+.slide.made .ig-timeline .ig-cell{justify-content:flex-start;text-align:center;z-index:1}
+.slide.made .ig-timeline .ig-h{min-height:7.2cqw;display:flex;align-items:flex-end;justify-content:center}
+.slide.made .ig-dot{width:2.8cqw;height:2.8cqw;border-radius:50%;border:.6cqw solid;flex:none}
+.slide.made .ig-line{position:absolute;left:4%;right:4%;top:calc(7.2cqw + 1.4cqw + 1.4cqw - .2cqw);height:.4cqw;opacity:.55;z-index:0}
+.slide.made .ig-stat{padding:3cqw 1.6cqw}
+.slide.made .ig-big{font:700 7.4cqw/1 var(--mk-head,var(--f-read))}
+.slide.made .ig-compare .ig-card{text-align:left;justify-content:flex-start;align-items:stretch;padding:2.6cqw 2.8cqw;gap:1.6cqw;flex:1 1 0}
+.slide.made .ig-compare .ig-h{font-size:3.3cqw;border-bottom:.35cqw solid;padding-bottom:1cqw}
+.slide.made .ig-pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1.2cqw;font:400 2.5cqw/1.3 var(--mk-body,var(--f-read))}
+.slide.made .ig-pts li{display:flex;gap:1.4cqw;align-items:baseline}
+.slide.made .ig-pts li::before{content:"";flex:none;width:1.2cqw;height:1.2cqw;border-radius:50%;background:var(--acc);transform:translateY(-.2cqw)}
 /* ================= App shell, 2026 =================
    Desktop: a sidebar in the order you prepare (write, study, present, share, review), the open sermon named at the top of
    the page, and Settings as its own page. Tablets keep the top bar; phones keep the bottom bar. */
@@ -5032,6 +5054,29 @@ function renderMade(box, s) {
     }
     case "point": { const n = el("div", { class: "mk-num", text: s.num || "" }); n.style.color = th.accent; if (s.num) wrap.append(n); textBlock(esc(s.text || ""), fitSize(w, true)); break; }
     case "blanks": textBlock(blanksHtml(s.text || "", !!s.reveal, th.accent), fitSize(words((s.text || "").replace(/[[\]]/g, "")).length)); refLine(); break;
+    case "infographic": {
+      const items = s.items || [], ink = th.fg, cardBg = rgba(th.fg, 0.09), lay = s.layout || "steps";
+      if (s.title) wrap.append(el("div", { class: "mk-title ig-title", text: s.title }));
+      const sized = (e, n) => { e.style.setProperty("--n", String(n)); return e; };
+      if (lay === "compare") {
+        const row = el("div", { class: "ig-row ig-compare" });
+        items.forEach(c => { const card = el("div", { class: "ig-card" }); card.style.background = cardBg; const h = el("div", { class: "ig-h", text: c.h }); h.style.color = th.accent; h.style.borderColor = th.accent; card.append(h);
+          const ul = el("ul", { class: "ig-pts" }); (c.pts || []).forEach(t => ul.append(el("li", { text: t }))); ul.style.setProperty("--acc", th.accent); card.append(ul); row.append(card); });
+        wrap.append(row);
+      } else {
+        const row = sized(el("div", { class: "ig-row ig-" + lay }), items.length);
+        items.forEach((it, i) => {
+          const cell = el("div", { class: "ig-cell" });
+          if (lay === "steps") { const num = el("div", { class: "ig-num", text: String(i + 1) }); num.style.background = th.accent; num.style.color = th.bg; cell.append(num); const card = el("div", { class: "ig-card" }); card.style.background = cardBg; card.append(el("div", { class: "ig-h", text: it.h })); if (it.t) card.append(el("div", { class: "ig-t", text: it.t })); cell.append(card); }
+          else if (lay === "timeline") { cell.append(el("div", { class: "ig-h", text: it.h })); const dot = el("div", { class: "ig-dot" }); dot.style.background = th.accent; dot.style.borderColor = th.bg; cell.append(dot); if (it.t) cell.append(el("div", { class: "ig-t", text: it.t })); }
+          else { const card = el("div", { class: "ig-card ig-stat" }); card.style.background = cardBg; const big = el("div", { class: "ig-big", text: it.h }); big.style.color = th.accent; card.append(big); if (it.t) card.append(el("div", { class: "ig-t", text: it.t })); cell.append(card); }
+          row.append(cell);
+        });
+        if (lay === "timeline") { const line = el("div", { class: "ig-line" }); line.style.background = th.accent; row.append(line); }
+        wrap.append(row);
+      }
+      wrap.classList.add("ig-wrap"); break;
+    }
     case "photo": case "art": {
       const full = s.made === "photo" || !!s.img;
       const src = s.img ? blobURL(s.img) : s.svg ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.svg) : null;
@@ -5056,6 +5101,7 @@ const KINDS = {
   title: { name: "Sermon title", icon: "T", desc: "The title and text, with the theme's header picture. Good as the first slide.", for: ["text", "scripture"] },
   section: { name: "Section header", icon: "§", desc: "Opens a new division or main point, large, with the header picture.", for: ["text", "scripture"] },
   blanks: { name: "Fill in the blank", icon: "_", desc: "Key words blanked, then revealed on the next click. Good with sermon notes.", ai: true, for: ["text", "scripture"] },
+  infographic: { name: "Infographic", icon: "▥", desc: "The idea as a picture you can read at a glance: steps, a timeline, big numbers, or two sides.", ai: true, for: ["text", "scripture"] },
   question: { name: "Reflection question", icon: "?", desc: "A question for the congregation to take home.", ai: true, for: ["text", "scripture"] },
   art: { name: "Illustration", icon: "✎", desc: "A picture of the idea, full-screen, with an optional line over it. Choose who paints it in Settings.", canva: true, for: ["text", "scripture"] },
   photo: { name: "Photo", icon: "▣", desc: "A picture from your device, with an optional line of text over it.", for: ["text", "scripture"] }
@@ -5100,6 +5146,19 @@ function outlinePointAt(target) {
 }
 const srcPlain = () => mk.src.kind === "scripture" ? scPlainText(mk.src.tokens) : mk.src.text;
 
+/* Infographics. One line per item, "Label | detail". For two sides, blank-line-separated groups: a heading, then its points. */
+const IG_LAYOUTS = { steps: "Steps", timeline: "Timeline", stats: "Big numbers", compare: "Two sides" };
+const IG_MAX = { steps: 5, timeline: 6, stats: 4 };
+function infoItems(text, layout) {
+  const src = String(text || "").replace(/\r/g, "");
+  if (layout === "compare") return src.split(/\n\s*\n/).map(g => g.split("\n").map(l => l.trim()).filter(Boolean)).filter(g => g.length).slice(0, 2).map(g => ({ h: g[0].slice(0, 40), pts: g.slice(1, 6).map(x => x.slice(0, 90)) }));
+  return src.split("\n").map(l => l.trim()).filter(Boolean).slice(0, IG_MAX[layout] || 5).map(l => { const [h, ...t] = l.split("|"); return { h: h.trim().slice(0, 40), t: t.join("|").trim().slice(0, 110) }; });
+}
+function infoText(items, layout) {
+  if (layout === "compare") return (items || []).map(c => [c.h, ...(c.pts || [])].join("\n")).join("\n\n");
+  return (items || []).map(i => i.t ? `${i.h} | ${i.t}` : i.h).join("\n");
+}
+const IG_HINT = { steps: "One step per line, as Label | detail. Up to five.", timeline: "One moment per line, as When or what | detail. Up to six.", stats: "One figure per line, as Big word or number | what it means. Up to four. Use only numbers that are true.", compare: "Two groups, with a blank line between them. The first line of each is its heading, and the lines under it are its points." };
 /* drafts */
 async function chooseKind(key) {
   if (!mk) return;
@@ -5116,6 +5175,7 @@ async function chooseKind(key) {
   else if (key === "section") { const h = headingAbove(s.target); mk.draft = { ...base, made: "title", section: true, kicker: h.kicker, ttl: h.text || (s.kind === "scripture" ? s.ref : s.text.split(/\s+/).slice(0, 9).join(" ")), ref: s.kind === "scripture" ? `${s.ref}` : "", pic: theme.img ? "theme" : "none", img: null }; }
   else if (key === "point") { const o = outlinePointAt(s.target); mk.draft = { ...base, made: "point", num: o.num, text: o.text || s.text.split(/\s+/).slice(0, 9).join(" ") }; }
   else if (key === "photo") mk.draft = { ...base, made: "photo", img: null, caption: s.kind === "scripture" ? "" : (words(s.text).length <= 14 ? s.text : ""), ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
+  else if (key === "infographic") mk.draft = { ...base, made: "infographic", layout: "steps", title: "", info: "" };
   else if (key === "art") mk.draft = { ...base, made: "art", img: null, style: "painterly", prompt: "", caption: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
   else { mk.draft = { ...base, made: key, text: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" }; }
   renderMkFields(); renderMkPreview();
@@ -5126,6 +5186,7 @@ const AI_ASK = {
   statement: `Boil this down to one short, memorable statement of 4 to 10 words, in the preacher's own voice and wording where possible. Return JSON {"text": "..."}`,
   points: `Turn this into a slide: a short title (2 to 6 words) and 2 to 4 parallel points, each 2 to 8 words. Use his wording where possible. Return JSON {"title": "...", "points": ["...", "..."]}`,
   question: `Write one reflection question (under 18 words) the congregation can carry home from this, addressed to "you". Return JSON {"text": "..."}`,
+  infographic: `Turn this into an infographic slide that a listener can take in at a glance. Choose the layout that fits the content best: "steps" (a process or ordered progression, 3 to 5 items), "timeline" (events in order, 3 to 6 items), "stats" (2 to 4 big figures; use only numbers that appear in the text or are plainly true), or "compare" (two contrasting sides, each with a heading and 2 to 4 points). Use the preacher's wording where possible, with labels of 1 to 4 words and details under 12 words. Do not add doctrine or claims the text does not make. Return JSON {"layout":"steps|timeline|stats|compare","title":"2 to 6 words, or empty","items":[{"label":"...","detail":"..."}]} for steps, timeline and stats, or {"layout":"compare","title":"...","left":{"head":"...","points":["..."]},"right":{"head":"...","points":["..."]}} for compare.`,
   blanks: `Copy the single most important sentence from this text word for word (shorten only if it is over 25 words), and wrap the 1 to 3 key words a listener would write in their notes in double square brackets, like "Faith is [[walking]] by the light you have." Return JSON {"text": "..."}`,
   art: null
 };
@@ -5141,6 +5202,12 @@ async function askClaude(fresh) {
     const { value: r } = await askJson(prompt, { tier: key === "art" ? "complex" : "default", fresh });
     if (!mk || mk.kind !== key) return;
     if (key === "points") { d.title = String(r.title || "").slice(0, 80); d.points = (Array.isArray(r.points) ? r.points : []).slice(0, 4).map(x => String(x).slice(0, 90)); }
+    else if (key === "infographic") {
+      const lay = IG_LAYOUTS[r.layout] ? r.layout : "steps"; d.layout = lay; d.title = String(r.title || "").slice(0, 60);
+      d.info = lay === "compare" ? infoText([r.left, r.right].filter(Boolean).map(c => ({ h: String(c.head || "").slice(0, 40), pts: (Array.isArray(c.points) ? c.points : []).map(x => String(x).slice(0, 90)) })), "compare")
+        : infoText((Array.isArray(r.items) ? r.items : []).slice(0, IG_MAX[lay]).map(i => ({ h: String(i.label || "").slice(0, 40), t: String(i.detail || "").slice(0, 110) })), lay);
+      if (!d.info.trim()) throw { code: "empty" };
+    }
     else if (key === "art") { d.prompt = String(r.prompt || "").slice(0, 600); if (!d.caption) d.caption = String(r.caption || "").slice(0, 80); if (!d.prompt) throw { code: "empty" }; }
     else d.text = String(r.text || "").slice(0, 300);
   } catch (e) {
@@ -5174,6 +5241,7 @@ function draftSlides() {
   if (d.made === "blanks") { const one = { ...d, title: title(d.text), body: [d.text.replace(/\[\[|\]\]/g, "")] }; return /\[\[[^\]]+\]\]/.test(d.text) ? [{ ...one, reveal: false }, { ...one, reveal: true }] : [{ ...one, made: "quote" }]; }
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
+  if (d.made === "infographic") { const items = infoItems(d.info, d.layout); return items.length ? [{ made: "infographic", layout: d.layout, title: d.title || "", items, theme: d.theme, notes: "", ref: "", body: items.map(i => i.t ? `${i.h}: ${i.t}` : i.h || (i.pts || []).join("; ")) }] : []; }
   if (d.made === "photo") return d.img ? [{ ...d, title: d.caption || "Photo", body: d.caption ? [d.caption] : [] }] : [];
   if (d.made === "art") return d.img || d.svg ? [{ made: "art", img: d.img || null, svg: d.img ? "" : d.svg || "", caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", media: d.media || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
   return [{ ...d, title: title(d.text), body: [String(d.text || "").replace(/\[\[|\]\]/g, "")] }];
@@ -5212,6 +5280,12 @@ function renderMkFields() {
     sel.value = d.pic === "theme" && !d.theme.img ? "none" : d.pic; sel.onchange = () => { d.pic = sel.value; renderMkFields(); renderMkPreview(); };
     field("Header picture", sel, d.theme.img ? "" : "Choose a theme with a header picture in Materials, Slide theme, to use it here.");
     if (d.pic === "own") { const inp = el("input", { type: "file", id: "mk-f-img", accept: "image/*" }); inp.onchange = async () => { const file = inp.files[0]; if (!file) return; try { d.img = await shrinkImage(file); renderMkPreview(); } catch { toast("Couldn't read that picture. Try a JPEG or PNG."); } }; field("Picture", inp); }
+  }
+  else if (k === "infographic") {
+    const sel = el("select", { id: "mk-f-lay" }); Object.entries(IG_LAYOUTS).forEach(([v, t]) => sel.append(el("option", { value: v, text: t }))); sel.value = d.layout;
+    sel.onchange = () => { d.layout = sel.value; renderMkFields(); renderMkPreview(); }; field("Kind of picture", sel);
+    field("Title (optional)", tx("mk-f-title", d.title, v => d.title = v));
+    field("What it shows", ta("mk-f-info", d.info, 7, v => d.info = v), IG_HINT[d.layout]);
   }
   else if (k === "point") { field("Number", tx("mk-f-num", d.num, v => d.num = v, "II.")); field("Main point", ta("mk-f-text", d.text, 2, v => d.text = v)); }
   else if (k === "passage") { const sel = el("select", { id: "mk-f-per" }); [[1, "One verse per slide"], [2, "About two verses per slide"], [3, "About three verses per slide"]].forEach(([v, t]) => sel.append(el("option", { value: String(v), text: t }))); sel.value = String(d.per); sel.onchange = () => { d.per = +sel.value; renderMkPreview(); }; field("Verses per slide", sel); }
@@ -8224,6 +8298,42 @@ async function deckPptx(onStep) {
         const t = String(s.text || ""), size = fitSize(words(t.replace(/[[\]]/g, "")).length), runs = []; let last = 0; const re = /\[\[([^\]]+?)\]\]/g; let m;
         while ((m = re.exec(t))) { if (m.index > last) runs.push(R(t.slice(last, m.index), { size })); runs.push(s.reveal ? R(m[1], { size, b: true, u: true, color: acc }) : R(" ".repeat(Math.max(6, Math.round(m[1].length * 1.6))), { size, u: true, color: acc })); last = re.lastIndex; }
         if (last < t.length) runs.push(R(t.slice(last), { size })); blocks.push([P(runs, { algn: "ctr", lh: 1.38 / 1.2 })]); ref("ctr"); break;
+      }
+      case "infographic": {   // real shapes and text boxes, so each part can be changed in PowerPoint
+        const items = s.items || [], lay = s.layout || "steps", H = 100 * CY / CX, fx = v => v / 100, fy = v => v / H, cardFill = pxSolid(rgba(fg, 0.09)), bgc = th.bg || "#1c2433";
+        const box = (x, y, w, h, o = {}) => sp(c, { x: fx(x), y: fy(y), w: fx(w), h: fy(h) }, o);
+        const para = (text, size, o = {}) => ({ runs: [{ text, sz: pt(size), b: o.b, color: o.color || fg, font: o.font || body }], algn: o.algn || "ctr", lnSpc: 0, spcBef: o.bef ? pt(o.bef) : 0, bullet: o.bullet || null, marL: o.marL || 0, indent: o.indent || 0 });
+        let top = 6;
+        if (s.title) { box(8, top, 84, 9, { name: "Title", body: pxBody([para(s.title, 4.6, { b: true, font: head })], { anchor: "ctr", fit: true }) }); top = 17; }
+        const area = H - 7 - top, n = items.length || 1, dot = pxSolid(acc);
+        if (lay === "compare") {
+          const w = 40.5, h = Math.min(area, 32), y = top + (area - h) / 2;
+          items.slice(0, 2).forEach((col, i) => { const x = 8 + i * (w + 3);
+            box(x, y, w, h, { name: "Card", geom: "roundRect", fill: cardFill, txBox: false });
+            box(x + 2.6, y + 2, w - 5.2, 5.4, { name: "Heading", body: pxBody([para(col.h, 3.3, { b: true, font: head, color: acc, algn: "l" })], { anchor: "ctr", fit: true }) });
+            box(x + 2.6, y + 7.6, w - 5.2, 0.35, { name: "Rule", fill: dot, txBox: false });
+            box(x + 2.6, y + 9.2, w - 5.2, h - 11, { name: "Points", body: pxBody((col.pts || []).map((t, k) => para(t, 2.5, { algn: "l", bef: k ? 1.2 : 0, bullet: { char: "•", color: acc }, marL: E(0.026 * CX), indent: -E(0.026 * CX) })), { fit: true }) }); });
+        } else if (lay === "steps") {
+          const gap = 2.2, w = (84 - gap * (n - 1)) / n, ch = Math.min(area - 6, 26), y0 = top + (area - (ch + 3)) / 2;
+          items.forEach((it, i) => { const x = 8 + i * (w + gap), cx = x + w / 2;
+            if (i < n - 1) box(cx + 3.4, y0 + 2.62, w + gap - 6.8, 0.35, { name: "Connector", fill: pxSolid(rgba(fg, 0.35)), txBox: false });
+            box(x, y0 + 3, w, ch, { name: "Card", geom: "roundRect", fill: cardFill, body: pxBody([para(it.h, 3, { b: true, font: head }), ...(it.t ? [para(it.t, 2.2, { bef: 0.8 })] : [])], { anchor: "ctr", ins: [E(0.012 * CX), E(0.03 * CX), E(0.012 * CX), E(0.012 * CX)], fit: true }) });
+            box(cx - 2.8, y0, 5.6, 5.6, { name: "Number", geom: "ellipse", fill: dot, body: pxBody([para(String(i + 1), 2.9, { b: true, color: bgc })], { anchor: "ctr" }) }); });
+        } else if (lay === "timeline") {
+          const w = 84 / n, ym = top + area / 2;
+          box(8, ym - 0.2, 84, 0.4, { name: "Line", fill: pxSolid(rgba(fg, 0.55)), txBox: false });
+          items.forEach((it, i) => { const cx = 8 + w * i + w / 2;
+            box(cx - w / 2 + 0.5, ym - 9.4, w - 1, 7.4, { name: "Label", body: pxBody([para(it.h, 3, { b: true, font: head })], { anchor: "b", fit: true }) });
+            box(cx - 1.4, ym - 1.4, 2.8, 2.8, { name: "Dot", geom: "ellipse", fill: dot, line: `<a:ln w="${E(0.006 * CX)}">${pxSolid(bgc)}</a:ln>`, txBox: false });
+            if (it.t) box(cx - w / 2 + 0.5, ym + 2.2, w - 1, 12, { name: "Detail", body: pxBody([para(it.t, 2.2)], { fit: true }) }); });
+        } else {
+          const gap = 2.2, w = (84 - gap * (n - 1)) / n, h = Math.min(area, 24), y = top + (area - h) / 2;
+          items.forEach((it, i) => { const x = 8 + i * (w + gap);
+            box(x, y, w, h, { name: "Card", geom: "roundRect", fill: cardFill, txBox: false });
+            box(x, y + 3, w, 9.4, { name: "Figure", body: pxBody([para(it.h, 7.4, { b: true, font: head, color: acc })], { anchor: "ctr", fit: true }) });
+            if (it.t) box(x + 1.2, y + 13, w - 2.4, h - 14.4, { name: "Caption", body: pxBody([para(it.t, 2.4)], { fit: true }) }); });
+        }
+        break;
       }
       case "photo": case "art": {
         const full = s.made === "photo" || !!s.img;
