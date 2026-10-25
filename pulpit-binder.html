@@ -1120,6 +1120,16 @@ body[data-view="present"] .sermon-bar{display:none}
 @media (max-width:1099px){.sb-head{display:none}.sermon-bar{margin-bottom:10px}}
 @media (max-width:700px){.sermon-bar .tagbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}.sermon-bar .tagbar::-webkit-scrollbar{display:none}}
 .subtabs{margin:0 0 16px}
+/* estimated sermon time: always in the header, whatever the view */
+.est-pill{display:inline-flex;align-items:center;gap:6px;height:var(--ctl);padding:0 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.est-pill svg{color:var(--accent);flex:none}
+@media (max-width:420px){.est-pill{padding:0 8px;gap:4px;font-size:12.5px}.est-pill svg{width:14px;height:14px}}
+/* phones: the header scrolls away, so the time rides just above the tab bar (and above the suggestions sheet while writing) */
+@media (max-width:700px){
+  .est-pill{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--nav-h) + 10px);z-index:14;height:32px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  body[data-view="edit"] .est-pill{bottom:calc(var(--nav-h) + 84px)}
+  body[data-view="present"] .est-pill{position:static;box-shadow:none;height:var(--ctl)}
+}
 /* desktop sidebar */
 @media (min-width:1100px){
   :root{--app-nav:236px}
@@ -1145,6 +1155,9 @@ body[data-view="present"] .sermon-bar{display:none}
   .top-row .hdr-tools{order:5;flex-direction:column;align-items:stretch;gap:2px;border-top:1px solid var(--line);padding-top:10px}
   .hdr-tools .icon-btn{width:auto;height:38px;border:0;background:transparent;justify-content:flex-start;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:9px;color:var(--muted);font-size:14px;font-weight:500}
   .hdr-tools .icon-btn:hover{background:var(--sunk);color:var(--ink)}
+  .hdr-tools .est-pill{order:-1;height:auto;min-height:38px;border:0;border-radius:9px;background:var(--accent-soft);padding:0 12px;gap:12px;font-size:14px;margin-bottom:6px}
+  .hdr-tools .est-pill svg{width:18px;height:18px}
+  body[data-view="present"] .hdr-tools .est-pill{flex-direction:column;justify-content:center;gap:2px;padding:6px 0;font-size:11.5px}
   .hdr-tools .icon-btn svg{width:18px;height:18px;flex:none}
   .hdr-tools .icon-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
   .tool-l{display:inline}
@@ -1251,6 +1264,7 @@ body[data-view="present"] .sermon-bar{display:none}
         </div>
       </div>
       <div class="hdr-tools">
+        <span class="est-pill" id="est-pill" role="status"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span id="est-tx"></span></span>
         <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="tool-l">Settings</span></button>
         <button class="icon-btn" id="btn-theme" aria-label="Toggle light or dark mode" title="Light / dark">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"/></svg><span class="tool-l">Light or dark</span>
@@ -2686,7 +2700,7 @@ for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () =>
   S.meta[k] = k === "wpm" ? (+$(sel).value || 140) : $(sel).value;
   if (k === "service") applyServiceTime(S.meta.service);
   if (k === "place") updatePlaceSave();
-  renderTags(); save(); if (k === "title") refreshLibrary();
+  renderTags(); save(); if (k === "title") refreshLibrary(); if (k === "wpm") { renderEditStats(); if (view === "present") updateClock(); }
 });
 $("#m-place-save").onclick = () => savePlaceName($("#m-place").value);
 /* the other times and places the sermon was presented */
@@ -4510,6 +4524,9 @@ function renderEditStats() {
   const w = words(S.transcript).length, mins = w / (S.meta.wpm || 140);
   const txt = `${w.toLocaleString()} words · about ${Math.round(mins)} min · ${sections.length} sections`;
   $("#ed-stats").textContent = txt; const ms = $("#sub-edit"); if (ms) ms.title = sections.length ? txt : "No manuscript yet";
+  const m = Math.round(mins), pill = $("#est-pill");
+  $("#est-tx").textContent = !w ? "No text yet" : mins < 0.75 ? "Under 1 min" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
+  pill.title = `Estimated sermon time: ${w.toLocaleString()} words at ${S.meta.wpm || 140} words a minute`; pill.setAttribute("aria-label", pill.title);
 }
 
 /* slide gutter: thumbnails beside the paragraph that brings each slide up */
@@ -6493,7 +6510,7 @@ function renderPreachedAnalysis() {
   if (pw && dur) tile(String(Math.round(pw / (dur / 60))), "words per minute preached");
   if (cov) tile(Math.round(cov.filter(c => c.state === "preached").length / cov.length * 100) + "%", "of sections preached");
   if (st.children.length) box.append(st);
-  if (dur && pw && Math.abs(pw / (dur / 60) - (S.meta.wpm || 140)) > 12) box.append(el("button", { class: "btn ghost", text: `Use ${Math.round(pw / (dur / 60))} wpm as your pace`, onclick: () => { S.meta.wpm = Math.round(pw / (dur / 60)); $("#m-wpm").value = S.meta.wpm; save(); renderAnalysis(); toast("Pace updated"); } }));
+  if (dur && pw && Math.abs(pw / (dur / 60) - (S.meta.wpm || 140)) > 12) box.append(el("button", { class: "btn ghost", text: `Use ${Math.round(pw / (dur / 60))} wpm as your pace`, onclick: () => { S.meta.wpm = Math.round(pw / (dur / 60)); $("#m-wpm").value = S.meta.wpm; save(); renderEditStats(); renderAnalysis(); toast("Pace updated"); } }));
   if (cov) {
     const times = sectionTimes();
     const list = el("div", { class: "cov" });
