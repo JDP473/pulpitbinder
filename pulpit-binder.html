@@ -1215,6 +1215,7 @@ body[data-view="present"] .sermon-bar{display:none}
 .ai-opt input{margin-top:3px;accent-color:var(--accent);width:18px;height:18px}
 .ai-opt-t{display:flex;flex-direction:column;gap:2px}
 .ai-later{background:var(--sunk);border-style:dashed}
+.ai-later .hint a{color:var(--accent)}
 .ai-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:6px}
 .ai-list li{display:flex;flex-direction:column;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:14px}
 @media (max-width:700px){body.set-open .tab[aria-selected="true"]{color:var(--muted)}body.set-open .tab[aria-selected="true"]::before{display:none}body.set-open #btn-settings{color:var(--accent);border-color:var(--accent)}}
@@ -1932,8 +1933,8 @@ body[data-view="present"] .sermon-bar{display:none}
         <span class="hint">Used by the Illustration slide and a slide theme's header picture.</span>
         <div class="ai-opts" id="set-img"></div>
       </fieldset>
-      <div class="ai-card ai-later"><div class="ai-card-h"><b>Your own API keys</b><span class="chip">Hosted version</span></div>
-        <span class="hint">This page runs inside Claude, which keeps it from contacting other AI companies directly, so keys entered here could not be used. Pulpit Binder is built so a hosted version can add these, with your keys kept on its server rather than in your browser:</span>
+      <div class="ai-card ai-later"><div class="ai-card-h"><b>Your own API keys</b><span class="chip" id="set-keys-chip">Not on this page</span></div>
+        <span class="hint" id="set-keys-hint">This page runs inside Claude, which keeps it from contacting other AI companies directly, so keys entered here could not be used. Pulpit Binder is built so a version on its own server can add these, with your keys kept on that server rather than in your browser:</span>
         <ul class="ai-list" id="set-later"></ul>
       </div>
     </div>
@@ -1961,6 +1962,8 @@ if (HOSTED) {
   $("#set-src-hint").textContent = "Claude supplies the text of each passage, or you paste it in. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.";
   $("#set-svc-hint").textContent = "Which services Pulpit Binder uses for writing help and pictures. Claude runs on the Anthropic key in your Account.";
   $("#btn-live").hidden = true;
+  $("#set-keys-chip").textContent = "Coming later";
+  $("#set-keys-hint").replaceChildren("Claude runs on the Anthropic key in your ", el("a", { href: "/account#claude", text: "Account" }), ". Keys for other AI companies are not supported yet. These are the ones planned:");
 }
 try { const t = localStorage.getItem("pb-theme"); if (t) root.dataset.theme = t; } catch {}
 $("#btn-theme").onclick = () => {
@@ -4798,7 +4801,7 @@ const DEF_SERVICES = [
   { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
 ];
 /* AI services. The page reaches Claude through claude.use("sample") and Canva through the viewer's own connector; the rest are
-   listed for a hosted Pulpit Binder, where a server would hold each church's keys. Every picture request goes through
+   listed for a Pulpit Binder on its own server, which would hold each church's keys. Every picture request goes through
    makePicture, and every Claude request through askJson, so another provider is one more entry and one more branch. */
 const AI_SERVICES = {
   claude: { kind: "text", name: "Claude", where: "here", desc: HOSTED ? "Through the Anthropic key in your Account" : "Through your Claude account" },
