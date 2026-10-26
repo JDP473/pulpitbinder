@@ -173,6 +173,11 @@ test('Google: a refused key, then Nano Banana at 16:9, and an answer with no pic
   const call = await signUp('Jo', 'jo@example.com');
   assert.match((await call('PUT', '/api/account/image-key/google', { key: 'AIzaSy-bad-00000000000000000000000000' })).json.error, /Google Gemini did not accept/);
   assert.equal((await call('PUT', '/api/account/image-key/google', { key: 'AIzaSyGood11111111111111111111111111111' })).status, 200);
+  // AI Studio's newer auth keys look like AQ.Ab8RN6... with dots in them.
+  const auth = await call('PUT', '/api/account/image-key/google', { key: 'AQ.Ab8RN6Lgood-auth_key.2222222222222222222222' });
+  assert.equal(auth.status, 200, JSON.stringify(auth.json));
+  assert.equal(auth.json.hint, 'AQ.Ab8...2222');
+  assert.equal((await call('PUT', '/api/account/image-key/google', { key: 'AIzaSyGood11111111111111111111111111111' })).status, 200);
   seen.length = 0;
   const pic = await paint(call, 'google');
   assert.equal(pic.status, 200, JSON.stringify(pic.json));

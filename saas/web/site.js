@@ -186,7 +186,7 @@
     // Pictures: a key for any of these paints Illustration slides and slide theme header pictures.
     const PICTURES = [
       { id: "openai", name: "OpenAI", fields: [["key", "OpenAI API key", "sk-..."]], link: "https://platform.openai.com/api-keys", where: "the OpenAI Platform", steps: "Create a key under API keys, and add a little credit under Billing." },
-      { id: "google", name: "Google Gemini (Nano Banana)", fields: [["key", "Gemini API key", "AIza..."]], link: "https://aistudio.google.com/apikey", where: "Google AI Studio", steps: "Create an API key and copy it." },
+      { id: "google", name: "Google Gemini (Nano Banana)", fields: [["key", "Gemini API key", "AQ..."]], link: "https://aistudio.google.com/apikey", where: "Google AI Studio", steps: "Create an API key and copy it." },
       { id: "stability", name: "Stability AI", fields: [["key", "Stability AI API key", "sk-..."]], link: "https://platform.stability.ai/dashboard/api-keys", where: "the Stability AI Platform", steps: "Copy your API key, and buy a few credits under Billing." },
       { id: "firefly", name: "Adobe Firefly", fields: [["clientId", "Client ID", ""], ["clientSecret", "Client secret", "p8e-..."]], link: "https://developer.adobe.com/console", where: "the Adobe Developer Console", steps: "Create a project, add the Firefly API with OAuth Server-to-Server, and copy its client ID and secret. Firefly's API comes with Adobe Firefly Services, which a regular Creative Cloud plan may not include." }
     ];

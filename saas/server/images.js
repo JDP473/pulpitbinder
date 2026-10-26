@@ -34,7 +34,7 @@ export function readCredential(provider, body) {
     return { cred: { clientId, clientSecret }, hint: `${clientId.slice(0, 6)}...${clientId.slice(-4)}` };
   }
   const key = s(body.key);
-  const shape = { openai: /^sk-[\w-]{20,300}$/, stability: /^sk-[\w-]{20,300}$/, google: /^[\w-]{30,100}$/ }[provider];
+  const shape = { openai: /^sk-[\w-]{20,300}$/, stability: /^sk-[\w-]{20,300}$/, google: /^[\w.-]{30,300}$/ }[provider];   // Google's newer auth keys start with AQ. and carry dots
   if (!shape.test(key)) {
     return { error: { openai: 'That does not look like an OpenAI API key. It starts with sk-.', stability: 'That does not look like a Stability AI API key. It starts with sk-.', google: 'That does not look like a Gemini API key. Copy it from Google AI Studio.' }[provider] };
   }
