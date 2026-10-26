@@ -17,6 +17,7 @@ import { blobRoute, dataRoutes } from './routes/data.js';
 import { stripeWebhook, supportRoutes } from './routes/support.js';
 import { shareLink, shareRoutes } from './routes/shares.js';
 import { keyFor } from './ai.js';
+import { imageKeyHints } from './images.js';
 
 // The site's own pages: scripts from this site only.
 const SITE_CSP = {
@@ -137,7 +138,7 @@ export function createApp() {
     if (!user) return c.redirect('/login?next=/app');
     if (!appHtml || !env.isProd) appHtml = fs.readFileSync(env.appFile, 'utf8');
     const row = one('SELECT anthropic_key, shared_key FROM users WHERE id = ?', user.id);
-    const boot = { id: user.id, name: user.name, email: user.email, claude: keyFor(row)?.source ?? null, owner: user.isOwner };
+    const boot = { id: user.id, name: user.name, email: user.email, claude: keyFor(row)?.source ?? null, images: Object.keys(imageKeyHints(user.id)), owner: user.isOwner };
     const head = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="robots" content="noindex">

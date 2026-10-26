@@ -1,6 +1,7 @@
 /* Pulpit Binder on sermon.freely.church. The app is the same file published on Claude; on Claude it reaches the
    platform through window.claude.use(...). This gives it the same calls, backed by this site's server:
      sample     Claude, with the preacher's own Anthropic key (or the owner's, when lent)
+     hosted.paint  pictures from OpenAI, Google, Stability AI, or Adobe Firefly, on keys the preacher adds in Account
      db         the preacher's synced documents, with live updates
      user       the signed-in account
      assets     files (slides, pictures, recordings), shown at /_blob/<id>
@@ -79,6 +80,23 @@
     }
   };
   sample.limits = async () => ({});
+
+  // ---------- Pictures, on the preacher's own key for the service chosen in Settings ----------
+  const PIC_HELP = new Set(["no_key", "bad_key", "no_credit"]);
+  async function paint(provider, prompt) {
+    let r;
+    try {
+      r = await fetch("/api/image", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, prompt: String(prompt).slice(0, 4000) }) });
+    } catch { throw fail("unavailable", "Couldn't reach the server."); }
+    if (r.status === 401) signedOut();
+    if (!r.ok) {
+      let j = null; try { j = await r.json(); } catch {}
+      const e = fail((j && j.code) || (r.status === 429 ? "rate_limited" : "failed"), (j && j.error) || "That picture couldn't be made. Try again.", r.status);
+      if (PIC_HELP.has(e.code)) notice(e.message, "/account#pictures", "Open Account");
+      throw e;
+    }
+    return await r.blob();
+  }
 
   // ---------- Documents ----------
   const clone = v => v == null ? v : JSON.parse(JSON.stringify(v));
@@ -203,7 +221,7 @@
   const services = { sample, db, user, assets, downloads, mcp: null };
   window.claude = {
     use: async name => (name in services ? services[name] : null),
-    hosted: { name: boot.name || "", email: boot.email || "", claude: boot.claude, owner: !!boot.owner }
+    hosted: { name: boot.name || "", email: boot.email || "", claude: boot.claude, images: boot.images || [], paint, owner: !!boot.owner }
   };
 
   // ---------- Sharing a sermon by email ----------

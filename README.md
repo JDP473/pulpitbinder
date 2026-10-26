@@ -43,6 +43,7 @@ python3 tests/browser/canvahd.py   # full-size Canva pictures through the export
 python3 tests/browser/scauto.py   # passage slides made when a Scripture section is added
 python3 tests/browser/slideedit.py   # editing slides and changing their kind
 python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, sharing, account and admin pages
+python3 tests/browser/hosted_pictures.py   # sermon.freely.church: picture keys in Account, painting a slide with them
 python3 tests/browser/libmenu.py   # the open-sermon card and More menu at every width
 ```
 

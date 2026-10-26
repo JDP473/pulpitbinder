@@ -157,6 +157,17 @@ const MIGRATIONS = [
   CREATE INDEX shares_to ON shares(to_email);
   CREATE INDEX shares_from ON shares(from_user);
   `,
+  // 3: each preacher's own keys for picture services (OpenAI, Google, Stability AI, Adobe Firefly), encrypted.
+  `
+  CREATE TABLE image_keys (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL,
+    sealed TEXT NOT NULL,
+    hint TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, provider)
+  );
+  `,
 ];
 
 export function migrate() {

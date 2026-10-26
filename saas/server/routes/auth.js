@@ -13,6 +13,7 @@ import { sendConfirmEmail, sendLoginEmail, sendResetEmail } from '../mailer.js';
 import { removeUserFiles } from '../store.js';
 import { HttpError, bad, newId, nowIso } from '../util.js';
 import { keyFor } from '../ai.js';
+import { imageKeyHints } from '../images.js';
 
 export const authRoutes = new Hono();
 
@@ -36,6 +37,7 @@ export function meResponse(user) {
       keyHint: row.anthropic_key ? row.anthropic_key_hint : null,
       sharedKey: !!row.shared_key && !!env.sharedAnthropicKey,
       claude: k ? k.source : null,
+      imageKeys: imageKeyHints(user.id),
       hasPassword: !!row.password_hash,
       google: !!row.google_sub,
     },

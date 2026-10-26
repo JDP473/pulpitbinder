@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { rateLimit, requireUser } from '../auth.js';
 import { one } from '../db.js';
 import { askClaude } from '../ai.js';
+import { PROVIDERS, paint } from '../images.js';
 import { changesSince, currentSeq, deleteDoc, findAsset, getDoc, listDocs, listen, saveAsset, setDoc, MAX_ASSET } from '../store.js';
 import { HttpError, notFound } from '../util.js';
 
@@ -86,6 +87,16 @@ dataRoutes.post('/ai', async (c) => {
   const body = z.object({ prompt: z.string().min(1).max(400_000), tier: z.enum(['quick', 'default', 'complex']).default('default') }).parse(await c.req.json());
   const row = one('SELECT id, anthropic_key, shared_key FROM users WHERE id = ?', user.id);
   return c.json({ value: await askClaude(row, body) });
+});
+
+/** One picture from the service the preacher chose, on their own key for it. The picture comes back as its bytes. */
+dataRoutes.post('/image', async (c) => {
+  const user = c.get('user');
+  rateLimit(`img:${user.id}`, 40, 10 * 60000);
+  const body = z.object({ provider: z.enum(Object.keys(PROVIDERS)), prompt: z.string().trim().min(3).max(4000) }).parse(await c.req.json());
+  const { buf, mime } = await paint(user.id, body.provider, body.prompt);
+  c.header('Cache-Control', 'no-store');
+  return c.body(buf, 200, { 'Content-Type': mime });
 });
 
 /** GET /_blob/:id: a preacher's own file, as the app shows pictures and plays recordings (with ranges for seeking). */

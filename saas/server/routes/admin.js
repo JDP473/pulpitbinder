@@ -34,7 +34,7 @@ adminRoutes.get('/users', (c) => {
   );
   const givers = supportingUsers(users.map((u) => u.id));
   const out = users.map((u) => {
-    const mine = usage.filter((r) => r.user_id === u.id);
+    const mine = usage.filter((r) => r.user_id === u.id && r.key_source !== 'image');   // Claude only; pictures are on the preacher's own keys
     const shared = mine.filter((r) => r.key_source === 'shared');
     return {
       id: u.id,

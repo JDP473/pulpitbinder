@@ -1962,8 +1962,8 @@ if (HOSTED) {
   $("#set-src-hint").textContent = "Claude supplies the text of each passage, or you paste it in. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.";
   $("#set-svc-hint").textContent = "Which services Pulpit Binder uses for writing help and pictures. Claude runs on the Anthropic key in your Account.";
   $("#btn-live").hidden = true;
-  $("#set-keys-chip").textContent = "Coming later";
-  $("#set-keys-hint").replaceChildren("Claude runs on the Anthropic key in your ", el("a", { href: "/account#claude", text: "Account" }), ". Keys for other AI companies are not supported yet. These are the ones planned:");
+  $("#set-keys-chip").textContent = "In Account";
+  $("#set-keys-hint").replaceChildren("Claude runs on the Anthropic key in your ", el("a", { href: "/account#claude", text: "Account" }), ", and pictures on the OpenAI, Google, Stability AI, or Adobe keys you add ", el("a", { href: "/account#pictures", text: "there" }), ". Choose one under Pictures above. Writing with other companies' models is not supported yet:");
 }
 try { const t = localStorage.getItem("pb-theme"); if (t) root.dataset.theme = t; } catch {}
 $("#btn-theme").onclick = () => {
@@ -4800,25 +4800,28 @@ const DEF_SERVICES = [
   { name: "Sunday AM", day: 0, time: "10:00" }, { name: "Sunday PM", day: 0, time: "18:00" }, { name: "Wednesday Bible Study", day: 3, time: "19:00" },
   { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
 ];
-/* AI services. The page reaches Claude through claude.use("sample") and Canva through the viewer's own connector; the rest are
-   listed for a Pulpit Binder on its own server, which would hold each church's keys. Every picture request goes through
-   makePicture, and every Claude request through askJson, so another provider is one more entry and one more branch. */
+/* AI services. The page reaches Claude through claude.use("sample") and Canva through the viewer's own connector. Picture
+   services marked "server" run on sermon.freely.church, on the keys each preacher adds in Account (window.claude.hosted.paint);
+   on Claude they are only listed. Writing models marked "hosted" are planned. Every Claude request goes through askJson. */
 const AI_SERVICES = {
   claude: { kind: "text", name: "Claude", where: "here", desc: HOSTED ? "Through the Anthropic key in your Account" : "Through your Claude account" },
-  canva: { kind: "image", name: "Canva", where: "here", desc: HOSTED ? "Not offered on sermon.freely.church. Choose Claude drawing, or use your own pictures." : "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
+  canva: { kind: "image", name: "Canva", where: "here", desc: HOSTED ? "Not offered on sermon.freely.church. Choose Claude drawing or a service below with your own key." : "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
   "claude-draw": { kind: "image", name: "Claude drawing", where: "here", desc: "Claude draws a simple, clean illustration. Always sharp on the projector; plainer than a painting." },
   none: { kind: "image", name: "My own pictures only", where: "here", desc: "No generated pictures. Use Photo and Use my own picture instead." },
   "openai-text": { kind: "text", name: "OpenAI (ChatGPT models)", where: "hosted" },
   "gemini-text": { kind: "text", name: "Google Gemini", where: "hosted" },
-  "openai-image": { kind: "image", name: "OpenAI image generation", where: "hosted" },
-  "google-image": { kind: "image", name: "Google Imagen", where: "hosted" },
-  "adobe-firefly": { kind: "image", name: "Adobe Firefly", where: "hosted" },
-  "stability": { kind: "image", name: "Stability AI", where: "hosted" }
+  "openai-image": { kind: "image", name: "OpenAI", short: "OpenAI", where: "server", srv: "openai", desc: "Paints with GPT Image on the OpenAI key in your Account." },
+  "google-image": { kind: "image", name: "Google Gemini (Nano Banana)", short: "Google", where: "server", srv: "google", desc: "Paints with Nano Banana on the Gemini key in your Account." },
+  "adobe-firefly": { kind: "image", name: "Adobe Firefly", short: "Firefly", where: "server", srv: "firefly", desc: "Paints with Firefly on the Adobe client ID and secret in your Account." },
+  "stability": { kind: "image", name: "Stability AI", short: "Stability AI", where: "server", srv: "stability", desc: "Paints with Stable Image Core on the Stability AI key in your Account." }
 };
 const AI_TIERS = { fast: "Faster answers", balanced: "Balanced", careful: "Most careful" };
 const aiTier = t => { const s = settings.aiTier; if (s === "careful") return "complex"; if (s === "fast") return t === "complex" ? "default" : "quick"; return t; };
 const imgService = () => settings.imgService || "canva";
-const imgReady = () => imgService() === "canva" ? !!mcpNs : imgService() === "claude-draw" ? !!sample : false;
+const srvImg = id => (AI_SERVICES[id] || {}).where === "server" ? AI_SERVICES[id].srv : null;   // its service on sermon.freely.church
+const srvReady = id => HOSTED && !!srvImg(id) && (window.claude.hosted.images || []).includes(srvImg(id));
+const imgReady = () => { const s = imgService(); return srvImg(s) ? srvReady(s) : s === "canva" ? !!mcpNs : s === "claude-draw" ? !!sample : false; };
+const imgWho = () => { const s = imgService(); return s === "claude-draw" ? "Claude" : s === "none" ? "Pictures" : srvImg(s) ? AI_SERVICES[s].short : "Canva"; };
 let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
 if (HOSTED) settings = { ...settings, places: [], defPlace: "", speaker: window.claude.hosted.name || "", imgService: "claude-draw" };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
@@ -5354,12 +5357,12 @@ function renderAiPane() {
   $("#set-tier").value = settings.aiTier || "balanced";
   const st = $("#ai-claude-st"); st.textContent = sample ? "Connected" : "Not available in this view"; st.className = "chip " + (sample ? "ok" : "warn-chip");
   const box = $("#set-img"); box.replaceChildren();
-  Object.entries(AI_SERVICES).filter(([, v]) => v.kind === "image" && v.where === "here").forEach(([id, v]) => {
-    const ready = id === "canva" ? !!mcpNs : id === "claude-draw" ? !!sample : true;
+  Object.entries(AI_SERVICES).filter(([, v]) => v.kind === "image" && (v.where === "here" || (HOSTED && v.where === "server"))).forEach(([id, v]) => {
+    const ready = v.srv ? srvReady(id) : id === "canva" ? !!mcpNs : id === "claude-draw" ? !!sample : true;
     const inp = el("input", { type: "radio", name: "set-img", id: "set-img-" + id, value: id }); inp.checked = (settings.imgService || "canva") === id;
-    box.append(el("label", { class: "ai-opt", for: "set-img-" + id }, inp, el("span", { class: "ai-opt-t" }, el("b", { text: v.name }), el("span", { class: "hint", text: v.desc })), ready ? null : el("span", { class: "chip warn-chip", text: id === "canva" ? "Connect Canva" : "Needs Claude" })));
+    box.append(el("label", { class: "ai-opt", for: "set-img-" + id }, inp, el("span", { class: "ai-opt-t" }, el("b", { text: v.name }), el("span", { class: "hint", text: v.desc })), ready ? null : v.srv ? el("a", { class: "chip warn-chip", href: "/account#pictures", text: "Add key in Account" }) : el("span", { class: "chip warn-chip", text: id === "canva" ? "Connect Canva" : "Needs Claude" })));
   });
-  $("#set-later").replaceChildren(...Object.values(AI_SERVICES).filter(v => v.where === "hosted").map(v => el("li", {}, el("span", { text: v.name }), el("span", { class: "hint", text: v.kind === "image" ? "Pictures" : "Writing and study" }))));
+  $("#set-later").replaceChildren(...Object.values(AI_SERVICES).filter(v => v.where === "hosted" || (!HOSTED && v.where === "server")).map(v => el("li", {}, el("span", { text: v.name }), el("span", { class: "hint", text: v.kind === "image" ? "Pictures" : "Writing and study" }))));
 }
 $("#btn-settings").onclick = () => $("#settings").hidden ? openSettings() : closeSettings();
 $("#set-cancel").onclick = closeSettings;
@@ -5740,7 +5743,7 @@ function openPicker(src, edit) {
   let lastKind = null; try { lastKind = localStorage.getItem("pb-kind-" + src.kind); } catch {}
   if (edit) lastKind = cur;   // the kind the slide is now
   Object.entries(KINDS).filter(([, k]) => k.for.includes(src.kind)).forEach(([key, k]) => {
-    const off = (k.ai && !sample) || (k.canva && !imgReady()), who = imgService() === "claude-draw" ? "Claude" : imgService() === "none" ? "Pictures" : "Canva";
+    const off = (k.ai && !sample) || (k.canva && !imgReady()), who = imgWho();
     const b = el("button", { type: "button", class: "mk-kind" + (key === lastKind ? " last" : ""), disabled: off ? "" : null, onclick: () => chooseKind(key) },
       el("span", { class: "mk-ico", text: k.icon }), el("span", { class: "mk-kn" }, el("b", { text: k.name }), k.ai ? el("span", { class: "mk-ai", text: off ? "Needs Claude" : "Claude" }) : k.canva ? el("span", { class: "mk-ai", text: off ? (imgService() === "none" ? "Off in Settings" : "Needs " + who) : who }) : null), el("span", { class: "mk-kd", text: k.desc }));
     grid.append(b);
@@ -5884,7 +5887,7 @@ function draftSlides() {
 function renderMkPreview() {
   const box = $("#mk-preview"); box.replaceChildren();
   if (!mk || !mk.draft) return;
-  if (mk.busy) { box.append(el("div", { class: "mk-wait" }, el("span", { class: "spin" }), mk.busy === "canva" ? "Canva is painting… usually under a minute" : mk.busy === "draw" ? "Claude is drawing…" : mk.kind === "art" ? "Claude is describing the picture…" : "Claude is writing…")); return; }
+  if (mk.busy) { box.append(el("div", { class: "mk-wait" }, el("span", { class: "spin" }), mk.busy === "canva" ? "Canva is painting… usually under a minute" : mk.busy === "srv" ? `${imgWho()} is painting… usually under a minute` : mk.busy === "draw" ? "Claude is drawing…" : mk.kind === "art" ? "Claude is describing the picture…" : "Claude is writing…")); return; }
   if (mk.kind === "art" && !mk.draft.img && !mk.draft.svg && mk.draft.err) { box.append(el("div", { class: "mk-wait mk-err" }, mk.draft.err, mk.draft.hdUrl ? el("a", { href: mk.draft.hdUrl, target: "_blank", rel: "noopener", text: "Open full-size image" }) : null, mk.draft.link ? el("a", { href: mk.draft.link, target: "_blank", rel: "noopener", text: "Open in Canva" }) : null)); $("#mk-add").disabled = true; return; }
   const slides = draftSlides();
   if (!slides.length) { box.append(el("div", { class: "mk-wait", text: mk.kind === "photo" ? "Choose a picture to see the slide." : "Nothing to show yet." })); $("#mk-add").disabled = true; return; }
@@ -5973,7 +5976,24 @@ async function shrinkImage(file, maxW = 1920) {
   return await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), "image/jpeg", 0.92));
 }
 $("#mk-again").onclick = () => { if (mk && mk.kind === "art") artPaint(true); else askClaude(true); };
-const artPaint = fresh => imgService() === "claude-draw" ? claudeDraw(fresh) : canvaPaint();
+const artPaint = fresh => imgService() === "claude-draw" ? claudeDraw(fresh) : srvImg(imgService()) ? srvPaint() : canvaPaint();
+const PAINT_FOR_SLIDE = "For a church worship slide: reverent, uncluttered, room for a line of text, no words or letters in the image.";
+/* Illustration through a picture service on the preacher's own key (sermon.freely.church) */
+async function srvPaint() {
+  const srv = srvImg(imgService());
+  if (!mk || mk.kind !== "art" || !srvReady(imgService())) return;
+  const d = mk.draft, key = mk.kind; const run = (d.run || 0) + 1; d.run = run; d.err = "";
+  mk.busy = "srv"; renderMkPreview(); $("#mk-again").disabled = true; $("#mk-add").disabled = true;
+  const live = () => mk && mk.kind === key && mk.draft === d && d.run === run;
+  try {
+    const raw = await window.claude.hosted.paint(srv, `${d.prompt.trim() || srcPlain().slice(0, 300)}. Style: ${ART_STYLES[d.style][1]}. ${PAINT_FOR_SLIDE}`);
+    if (!live()) return;
+    try { const bm = await createImageBitmap(raw); d.dims = [bm.width, bm.height]; } catch { d.dims = null; }
+    d.img = await shrinkImage(raw); d.svg = ""; d.link = ""; d.hdUrl = ""; d.media = ""; d.hd = true;
+  } catch (e) { if (live()) d.err = e && e.code && e.message ? e.message : `${imgWho()} couldn't paint that. Try Paint another, or different words.`; }
+  if (!live()) return;
+  mk.busy = false; $("#mk-again").disabled = false; $("#mk-add").disabled = false; renderMkFields(); renderMkPreview();
+}
 const DRAW_ASK = (subject, th) => `Draw one simple illustration as SVG for a worship slide in a church of Christ.
 Subject: ${subject}
 Rules: viewBox "0 0 1600 900". Flat shapes and clean lines, a few large forms, generous empty space, reverent and calm. Colors that sit well on ${(th && th.bg) || "#1c2433"} with ${(th && th.accent) || "#e2b55e"} as the accent; no background rectangle. No text or letters, no faces in close-up, no depiction of God the Father, no symbols of other religions. No scripts, links, or external images. Keep it under 30,000 characters.
@@ -6079,7 +6099,7 @@ async function canvaPaint() {
   const live = () => mk && mk.kind === key && mk.draft === d && d.run === run;
   try {
     const intent = "Make an illustration for a sermon slide in Pulpit Binder";
-    const prompt = `${d.prompt.trim()}. Style: ${ART_STYLES[d.style][1]}. For a church worship slide: reverent, uncluttered, room for a line of text, no words or letters in the image.`;
+    const prompt = `${d.prompt.trim()}. Style: ${ART_STYLES[d.style][1]}. ${PAINT_FOR_SLIDE}`;
     const start = await mcpNs.callTool("Canva", "generate-image", { prompt, aspectRatio: "LANDSCAPE_16_9", user_intent: intent });
     let img = findImage(start), link = findLink(start), hdUrl = findImageUrl(start), media = findMediaId(start);
     const p = start && (start.structuredContent || start.payload); const jobId = (p && (p.jobId || p.job_id || (p.job && p.job.id))) || (JSON.stringify(p || "").match(/"job_?[Ii]d"\s*:\s*"([^"]+)"/) || [])[1];
@@ -8775,12 +8795,13 @@ function renderThemePanel() {
   const ta = el("textarea", { id: "th-img-p", rows: "2", placeholder: "What the header picture shows, for example: a single oil lamp on a stone path at dusk" }); ta.value = th.imagery || ""; ta.oninput = () => { th.imagery = ta.value; save(); };
   pic.append(el("label", { class: "set-h", for: "th-img-p", text: "Header picture for title and section slides" }), ta,
     el("div", { class: "mat-act" },
-      el("button", { type: "button", class: "btn", id: "th-paint", text: (th.img ? "Paint another with " : "Paint with ") + (imgService() === "claude-draw" ? "Claude" : "Canva"), hidden: imgService() === "none" ? "" : null, disabled: imgReady() && !thBusy ? null : "", onclick: thPaint }),
+      el("button", { type: "button", class: "btn", id: "th-paint", text: (th.img ? "Paint another with " : "Paint with ") + imgWho(), hidden: imgService() === "none" ? "" : null, disabled: imgReady() && !thBusy ? null : "", onclick: thPaint }),
       el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
       th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.media = ""; th.hd = false; thChanged(true); } }) : null));
   if (th.img) { const box = el("div", { id: "th-hd-box" }); fillThHd(box, th); pic.append(box); }
   if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: HOSTED ? "Canva isn't offered on sermon.freely.church. Choose Claude drawing in Settings, or use your own picture." : "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
-  if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), imgService() === "claude-draw" ? "Claude is drawing…" : "Canva is painting… usually under a minute"));
+  if (srvImg(imgService()) && !imgReady()) pic.append(el("div", { class: "hint" }, HOSTED ? `Add your ${imgWho()} key in ` : `${imgWho()} paints pictures on sermon.freely.church, not on this page. Choose another service in Settings, or use your own picture.`, HOSTED ? el("a", { href: "/account#pictures", text: "Account" }) : null, HOSTED ? " to paint a header picture here, or use your own picture." : null));
+  if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), imgService() === "claude-draw" ? "Claude is drawing…" : `${imgWho()} is painting… usually under a minute`));
   ed2.append(pic);
   // previews on this sermon's own words
   themeSamples(th).forEach(sl => { const f = el("div", { class: "slide" }); f.style.aspectRatio = String(S.aspect || 16 / 9); renderMade(f, sl); prev.append(el("figure", { class: "th-fig" }, f, el("figcaption", { class: "hint", text: sl.label }))); });
@@ -8871,6 +8892,15 @@ async function thPaint() {
     thBusy = false; thChanged(true); return;
   }
   const prompt = `${(th.imagery || "").trim() || `A reverent picture drawn from ${S.meta.text || "the sermon's passage"}`}. Wide header image for church worship slides, ${th.tex === "plain" ? "simple" : "soft"} light, colors in harmony with ${th.bg} and ${th.accent}, generous empty space, no words or letters.`;
+  if (srvImg(imgService())) {   // a picture service on the preacher's own key (sermon.freely.church)
+    thBusy = true; renderThemePanel();
+    try {
+      const blob = await window.claude.hosted.paint(srvImg(imgService()), prompt);
+      try { const bm = await createImageBitmap(blob); th.dims = [bm.width, bm.height]; } catch { th.dims = null; }
+      th.img = await thStoreImg(blob); th.hd = true; th.link = ""; th.hdUrl = ""; th.media = ""; toast("Header picture in place");
+    } catch (e) { toast(e && e.code && e.message ? e.message : `${imgWho()} couldn't paint that. Try again, or different words.`); }
+    thBusy = false; thChanged(true); return;
+  }
   thBusy = true; renderThemePanel();
   try {
     const blob = await canvaImage(prompt, m => { th.link = m.link || ""; th.hdUrl = m.hdUrl || ""; th.media = m.media || ""; });

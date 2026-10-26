@@ -1,5 +1,5 @@
 /* The account pages of sermon.freely.church: sign in and up, password and sign-in links, Account (profile, Anthropic
-   key, usage, giving), the owner's admin page, and giving. One small page; the address picks what it shows. */
+   key, picture service keys, usage, giving), the owner's admin page, and giving. One small page; the address picks what it shows. */
 (() => {
   "use strict";
   const view = document.getElementById("view");
@@ -183,6 +183,35 @@
       h("thead", {}, h("tr", {}, h("th", { text: "Model" }), h("th", { text: "Key" }), h("th", { class: "num", text: "Requests" }), h("th", { class: "num", text: "Tokens in" }), h("th", { class: "num", text: "Tokens out" }))),
       h("tbody", {}, usage.claude.map(r => h("tr", {}, h("td", { text: r.model }), h("td", { text: r.source === "own" ? "Yours" : "Shared" }), h("td", { class: "num", text: r.requests }), h("td", { class: "num", text: (r.input || 0).toLocaleString() }), h("td", { class: "num", text: (r.output || 0).toLocaleString() })))))) : null;
 
+    // Pictures: a key for any of these paints Illustration slides and slide theme header pictures.
+    const PICTURES = [
+      { id: "openai", name: "OpenAI", fields: [["key", "OpenAI API key", "sk-..."]], link: "https://platform.openai.com/api-keys", where: "the OpenAI Platform", steps: "Create a key under API keys, and add a little credit under Billing." },
+      { id: "google", name: "Google Gemini (Nano Banana)", fields: [["key", "Gemini API key", "AIza..."]], link: "https://aistudio.google.com/apikey", where: "Google AI Studio", steps: "Create an API key and copy it." },
+      { id: "stability", name: "Stability AI", fields: [["key", "Stability AI API key", "sk-..."]], link: "https://platform.stability.ai/dashboard/api-keys", where: "the Stability AI Platform", steps: "Copy your API key, and buy a few credits under Billing." },
+      { id: "firefly", name: "Adobe Firefly", fields: [["clientId", "Client ID", ""], ["clientSecret", "Client secret", "p8e-..."]], link: "https://developer.adobe.com/console", where: "the Adobe Developer Console", steps: "Create a project, add the Firefly API with OAuth Server-to-Server, and copy its client ID and secret. Firefly's API comes with Adobe Firefly Services, which a regular Creative Cloud plan may not include." }
+    ];
+    const keys = { ...(u.imageKeys || {}) };
+    const picBox = h("div");
+    const drawPictures = () => fill(picBox, PICTURES.map((p, i) => {
+      const hint = keys[p.id];
+      const keyForm = form(p.fields.map(([name, label, ph]) => field(label, { type: "password", name, autocomplete: "off", spellcheck: "false", placeholder: ph || null, required: true })), hint ? "Save the new key" : "Save", async (v) => {
+        const r = await api("PUT", "/api/account/image-key/" + p.id, Object.fromEntries(p.fields.map(([name]) => [name, (v[name] || "").trim()])));
+        keys[p.id] = r.hint; drawPictures();
+        document.getElementById("pic-" + p.id).append(msg(`Your ${p.name} key is saved. Choose ${p.name} under Pictures in your binder's Settings, AI and images.`, "ok"));
+      });
+      const remove = hint ? h("button", { class: "btn danger", type: "button", text: "Remove", onclick: async () => {
+        if (!confirm(`Remove your ${p.name} key from Pulpit Binder?`)) return;
+        await api("DELETE", "/api/account/image-key/" + p.id); delete keys[p.id]; drawPictures();
+      } }) : null;
+      return h("div", { id: "pic-" + p.id, style: i ? "border-top:1px solid var(--line);padding-top:18px;margin-top:18px" : null },
+        h("div", { class: "row", style: "justify-content:space-between;margin-bottom:10px" }, h("b", { text: p.name }),
+          hint ? h("span", { class: "status ok", text: `Key in (${hint})` }) : h("span", { class: "status", text: "No key" })),
+        hint ? h("details", {}, h("summary", { class: "muted small", style: "cursor:pointer", text: "Replace or remove this key" }), h("div", { style: "margin-top:12px" }, keyForm, h("div", { style: "margin-top:10px" }, remove)))
+          : h("div", {}, h("p", { class: "muted small", style: "margin-bottom:12px" }, "Open ", h("a", { href: p.link, target: "_blank", rel: "noopener", text: p.where }), ". " + p.steps), keyForm));
+    }));
+    drawPictures();
+    const picCount = usage && usage.pictures ? usage.pictures.reduce((a, r) => a + r.requests, 0) : 0;
+
     // Profile
     const profile = form([
       field("Name", { type: "text", name: "name", value: u.name, autocomplete: "name", required: true }, "Used as the speaker on new sermons."),
@@ -236,6 +265,8 @@
       u.ownerNeedsConfirmation ? msg("This is the site owner's address. Confirm it below to open the admin page.", "ok") : null,
       card(h("h2", { id: "claude", text: "Claude" }), h("p", { class: "muted", style: "margin-bottom:16px", text: "Claude's help in your binder (analysis, suggestions, outlines, slide drafts, passage text) runs on your own Anthropic API key. Anthropic bills you directly for what you use." }), claudeBox,
         usage ? h("p", { class: "muted small", style: "margin-top:18px", text: `Last 30 days: ${usage.claude.reduce((a, r) => a + r.requests, 0)} Claude requests.` }) : null, usageTable),
+      card(h("h2", { id: "pictures", text: "Pictures" }), h("p", { class: "muted", style: "margin-bottom:16px", text: "Add a key for any of these to paint Illustration slides and slide theme header pictures with it, then choose it under Pictures in your binder's Settings. Each company bills you directly. Keys are kept encrypted and used only for your own pictures." }), picBox,
+        picCount ? h("p", { class: "muted small", style: "margin-top:18px", text: `Last 30 days: ${picCount} picture${picCount === 1 ? "" : "s"}.` }) : null),
       card(h("h2", { text: "Your binder" }), usage ? h("p", { class: "muted", text: `${usage.sermons} sermon${usage.sermons === 1 ? "" : "s"} synced. Files: ${bytes(usage.storage.used)} of ${bytes(usage.storage.limit)}.` }) : null,
         h("div", { class: "row", style: "margin-top:14px" }, h("a", { class: "btn primary", href: "/app", text: "Open my binder" }))),
       card(h("h2", { text: "Profile" }), profile, confirmBtn ? h("div", { style: "margin-top:12px" }, confirmBtn) : null),

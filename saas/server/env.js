@@ -44,6 +44,8 @@ export const env = {
   sharedAnthropicKey: (process.env.ANTHROPIC_API_KEY || '').trim(),
   /** Send Claude calls somewhere else (tests). Leave unset in production. */
   anthropicBaseUrl: (process.env.ANTHROPIC_BASE_URL || '').trim(),
+  /** Send picture requests (OpenAI, Google, Stability AI, Adobe) to one stand-in server (tests). Leave unset in production. */
+  imageApiBase: (process.env.IMAGE_API_BASE || '').trim().replace(/\/+$/, ''),
   /** Encrypts preachers' own Anthropic keys at rest. When unset, a key is made once and kept in DATA_DIR. */
   keySecret: (process.env.KEY_SECRET || '').trim(),
   /** File storage per preacher, in megabytes (slides, pictures, recordings). */

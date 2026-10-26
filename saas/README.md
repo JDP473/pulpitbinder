@@ -27,6 +27,10 @@ Each preacher pastes an Anthropic API key in Account. It is encrypted at rest (A
 
 The app asks at three tiers: quick (Claude Haiku 5.5), default (Claude Sonnet 5.5), and complex (Claude Opus 5.5). Sonnet and Opus requests carry the API's server-side fallback, so a request a safety check declines is retried on a suitable model.
 
+## Pictures
+
+Each preacher can add a key for any of four picture services in Account: OpenAI (`gpt-image-2.5-flare`), Google Gemini (Nano Banana, `gemini-nano-banana-2.1`), Stability AI (Stable Image Core), and Adobe Firefly (Image Model 4, with a client ID and secret). Keys are tried with the service before they're kept, and kept encrypted like the Anthropic key. The services with a key in show under Pictures in the app's Settings; the chosen one paints Illustration slides and slide theme header pictures through `POST /api/image`, always wide (16:9). Pictures are logged by model, apart from Claude's usage, and never use the owner's key.
+
 ## Settings
 
 The same names as freely.church, so its Google client, mail server, and Stripe account serve both.
@@ -51,8 +55,9 @@ The Stripe webhook should send `checkout.session.completed`, `checkout.session.a
 ```bash
 cd saas && npm install
 APP_URL=http://localhost:3000 PLATFORM_OWNER_EMAIL=you@example.com npm start
-npm test                                  # the server, against a stand-in Anthropic API
+npm test                                  # the server, against stand-ins for Anthropic and the picture services
 python3 ../tests/browser/hosted.py        # the whole site in Chromium
+python3 ../tests/browser/hosted_pictures.py   # a picture key in Account, chosen in Settings, painting a slide
 ```
 
 The image builds from the repository root: `docker build -f saas/Dockerfile .`

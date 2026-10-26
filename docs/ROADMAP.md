@@ -6,7 +6,7 @@ The published page uses Jarred's Claude account for AI, sync, file storage, and 
 
 ## Now also: sermon.freely.church
 
-The same file runs for any preacher on a Node server (`saas/`): accounts with Google, email, and passwords, sync and files on the server, Claude on each preacher's own Anthropic key (or the owner's, lent from the admin page), and giving through Stripe. A shim supplies the platform calls. Bible text there comes from Claude or pasting until a licensed source is added, and Canva and Pulpit Live are not offered.
+The same file runs for any preacher on a Node server (`saas/`): accounts with Google, email, and passwords, sync and files on the server, Claude on each preacher's own Anthropic key (or the owner's, lent from the admin page), pictures on their own OpenAI, Google, Stability AI, or Adobe Firefly keys, and giving through Stripe. A shim supplies the platform calls. Bible text there comes from Claude or pasting until a licensed source is added, and Canva and Pulpit Live are not offered.
 
 ## Next: split platform code from the app
 
