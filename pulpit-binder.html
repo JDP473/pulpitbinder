@@ -61,9 +61,12 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:280px;white-space:nowrap;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;display:flex;flex-direction:column}
 .menu[hidden]{display:none}
-.menu-item{border:0;background:transparent;text-align:left;padding:0 12px;min-height:var(--ctl);border-radius:var(--r-sm);cursor:pointer;font-weight:500;display:flex;align-items:center}
+.menu-item{border:0;background:transparent;text-align:left;padding:6px 12px;min-height:var(--ctl);border-radius:var(--r-sm);cursor:pointer;font-weight:500;display:flex;align-items:center;gap:10px;line-height:1.3;white-space:normal}
+.menu-item > svg{flex:none;color:var(--muted)}
+.menu-item.danger > svg{color:currentColor}
+.more-dots{display:none}
 .menu-item:hover,.menu-item:focus-visible{background:var(--sunk)}
-.menu-item.danger{color:var(--warn)}
+.menu-item.danger{color:var(--danger)}
 .menu-sep{height:1px;background:var(--line);margin:6px 4px}
 select,input[type=text],input[type=datetime-local],input[type=number],input[type=time],textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 10px;min-width:0;font-size:15px}
 select,input[type=text],input[type=datetime-local],input[type=number],input[type=time]{height:var(--ctl);padding-block:0}
@@ -175,7 +178,7 @@ main{padding-block:18px 40px}
 .sc-fmt button.txt{font-size:12.5px}
 .sc-fmt-sep{width:1px;height:20px;background:rgba(127,127,127,.5);margin:0 3px}
 @media (pointer:coarse){.sc-fmt button{min-width:40px;height:40px}.sc-fmt button.sw{width:28px;min-width:28px;height:28px}}
-.sel-pop{position:fixed;z-index:26}
+.sel-pop{position:fixed;z-index:26;display:flex;gap:6px}
 .sel-pop[hidden]{display:none}
 .sel-pop button{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-ui);padding:6px 11px;border-radius:8px;border:0;background:var(--ink);color:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer}
 @media (pointer:coarse){.sel-pop button{padding:9px 14px;font-size:14px}}
@@ -282,7 +285,7 @@ main{padding-block:18px 40px}
 .vc0{--vc:#2f5d8a}.vc1{--vc:#2f7a4b}.vc2{--vc:#a1620b}.vc3{--vc:#7a4a9a}.vc4{--vc:#1f7a80}.vc5{--vc:#b0456b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .vc0{--vc:#8db8e8}:root:not([data-theme="light"]) .vc1{--vc:#6fc28f}:root:not([data-theme="light"]) .vc2{--vc:#e2a54a}:root:not([data-theme="light"]) .vc3{--vc:#c39be0}:root:not([data-theme="light"]) .vc4{--vc:#6fcdd2}:root:not([data-theme="light"]) .vc5{--vc:#ec8fb0}}
 :root[data-theme="dark"] .vc0{--vc:#8db8e8}:root[data-theme="dark"] .vc1{--vc:#6fc28f}:root[data-theme="dark"] .vc2{--vc:#e2a54a}:root[data-theme="dark"] .vc3{--vc:#c39be0}:root[data-theme="dark"] .vc4{--vc:#6fcdd2}:root[data-theme="dark"] .vc5{--vc:#ec8fb0}
-.study{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:18px;align-items:start}
+.study{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(340px,22vw,520px));gap:18px;align-items:start}
 @media (max-width:1100px){.study{grid-template-columns:minmax(0,1fr)}}
 .st-main,.st-side{display:flex;flex-direction:column;gap:18px;min-width:0}
 .st-main > #st-panels{display:flex;flex-direction:column;gap:18px}
@@ -396,7 +399,7 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 #imp-bar{transition:width .2s}
 
 /* series documents */
-.ser{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;align-items:start}
+.ser{display:grid;grid-template-columns:minmax(0,clamp(320px,20vw,440px)) minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:900px){.ser{grid-template-columns:minmax(0,1fr)}}
 .ser-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) + 8px);max-height:calc(100vh - var(--hdr-h,110px) - 30px);overflow:auto}
 @media (max-width:900px){.ser-side{position:static;max-height:none}}
@@ -535,7 +538,7 @@ mark{color:inherit;border-radius:2px;padding:0 1px;background:var(--hl-yellow)}
 mark.hl-yellow{background:var(--hl-yellow)} mark.hl-green{background:var(--hl-green)} mark.hl-blue{background:var(--hl-blue)} mark.hl-pink{background:var(--hl-pink)}
 .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line);vertical-align:-2px;flex:none}
 .sw.hl-yellow{background:var(--hl-yellow)} .sw.hl-green{background:var(--hl-green)} .sw.hl-blue{background:var(--hl-blue)} .sw.hl-pink{background:var(--hl-pink)}
-.edit{display:grid;grid-template-columns:minmax(0,1fr) min(var(--side-w,340px),62%);gap:18px;align-items:start}
+.edit{display:grid;grid-template-columns:minmax(0,1fr) min(var(--side-w,clamp(340px,22vw,540px)),62%);gap:18px;align-items:start}
 .sg-drag{position:absolute;left:0;top:0;bottom:0;width:12px;cursor:col-resize;z-index:3;touch-action:none;border-radius:6px}
 .sg-drag::after{content:"";position:absolute;left:3px;top:50%;width:2px;height:44px;margin-top:-22px;border-radius:2px;background:var(--line)}
 .sg-drag:hover::after,.sg-drag:focus-visible::after,.sg-drag.on::after{background:var(--accent);height:72px;margin-top:-36px}
@@ -559,7 +562,7 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 .ol-item.gen{background:var(--accent-soft)}
 .ol-act .ol-w{width:auto;padding:0 7px;font-size:11.5px;font-weight:600;color:var(--accent)}
 @media (max-width:1180px){.edit{grid-template-columns:minmax(0,1fr)}}
-.ed-wrap{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;align-items:start}
+.ed-wrap{display:grid;grid-template-columns:clamp(150px,9.5vw,236px) minmax(0,1fr);gap:10px;align-items:start}
 .gutter{position:relative;min-height:200px}
 .g-empty{font-size:12.5px;color:var(--muted);padding:12px 4px;line-height:1.4}
 .g-rail{position:absolute;right:0;width:4px;border-radius:2px;background:var(--accent)}
@@ -583,7 +586,7 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 .g-pop{position:absolute;left:0;z-index:8;width:280px;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:10px;display:flex;flex-direction:column;gap:8px}
 .g-pop-h{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
 .editor .hot{outline:2px solid var(--accent);outline-offset:4px;border-radius:3px}
-@media (max-width:640px){.ed-wrap{grid-template-columns:minmax(0,1fr)}.gutter{display:none}}
+@media (max-width:640px){.ed-wrap{grid-template-columns:minmax(0,1fr)}.gutter{display:none}#editor .pb-slide{cursor:pointer}}
 .ed-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 .ed-toolbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,110px) - 1px);z-index:7;box-shadow:0 6px 14px -10px rgba(0,0,0,.35);display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px}
 .ed-toolbar .sep{width:1px;height:22px;background:var(--line);margin:0 4px}
@@ -981,7 +984,7 @@ body[data-view="present"] .stage{overflow:auto;overscroll-behavior:contain}
 .mat-brand-text{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mat-brand-text b{font:600 1.05rem/1.2 var(--f-read);overflow-wrap:anywhere}
 .mat-brand-act,.mat-act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.mat-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:22px;align-items:start}
+.mat-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(380px,26vw,600px));gap:22px;align-items:start}
 @media (max-width:900px){.mat-grid{grid-template-columns:minmax(0,1fr)}}
 .mat-fields,.mat-side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .mat-side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px) + 12px)}
@@ -1016,6 +1019,83 @@ input.brand-color{width:72px;height:var(--ctl);padding:2px;cursor:pointer}
   .mat-q textarea,.mat-cap textarea{min-height:64px}
 }
 
+/* infographics */
+.slide.made .mk.ig-wrap{justify-content:center;gap:3.4cqw}
+.slide.made .ig-title{text-align:center;font-size:4.6cqw}
+.slide.made .ig-row{display:flex;gap:2.2cqw;align-items:stretch;position:relative}
+.slide.made .ig-cell{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1.4cqw;position:relative}
+.slide.made .ig-card{border-radius:1.4cqw;padding:2.2cqw 1.8cqw;flex:1;width:100%;display:flex;flex-direction:column;gap:.8cqw;text-align:center;justify-content:center}
+.slide.made .ig-h{font:700 3cqw/1.2 var(--mk-head,var(--f-read));text-wrap:balance}
+.slide.made .ig-t{font:400 2.2cqw/1.35 var(--mk-body,var(--f-read));opacity:.92;text-wrap:pretty}
+.slide.made .ig-num{width:5.6cqw;height:5.6cqw;border-radius:50%;display:grid;place-items:center;font:700 2.9cqw/1 var(--f-ui);flex:none;z-index:1}
+.slide.made .ig-steps .ig-cell:not(:last-child)::after{content:"";position:absolute;top:2.8cqw;left:calc(50% + 3.4cqw);right:calc(-1.1cqw - 50% + 3.4cqw);height:.35cqw;background:currentColor;opacity:.35}
+.slide.made .ig-timeline{align-items:flex-start;padding-top:0}
+.slide.made .ig-timeline .ig-cell{justify-content:flex-start;text-align:center;z-index:1}
+.slide.made .ig-timeline .ig-h{min-height:7.2cqw;display:flex;align-items:flex-end;justify-content:center}
+.slide.made .ig-dot{width:2.8cqw;height:2.8cqw;border-radius:50%;border:.6cqw solid;flex:none}
+.slide.made .ig-line{position:absolute;left:4%;right:4%;top:calc(7.2cqw + 1.4cqw + 1.4cqw - .2cqw);height:.4cqw;opacity:.55;z-index:0}
+.slide.made .ig-stat{padding:3cqw 1.6cqw}
+.slide.made .ig-big{font:700 7.4cqw/1 var(--mk-head,var(--f-read))}
+.slide.made .ig-compare .ig-card{text-align:left;justify-content:flex-start;align-items:stretch;padding:2.6cqw 2.8cqw;gap:1.6cqw;flex:1 1 0}
+.slide.made .ig-compare .ig-h{font-size:3.3cqw;border-bottom:.35cqw solid;padding-bottom:1cqw}
+.slide.made .ig-pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1.2cqw;font:400 2.5cqw/1.3 var(--mk-body,var(--f-read))}
+.slide.made .ig-pts li{display:flex;gap:1.4cqw;align-items:baseline}
+.slide.made .ig-pts li::before{content:"";flex:none;width:1.2cqw;height:1.2cqw;border-radius:50%;background:var(--acc);transform:translateY(-.2cqw)}
+/* the sermon card and panel */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sermon-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k chev" "t chev" "m chev";gap:1px 8px;align-items:center;text-align:left;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 12px;cursor:pointer;color:var(--ink)}
+.sermon-card:hover{border-color:var(--muted)}
+.sc-k{grid-area:k;font:700 10px/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.sc-t{grid-area:t;font:600 15px/1.25 var(--f-read);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-m{grid-area:m;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-chev{grid-area:chev;color:var(--muted)}
+.lib-row{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+#btn-new-top{flex:1 1 auto;gap:7px}
+.sp-modal{place-items:start center;padding-top:min(10vh,90px)}
+.sp-card{width:min(760px,100%);padding:0;gap:0;overflow:hidden;max-height:min(82vh,760px);display:flex;flex-direction:column}
+.sp-top{display:flex;gap:8px;align-items:center;padding:14px 14px 10px;flex:none}
+.sp-search{flex:1;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:0 12px;background:var(--bg);min-width:0}
+.sp-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.sp-search svg{flex:none;color:var(--muted)}
+.sp-search input{flex:1;min-width:0;height:44px;border:0;background:transparent;font-size:16px;outline:none;box-shadow:none}
+.sp-search input:focus{box-shadow:none}
+.sp-x{flex:none;font-size:20px}
+.sp-filters{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto;scrollbar-width:none;flex:none}
+.sp-filters::-webkit-scrollbar{display:none}
+.sp-filters:empty{display:none}
+.sp-filters .chip{cursor:pointer;flex:none;min-height:30px}
+.sp-filters .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sp-count{padding:0 16px 6px;flex:none}
+.sp-list{list-style:none;margin:0;padding:0 8px 8px;overflow:auto;flex:1;min-height:120px}
+.sp-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 12px;border-radius:10px;cursor:pointer;align-items:center;border:1px solid transparent}
+.sp-item:hover{background:var(--sunk)}
+.sp-item[aria-selected="true"]{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.sp-item.cur .sp-t::after{content:"Open now";margin-left:8px;font:700 10px/1 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);vertical-align:2px}
+.sp-t{font:600 16px/1.3 var(--f-read);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-d{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.sp-m{grid-column:1 / -1;font-size:13px;color:var(--muted);display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center}
+.sp-m .chip{font-size:11.5px;padding:1px 8px}
+.sp-snip{grid-column:1 / -1;font:13.5px/1.45 var(--f-read);color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sp-item mark{background:var(--hl-yellow);color:inherit;border-radius:2px;padding:0 1px}
+.sp-none{padding:22px 16px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.sp-foot{flex:none;display:flex;gap:14px;flex-wrap:wrap;padding:9px 16px;border-top:1px solid var(--line);background:var(--sunk)}
+.sp-foot kbd{font:600 10.5px var(--f-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--muted);background:var(--surface)}
+@media (pointer:coarse){.sp-foot{display:none}.sp-item{padding:13px 12px}}
+@media (max-width:700px){.sp-modal{padding:0;place-items:stretch}.sp-card{width:100%;max-height:none;height:100dvh;border-radius:0}.sp-top{flex-wrap:wrap}.sp-search{flex:1 1 100%}#sp-new{flex:1}}
+@media (max-width:1099px){
+  .top-row .lib{flex-direction:row;flex-wrap:nowrap;align-items:center}
+  .top-row .lib .sermon-card{flex:1 1 auto;min-width:0;order:1}
+  .top-row .lib .lib-row{flex:none;flex-wrap:nowrap;order:2}
+  #btn-new-top span{display:none}
+  #btn-new-top{width:var(--ctl);padding:0;flex:none}
+  .top-row .lib .menu-wrap .btn{padding:0 10px}
+}
+@media (min-width:1100px){
+  .top-row .lib .sermon-card{width:100%}
+  .top-row .lib .lib-row{width:100%}
+  #btn-new-top{min-height:40px}
+  .top-row .lib{padding:10px;gap:8px}
+}
 /* ================= App shell, 2026 =================
    Desktop: a sidebar in the order you prepare (write, study, present, share, review), the open sermon named at the top of
    the page, and Settings as its own page. Tablets keep the top bar; phones keep the bottom bar. */
@@ -1043,6 +1123,17 @@ body[data-view="present"] .sermon-bar{display:none}
 @media (max-width:1099px){.sb-head{display:none}.sermon-bar{margin-bottom:10px}}
 @media (max-width:700px){.sermon-bar .tagbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}.sermon-bar .tagbar::-webkit-scrollbar{display:none}}
 .subtabs{margin:0 0 16px}
+/* estimated sermon time: always in the header, whatever the view */
+.est-pill{display:inline-flex;align-items:center;gap:6px;height:var(--ctl);padding:0 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.est-pill svg{color:var(--accent);flex:none}
+@media (max-width:420px){.est-pill{padding:0 8px;gap:4px;font-size:12.5px}.est-pill svg{width:14px;height:14px}}
+/* phones: the header scrolls away, so the time rides just above the tab bar (and above the suggestions sheet while writing) */
+@media (max-width:700px){
+  .est-pill{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--nav-h) + 10px);z-index:14;height:32px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  body[data-view="edit"] .est-pill{bottom:calc(var(--nav-h) + 84px)}
+  body[data-view="present"] .est-pill{position:static;box-shadow:none;height:var(--ctl)}
+  body.set-open .est-pill,body:has(.sg-col.open) .est-pill{display:none}
+}
 /* desktop sidebar */
 @media (min-width:1100px){
   :root{--app-nav:236px}
@@ -1053,10 +1144,18 @@ body[data-view="present"] .sermon-bar{display:none}
   .top-row .brand{order:1;padding:0 8px 4px;font-size:1.12rem}
   .top-row .lib{order:2;flex:none;flex-direction:column;align-items:stretch;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
   .top-row .lib #library{width:100%;max-width:none;font-weight:600}
-  .top-row .lib .sync-pill{align-self:flex-start}
-  .top-row .lib .menu-wrap{margin:0}
-  .top-row .lib #btn-sermon{width:100%;justify-content:space-between}
-  .top-row .lib .menu{left:0;right:auto;min-width:220px}
+  /* New sermon and a compact More on one row, the sync status quietly beneath, and the menu as wide as the card so
+     the side column never cuts it off */
+  .top-row .lib{position:relative}
+  .top-row .lib .lib-row{flex-wrap:wrap;gap:8px}
+  .top-row .lib #btn-new-top{order:1;flex:1 1 0;min-width:0}
+  #btn-new-top svg{flex:none}
+  .top-row .lib .menu-wrap{order:2;margin:0;position:static}
+  .top-row .lib .sync-pill{order:3;flex:1 1 100%;border:0;padding:0 2px;border-radius:0}
+  #btn-sermon{width:40px;min-height:40px;padding:0;flex:none}
+  #btn-sermon .more-l,#btn-sermon .more-chev{display:none}
+  #btn-sermon .more-dots{display:block}
+  .top-row .lib .menu{left:0;right:0;top:calc(100% - 4px);min-width:0;white-space:normal}
   .tabs{order:3;flex-direction:column;background:transparent;padding:0;gap:2px;border-radius:0}
   .tab{justify-content:flex-start;gap:12px;min-height:40px;padding:0 12px;font-size:14.5px;border-radius:9px;color:var(--muted)}
   .tab-ic{display:block;width:19px;height:19px;flex:none}
@@ -1069,10 +1168,13 @@ body[data-view="present"] .sermon-bar{display:none}
   .top-row .hdr-tools{order:5;flex-direction:column;align-items:stretch;gap:2px;border-top:1px solid var(--line);padding-top:10px}
   .hdr-tools .icon-btn{width:auto;height:38px;border:0;background:transparent;justify-content:flex-start;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:9px;color:var(--muted);font-size:14px;font-weight:500}
   .hdr-tools .icon-btn:hover{background:var(--sunk);color:var(--ink)}
+  .hdr-tools .est-pill{order:-1;height:auto;min-height:38px;border:0;border-radius:9px;background:var(--accent-soft);padding:0 12px;gap:12px;font-size:14px;margin-bottom:6px}
+  .hdr-tools .est-pill svg{width:18px;height:18px}
+  body[data-view="present"] .hdr-tools .est-pill{flex-direction:column;justify-content:center;gap:2px;padding:6px 0;font-size:11.5px}
   .hdr-tools .icon-btn svg{width:18px;height:18px;flex:none}
   .hdr-tools .icon-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
   .tool-l{display:inline}
-  main{margin-left:var(--app-nav);padding-inline:clamp(20px,2.6vw,40px)!important;padding-top:24px!important;max-width:calc(1560px + var(--app-nav))}
+  main{margin-left:var(--app-nav);padding-inline:clamp(20px,2.6vw,40px)!important;padding-top:24px!important;max-width:none}
   .toast{left:calc(50% + var(--app-nav) / 2)}
   body[data-view="present"] header.top{position:fixed}
   /* Present gets the screen: the sidebar folds to icons */
@@ -1085,8 +1187,11 @@ body[data-view="present"] .sermon-bar{display:none}
 /* Settings is a page of its own */
 #settings.set-page{position:fixed;z-index:10;top:0;bottom:var(--nav-h,0px);left:var(--app-nav);right:0;display:block;padding:0;background:var(--bg);overflow:auto;place-items:initial}
 #settings.set-page[hidden]{display:none}
+/* large monitors: the manuscript, its Scripture sections and slide cues widen with the screen, and the text grows a little */
+@media (min-width:1500px){.editor > *,.pb-scripture,.pb-slide,.sec,.ser-doc > *{max-width:56em}.sec{max-width:56em}.editor{font-size:1.14rem}}
+@media (min-width:2000px){.editor > *,.pb-scripture,.pb-slide,.sec,.ser-doc > *{max-width:64em}.sec{max-width:64em}.editor{font-size:1.2rem}.set-card .fav-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}}
 @media (min-width:701px) and (max-width:1099px){#settings.set-page{top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px))}}
-.set-card{width:auto;max-width:1040px;max-height:none;margin:0 auto;padding:clamp(18px,3vw,36px) clamp(16px,3vw,40px) 0;background:transparent;box-shadow:none;border-radius:0;display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-areas:"head head" "nav body" "foot foot";gap:18px 28px;align-items:start;overflow:visible}
+.set-card{width:auto;max-width:min(1560px,100%);max-height:none;margin:0 auto;padding:clamp(18px,3vw,36px) clamp(16px,3vw,40px) 0;background:transparent;box-shadow:none;border-radius:0;display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-areas:"head head" "nav body" "foot foot";gap:18px 28px;align-items:start;overflow:visible}
 .set-head{grid-area:head;display:flex;flex-direction:column;gap:4px}
 .set-head h2{font:600 clamp(1.4rem,1.1rem + 1vw,1.9rem)/1.15 var(--f-read);margin:0}
 .set-card .set-tabs{grid-area:nav;position:sticky;top:16px;flex-direction:column;align-items:stretch;background:transparent;padding:0;gap:2px}
@@ -1110,9 +1215,54 @@ body[data-view="present"] .sermon-bar{display:none}
 .ai-opt input{margin-top:3px;accent-color:var(--accent);width:18px;height:18px}
 .ai-opt-t{display:flex;flex-direction:column;gap:2px}
 .ai-later{background:var(--sunk);border-style:dashed}
+.ai-later .hint a{color:var(--accent)}
 .ai-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:6px}
 .ai-list li{display:flex;flex-direction:column;padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:14px}
 @media (max-width:700px){body.set-open .tab[aria-selected="true"]{color:var(--muted)}body.set-open .tab[aria-selected="true"]::before{display:none}body.set-open #btn-settings{color:var(--accent);border-color:var(--accent)}}
+.es-card{width:min(980px,100%)}
+.lv-card{width:min(600px,100%)}
+.lv-row{display:flex;gap:8px;align-items:center}a.btn{text-decoration:none;color:var(--ink)}a.btn:not([href]){opacity:.5;pointer-events:none}.lv-row input{flex:1;min-width:0}
+.lv-state{display:flex;align-items:center;gap:8px;font-size:14px}.lv-state i{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.lv-state.on i{background:#2e9e5b;box-shadow:0 0 0 3px rgba(46,158,91,.25)}.lv-state.err i{background:#c2452d}
+.lv-setup{border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13.5px;line-height:1.5}.lv-setup code{word-break:break-all}
+#btn-live.on{border-color:#2e9e5b;color:#2e9e5b}
+.es-orig{font:14px/1.55 var(--f-read);color:var(--muted);border-left:3px solid var(--accent);padding:4px 12px;max-height:9.5em;overflow:auto;white-space:pre-wrap}
+.es-orig-full{max-height:min(46vh,420px);color:var(--ink)}
+.es-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.es-lenrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.es-lenrow select{flex:1 1 220px;min-width:0}.es-lenrow input{width:6.5em}.es-or{font-size:13px;color:var(--muted)}
+.es-chips .chip{cursor:pointer;min-height:30px}
+.es-chips .chip:hover{border-color:var(--accent)}
+.es-cmp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:stretch}
+@media (max-width:760px){.es-cmp{grid-template-columns:minmax(0,1fr)}}
+.es-col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.es-h{display:flex;align-items:baseline;gap:10px}
+.es-out{flex:1;min-height:min(46vh,420px);font:15px/1.6 var(--f-read);resize:vertical}
+/* stacked translations */
+.pb-sc-stk-panel{display:none;flex-direction:column;gap:8px;padding:10px 12px;border-bottom:1px solid var(--sc-line);background:color-mix(in srgb,var(--sc-accent) 7%,var(--sc-bg))}
+#editor .pb-sc-stk-panel{display:flex}
+.pb-sc-stk-opts{display:flex;flex-wrap:wrap;gap:6px}
+.pb-sc-stk-opt{display:inline-flex;align-items:center;gap:7px;font:600 12.5px var(--f-mono);border:1px solid var(--sc-line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer;min-height:32px}
+.pb-sc-stk-opt[aria-checked="true"]{border-color:var(--sc-accent);background:color-mix(in srgb,var(--sc-accent) 14%,var(--surface))}
+.pb-sc-stk-opt em{font:italic 400 11px var(--f-ui);color:var(--muted)}
+.pb-sc-box{width:15px;height:15px;border:1.5px solid var(--muted);border-radius:3px;display:inline-grid;place-items:center;flex:none}
+.pb-sc-stk-opt[aria-checked="true"] .pb-sc-box{background:var(--sc-accent);border-color:var(--sc-accent)}
+.pb-sc-stk-opt[aria-checked="true"] .pb-sc-box::after{content:"";width:4px;height:8px;border:solid var(--sc-on);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.pb-sc-stk-hint{font:12.5px/1.4 var(--f-ui);color:var(--muted)}
+.pb-scripture .sc-var{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:inherit;border-radius:3px;text-align:inherit;line-height:inherit}
+#editor .sc-var{cursor:pointer;background:color-mix(in srgb,var(--sc-accent) 14%,transparent);border-bottom:2px dotted var(--sc-accent)}
+#editor .sc-var:hover,#editor .sc-var:focus-visible{background:color-mix(in srgb,var(--sc-accent) 30%,transparent)}
+.pb-scripture .sc-var.sel{background:color-mix(in srgb,var(--sc-accent) 20%,transparent);border-bottom:2px solid var(--sc-accent)}
+.pb-scripture .sc-var.ins{font-weight:700;color:var(--sc-accent);padding:0 3px}
+.sc-stk{display:inline-flex;flex-direction:column;vertical-align:top;line-height:1.3;margin:0 1px;max-width:22em}
+.sc-stk-a{display:flex;flex-direction:column;font:500 .62em/1.3 var(--f-ui);color:var(--muted);padding:1px 2px 0}
+.sc-stk-v{font:700 .92em var(--f-mono);color:var(--sc-accent);margin-right:3px}
+.slide.made .sc-stk{line-height:1.15;margin:0 .06em;max-width:none}
+.slide.made .sc-var.sel{background:none;border-bottom:.3cqw solid currentColor}
+.slide.made .sc-stk-a{font:500 .5em/1.2 var(--f-ui);color:inherit;opacity:.88;padding-top:.15em}
+.slide.made .sc-stk-v{font-size:.85em;color:inherit}
+#manuscript .pb-sc-stk-btn{display:none}
+#manuscript .sc-var{pointer-events:none}
+@media (pointer:coarse){.pb-sc-stk-opt{min-height:44px;padding:0 12px}#editor .sc-var{padding:2px 1px}}
 </style>
 
 <a class="skip" href="#main" id="skip-link">Skip to content</a>
@@ -1134,20 +1284,28 @@ body[data-view="present"] .sermon-bar{display:none}
       <span class="hdr-title" id="hdr-title"></span>
       <div class="spacer"></div>
       <div class="lib">
-        <select id="library" aria-label="Saved sermons"></select>
+        <button type="button" class="sermon-card" id="sermon-card" aria-haspopup="dialog" aria-controls="sp-modal" title="Find a sermon (Ctrl+K)">
+          <span class="sc-k">Open sermon</span><span class="sc-t" id="sc-title">Untitled sermon</span><span class="sc-m" id="sc-meta"></span>
+          <svg class="sc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <select id="library" aria-label="Saved sermons" hidden></select>
+        <div class="lib-row">
+          <button type="button" class="btn primary" id="btn-new-top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
         <span class="sync-pill" id="sync" data-state="off" role="status">On this device</span>
         <div class="menu-wrap">
-          <button class="btn" id="btn-sermon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sermon-menu">Sermon <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <button class="btn" id="btn-sermon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sermon-menu" aria-label="More sermon actions" title="More sermon actions"><svg class="more-dots" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg><span class="more-l">More</span> <svg class="more-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
           <div class="menu" id="sermon-menu" role="menu" aria-label="Sermon actions" hidden>
-            <button class="menu-item" role="menuitem" id="btn-new" type="button">New sermon</button>
-            <button class="menu-item" role="menuitem" id="btn-import" type="button" title="Bring in sermons from a folder or files">Import from a folder or files</button>
+            <button class="menu-item" role="menuitem" id="btn-new" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg><span>New blank sermon</span></button>
+            <button class="menu-item" role="menuitem" id="btn-import" type="button" title="Bring in sermons from a folder or files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 10v6M9 13l3 3 3-3"/></svg><span>Import sermons</span></button>
             <div class="menu-sep" role="separator"></div>
-            <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete the sermon that is open now">Delete this sermon</button>
-            <button class="menu-item danger" role="menuitem" id="btn-del-many" type="button" title="Tick several sermons and delete them together">Choose sermons to delete…</button>
+            <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete the sermon that is open now"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg><span>Delete this sermon</span></button>
+            <button class="menu-item danger" role="menuitem" id="btn-del-many" type="button" title="Tick several sermons and delete them together"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1.5"/><path d="M5 7.5l1.5 1.5L9 6"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><path d="M14 7h7M14 16h7"/></svg><span>Delete several…</span></button>
           </div>
+        </div>
         </div>
       </div>
       <div class="hdr-tools">
+        <span class="est-pill" id="est-pill" role="status"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span id="est-tx"></span></span>
         <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="tool-l">Settings</span></button>
         <button class="icon-btn" id="btn-theme" aria-label="Toggle light or dark mode" title="Light / dark">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"/></svg><span class="tool-l">Light or dark</span>
@@ -1389,6 +1547,7 @@ body[data-view="present"] .sermon-bar{display:none}
           <div class="spacer"></div>
           <button class="icon-btn" id="btn-font-dn" aria-label="Smaller text">A-</button>
           <button class="icon-btn" id="btn-font-up" aria-label="Larger text">A+</button>
+          <button class="btn" id="btn-live" title="A link that shows these slides full screen on a projector or in OBS">Share live view</button>
           <button class="btn" id="btn-full">Full screen</button>
         </div>
         <div class="next-wrap" id="next-wrap"></div>
@@ -1593,13 +1752,14 @@ body[data-view="present"] .sermon-bar{display:none}
   <span class="sc-fmt-sep"></span><button type="button" data-h="yellow" class="sw hl-yellow" aria-label="Highlight yellow" title="Highlight yellow"></button><button type="button" data-h="green" class="sw hl-green" aria-label="Highlight green" title="Highlight green"></button><button type="button" data-h="blue" class="sw hl-blue" aria-label="Highlight blue" title="Highlight blue"></button><button type="button" data-h="pink" class="sw hl-pink" aria-label="Highlight pink" title="Highlight pink"></button>
   <span class="sc-fmt-sep"></span><button type="button" data-f="clear" class="txt" title="Remove bold, underline, and highlight">Clear</button>
 </div>
-<div class="sel-pop" id="sel-pop" hidden><button type="button" id="btn-make-slide" title="Make a slide from the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M12 9v4M10 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Make slide</button></div>
+<div class="sel-pop" id="sel-pop" hidden><button type="button" id="btn-make-slide" title="Make a slide from the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M12 9v4M10 11h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Make slide</button><button type="button" id="btn-edit-sel" title="Ask Claude to rework the highlighted words"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Edit with suggestions</button></div>
 <div class="sc-hint" id="sc-hint" hidden><button type="button" id="sc-hint-btn"><kbd>Tab</kbd><span>Insert</span><b id="sc-hint-ref"></b><span class="sc-hint-ver" id="sc-hint-ver"></span></button></div>
 <div class="modal" id="mk-modal" hidden role="dialog" aria-modal="true" aria-labelledby="mk-title">
   <div class="modal-card mk-card">
     <div id="mk-step1" class="mk-step">
       <h2 id="mk-title">What kind of slide?</h2>
       <div class="mk-src" id="mk-src"></div>
+      <p class="hint" id="mk-note" style="margin:0" hidden></p>
       <div class="mk-kinds" id="mk-kinds"></div>
       <div class="sc-pop-row"><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel">Cancel</button></div>
     </div>
@@ -1608,6 +1768,56 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="mk-body"><div class="mk-preview" id="mk-preview" aria-live="polite"></div><div class="mk-fields" id="mk-fields"></div></div>
       <div class="sc-pop-row"><button type="button" class="btn" id="mk-again">Ask Claude again</button><div class="spacer"></div><button type="button" class="btn ghost" id="mk-cancel2">Cancel</button><button type="button" class="btn primary" id="mk-add">Add slide</button></div>
     </div>
+  </div>
+</div>
+<div class="modal sp-modal" id="sp-modal" hidden role="dialog" aria-modal="true" aria-labelledby="sp-title">
+  <div class="modal-card sp-card">
+    <h2 id="sp-title" class="sr-only">Find or start a sermon</h2>
+    <div class="sp-top">
+      <div class="sp-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="sp-q" role="combobox" aria-expanded="true" aria-controls="sp-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Search by title, text, tag, speaker, date, or words in the manuscript"></div>
+      <button type="button" class="btn primary" id="sp-new"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
+      <button type="button" class="icon-btn sp-x" id="sp-close" aria-label="Close">×</button>
+    </div>
+    <div class="sp-filters" id="sp-filters" role="group" aria-label="Narrow by tag"></div>
+    <div class="sp-count hint" id="sp-count" aria-live="polite"></div>
+    <ul class="sp-list" id="sp-list" role="listbox" aria-label="Sermons"></ul>
+    <div class="sp-foot hint"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> start a new sermon from what you typed</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="modal" id="es-modal" hidden role="dialog" aria-modal="true" aria-labelledby="es-title">
+  <div class="modal-card es-card">
+    <div id="es-step1" class="mk-step">
+      <h2 id="es-title">Edit with suggestions</h2>
+      <div class="es-orig" id="es-orig" aria-label="The words you highlighted"></div>
+      <div class="field"><label for="es-ask">What should change?</label><textarea id="es-ask" rows="3" placeholder="For example: say this more simply, add a short illustration from daily life, or make the application stronger"></textarea>
+        <div class="es-chips" id="es-chips"></div></div>
+      <div class="field"><label for="es-len">How long should it be?</label><div class="es-lenrow"><select id="es-len"></select><span class="es-or">or</span><input type="number" id="es-words" min="5" max="3000" step="1" inputmode="numeric" aria-label="Number of words"><span class="es-or">words</span></div><span class="hint" id="es-lenhint"></span></div>
+      <div class="sc-pop-row"><span class="hint" id="es-msg" role="status" aria-live="polite"></span><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel">Cancel</button><button type="button" class="btn primary" id="es-go">Create</button></div>
+    </div>
+    <div id="es-step2" class="mk-step" hidden>
+      <h2>Preview</h2>
+      <div class="es-cmp">
+        <div class="es-col"><div class="es-h"><b>Yours</b><span class="hint" id="es-n0"></span></div><div class="es-orig es-orig-full" id="es-orig2"></div></div>
+        <div class="es-col"><div class="es-h"><b>Suggested</b><span class="hint" id="es-n1"></span></div><textarea id="es-out" class="es-out" aria-label="The suggested wording. You can change it before you accept."></textarea></div>
+      </div>
+      <span class="hint">You can change the suggested wording before you accept it. Accepting replaces the highlighted words, and Undo brings yours back.</span>
+      <div class="sc-pop-row"><button type="button" class="btn" id="es-back">‹ Change the request</button><button type="button" class="btn" id="es-again">Try again</button><div class="spacer"></div><button type="button" class="btn ghost" id="es-cancel2">Cancel</button><button type="button" class="btn primary" id="es-accept">Accept</button></div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="lv-modal" hidden role="dialog" aria-modal="true" aria-labelledby="lv-title">
+  <div class="modal-card lv-card">
+    <h2 id="lv-title">Share live view</h2>
+    <p class="hint" id="lv-intro">A link that shows the slide you are on, full screen, with nothing else on it. Open it on the projector or booth screen, or add it to OBS for the livestream. It follows you as you scroll or press Next.</p>
+    <div class="lv-state" id="lv-state" role="status" aria-live="polite"></div>
+    <div class="field" id="lv-f-url"><label for="lv-url">Link to open on the screen</label>
+      <div class="lv-row"><input type="text" id="lv-url" readonly><button type="button" class="btn" id="lv-copy-url">Copy</button><a class="btn" id="lv-open" target="_blank" rel="noopener">Open</a></div></div>
+    <div class="field" id="lv-f-embed"><label for="lv-embed">To embed it in another page</label>
+      <div class="lv-row"><input type="text" id="lv-embed" readonly><button type="button" class="btn" id="lv-copy-embed">Copy</button></div>
+      <span class="hint">OBS: add a Browser source, paste the link, and set it to 1920 by 1080. Add <b>?bg=transparent</b> to the end of the link for a see-through background.</span></div>
+    <div class="lv-setup" id="lv-setup" hidden></div>
+    <div class="sc-pop-row"><button type="button" class="btn ghost" id="lv-new" title="Make a different link and end the old one">New link</button><div class="spacer"></div><button type="button" class="btn ghost" id="lv-close">Close</button><button type="button" class="btn primary" id="lv-toggle">Start live view</button></div>
   </div>
 </div>
 <div class="modal" id="import-modal" hidden role="dialog" aria-modal="true" aria-labelledby="imp-title">
@@ -1676,7 +1886,7 @@ body[data-view="present"] .sermon-bar{display:none}
     <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
       <div class="field"><label for="set-def">Default translation</label><select id="set-def"></select><span class="hint">Used when you press Tab after a reference, and for new Scripture sections.</span></div>
       <fieldset class="field"><legend>Favorite translations</legend><span class="hint">These show as tabs along the top of every Scripture section, so you can switch the one that's displayed. Up to six.</span><div class="fav-list" id="set-favs"></div></fieldset>
-      <div class="field"><span class="set-h">Where the text comes from</span><span class="hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
+      <div class="field"><span class="set-h">Where the text comes from</span><span class="hint" id="set-src-hint">Bible Gateway, through your Firecrawl connection in Claude. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.</span>
         <label class="fav" for="set-claude"><input type="checkbox" id="set-claude"> <span>If Bible Gateway can't be reached, let Claude fill in the text. It's marked so you can check the wording.</span></label></div>
     </div>
     <div class="set-pane" id="set-pane-services" role="tabpanel" aria-labelledby="set-tab-services" hidden>
@@ -1714,7 +1924,7 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="field"><label for="set-bcolor">Accent color</label><input type="color" id="set-bcolor" class="brand-color"></div>
     </div>
     <div class="set-pane" id="set-pane-ai" role="tabpanel" aria-labelledby="set-tab-ai" hidden>
-      <span class="hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
+      <span class="hint" id="set-svc-hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
       <div class="ai-card"><div class="ai-card-h"><b>Writing and study help</b><span class="chip" id="ai-claude-st"></span></div>
         <span class="hint">Claude drafts outlines, slides, captions, study notes, and suggestions throughout the app.</span>
         <div class="field"><label for="set-tier">How much care Claude takes</label><select id="set-tier"><option value="fast">Faster answers</option><option value="balanced">Balanced (recommended)</option><option value="careful">Most careful, slower</option></select><span class="hint">Most careful uses Claude's strongest model for everything, which takes longer. Faster suits quick slides and captions.</span></div>
@@ -1723,8 +1933,8 @@ body[data-view="present"] .sermon-bar{display:none}
         <span class="hint">Used by the Illustration slide and a slide theme's header picture.</span>
         <div class="ai-opts" id="set-img"></div>
       </fieldset>
-      <div class="ai-card ai-later"><div class="ai-card-h"><b>Your own API keys</b><span class="chip">Hosted version</span></div>
-        <span class="hint">This page runs inside Claude, which keeps it from contacting other AI companies directly, so keys entered here could not be used. Pulpit Binder is built so a hosted version can add these, with your keys kept on its server rather than in your browser:</span>
+      <div class="ai-card ai-later"><div class="ai-card-h"><b>Your own API keys</b><span class="chip" id="set-keys-chip">Not on this page</span></div>
+        <span class="hint" id="set-keys-hint">This page runs inside Claude, which keeps it from contacting other AI companies directly, so keys entered here could not be used. Pulpit Binder is built so a version on its own server can add these, with your keys kept on that server rather than in your browser:</span>
         <ul class="ai-list" id="set-later"></ul>
       </div>
     </div>
@@ -1745,6 +1955,16 @@ const localNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(
 
 /* ---------------- theme ---------------- */
 const root = document.documentElement;
+/* On sermon.freely.church the page runs on that site's server instead of inside Claude: Claude through the preacher's own
+   Anthropic key, no connectors (Firecrawl, Canva, Pulpit Live). See saas/web/shim.js. */
+const HOSTED = !!(window.claude && window.claude.hosted);
+if (HOSTED) {
+  $("#set-src-hint").textContent = "Claude supplies the text of each passage, or you paste it in. Each passage is saved inside the sermon once loaded, so it works offline at the pulpit.";
+  $("#set-svc-hint").textContent = "Which services Pulpit Binder uses for writing help and pictures. Claude runs on the Anthropic key in your Account.";
+  $("#btn-live").hidden = true;
+  $("#set-keys-chip").textContent = "Coming later";
+  $("#set-keys-hint").replaceChildren("Claude runs on the Anthropic key in your ", el("a", { href: "/account#claude", text: "Account" }), ". Keys for other AI companies are not supported yet. These are the ones planned:");
+}
 try { const t = localStorage.getItem("pb-theme"); if (t) root.dataset.theme = t; } catch {}
 $("#btn-theme").onclick = () => {
   const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
@@ -2414,7 +2634,7 @@ function fmtWhen(v) { if (!v) return ""; const d = new Date(v); if (isNaN(d)) re
 const bgLink = ref => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=ESV`;
 function renderTags() {
   const bar = $("#tagbar"); bar.replaceChildren();
-  $("#sb-title").textContent = S.meta.title || "Untitled sermon";
+  $("#sb-title").textContent = S.meta.title || "Untitled sermon"; updateSermonCard();
   $("#hdr-title").textContent = [S.meta.title || "Untitled sermon", S.meta.when ? new Date(S.meta.when).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""].filter(Boolean).join(" · ");
   const m = S.meta;
   const chip = (k, v, cls = "") => v ? bar.append(el("span", { class: "chip " + cls }, el("b", { text: k }), v)) : null;
@@ -2532,7 +2752,7 @@ for (const [k, sel] of Object.entries(F)) $(sel).addEventListener("input", () =>
   S.meta[k] = k === "wpm" ? (+$(sel).value || 140) : $(sel).value;
   if (k === "service") applyServiceTime(S.meta.service);
   if (k === "place") updatePlaceSave();
-  renderTags(); save(); if (k === "title") refreshLibrary();
+  renderTags(); save(); if (k === "title") refreshLibrary(); if (k === "wpm") { renderEditStats(); if (view === "present") updateClock(); }
 });
 $("#m-place-save").onclick = () => savePlaceName($("#m-place").value);
 /* the other times and places the sermon was presented */
@@ -2590,6 +2810,7 @@ function renderBindings() {
     const side = el("div", { class: "side" }, renderSlide(sec.slide, { small: true }), sel);
     const ride = steps.filter(s => s.sec === i && s.extra).map(s => s.slide + 1);
     if (ride.length) side.append(el("div", { class: "hint", text: `Also shows slide${ride.length > 1 ? "s" : ""} ${ride.join(", ")} during this section` }));
+    if (sec.slide != null && S.slides[sec.slide]) side.append(el("button", { type: "button", class: "btn", text: S.slides[sec.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(sec.slide) }));
     if (sec.how === "manual") side.append(el("button", { class: "btn ghost", text: "Unpin", onclick: () => { delete S.manual[sec.key]; rebuild(); renderBindings(); save(); } }));
     list.append(el("div", { class: "bind" },
       el("div", {}, el("div", { class: "num" }, `§${i + 1}`, badge, `${words(sec.text).length} words`), el("div", { class: "txt", text: sec.text })),
@@ -2613,7 +2834,7 @@ async function loadDeckFiles(files) {
   if (pptx) await loadPptx(pptx);
   if (pdf) await loadPdf(pdf);
 }
-function deckChanged(msg) { S.deckVer = Date.now(); cacheDeck = null; rebuild(); renderBindings(); renderDeckStatus(); renderTags(); if (view === "present") renderPresent(); save(); if (msg) toast(msg); }
+function deckChanged(msg) { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; rebuild(); renderBindings(); renderDeckStatus(); renderTags(); if (view === "present") renderPresent(); save(); if (msg) toast(msg); }
 async function loadPptx(f) {
   progress("Reading slides…");
   try {
@@ -2643,7 +2864,7 @@ function renderDeckStatus() {
     if (S.pdfName && S.pdfPages && S.pdfPages.length) row(S.pdfName, S.pdfNote || "", () => { S.pdfPages = null; S.pdfName = ""; applyPdf(); deckChanged("Removed the PDF"); });
   }
   const made = S.slides.filter(x => x.made).length;
-  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Delete one from the slide column in Edit manuscript.`, null);
+  if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Edit, change, or delete one from the slide column in Edit manuscript, or from Bindings.`, null);
   const tip = $("#deck-tip");
   tip.hidden = !(S.slides.length && !(S.pdfPages && S.pdfPages.length));
 }
@@ -2809,7 +3030,7 @@ $("#nx-form").addEventListener("submit", async e => {
   const r = blank(), tag = nx.tag, svc = $("#nx-svc").value;
   r.meta.series = tag; r.meta.text = ref; r.meta.title = title; r.meta.when = $("#nx-when").value || r.meta.when; r.meta.service = svc || r.meta.service;
   const src = nx.rows.slice(-1)[0]; if (src && src.meta) { if (src.meta.place) r.meta.place = src.meta.place; if (src.meta.speaker) r.meta.speaker = src.meta.speaker; }
-  if ($("#nx-sc").checked && normalizeRef(ref)) r.html = scElement({ id: uid(), ref: normalizeRef(ref), ver: settings.defVer, texts: {} }).outerHTML + "<p><br></p>";
+  if ($("#nx-sc").checked && normalizeRef(ref)) { const id = uid(); scAuto.add(id); r.html = scElement({ id, ref: normalizeRef(ref), ver: settings.defVer, texts: {} }).outerHTML + "<p><br></p>"; }
   else r.html = "<p><br></p>";
   r.transcript = plainFromHtml(r.html);
   closeNext();
@@ -2839,17 +3060,115 @@ function drawLibrary() {
   library.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const sel = $("#library"); sel.replaceChildren();
   library.forEach(r => sel.append(el("option", { value: r.id, text: `${(r.meta && r.meta.title) || "Untitled sermon"}${r.meta && r.meta.when ? " · " + new Date(r.meta.when).toLocaleDateString() : ""}${r.cloudOnly ? " · from your account" : ""}` })));
-  sel.value = S.id;
+  sel.value = S.id; updateSermonCard();
   queueDash(); if (view === "build" && buildSub === "series") renderSeries();
 }
-$("#library").onchange = async () => {
-  let r = library.find(x => x.id === $("#library").value); if (!r) return;
+async function openSermonById(id) {
+  let r = library.find(x => x.id === id); if (!r) return false;
   const c = cloudMetas.get(r.id);
   if (cdb && c && (r.cloudOnly || c.updatedAt > (r.updatedAt || 0) + 1000)) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync("synced"); } catch { setSync("error"); } }
-  if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return; }
-  const v = view; openRec(r); setView(v);
-};
-$("#btn-new").onclick = () => { const r = blank(); store.put(r); openRec(r); refreshLibrary(); goBuild("details"); $("#m-title").focus(); };
+  if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return false; }
+  const v = view; openRec(r); setView(v); return true;
+}
+$("#library").onchange = () => openSermonById($("#library").value);
+function newSermon(title, passage) {
+  const r = blank(); if (title) r.meta.title = title; if (passage) r.meta.text = passage;
+  store.put(r); openRec(r); refreshLibrary(); goBuild("details"); if (!title) setTimeout(() => $("#m-title").focus(), 60);
+  toast(title ? `Started “${title}”` : "New sermon started. Give it a title.");
+}
+$("#btn-new").onclick = () => newSermon();
+$("#btn-new-top").onclick = () => newSermon();
+/* ---- the sermon card and the sermon panel: find any sermon, or start one ---- */
+const sermonLine = r => { const m = (r && r.meta) || {}; return [m.text, m.when ? new Date(m.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : ""].filter(Boolean).join(" · "); };
+function updateSermonCard() { if (!S) return; $("#sc-title").textContent = (S.meta && S.meta.title) || "Untitled sermon"; $("#sc-meta").textContent = sermonLine(S) || "Not dated yet"; }
+const sp = { open: false, q: "", tag: "", idx: 0, rows: [], cache: new Map() };
+const spNorm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9: ]+/g, " ").replace(/\s+/g, " ").trim();
+function spHay(r) {   // what can be searched on a sermon, worked out once per version of it
+  const key = r.id + "|" + (r.updatedAt || 0), hit = sp.cache.get(key); if (hit) return hit;
+  const m = r.meta || {}, d = m.when ? new Date(m.when) : null, dates = d && !isNaN(d) ? [d.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), d.toLocaleDateString(undefined, { month: "short" }), d.toLocaleDateString(), String(d.getFullYear()), d.toLocaleDateString(undefined, { weekday: "long" })].join(" ") : "";
+  const h = { title: spNorm(m.title), text: spNorm(m.text), tags: spNorm(tagsOf(m).join(" ")), who: spNorm([m.speaker, m.place, m.service].join(" ")), date: spNorm(dates), body: spNorm(r.transcript || "") };
+  sp.cache.set(key, h); if (sp.cache.size > 800) sp.cache.delete(sp.cache.keys().next().value); return h;
+}
+function spSearch() {
+  const toks = spNorm(sp.q).split(" ").filter(Boolean); let rows = library.slice();
+  if (sp.tag) rows = rows.filter(r => tagsOf(r.meta || {}).some(t => sameName(t, sp.tag)));
+  if (!toks.length) return rows.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).map(r => ({ r, score: 0 }));
+  const out = [];
+  for (const r of rows) {
+    const h = spHay(r); let score = 0, ok = true, snip = "";
+    for (const t of toks) {
+      let best = 0; if (h.title.includes(t)) best = h.title.startsWith(t) || h.title.includes(" " + t) ? 60 : 40; else if (h.text.includes(t)) best = 45; else if (h.tags.includes(t)) best = 35; else if (h.who.includes(t)) best = 25; else if (h.date.includes(t)) best = 25;
+      else if (h.body.includes(t)) { best = 8; if (!snip) { const i = h.body.indexOf(t); snip = (r.transcript || "").replace(/\s+/g, " ").slice(Math.max(0, i - 60), i + 120); } }
+      if (!best) { ok = false; break; } score += best;
+    }
+    if (ok && toks.length > 1) { const ph = spNorm(sp.q); if (h.text.includes(ph)) score += 70; if (h.title.includes(ph)) score += 40; }   // a whole phrase or reference beats scattered words
+    if (ok) out.push({ r, score, snip });
+  }
+  return out.sort((a, b) => b.score - a.score || (b.r.updatedAt || 0) - (a.r.updatedAt || 0));
+}
+function spMark(text, toks) {   // the matching words, marked
+  const frag = document.createDocumentFragment(); if (!toks.length) { frag.append(text); return frag; }
+  const re = new RegExp("(" + toks.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "ig");
+  text.split(re).forEach((part, i) => frag.append(i % 2 ? el("mark", { text: part }) : part)); return frag;
+}
+function spRender() {
+  const list = $("#sp-list"), toks = spNorm(sp.q).split(" ").filter(Boolean), found = spSearch();
+  sp.rows = found.slice(0, 120); sp.idx = Math.min(sp.idx, Math.max(0, sp.rows.length - 1));
+  // tags, most used first, to narrow the list
+  const counts = new Map(); library.forEach(r => tagsOf(r.meta || {}).forEach(t => { const k = [...counts.keys()].find(x => sameName(x, t)) || t; counts.set(k, (counts.get(k) || 0) + 1); }));
+  const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 10);
+  $("#sp-filters").replaceChildren(...top.map(([t, n]) => el("button", { type: "button", class: "chip", text: `${t} · ${n}`, "aria-pressed": String(sameName(sp.tag, t)), onclick: () => { sp.tag = sameName(sp.tag, t) ? "" : t; sp.idx = 0; spRender(); $("#sp-q").focus(); } })));
+  $("#sp-count").textContent = !library.length ? "" : toks.length || sp.tag ? `${found.length} sermon${found.length === 1 ? "" : "s"} found${found.length > 120 ? ", showing the best 120" : ""}` : `${library.length} sermon${library.length === 1 ? "" : "s"}, most recently worked on first`;
+  list.replaceChildren();
+  if (!sp.rows.length) {
+    const q = sp.q.trim();
+    list.append(el("li", { class: "sp-none", role: "presentation" }, el("span", { text: library.length ? "No sermon matches that." : "No sermons yet." }),
+      el("button", { type: "button", class: "btn primary", text: q ? `Start a sermon called “${q.slice(0, 60)}”` : "Start your first sermon", onclick: () => spCreate() })));
+  }
+  sp.rows.forEach(({ r, snip }, i) => {
+    const m = r.meta || {}, tags = tagsOf(m).slice(0, 3), cur = S && r.id === S.id;
+    const li = el("li", { class: "sp-item" + (cur ? " cur" : ""), role: "option", id: "sp-o" + i, "aria-selected": String(i === sp.idx), onclick: () => spOpen(r.id), onmousemove: () => { if (sp.idx !== i) { sp.idx = i; spSelect(); } } });
+    const t = el("div", { class: "sp-t" }); t.append(spMark(m.title || "Untitled sermon", toks));
+    li.append(t, el("div", { class: "sp-d", text: m.when ? new Date(m.when).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "" }));
+    const meta = el("div", { class: "sp-m" }); if (m.text) { const x = el("span"); x.append(spMark(m.text, toks)); meta.append(x); }
+    if (m.speaker) meta.append(el("span", { text: m.speaker })); tags.forEach(tg => meta.append(el("span", { class: "chip", text: tg })));
+    if (r.example && !tags.some(t => sameName(t, "Example"))) meta.append(el("span", { class: "chip example", text: "Example" })); if (r.cloudOnly) meta.append(el("span", { class: "chip", text: "From your account" }));
+    li.append(meta); if (snip) { const sn = el("div", { class: "sp-snip" }); sn.append("…", spMark(snip, toks), "…"); li.append(sn); }
+    list.append(li);
+  });
+  spSelect();
+}
+function spSelect() {
+  const items = [...$("#sp-list").querySelectorAll(".sp-item")]; items.forEach((li, i) => li.setAttribute("aria-selected", String(i === sp.idx)));
+  const cur = items[sp.idx]; if (cur) { $("#sp-q").setAttribute("aria-activedescendant", cur.id); cur.scrollIntoView({ block: "nearest" }); } else $("#sp-q").removeAttribute("aria-activedescendant");
+}
+function openSermons(q) {
+  if (!S) return; sp.open = true; sp.q = q || ""; sp.tag = ""; sp.idx = 0; $("#sp-q").value = sp.q;
+  $("#sp-modal").hidden = false; spRender(); $("#sp-q").focus(); $("#sp-q").select();
+  const cur = sp.rows.findIndex(x => x.r.id === S.id); if (!sp.q && cur > 0) { sp.idx = 0; }
+}
+function closeSermons(refocus) { sp.open = false; $("#sp-modal").hidden = true; if (refocus) $("#sermon-card").focus(); }
+async function spOpen(id) { if (S && id === S.id) { closeSermons(); return; } closeSermons(); await openSermonById(id); }
+function spCreate() {
+  const q = sp.q.trim(), ref = q ? normalizeRef(q) : null; closeSermons();
+  newSermon(ref ? "" : q.slice(0, 120), ref || "");
+}
+$("#sermon-card").onclick = () => openSermons();
+$("#sp-new").onclick = spCreate;
+$("#sp-close").onclick = () => closeSermons(true);
+$("#sp-modal").addEventListener("mousedown", e => { if (e.target.id === "sp-modal") closeSermons(true); });
+$("#sp-q").addEventListener("input", () => { sp.q = $("#sp-q").value; sp.idx = 0; spRender(); });
+$("#sp-q").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); sp.idx = Math.min(sp.rows.length - 1, sp.idx + 1); spSelect(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); sp.idx = Math.max(0, sp.idx - 1); spSelect(); }
+  else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); spCreate(); }
+  else if (e.key === "Enter") { e.preventDefault(); const row = sp.rows[sp.idx]; if (row) spOpen(row.r.id); else if (sp.q.trim()) spCreate(); }
+  else if (e.key === "Home" && !sp.q) { e.preventDefault(); sp.idx = 0; spSelect(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && sp.open) { e.preventDefault(); closeSermons(true); return; }
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") { e.preventDefault(); sp.open ? closeSermons(true) : openSermons(); }
+});
 /* ---------------- deleting sermons, one or many ---------------- */
 /* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
    Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */
@@ -2953,6 +3272,7 @@ $("#del-go").onclick = async () => {
 };
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
+  undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
@@ -3042,7 +3362,7 @@ function updatePresent(scroll = true) {
   if (st.sec != null) parts.push(`Section ${st.sec + 1} of ${sections.length}`);
   $("#pos").textContent = parts.join(" · ");
   $("#prog").style.width = steps.length ? `${((cur + 1) / steps.length) * 100}%` : "0";
-  updateClock();
+  updateClock(); liveShowSoon();
 }
 /* Slides are drawn once and reused, and the next few are decoded ahead of time,
    so changing slides while scrolling does not stall the scroll. */
@@ -3099,6 +3419,129 @@ $("#btn-font-up").onclick = () => { setRead(0.1); secGeo = null; }; $("#btn-font
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { secGeo = null; });
 const full = async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await $("#view-present").requestFullscreen(); } catch { toast("Full screen is not available here"); } };
 $("#btn-full").onclick = full;
+
+/* ---------------- live view ----------------
+   A link that shows the current slide full screen (projector, booth screen, OBS, or an iframe elsewhere).
+   This page cannot serve the public, so slides are drawn to pictures here and handed to a small relay
+   (Cloudflare, reached through the "Pulpit Live" connector); the relay serves the viewer. See live/worker.js. */
+const LIVE_SRV = "Pulpit Live", LIVE_HOST = "https://live.pettijohn.me";
+var lv = { on: false, busy: false, gen: 0, sent: 0, total: 0, err: "", shown: -1, showing: false, want: -1, timer: 0, deckTimer: 0, hashes: [], running: false, again: false };
+let h2cP = null;
+const loadH2c = () => h2cP || (h2cP = new Promise((res, rej) => {
+  if (window.html2canvas) return res(window.html2canvas);
+  const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+  sc.onload = () => res(window.html2canvas); sc.onerror = () => { h2cP = null; rej(new Error("The slide picture tool could not load")); }; document.head.append(sc);
+}));
+const liveRand = (n, alpha) => { const b = new Uint8Array(n); crypto.getRandomValues(b); return [...b].map(x => alpha[x % alpha.length]).join(""); };
+function liveLink(make) {
+  let l = S.meta.live;
+  if (!l || !l.code || !l.secret || make) { l = S.meta.live = { code: liveRand(12, "abcdefghijkmnpqrstuvwxyz23456789"), secret: liveRand(32, "0123456789abcdef") }; save(); }
+  return l;
+}
+const liveUrl = () => (S.meta.live && S.meta.live.code) ? `${LIVE_HOST}/v/${S.meta.live.code}` : "";
+const livePayload = res => { const t = res && Array.isArray(res.content) ? res.content.find(c => c && c.type === "text") : null; try { const o = JSON.parse(t ? t.text : ""); if (o && typeof o === "object") return o; } catch {} const p = canvaPayload(res); return p && typeof p === "object" ? p : {}; };
+async function liveCall(tool, args) {
+  if (!mcpNs) throw new Error("Live view needs the Pulpit Live connector");
+  const l = liveLink();
+  const res = await mcpNs.callTool(LIVE_SRV, tool, { code: l.code, secret: l.secret, ...args });
+  const out = livePayload(res);
+  if (out.error) throw new Error(out.error === "link_taken" ? "That link belongs to another sermon. Choose New link." : "The live service refused that (" + out.error + ")");
+  return out;
+}
+const liveSig = i => {
+  const sl = S.slides[i]; if (!sl) return "";
+  const str = JSON.stringify(sl, (k, v) => v instanceof Blob ? "blob:" + v.size + ":" + v.type : v);
+  return keyOf(str + "|" + (S.aspect || "")) + keyOf(str.slice(0, 997)).slice(-3) + "x" + str.length.toString(36);
+};
+async function liveShot(i) {
+  const h2c = await loadH2c();
+  const host = el("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1600px;pointer-events:none";
+  const box = renderSlide(i); box.style.width = "1600px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
+  host.append(box); document.body.append(host);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: 1600, height: Math.round(1600 / (S.aspect || 16 / 9)) });
+    let q = 0.85, d = c.toDataURL("image/jpeg", q);
+    while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
+    return d.slice(d.indexOf(",") + 1);
+  } finally { host.remove(); }
+}
+function liveRender() {
+  const st = $("#lv-state"), on = lv.on;
+  st.className = "lv-state" + (lv.err ? " err" : on ? " on" : "");
+  let msg;
+  if (lv.err) msg = lv.err;
+  else if (!on) msg = "Not live";
+  else if (lv.total && lv.sent < lv.total) msg = `Live. Preparing slides, ${lv.sent} of ${lv.total} ready`;
+  else msg = `Live. All ${S.slides.length} slides ready` + (lv.shown >= 0 ? `, showing slide ${lv.shown + 1}` : "");
+  st.replaceChildren(el("i"), el("span", { text: msg }));
+  $("#lv-toggle").textContent = on ? "Stop live view" : "Start live view"; $("#lv-toggle").disabled = lv.busy;
+  $("#btn-live").classList.toggle("on", on); $("#btn-live").textContent = on ? "Live view on" : "Share live view";
+  const url = liveUrl(); $("#lv-url").value = url;
+  $("#lv-embed").value = url ? `<iframe src="${url}" style="border:0;width:100%;aspect-ratio:16/9" allow="fullscreen" allowfullscreen></iframe>` : "";
+  const o = $("#lv-open"); if (url) o.href = url; else o.removeAttribute("href");
+  $("#lv-f-url").hidden = $("#lv-f-embed").hidden = !url;
+}
+async function liveDeck() {
+  if (!lv.on) return;
+  if (lv.running) { lv.again = true; return; }
+  lv.running = true; lv.again = false;
+  try {
+    const hashes = S.slides.map((_, i) => liveSig(i)), gen = ++lv.gen;
+    const r = await liveCall("live_open", { title: S.meta.title || "", hashes });
+    const order = (r.needs || []).slice().sort((a, b) => { const c = steps[cur] ? steps[cur].slide : 0; return Math.abs(a - c) - Math.abs(b - c); });
+    lv.total = order.length; lv.sent = 0; lv.err = ""; liveRender();
+    for (const i of order) {
+      if (!lv.on || gen !== lv.gen || lv.again) break;
+      const image = await liveShot(i);
+      await liveCall("live_slide", { index: i, hash: hashes[i], image });
+      lv.sent++; liveRender();
+      if (lv.sent === 1 || i === (steps[cur] ? steps[cur].slide : 0)) { lv.shown = -1; liveShowSoon(); }
+    }
+    lv.shown = -1; liveShowSoon();
+  } catch (e) { lv.err = (e && e.message) || "Live view stopped"; }
+  lv.running = false; liveRender();
+  if (lv.again && lv.on) liveDeck();
+}
+function liveDeckSoon() { if (!lv || !lv.on) return; clearTimeout(lv.deckTimer); lv.deckTimer = setTimeout(liveDeck, 1500); }
+function liveShowSoon() {
+  if (!lv || !lv.on) return; clearTimeout(lv.timer);
+  lv.timer = setTimeout(async () => {
+    const st = steps[cur]; const i = st && st.slide != null ? st.slide : -1;
+    if (i < 0 || i === lv.shown || lv.showing) { if (lv.showing && i !== lv.shown) liveShowSoon(); return; }
+    lv.showing = true;
+    try { await liveCall("live_show", { index: i }); lv.shown = i; lv.err = ""; } catch (e) { lv.err = (e && e.message) || "Live view stopped"; }
+    lv.showing = false; liveRender();
+    const nx = steps[cur]; if (nx && nx.slide != null && nx.slide !== lv.shown && !lv.err) liveShowSoon();
+  }, 150);
+}
+async function liveStart() {
+  if (!mcpNs) { lv.err = "Live view needs the Pulpit Live connector. Steps are below."; $("#lv-setup").hidden = false; liveRender(); return; }
+  lv.busy = true; lv.on = true; lv.err = ""; lv.shown = -1; lv.sent = 0; lv.total = S.slides.length; liveRender();
+  try { await liveCall("live_open", { title: S.meta.title || "", hashes: S.slides.map((_, i) => liveSig(i)) }); }
+  catch (e) { lv.on = false; lv.busy = false; const m = (e && e.message) || ""; lv.err = /not_in_manifest|not found|unknown|connector|manifest/i.test(m + " " + (e && e.code)) ? "The Pulpit Live connector is not set up yet. Steps are below." : m || "Live view could not start"; $("#lv-setup").hidden = false; liveRender(); return; }
+  lv.busy = false; liveRender(); liveDeck();
+}
+async function liveStop() {
+  lv.busy = true; liveRender(); clearTimeout(lv.timer); clearTimeout(lv.deckTimer); lv.gen++;
+  try { await liveCall("live_close", {}); } catch {}
+  lv.on = false; lv.busy = false; lv.err = ""; lv.sent = lv.total = 0; lv.shown = -1; liveRender();
+}
+function openLive() {
+  const sm = $("#lv-setup"); sm.replaceChildren(
+    el("b", { text: "One-time setup" }),
+    el("div", { text: "In Claude, open Settings, Connectors, add a custom connector named exactly " }, el("b", { text: LIVE_SRV }), el("span", { text: " and paste the connector address you were given. Then open this page again." })));
+  $("#lv-setup").hidden = !!mcpNs && !lv.err; liveRender(); $("#lv-modal").hidden = false; $("#lv-toggle").focus();
+}
+const closeLive = () => { $("#lv-modal").hidden = true; };
+$("#btn-live").onclick = openLive; $("#lv-close").onclick = closeLive;
+$("#lv-modal").addEventListener("click", e => { if (e.target.id === "lv-modal") closeLive(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#lv-modal").hidden) closeLive(); });
+$("#lv-toggle").onclick = () => lv.on ? liveStop() : liveStart();
+const liveCopy = async (id, what) => { const v = $("#" + id).value; try { await navigator.clipboard.writeText(v); toast(what + " copied"); } catch { $("#" + id).select(); toast("Press Ctrl+C to copy"); } };
+$("#lv-copy-url").onclick = () => liveCopy("lv-url", "Link"); $("#lv-copy-embed").onclick = () => liveCopy("lv-embed", "Embed code");
+$("#lv-new").onclick = async () => { if (lv.on) await liveStop(); else { try { await liveCall("live_close", {}); } catch {} } liveLink(true); liveRender(); toast("New link made"); if (mcpNs) liveStart(); };
 
 /* timer */
 let tStart = 0, tAcc = 0, tRun = false, tInt = null, wake = null;
@@ -3749,7 +4192,7 @@ ed.addEventListener("keydown", e => {
   const map = { Digit0: "p", Digit1: "h1", Digit2: "h2", Digit3: "h3", Digit4: "h4", Digit5: "blockquote" };
   const tag = map[e.code]; if (!tag) return;
   e.preventDefault(); savedRange = document.getSelection().rangeCount ? document.getSelection().getRangeAt(0).cloneRange() : savedRange;
-  $("#ed-block").value = tag; cmd("formatBlock", `<${tag}>`);
+  snapshot(); $("#ed-block").value = tag; cmd("formatBlock", `<${tag}>`);
 });
 ed.addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } onEdit(); });
 ed.addEventListener("paste", e => {
@@ -3777,12 +4220,13 @@ $("#ed-toolbar").addEventListener("mousedown", e => { if (e.target.closest("butt
 $("#ed-toolbar").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   const a = b.dataset.cmd;
-  if (a === "bold" || a === "italic" || a === "underline" || a === "insertUnorderedList" || a === "insertOrderedList" || a === "undo" || a === "redo") cmd(a);
-  else if (a === "hl") { const c = HL[b.dataset.c]; cmd("hiliteColor", `rgb(${c.join(",")})`); }
+  if (a === "undo") undoEdit(); else if (a === "redo") redoEdit();
+  else if (a === "bold" || a === "italic" || a === "underline" || a === "insertUnorderedList" || a === "insertOrderedList") { restoreSel(); snapshot(); cmd(a); }
+  else if (a === "hl") { const c = HL[b.dataset.c]; restoreSel(); snapshot(); cmd("hiliteColor", `rgb(${c.join(",")})`); }
   else if (a === "unhl") { restoreSel(); const r = savedRange; if (!r) return; snapshot(); ed.querySelectorAll("mark").forEach(m => { if (r.intersectsNode(m)) m.replaceWith(...m.childNodes); }); onEdit(); }
-  else if (a === "pause") { restoreSel(); document.execCommand("insertHTML", false, pauseHtml + "&nbsp;"); onEdit(); }
+  else if (a === "pause") { restoreSel(); snapshot(); document.execCommand("insertHTML", false, pauseHtml + "&nbsp;"); onEdit(); }
 });
-$("#ed-block").onchange = () => { cmd("formatBlock", `<${$("#ed-block").value}>`); };
+$("#ed-block").onchange = () => { restoreSel(); snapshot(); cmd("formatBlock", `<${$("#ed-block").value}>`); };
 $("#ed-slide").onchange = () => {
   const v = $("#ed-slide").value; $("#ed-slide").value = ""; if (!v) return;
   snapshot();
@@ -3791,14 +4235,49 @@ $("#ed-slide").onchange = () => {
   if (b) ed.insertBefore(tpl.content, b); else ed.append(tpl.content);
   refreshCueLabels(); onEdit(true); toast("Slide cue placed before the paragraph with the cursor");
 };
-function snapshot(opts) { undoStack.push({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: opts && opts.meta ? { ...S.meta } : null }); if (undoStack.length > 40) undoStack.shift(); $("#sg-undo").disabled = false; }
-$("#sg-undo").onclick = () => {
-  const u = undoStack.pop(); if (u == null) return;
+/* One undo and redo for everything in the manuscript: typing (each burst of typing is one step), formatting, and every change
+   the app makes in code (suggestions, slide cues, Scripture sections, Edit with suggestions). The browser's own undo can't follow
+   changes made in code, so it is not used. */
+let redoStack = [], burstT = 0, burstKind = "";
+const edOff = (node, off) => { const r = document.createRange(); r.setStart(ed, 0); r.setEnd(node, off); return r.toString().length; };
+function edPoint(o) { const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let n, pos = 0; while ((n = w.nextNode())) { const L = n.length; if (o <= pos + L) return [n, o - pos]; pos += L; } return [ed, ed.childNodes.length]; }
+function edCaret() { const s = getSelection(); if (!s || !s.rangeCount) return null; const r = s.getRangeAt(0); if (!ed.contains(r.startContainer) || !ed.contains(r.endContainer)) return null; return [edOff(r.startContainer, r.startOffset), edOff(r.endContainer, r.endOffset)]; }
+const histState = withMeta => ({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: withMeta ? { ...S.meta } : null, caret: edCaret() });
+function updateHist() {
+  $("#sg-undo").disabled = !undoStack.length;
+  const u = document.querySelector('#ed-toolbar [data-cmd="undo"]'), r = document.querySelector('#ed-toolbar [data-cmd="redo"]');
+  if (u) u.disabled = !undoStack.length; if (r) r.disabled = !redoStack.length;
+}
+function snapshot(opts) { undoStack.push(histState(opts && opts.meta)); if (undoStack.length > 80) undoStack.shift(); redoStack = []; burstT && clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist(); }
+function applyHist(u) {
   ed.innerHTML = typeof u === "string" ? u : u.h;
   if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
   if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
-  refreshCueLabels(); onEdit(true); $("#sg-undo").disabled = !undoStack.length; toast("Undid the last change");
-};
+  refreshCueLabels(); onEdit(true);
+  if (u.caret) { try { ed.focus({ preventScroll: true }); const [a, ao] = edPoint(u.caret[0]), [b, bo] = edPoint(u.caret[1]), r = document.createRange(); r.setStart(a, ao); r.setEnd(b, bo); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch {} }
+}
+function undoEdit() {
+  clearTimeout(burstT); burstT = 0; burstKind = "";
+  const u = undoStack.pop(); if (u == null) { toast("Nothing to undo"); updateHist(); return; }
+  redoStack.push(histState(!!u.meta)); applyHist(u); updateHist(); toast("Undid the last change");
+}
+function redoEdit() {
+  clearTimeout(burstT); burstT = 0; burstKind = "";
+  const u = redoStack.pop(); if (u == null) { toast("Nothing to redo"); updateHist(); return; }
+  undoStack.push(histState(!!u.meta)); applyHist(u); updateHist(); toast("Redid the change");
+}
+$("#sg-undo").onclick = undoEdit;
+ed.addEventListener("beforeinput", e => {
+  if (e.inputType === "historyUndo") { e.preventDefault(); undoEdit(); return; }
+  if (e.inputType === "historyRedo") { e.preventDefault(); redoEdit(); return; }
+  const kind = /^delete/.test(e.inputType) ? "del" : /^insert(Composition)?Text$/.test(e.inputType) ? "ins" : e.inputType;
+  if (!burstT || kind !== burstKind) { const keep = burstT; snapshot(); burstKind = kind; }
+  clearTimeout(burstT); burstT = setTimeout(() => { burstT = 0; burstKind = ""; }, 900);
+});
+ed.addEventListener("keydown", e => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return; const k = e.key.toLowerCase();
+  if (k === "z" && !e.shiftKey) { e.preventDefault(); undoEdit(); } else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); redoEdit(); }
+});
 $("#btn-load-text").onclick = () => $("#file-text").click();
 $("#file-text").onchange = async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -4098,6 +4577,9 @@ function renderEditStats() {
   const w = words(S.transcript).length, mins = w / (S.meta.wpm || 140);
   const txt = `${w.toLocaleString()} words · about ${Math.round(mins)} min · ${sections.length} sections`;
   $("#ed-stats").textContent = txt; const ms = $("#sub-edit"); if (ms) ms.title = sections.length ? txt : "No manuscript yet";
+  const m = Math.round(mins), pill = $("#est-pill");
+  $("#est-tx").textContent = !w ? "No text yet" : mins < 0.75 ? "Under 1 min" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
+  pill.title = `Estimated sermon time: ${w.toLocaleString()} words at ${S.meta.wpm || 140} words a minute`; pill.setAttribute("aria-label", pill.title);
 }
 
 /* slide gutter: thumbnails beside the paragraph that brings each slide up */
@@ -4139,7 +4621,7 @@ function renderGutter() {
     const rail = el("div", { class: "g-rail" + (i % 2 ? " alt" : "") }); rail.style.top = y0 + "px"; rail.style.height = Math.max(8, y1 - y0) + "px";
     g.append(rail);
   });
-  const W = Math.min(132, g.clientWidth - 14), TH = W / (S.aspect || 16 / 9);
+  const W = Math.min(216, g.clientWidth - 14), TH = W / (S.aspect || 16 / 9);
   let bottom = -Infinity;
   clusters.forEach((c, ci) => {
     const anchor = tops[c.sec];
@@ -4185,6 +4667,7 @@ function openGutterPop(anchorEl, x) {
     el("div", { class: "hint", text: x.extra ? "No paragraph matched this slide, so it comes up on a click during this paragraph. Put the cursor where it belongs and use Slide cue in the toolbar, or start it at this paragraph." : "Choose which slide this paragraph brings up. A pin lasts until the paragraph's wording changes; a slide cue is permanent." }),
     el("label", { class: "g-pop-h", for: "g-pop-sel", text: "This paragraph shows" }), sel,
     slideHdLinks(S.slides[x.slide]),
+    S.slides[x.slide] ? el("button", { type: "button", class: "btn primary", text: S.slides[x.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(x.slide) }) : null,
     el("div", { class: "sg-act" }, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
   pop.style.top = anchorEl.style.top; pop.onclick = e => e.stopPropagation();
   $("#gutter").append(pop); gutterPop = pop; sel.focus({ preventScroll: true });
@@ -4318,11 +4801,11 @@ const DEF_SERVICES = [
   { name: "TikTok Live", day: null, time: "" }, { name: "Camp / Retreat", day: null, time: "" }, { name: "Gospel Meeting", day: null, time: "" }, { name: "Other", day: null, time: "" }
 ];
 /* AI services. The page reaches Claude through claude.use("sample") and Canva through the viewer's own connector; the rest are
-   listed for a hosted Pulpit Binder, where a server would hold each church's keys. Every picture request goes through
+   listed for a Pulpit Binder on its own server, which would hold each church's keys. Every picture request goes through
    makePicture, and every Claude request through askJson, so another provider is one more entry and one more branch. */
 const AI_SERVICES = {
-  claude: { kind: "text", name: "Claude", where: "here", desc: "Through your Claude account" },
-  canva: { kind: "image", name: "Canva", where: "here", desc: "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
+  claude: { kind: "text", name: "Claude", where: "here", desc: HOSTED ? "Through the Anthropic key in your Account" : "Through your Claude account" },
+  canva: { kind: "image", name: "Canva", where: "here", desc: HOSTED ? "Not offered on sermon.freely.church. Choose Claude drawing, or use your own pictures." : "Paints a picture through your Canva connection. Full-size copies come from a Canva export." },
   "claude-draw": { kind: "image", name: "Claude drawing", where: "here", desc: "Claude draws a simple, clean illustration. Always sharp on the projector; plainer than a painting." },
   none: { kind: "image", name: "My own pictures only", where: "here", desc: "No generated pictures. Use Photo and Use my own picture instead." },
   "openai-text": { kind: "text", name: "OpenAI (ChatGPT models)", where: "hosted" },
@@ -4337,6 +4820,7 @@ const aiTier = t => { const s = settings.aiTier; if (s === "careful") return "co
 const imgService = () => settings.imgService || "canva";
 const imgReady = () => imgService() === "canva" ? !!mcpNs : imgService() === "claude-draw" ? !!sample : false;
 let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
+if (HOSTED) settings = { ...settings, places: [], defPlace: "", speaker: window.claude.hosted.name || "", imgService: "claude-draw" };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
 const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
 const cleanTime = t => typeof t === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(t) ? t : "";
@@ -4428,32 +4912,151 @@ function readSc(e) {
   let texts = {}; try { texts = JSON.parse(e.getAttribute("data-texts") || "{}") || {}; } catch {}
   const clean = {};
   for (const [k, v] of Object.entries(texts)) if (cleanVer(k) && v && typeof v.t === "string" && v.t.length < 60000) clean[k] = { t: v.t, s: ["bg", "claude", "typed"].includes(v.s) ? v.s : "typed" };
-  return { id: (e.getAttribute("data-id") || "").replace(/[^\w-]/g, "").slice(0, 24) || uid(), ref: (e.getAttribute("data-ref") || "").slice(0, 80), ver: cleanVer(e.getAttribute("data-ver")) || settings.defVer, texts: clean };
+  return { id: (e.getAttribute("data-id") || "").replace(/[^\w-]/g, "").slice(0, 24) || uid(), ref: (e.getAttribute("data-ref") || "").slice(0, 80), ver: cleanVer(e.getAttribute("data-ver")) || settings.defVer, texts: clean, stack: cleanStack((() => { try { return JSON.parse(e.getAttribute("data-stack") || "null"); } catch { return null; } })()) };
 }
 const scBusy = new Map();   // "id|ver" -> "loading" | {err}
 function scInnerHtml(d) {
   const tabsList = [...settings.favs]; if (!tabsList.includes(d.ver)) tabsList.push(d.ver);
   const tabs = tabsList.map(v => `<button type="button" class="pb-sc-tab" data-act="ver" data-v="${v}" aria-pressed="${v === d.ver}" title="${esc(VER_NAME[v] || v)}">${v}</button>`).join("");
-  const cur = d.texts[d.ver], busy = scBusy.get(d.id + "|" + d.ver);
+  const cur = d.texts[d.ver], busy = scBusy.get(d.id + "|" + d.ver), stk = d.stack || { vers: [], sel: [] }, nSel = stk.sel.filter(x => x.b === d.ver).length, stkOpen = scStackOpen === d.id;
+  const model = cur && (stkOpen || nSel) && stk.vers.length ? scStackModel(d, d.ver) : null;
   let body, foot = "";
-  if (cur) body = scBodyHtml(cur.t);
+  if (cur) body = model ? scBodyStacked(d, model) : scBodyHtml(cur.t);
   else if (busy === "loading") body = `<p class="pb-sc-wait">Loading ${esc(d.ver)}…</p>`;
   else if (busy && busy.err) body = `<p class="pb-sc-err">${esc(busy.err)}</p><p><button type="button" class="pb-sc-btn" data-act="retry">Try again</button> <button type="button" class="pb-sc-btn" data-act="paste">Paste the text</button></p>`;
   else body = `<p class="pb-sc-wait">${esc(d.ver)} text not loaded yet. <button type="button" class="pb-sc-btn" data-act="retry">Load it</button></p>`;
   const bg = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(d.ref)}&version=${encodeURIComponent(d.ver)}`;
   if (cur) foot = (cur.s === "claude" ? `<span class="pb-sc-warn">Filled in by Claude. Check the wording against your Bible.</span>` : cur.s === "typed" ? `<span>Pasted text</span>` : `<span>${esc(VER_NAME[d.ver] || d.ver)} · Bible Gateway</span>`) + ` <a href="${esc(bg)}" target="_blank" rel="noopener">Open</a>` + (cur.s !== "bg" ? ` <button type="button" class="pb-sc-btn" data-act="retry">Reload</button>` : "");
-  return `<div class="pb-sc-head"><span class="pb-sc-kicker">Scripture</span><button type="button" class="pb-sc-ref" data-act="ref" title="Change the reference">${esc(d.ref)}</button><span class="pb-sc-tabs">${tabs}</span><button type="button" class="pb-sc-mk" data-act="slides" title="Make slides from this passage">+ Slides</button><button type="button" class="pb-sc-x" data-act="remove" title="Remove this Scripture section" aria-label="Remove this Scripture section">×</button></div><div class="pb-sc-body">${body}</div><div class="pb-sc-foot">${foot}</div>`;
+  return `<div class="pb-sc-head"><span class="pb-sc-kicker">Scripture</span><button type="button" class="pb-sc-ref" data-act="ref" title="Change the reference">${esc(d.ref)}</button><span class="pb-sc-tabs">${tabs}</span><button type="button" class="pb-sc-mk pb-sc-stk-btn" data-act="stackmenu" aria-expanded="${stkOpen}" title="Show other translations stacked under the words you choose">Stack translations${nSel ? " · " + nSel : ""} ▾</button><button type="button" class="pb-sc-mk" data-act="slides" title="Make slides from this passage">+ Slides</button><button type="button" class="pb-sc-x" data-act="remove" title="Remove this Scripture section" aria-label="Remove this Scripture section">×</button></div>${stkOpen && cur ? scStackPanel(d, model) : ""}<div class="pb-sc-body">${body}</div><div class="pb-sc-foot">${foot}</div>`;
 }
 function writeSc(e, d) {
   e.className = "pb-scripture"; e.setAttribute("contenteditable", "false");
   e.setAttribute("data-id", d.id); e.setAttribute("data-ref", d.ref); e.setAttribute("data-ver", d.ver); e.setAttribute("data-texts", JSON.stringify(d.texts));
+  if (d.stack) e.setAttribute("data-stack", JSON.stringify(d.stack)); else e.removeAttribute("data-stack");
   e.innerHTML = scInnerHtml(d);
 }
 function scElement(d) { const e = document.createElement("div"); writeSc(e, d); return e; }
 const scPlainOf = e => { const d = readSc(e); const t = d.texts[d.ver]; return `${d.ref} (${d.ver})${t ? " " + scPlainText(t.t) : ""}`; };
 const edSc = id => ed.querySelector(`.pb-scripture[data-id="${id}"]`);
-function rerenderOne(e) { const src = edSc(e.getAttribute("data-id")) || e; const d = readSc(src); if (e !== src) for (const a of ["data-ref", "data-ver", "data-texts"]) e.setAttribute(a, src.getAttribute(a)); e.innerHTML = scInnerHtml(d); }
+function rerenderOne(e) { const src = edSc(e.getAttribute("data-id")) || e; const d = readSc(src); if (e !== src) for (const a of ["data-ref", "data-ver", "data-texts", "data-stack"]) { const v = src.getAttribute(a); if (v == null) e.removeAttribute(a); else e.setAttribute(a, v); } e.innerHTML = scInnerHtml(d); }
 function rerenderSc(id) { document.querySelectorAll(`.pb-scripture[data-id="${id}"]`).forEach(rerenderOne); secGeo = null; queueGutter(); }
+
+/* ---- stacked translations ----
+   In a Scripture section, "Stack translations" lets you tick other translations; the words where they differ from the
+   section's translation are highlighted, and each one you tap shows the other readings under it. The choices live on the
+   section (data-stack: {vers: [the translations ticked], sel: [{b: the translation they were chosen in, v: "ch:v", a, e: the word positions in that verse, k: the words}]}) and ride along to the slides made from the section (the slide keeps its own copy, in slide.stk). */
+const cleanStack = x => {
+  const vers = Array.isArray(x && x.vers) ? [...new Set(x.vers.map(cleanVer).filter(Boolean))].slice(0, 5) : [];
+  const sel = Array.isArray(x && x.sel) ? x.sel.filter(s => s && cleanVer(s.b) && /^\d{1,3}:\d{1,3}$/.test(String(s.v)) && Number.isInteger(s.a) && Number.isInteger(s.e) && s.a >= 0 && s.e >= s.a).slice(0, 300).map(s => ({ b: s.b, v: String(s.v), a: s.a, e: s.e, k: String(s.k || "").slice(0, 120) })) : [];
+  return vers.length || sel.length ? { vers, sel } : null;
+};
+let scStackOpen = null;   // the section whose Stack translations panel is open
+const segHtml = (s, p) => { let h = esc(s); if (p.i) h = `<i>${h}</i>`; if (p.h) h = `<mark class="hl-${p.h}">${h}</mark>`; if (p.u) h = `<u>${h}</u>`; if (p.b) h = `<b>${h}</b>`; return h; };
+/* the text as a run of events: verse numbers, line breaks, spaces, and words. Words are numbered within their verse the same
+   way Text Study numbers them, so a place found by comparing translations lands on the same words here. */
+function scEvents(t, ch0, v0) {
+  let ch = ch0, vk = `${ch0}:${v0}`, tok = null; const out = [];
+  for (const p of scPieces(t)) {
+    if (p.k === "v") { const m = p.s.match(/^\{\{(\d{1,3})(?::(\d{1,3}))?\}\}$/); if (m) { if (m[2]) ch = +m[1]; vk = `${ch}:${m[2] ? +m[2] : +m[1]}`; } tok = null; out.push({ k: "v", s: p.s, vk }); continue; }
+    if (p.k === "n") { tok = null; out.push({ k: "n" }); continue; }
+    for (const part of p.s.split(/(\s+)/)) {
+      if (!part) continue;
+      if (/^\s+$/.test(part)) { tok = null; out.push({ k: "s", p }); continue; }
+      if (tok) { tok.segs.push({ s: part, p }); tok.text += part; continue; }   // a word that changes formatting mid-way is still one word
+      tok = { k: "t", vk, segs: [{ s: part, p }], text: part, i: -1, join: false }; out.push(tok);
+    }
+  }
+  let n = -1, prev = null;
+  for (const e of out) {
+    if (e.k === "v") { n = -1; prev = null; continue; }
+    if (e.k !== "t") continue;
+    if (!normW(e.text)) { if (prev) { e.i = prev.i; e.join = true; } continue; }   // a lone mark belongs to the word before it
+    e.i = ++n; prev = e;
+  }
+  return out;
+}
+const scTokCounts = ev => { const c = {}; for (const e of ev) if (e.k === "t" && e.i >= 0) c[e.vk] = Math.max(c[e.vk] || 0, e.i + 1); return c; };
+/* where the ticked translations differ from `base`, verse by verse, with what each says there */
+function scStackModel(d, base) {
+  const st = d.stack || {}, vers = (st.vers || []).filter(v => v !== base && d.texts[v]), bt = d.texts[base];
+  if (!bt || !vers.length) return null;
+  const units = unitsFromTokens(bt.t, d.ref), others = {}; for (const v of vers) others[v] = unitsFromTokens(d.texts[v].t, d.ref);
+  const out = new Map();
+  for (const u of units) {
+    const vk = scKey(u), A = {};
+    for (const v of vers) { const m = others[v].find(x => scKey(x) === vk); if (m) A[v] = scPlainText(m.t); }
+    if (!Object.keys(A).length) continue;
+    const cmp = compareVerse(scPlainText(u.t), A);
+    out.set(vk, cmp.intervals.map(iv => {
+      const key = cmp.tokens.slice(iv.a, iv.b).map(x => x.k).join(" ");
+      return { a: iv.a, b: iv.b, key, nt: cmp.tokens.length, sel: (st.sel || []).some(s => s.b === base && s.v === vk && (iv.a === iv.b ? s.a === s.e && s.a === iv.a : s.a < iv.b && iv.a < s.e)), alts: iv.groups.filter(g => !g.base && g.vers.length).map(g => ({ vers: g.vers, text: stBare(g.text) })) };
+    }));
+  }
+  return out;
+}
+/* events to HTML. ivs: Map(verse -> [{a, b, sel, key, n, alts}]). With opts.edit every place is a button you can tap; chosen places
+   always show their other readings. opts.flat gives one block with no paragraphs, as slides want. */
+function scEmit(ev, ivs, opts = {}) {
+  const at = new Map(), ins = new Map();
+  for (const [vk, list] of ivs) for (const iv of list) (iv.a === iv.b ? ins : at).set(`${vk}|${iv.a}`, iv);
+  const paras = [[]], push = h => paras[paras.length - 1].push(h);
+  const attrs = iv => ` data-act="stackword" data-v="${esc(iv.vk)}" data-a="${iv.a}" data-e="${iv.b}" data-k="${esc(iv.key || "")}"`;
+  const altsHtml = iv => `<span class="sc-stk-a">${(iv.alts || []).map(g => `<span class="sc-stk-l"><b class="sc-stk-v">${esc(g.vers.join(" "))}</b> ${esc(g.text || "(omitted)")}</span>`).join("")}</span>`;
+  const wrap = (iv, inner, cls) => {
+    if (iv.sel) return `<span class="sc-stk">${opts.edit ? `<button type="button" class="sc-var sel${cls}"${attrs(iv)}>${inner}</button>` : `<span class="sc-var sel${cls}">${inner}</span>`}${altsHtml(iv)}</span>`;
+    return opts.edit ? `<button type="button" class="sc-var${cls}"${attrs(iv)}>${inner}</button>` : inner;
+  };
+  for (let x = 0; x < ev.length; x++) {
+    const e = ev[x];
+    if (e.k === "v") { push(`<sup class="vn">${esc(e.s.slice(2, -2))}</sup>`); continue; }
+    if (e.k === "n") { let run = 1; while (ev[x + 1] && ev[x + 1].k === "n") { run++; x++; } if (run > 1 && !opts.flat) paras.push([]); else push("<br>"); continue; }
+    if (e.k === "s") { push(segHtml(" ", e.p)); continue; }
+    const first = !e.join && e.i >= 0;
+    const insIv = first && ins.get(`${e.vk}|${e.i}`);
+    if (insIv && (insIv.sel || opts.edit)) push(wrap({ ...insIv, vk: e.vk }, "‸", " ins"));
+    const iv = first && at.get(`${e.vk}|${e.i}`);
+    if (iv && (iv.sel || opts.edit)) {
+      let last = -1, ok = true;
+      for (let z = x; z < ev.length; z++) { const f = ev[z]; if (f.k === "v" || f.k === "n") { ok = f.k === "x"; break; } if (f.k === "t") { if (!f.join && f.i >= iv.b) break; last = z; } }
+      if (last >= x) {   // the place must sit on one line of the text; a place that runs over a line break is left alone
+        let inner = "", hasBreak = false; for (let z = x; z <= last; z++) { const f = ev[z]; if (f.k === "t") inner += f.segs.map(sg => segHtml(sg.s, sg.p)).join(""); else if (f.k === "s") inner += segHtml(" ", f.p); else hasBreak = true; }
+        if (!hasBreak) { push(wrap({ ...iv, vk: e.vk }, inner, "")); x = last; continue; }
+      }
+    }
+    push(e.segs.map(sg => segHtml(sg.s, sg.p)).join(""));
+  }
+  return opts.flat ? paras[0].join("") : paras.map(p => `<p>${p.join("")}</p>`).join("");
+}
+function scBodyStacked(d, model) {
+  const st = refStart(d.ref), ev = scEvents(d.texts[d.ver].t, st.ch, st.v), cnt = scTokCounts(ev), ivs = new Map();
+  for (const [vk, list] of model) { const ok = list.filter(iv => iv.nt === cnt[vk]); if (ok.length) ivs.set(vk, ok); }
+  return scEmit(ev, ivs, { edit: scStackOpen === d.id });
+}
+/* the chosen places that fall in a slide's verses, with their other readings kept on the slide */
+function scStkFor(d, s) {
+  const st = d.stack; if (!st || !s.sc || !st.sel.some(x => x.b === s.ver)) return null;
+  const model = scStackModel(d, s.ver), cur = d.texts[s.ver]; if (!model || !cur) return null;
+  const units = unitsFromTokens(cur.t, d.ref), i = units.findIndex(u => scKey(u) === s.sc.a), j = units.findIndex(u => scKey(u) === s.sc.z); if (i < 0 || j < i) return null;
+  const out = []; for (const u of units.slice(i, j + 1)) for (const iv of model.get(scKey(u)) || []) if (iv.sel) out.push({ v: scKey(u), a: iv.a, b: iv.b, nt: iv.nt, alts: iv.alts });
+  return out.length ? out : null;
+}
+function scSlideHtml(s) {
+  const [ch, v] = String(s.sc.a).split(":").map(Number), ev = scEvents(s.text, ch, v), cnt = scTokCounts(ev), ivs = new Map();
+  for (const x of s.stk) { if (x.nt !== cnt[x.v]) continue; if (!ivs.has(x.v)) ivs.set(x.v, []); ivs.get(x.v).push({ a: x.a, b: x.b, sel: true, alts: x.alts }); }
+  return scEmit(ev, ivs, { flat: true });
+}
+function scStackPanel(d, model) {
+  const st = d.stack || { vers: [], sel: [] }, nSel = st.sel.filter(x => x.b === d.ver).length;
+  const opts = [...new Set([...settings.favs, ...st.vers])].filter(v => v !== d.ver);
+  const chips = opts.map(v => { const on = st.vers.includes(v), busy = scBusy.get(d.id + "|" + v), miss = on && !d.texts[v];
+    return `<button type="button" role="checkbox" class="pb-sc-stk-opt" data-act="stackver" data-v="${v}" aria-checked="${on}" title="${esc(VER_NAME[v] || v)}"><i class="pb-sc-box"></i>${v}${miss ? ` <em>${busy && busy.err ? "not found" : "loading"}</em>` : ""}</button>`; }).join("");
+  const diffs = model ? [...model.values()].reduce((a, l) => a + l.length, 0) : 0, waiting = st.vers.some(v => v !== d.ver && !d.texts[v]);
+  const hint = !st.vers.length ? "Tick the translations to compare. The words where they differ from the " + esc(d.ver) + " will be highlighted."
+    : waiting && !diffs ? "Loading the other translations…"
+    : !diffs ? "These translations read the same as the " + esc(d.ver) + " here."
+    : "Tap a highlighted word or phrase to stack the other readings under it. Tap it again to take it off. Stacks show on slides made from this section too.";
+  return `<div class="pb-sc-stk-panel" role="group" aria-label="Stack translations"><div class="pb-sc-stk-opts">${chips}</div><div class="pb-sc-stk-hint">${hint}</div>${nSel ? `<div><button type="button" class="pb-sc-btn" data-act="stackclear">Clear stacks</button></div>` : ""}</div>`;
+}
 
 /* references */
 function normalizeRef(s) {
@@ -4526,6 +5129,7 @@ async function fetchPassage(ref, ver) {
       return { t, s: "claude" };
     } catch (e) { if (e && e.code === "not_granted") why = why || "not_granted"; }
   }
+  if (HOSTED) throw new Error(`Couldn't load ${ref} in the ${ver}. Paste the text, or check that your Anthropic key is in Account and Settings lets Claude supply the text.`);
   throw new Error(why === "no_connector" || why === "server_not_connected" ? `Couldn't load the ${ver} text. Connect Firecrawl in your Claude settings so this page can read Bible Gateway, or paste the text.` : why === "not_granted" ? `Couldn't load the ${ver} text because this page wasn't allowed to use your connections. Allow it from the page's Permissions menu, or paste the text.` : `Couldn't load ${ref} in the ${ver}. Check the reference, try again, or paste the text.`);
 }
 async function loadSc(id, ver, force) {
@@ -4540,7 +5144,7 @@ async function loadSc(id, ver, force) {
     const e2 = edSc(id); if (e2) { const d2 = readSc(e2); d2.texts[ver] = r; writeSc(e2, d2); syncScSlides(id); }
     scBusy.delete(k);
   } catch (err) { scBusy.set(k, { err: err.message }); }
-  rerenderSc(id); onEdit(true);
+  rerenderSc(id); onEdit(true); autoScSlides(id);
 }
 
 /* inserting */
@@ -4562,7 +5166,7 @@ function insertScripture(ref, ver, opts = {}) {
   if (!rest) { const nx = node.nextElementSibling; if (nx && nx.tagName === "P" && !nx.textContent.trim()) rest = nx; else { rest = document.createElement("p"); rest.append(document.createElement("br")); } }
   if (!rest.isConnected) node.after(rest);
   try { ed.focus({ preventScroll: true }); const r = document.createRange(); r.setStart(rest, 0); r.collapse(true); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch {}
-  hideHint(); onEdit(true); loadSc(d.id, d.ver);
+  hideHint(); onEdit(true); scAuto.add(d.id); loadSc(d.id, d.ver);
   return d.id;
 }
 ed.addEventListener("keydown", e => {
@@ -4620,6 +5224,25 @@ document.addEventListener("click", e => {
     d.ver = btn.dataset.v; writeSc(src, d); rerenderSc(id); onEdit(true);
     if (!d.texts[d.ver]) loadSc(id, d.ver);
   } else if (act === "retry") loadSc(id, d.ver, true);
+  else if (act === "stackmenu") { if (!ed.contains(box)) return; scStackOpen = scStackOpen === id ? null : id; rerenderSc(id); }
+  else if (act === "stackver") {
+    if (!ed.contains(box)) return;
+    const v = btn.dataset.v, st = d.stack || { vers: [], sel: [] }, on = st.vers.includes(v);
+    if (!on && st.vers.length >= 5) { toast("Stack up to five translations at a time"); return; }
+    snapshot(); st.vers = on ? st.vers.filter(x => x !== v) : [...st.vers, v]; d.stack = cleanStack(st);
+    writeSc(src, d); rerenderSc(id); onEdit(true); syncScSlides(id);
+    if (!on && !d.texts[v]) loadSc(id, v);
+  } else if (act === "stackword") {
+    if (!ed.contains(box)) return;
+    const st = d.stack || { vers: [], sel: [] }, x = { b: d.ver, v: btn.dataset.v, a: +btn.dataset.a, e: +btn.dataset.e, k: btn.dataset.k || "" };
+    const hit = y => y.b === x.b && y.v === x.v && (x.a === x.e ? y.a === y.e && y.a === x.a : y.a < x.e && x.a < y.e), had = st.sel.some(hit);
+    snapshot(); st.sel = st.sel.filter(y => !hit(y)); if (!had) st.sel.push(x); d.stack = cleanStack(st);
+    writeSc(src, d); rerenderSc(id); onEdit(true); syncScSlides(id);
+  } else if (act === "stackclear") {
+    if (!ed.contains(box) || !d.stack) return;
+    snapshot(); d.stack.sel = d.stack.sel.filter(y => y.b !== d.ver); d.stack = cleanStack(d.stack);
+    writeSc(src, d); rerenderSc(id); onEdit(true); syncScSlides(id);
+  }
   else if (act === "slides") { if (ed.contains(box)) makeScriptureSlides(id); }
   else if (act === "remove") { if (!ed.contains(box)) return; snapshot(); src.remove(); onEdit(true); toast("Scripture section removed. Undo brings it back."); }
   else if (act === "ref") {
@@ -4636,7 +5259,7 @@ document.addEventListener("click", e => {
     const save = el("button", { type: "button", class: "pb-sc-btn", text: "Save" });
     bodyEl.replaceChildren(ta, el("p", {}, save)); ta.focus();
     ["keydown", "input"].forEach(t => ta.addEventListener(t, ev => ev.stopPropagation()));
-    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); syncScSlides(id); onEdit(true); };
+    save.onclick = ev => { ev.stopPropagation(); const v = ta.value.trim(); if (!v) return; const d2 = readSc(src); d2.texts[d2.ver] = { t: v.replace(/\r/g, "").replace(/(^|\s)(\d{1,3})(?=\s)/g, "$1{{$2}}"), s: "typed" }; scBusy.delete(id + "|" + d2.ver); writeSc(src, d2); rerenderSc(id); syncScSlides(id); onEdit(true); autoScSlides(id); };
   }
 }, true);
 
@@ -4812,6 +5435,7 @@ function madeTextHtml(t) { return scMarkHtml(esc(String(t || "")).replace(/\{\{(
 function slideAtSection(si) { let s = -1; for (const x of buildSteps()) if (x.sec != null && x.sec <= si && x.slide != null) s = Math.max(s, x.slide); return s; }
 function insertMadeSlides(target, newSlides, opts = {}) {
   if (!newSlides.length) return;
+  newSlides.forEach(sl => { if (sl.sc) { const se = edSc(sl.sc.id); if (se) { const stk = scStkFor(readSc(se), sl); if (stk) sl.stk = stk; } } });
   onEdit(true);
   const groups = groupBlocks([...ed.children]);
   const si = groups.findIndex(g => g.els.includes(target));
@@ -4828,10 +5452,10 @@ function insertMadeSlides(target, newSlides, opts = {}) {
   if (cue) { const start = sections[si].slide; cue.dataset.n = String(start + 1); cue.dataset.k = String((sections[si].span || 1) + count); }
   else { const t = document.createElement("template"); t.innerHTML = slideCueHtml(pos + 1, count); first.before(t.content); }
   deckEdited();
-  toast(count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`);
+  toast((count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`) + (opts.from ? ` for ${opts.from}` : ""));
   return pos;
 }
-function deckEdited() { S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
+function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
 function replacePicture(idx) {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
   inp.onchange = async () => {
@@ -4868,7 +5492,7 @@ function updateSelPop() {
   if (view !== "edit") { selPop.hidden = true; return; }
   const info = selInfo(); if (!info) { selPop.hidden = true; return; }
   const rect = info.r.getBoundingClientRect(); if (!rect.width && !rect.height) { selPop.hidden = true; return; }
-  selPop.hidden = false;
+  $("#btn-edit-sel").hidden = !sample; selPop.hidden = false;
   const w = selPop.offsetWidth, h = selPop.offsetHeight;
   const coarse = matchMedia("(pointer:coarse)").matches;   // phones put their own menu above the selection
   let y = coarse ? rect.bottom + 10 : rect.top - h - 8; if (y < 8 || (!coarse && y < (parseFloat(getComputedStyle(root).getPropertyValue("--hdr-h")) || 0) + 60)) y = rect.bottom + 10;
@@ -4877,6 +5501,144 @@ function updateSelPop() {
 let selT = 0; document.addEventListener("selectionchange", () => { cancelAnimationFrame(selT); selT = requestAnimationFrame(updateSelPop); });
 window.addEventListener("scroll", () => { if (!selPop.hidden) updateSelPop(); }, { passive: true });
 selPop.addEventListener("mousedown", e => e.preventDefault());
+/* ---- Edit with suggestions: highlight words, say what should change and how long, preview, accept ---- */
+const ES_LEN = [["much shorter", "Much shorter, about half", 0.5], ["a bit shorter", "A bit shorter, about three quarters", 0.75], ["about the same", "About the same length", 1], ["a bit longer", "A bit longer, about a third more", 1.35], ["much longer", "Much longer, about twice as long", 2]];
+const ES_IDEAS = ["Say it more simply", "Add a short illustration", "Make the application stronger", "Tighten it up", "Make it warmer", "Make it flow better when read aloud"];
+let es = null;
+function rangeText(r) {   // paragraphs kept apart, so the words can come back the same way
+  const kids = [...r.cloneContents().childNodes];
+  if (kids.some(n => n.nodeType === 1 && /^(P|DIV|H[1-6]|UL|OL|BLOCKQUOTE|LI)$/.test(n.tagName))) return kids.map(n => n.textContent.replace(/\s+/g, " ").trim()).filter(Boolean).join("\n\n");
+  return kids.map(n => n.textContent).join("").replace(/\s+/g, " ").trim();
+}
+const esWords = t => (String(t).match(/\S+/g) || []).length;
+/* the length is a choice of size or a number typed in; the choices fill in the number, and typing a number picks "Exact number" */
+const esPreset = i => Math.max(5, Math.round(esWords(es.text) * ES_LEN[i][2]));
+const esTarget = () => { const v = Math.round(+$("#es-words").value); return v >= 5 ? Math.min(3000, v) : esPreset($("#es-len").value === "x" ? 2 : +$("#es-len").value); };
+function esCount(fromNumber) {
+  const n = esWords(es.text), sel = $("#es-len");
+  if (fromNumber) { const v = Math.round(+$("#es-words").value), hit = ES_LEN.findIndex((_, i) => esPreset(i) === v); sel.value = hit >= 0 ? String(hit) : "x"; }
+  else if (sel.value !== "x") $("#es-words").value = String(esPreset(+sel.value));
+  const v = Math.round(+$("#es-words").value);
+  $("#es-lenhint").textContent = v >= 5 ? `About ${Math.min(3000, v)} words (now ${n}).` : `Type at least 5 words (now ${n}).`;
+}
+/* a highlight made by triple-click or by dragging past the end of a paragraph ends at the start of the next block; move both ends onto the words */
+function normRange(r) {
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(".pb-slide,.pb-scripture") || !n.data.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  let first = null, last = null, n;
+  while ((n = w.nextNode())) {
+    if (!first && r.comparePoint(n, n.length) >= 0) first = n;
+    if (r.comparePoint(n, 0) <= 0) last = n; else break;
+  }
+  if (!first || !last) return r;
+  const out = document.createRange();
+  out.setStart(first, first === r.startContainer ? r.startOffset : 0);
+  out.setEnd(last, last === r.endContainer ? r.endOffset : last.length);
+  return out.collapsed ? r : out;
+}
+function openEdit() {
+  const info = selInfo(); if (!info || !sample) return;
+  const r = normRange(info.r.cloneRange());
+  if (r.cloneContents().querySelector(".pb-slide,.pb-scripture")) { toast("Highlight words without a slide cue or Scripture section inside. Choose one stretch between slide cues, or take the cue out first."); return; }
+  const text = rangeText(r); if (esWords(text) < 3) { toast("Highlight a few more words to rework."); return; }
+  const pre = document.createRange(); pre.setStart(ed, 0); pre.setEnd(r.startContainer, r.startOffset);
+  const post = document.createRange(); post.setStart(r.endContainer, r.endOffset); post.setEnd(ed, ed.childNodes.length);
+  es = { a: edOff(r.startContainer, r.startOffset), z: edOff(r.endContainer, r.endOffset), text, before: pre.toString().replace(/\s+/g, " ").slice(-700), after: post.toString().replace(/\s+/g, " ").slice(0, 500), busy: false, out: "" };
+  $("#es-orig").textContent = text; $("#es-ask").value = ""; $("#es-msg").textContent = "";
+  const len = $("#es-len"); len.replaceChildren(...ES_LEN.map(([, l], i) => el("option", { value: String(i), text: l })), el("option", { value: "x", text: "Exact number of words" })); len.value = "2"; esCount();
+  $("#es-chips").replaceChildren(...ES_IDEAS.map(t => el("button", { type: "button", class: "chip", text: t, onclick: () => { const a = $("#es-ask"); a.value = a.value.trim() ? a.value.trim().replace(/[.]?$/, ". ") + t : t; a.focus(); } })));
+  $("#es-step1").hidden = false; $("#es-step2").hidden = true; $("#es-go").disabled = false; $("#es-go").textContent = "Create";
+  $("#es-modal").hidden = false; selPop.hidden = true; $("#es-ask").focus();
+}
+function closeEdit() { $("#es-modal").hidden = true; es = null; }
+async function esRun(fresh) {
+  if (!es || es.busy || !sample) return;
+  const ask = $("#es-ask").value.trim();
+  if (!ask) { $("#es-msg").textContent = "Say what should change, or choose one of the ideas above."; $("#es-ask").focus(); return; }
+  if (Math.round(+$("#es-words").value) < 5) { $("#es-msg").textContent = "Type how many words you want, 5 or more, or choose a length."; $("#es-words").focus(); return; }
+  const exact = $("#es-len").value === "x", n = esWords(es.text), target = esTarget(), lenName = exact ? "a set number of words" : ES_LEN[+$("#es-len").value][0], m = S.meta;
+  es.busy = true; $("#es-go").disabled = true; $("#es-go").textContent = "Writing…"; $("#es-again").disabled = true; $("#es-again").textContent = "Writing…"; $("#es-msg").textContent = "Claude is working on it…";
+  const prompt = `You are helping a preacher in the churches of Christ rework part of his sermon manuscript, which he will read aloud at the pulpit. Keep his voice, vocabulary, and reading level. Be faithful to Scripture and to what the sermon already teaches; do not add doctrine it does not teach. Do not invent facts, statistics, quotations, or personal stories. If you add a Scripture reference it must be real and accurate, and quote it only when you are certain of the wording. Plain, warm sentences meant to be heard. No emojis, headings, or bullet lists. Separate paragraphs with a blank line.
+
+Sermon: ${m.title || "(untitled)"}${m.text ? ", text " + m.text : ""}.
+Just before the highlighted words: """${es.before}"""
+Just after them: """${es.after}"""
+
+The highlighted words (${n} words):
+"""${es.text}"""
+
+His request: ${ask}
+Length: ${lenName}, about ${target} words in all (the original is ${n}).${exact ? ` He asked for ${target} words, so land within a few words of ${target}.` : ""}
+
+Return ONLY JSON: {"text":"the reworked words only, ready to replace the highlighted words, so they fit between what comes before and after"}`;
+  try {
+    const { value: r } = await askJson(prompt, { tier: "default", fresh: !!fresh });
+    const out = String((r && r.text) || "").replace(/\r/g, "").trim(); if (!out) throw { code: "empty" };
+    if (!es) return; es.out = out; es.target = target;
+    $("#es-orig2").textContent = es.text; $("#es-out").value = out; $("#es-n0").textContent = `${n} words`; esOutCount();
+    $("#es-step1").hidden = true; $("#es-step2").hidden = false; $("#es-out").focus();
+  } catch (e) {
+    const why = e && e.code === "not_granted" ? "Claude wasn't allowed for this page." : e && e.code === "rate_limited" ? "Too many requests right now. Try again in a minute." : "Claude didn't finish that. Try again, or change the request.";
+    if (es) { if ($("#es-step1").hidden) toast(why); else $("#es-msg").textContent = why; }
+  }
+  if (!es) return; es.busy = false; $("#es-go").disabled = false; $("#es-go").textContent = "Create"; $("#es-again").disabled = false; $("#es-again").textContent = "Try again";
+  if (!$("#es-step1").hidden && $("#es-msg").textContent.startsWith("Claude is")) $("#es-msg").textContent = "";
+}
+const esOutCount = () => { const o = esWords($("#es-out").value), n = esWords(es.text), d = o - n; $("#es-n1").textContent = `${o} words${d ? ` (${d > 0 ? "+" : ""}${d})` : ""}${es.target ? `, asked for ${es.target}` : ""}`; };
+/* put the new words exactly where the highlighted ones were: everything before the highlight stays, everything after it follows the
+   last new paragraph, and blank lines in the suggestion become new paragraphs */
+/* A position between two blocks belongs to both: the end of one and the start of the next. The start of the highlight is
+   found in the words after it and the end in the words before it, never inside a slide cue or Scripture section. */
+function esPoint(o, forward) {
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let n, pos = 0, back = null;
+  while ((n = w.nextNode())) {
+    const L = n.length, skip = n.parentElement.closest(".pb-slide,.pb-scripture,.pb-cue");
+    if (!skip && o >= pos && o <= pos + L) { if (!forward) return [n, o - pos]; if (o < pos + L) return [n, o - pos]; back = back || [n, o - pos]; }
+    pos += L;
+  }
+  return back;
+}
+function esRange() {   // the highlight, found again by its position, and checked to still be the same words
+  if (!es) return null;
+  const a = esPoint(es.a, true), z = esPoint(es.z, false); if (!a || !z) return null;
+  const [sn, so] = a, [en, eo] = z, r = document.createRange();
+  try { r.setStart(sn, so); r.setEnd(en, eo); } catch { return null; }
+  return rangeText(r) === es.text ? r : null;
+}
+function esReplace(r, text) {
+  const paras = text.split(/\n{2,}/).map(t => t.replace(/\n/g, " ").trim()).filter(Boolean); if (!paras.length) return false;
+  const sb = topBlock(r.startContainer), eb = topBlock(r.endContainer); if (!sb || !eb) return false;
+  snapshot();
+  const sn = r.startContainer, so = r.startOffset;   // where the highlight began; after deleting across paragraphs the browser leaves the range after the first one
+  const t = document.createRange(); t.setStart(r.endContainer, r.endOffset); t.setEndAfter(eb.lastChild || eb);
+  const tail = t.extractContents();   // what follows the highlight in its last paragraph
+  r.deleteContents();
+  if (eb !== sb && eb.parentNode === ed) eb.remove();
+  const at0 = document.createRange(); at0.setStart(sn, Math.min(so, sn.nodeType === 3 ? sn.length : sn.childNodes.length)); at0.collapse(true); at0.insertNode(document.createTextNode(paras[0]));
+  let at = sb, last = sb;
+  paras.slice(1).forEach(x => { const p = document.createElement("p"); p.textContent = x; at.after(p); at = last = p; });
+  last.append(tail);
+  if (!sb.textContent.trim() && !sb.querySelector("img,.pb-scripture,.pb-slide")) sb.remove();
+  normalizeEditor(); onEdit(true); return true;
+}
+function esAccept() {
+  if (!es) return; const out = $("#es-out").value.trim(); if (!out) { toast("The suggested wording is empty."); return; }
+  const r = esRange(); if (!r) { closeEdit(); toast("The manuscript changed while you worked. Highlight the words again."); return; }
+  const ok = esReplace(r, out); closeEdit(); getSelection().removeAllRanges();
+  if (ok) { toast("Replaced. Undo brings your words back."); renderSuggestions(); }
+}
+$("#btn-edit-sel").onclick = openEdit;
+$("#es-cancel").onclick = $("#es-cancel2").onclick = closeEdit;
+$("#es-go").onclick = () => esRun(false);
+$("#es-again").onclick = () => esRun(true);
+$("#es-back").onclick = () => { $("#es-step2").hidden = true; $("#es-step1").hidden = false; $("#es-msg").textContent = ""; $("#es-ask").focus(); };
+$("#es-accept").onclick = esAccept;
+$("#es-len").onchange = () => { if (es) esCount(); };
+$("#es-words").addEventListener("input", () => { if (es) esCount(true); });
+$("#es-words").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); esRun(false); } });
+$("#es-out").addEventListener("input", () => { if (es) esOutCount(); });
+$("#es-modal").addEventListener("click", e => { if (e.target.id === "es-modal" && !(es && es.busy)) closeEdit(); });
+document.addEventListener("keydown", e => { if (!$("#es-modal").hidden && e.key === "Escape") { e.preventDefault(); closeEdit(); } else if (!$("#es-modal").hidden && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!$("#es-step1").hidden) esRun(false); else esAccept(); } });
+
 /* ---------------- slide kinds ---------------- */
 /* Every made slide is {made: kind, theme, ...fields}. renderMade draws each kind from its fields,
    so a slide looks right at any size, from the gutter thumbnail to full screen. */
@@ -4908,6 +5670,29 @@ function renderMade(box, s) {
     }
     case "point": { const n = el("div", { class: "mk-num", text: s.num || "" }); n.style.color = th.accent; if (s.num) wrap.append(n); textBlock(esc(s.text || ""), fitSize(w, true)); break; }
     case "blanks": textBlock(blanksHtml(s.text || "", !!s.reveal, th.accent), fitSize(words((s.text || "").replace(/[[\]]/g, "")).length)); refLine(); break;
+    case "infographic": {
+      const items = s.items || [], ink = th.fg, cardBg = rgba(th.fg, 0.09), lay = s.layout || "steps";
+      if (s.title) wrap.append(el("div", { class: "mk-title ig-title", text: s.title }));
+      const sized = (e, n) => { e.style.setProperty("--n", String(n)); return e; };
+      if (lay === "compare") {
+        const row = el("div", { class: "ig-row ig-compare" });
+        items.forEach(c => { const card = el("div", { class: "ig-card" }); card.style.background = cardBg; const h = el("div", { class: "ig-h", text: c.h }); h.style.color = th.accent; h.style.borderColor = th.accent; card.append(h);
+          const ul = el("ul", { class: "ig-pts" }); (c.pts || []).forEach(t => ul.append(el("li", { text: t }))); ul.style.setProperty("--acc", th.accent); card.append(ul); row.append(card); });
+        wrap.append(row);
+      } else {
+        const row = sized(el("div", { class: "ig-row ig-" + lay }), items.length);
+        items.forEach((it, i) => {
+          const cell = el("div", { class: "ig-cell" });
+          if (lay === "steps") { const num = el("div", { class: "ig-num", text: String(i + 1) }); num.style.background = th.accent; num.style.color = th.bg; cell.append(num); const card = el("div", { class: "ig-card" }); card.style.background = cardBg; card.append(el("div", { class: "ig-h", text: it.h })); if (it.t) card.append(el("div", { class: "ig-t", text: it.t })); cell.append(card); }
+          else if (lay === "timeline") { cell.append(el("div", { class: "ig-h", text: it.h })); const dot = el("div", { class: "ig-dot" }); dot.style.background = th.accent; dot.style.borderColor = th.bg; cell.append(dot); if (it.t) cell.append(el("div", { class: "ig-t", text: it.t })); }
+          else { const card = el("div", { class: "ig-card ig-stat" }); card.style.background = cardBg; const big = el("div", { class: "ig-big", text: it.h }); big.style.color = th.accent; card.append(big); if (it.t) card.append(el("div", { class: "ig-t", text: it.t })); cell.append(card); }
+          row.append(cell);
+        });
+        if (lay === "timeline") { const line = el("div", { class: "ig-line" }); line.style.background = th.accent; row.append(line); }
+        wrap.append(row);
+      }
+      wrap.classList.add("ig-wrap"); break;
+    }
     case "photo": case "art": {
       const full = s.made === "photo" || !!s.img;
       const src = s.img ? blobURL(s.img) : s.svg ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s.svg) : null;
@@ -4916,7 +5701,12 @@ function renderMade(box, s) {
       if (s.caption) { const c = textBlock(esc(s.caption), full ? fitSize(words(s.caption).length, true) * 0.8 : 3.4, "mk-cap" + (full ? " on-pic" : "")); if (full) c.style.color = "#fff"; wrap.classList.add("mk-bottom"); }
       refLine(); break;
     }
-    default: textBlock(madeTextHtml(s.text), fitSize(w) * (s.made === "keyverse" ? 1.25 : 1)); refLine();   // quote, scripture, keyverse
+    default: {   // quote, scripture, keyverse; chosen words carry their other translations underneath
+      const stacked = !!(s.stk && s.stk.length && s.sc && (s.made === "scripture" || s.made === "keyverse"));
+      const tb = textBlock(stacked ? scSlideHtml(s) : madeTextHtml(s.text), fitSize(w) * (s.made === "keyverse" ? 1.25 : 1) * (stacked ? 0.88 : 1));
+      if (stacked) { tb.querySelectorAll(".sc-stk-v").forEach(v => { v.style.color = th.accent; }); tb.querySelectorAll(".sc-var.sel").forEach(v => { v.style.borderBottomColor = th.accent; }); }
+      refLine(); break;
+    }
   }
   box.append(wrap);
 }
@@ -4932,17 +5722,23 @@ const KINDS = {
   title: { name: "Sermon title", icon: "T", desc: "The title and text, with the theme's header picture. Good as the first slide.", for: ["text", "scripture"] },
   section: { name: "Section header", icon: "§", desc: "Opens a new division or main point, large, with the header picture.", for: ["text", "scripture"] },
   blanks: { name: "Fill in the blank", icon: "_", desc: "Key words blanked, then revealed on the next click. Good with sermon notes.", ai: true, for: ["text", "scripture"] },
+  infographic: { name: "Infographic", icon: "▥", desc: "The idea as a picture you can read at a glance: steps, a timeline, big numbers, or two sides.", ai: true, for: ["text", "scripture"] },
   question: { name: "Reflection question", icon: "?", desc: "A question for the congregation to take home.", ai: true, for: ["text", "scripture"] },
   art: { name: "Illustration", icon: "✎", desc: "A picture of the idea, full-screen, with an optional line over it. Choose who paints it in Settings.", canva: true, for: ["text", "scripture"] },
   photo: { name: "Photo", icon: "▣", desc: "A picture from your device, with an optional line of text over it.", for: ["text", "scripture"] }
 };
 let mk = null;   // {src, kind, draft, busy}
 const mkModal = $("#mk-modal");
-function openPicker(src) {
-  mk = { src, kind: null, draft: null };
+function openPicker(src, edit) {
+  mk = { src, kind: null, draft: null, edit: edit || null };
+  const cur = edit && edit.orig.made ? draftFromSlide(edit.orig, src)[0] : null;
+  $("#mk-title").textContent = !edit ? "What kind of slide?" : edit.orig.made ? "Change the kind of slide" : "Make this slide into a new kind";
+  $("#mk-note").hidden = !edit; $("#mk-note").textContent = edit ? (edit.orig.made ? "The slide keeps its place in the deck and its speaker notes." : "The new slide takes this one's place, with its words and speaker notes. Undo brings the old one back.") : "";
+  $("#mk-back").textContent = edit ? "‹ Change the kind" : "‹ Other kinds";
   $("#mk-src").textContent = src.kind === "scripture" ? `${src.ref} · ${src.ver}` : `“${src.text.length > 140 ? src.text.slice(0, 140) + "…" : src.text}”`;
   const grid = $("#mk-kinds"); grid.replaceChildren();
   let lastKind = null; try { lastKind = localStorage.getItem("pb-kind-" + src.kind); } catch {}
+  if (edit) lastKind = cur;   // the kind the slide is now
   Object.entries(KINDS).filter(([, k]) => k.for.includes(src.kind)).forEach(([key, k]) => {
     const off = (k.ai && !sample) || (k.canva && !imgReady()), who = imgService() === "claude-draw" ? "Claude" : imgService() === "none" ? "Pictures" : "Canva";
     const b = el("button", { type: "button", class: "mk-kind" + (key === lastKind ? " last" : ""), disabled: off ? "" : null, onclick: () => chooseKind(key) },
@@ -4963,6 +5759,12 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !mkModal.h
 function scUnits(d) { const cur = d.texts[d.ver]; return cur ? unitsFromTokens(cur.t, d.ref) : []; }
 const bookOf = ref => (ref.match(/^(.*?)\s+\d/) || [, ref])[1];
 const unitRef = (book, a, z) => a.ch === z.ch ? `${book} ${a.ch}:${a.v}${z.v !== a.v ? "-" + z.v : ""}` : `${book} ${a.ch}:${a.v}-${z.ch}:${z.v}`;
+// a Scripture section as passage slides, a few verses each, each one following its verses in the section
+function passageSlides(d, per, theme) {
+  const units = scUnits(d), book = bookOf(d.ref), out = [];
+  for (let i = 0; i < units.length; i += per) { const cs = units.slice(i, i + per), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...theme }, notes: "", sc: { id: d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
+  return out;
+}
 function headingAbove(target) {
   let c1 = 0, c2 = 0, hit = null;
   for (const e of ed.children) { if (e === target) break; const lv = levelOf(e); if (lv === 1) { c1++; c2 = 0; hit = { lv, e }; } else if (lv === 2) { c2++; hit = { lv, e, num: ROMAN(c2) }; } }
@@ -4976,14 +5778,34 @@ function outlinePointAt(target) {
 }
 const srcPlain = () => mk.src.kind === "scripture" ? scPlainText(mk.src.tokens) : mk.src.text;
 
+/* Infographics. One line per item, "Label | detail". For two sides, blank-line-separated groups: a heading, then its points. */
+const IG_LAYOUTS = { steps: "Steps", timeline: "Timeline", stats: "Big numbers", compare: "Two sides" };
+const IG_MAX = { steps: 5, timeline: 6, stats: 4 };
+function infoItems(text, layout) {
+  const src = String(text || "").replace(/\r/g, "");
+  if (layout === "compare") return src.split(/\n\s*\n/).map(g => g.split("\n").map(l => l.trim()).filter(Boolean)).filter(g => g.length).slice(0, 2).map(g => ({ h: g[0].slice(0, 40), pts: g.slice(1, 6).map(x => x.slice(0, 90)) }));
+  return src.split("\n").map(l => l.trim()).filter(Boolean).slice(0, IG_MAX[layout] || 5).map(l => { const [h, ...t] = l.split("|"); return { h: h.trim().slice(0, 40), t: t.join("|").trim().slice(0, 110) }; });
+}
+function infoText(items, layout) {
+  if (layout === "compare") return (items || []).map(c => [c.h, ...(c.pts || [])].join("\n")).join("\n\n");
+  return (items || []).map(i => i.t ? `${i.h} | ${i.t}` : i.h).join("\n");
+}
+const IG_HINT = { steps: "One step per line, as Label | detail. Up to five.", timeline: "One moment per line, as When or what | detail. Up to six.", stats: "One figure per line, as Big word or number | what it means. Up to four. Use only numbers that are true.", compare: "Two groups, with a blank line between them. The first line of each is its heading, and the lines under it are its points." };
 /* drafts */
+function showKind(key, draft) {
+  mk.kind = key; mk.draft = draft;
+  $("#mk-step1").hidden = true; $("#mk-step2").hidden = false;
+  $("#mk-kind-title").textContent = KINDS[key].name;
+  renderMkFields(); renderMkPreview();
+}
 async function chooseKind(key) {
   if (!mk) return;
+  if (mk.edit && mk.edit.orig.made) { const [k0, d0] = draftFromSlide(mk.edit.orig, mk.src); if (k0 === key) { showKind(key, d0); return; } }
   mk.kind = key; try { localStorage.setItem("pb-kind-" + mk.src.kind, key); } catch {}
   const k = KINDS[key];
   $("#mk-step1").hidden = true; $("#mk-step2").hidden = false;
   $("#mk-kind-title").textContent = k.name;
-  const s = mk.src, theme = deckTheme();
+  const s = mk.src, theme = mk.edit && mk.edit.orig.made && mk.edit.orig.theme ? { ...mk.edit.orig.theme } : deckTheme();
   const base = { theme, notes: "" };
   if (key === "quote") mk.draft = { ...base, made: "quote", text: s.text, ref: "" };
   else if (key === "passage") mk.draft = { ...base, made: "passage", per: 2 };
@@ -4992,6 +5814,7 @@ async function chooseKind(key) {
   else if (key === "section") { const h = headingAbove(s.target); mk.draft = { ...base, made: "title", section: true, kicker: h.kicker, ttl: h.text || (s.kind === "scripture" ? s.ref : s.text.split(/\s+/).slice(0, 9).join(" ")), ref: s.kind === "scripture" ? `${s.ref}` : "", pic: theme.img ? "theme" : "none", img: null }; }
   else if (key === "point") { const o = outlinePointAt(s.target); mk.draft = { ...base, made: "point", num: o.num, text: o.text || s.text.split(/\s+/).slice(0, 9).join(" ") }; }
   else if (key === "photo") mk.draft = { ...base, made: "photo", img: null, caption: s.kind === "scripture" ? "" : (words(s.text).length <= 14 ? s.text : ""), ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
+  else if (key === "infographic") mk.draft = { ...base, made: "infographic", layout: "steps", title: "", info: "" };
   else if (key === "art") mk.draft = { ...base, made: "art", img: null, style: "painterly", prompt: "", caption: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" };
   else { mk.draft = { ...base, made: key, text: "", ref: s.kind === "scripture" ? s.ref : "", ver: s.kind === "scripture" ? s.ver : "" }; }
   renderMkFields(); renderMkPreview();
@@ -5002,6 +5825,7 @@ const AI_ASK = {
   statement: `Boil this down to one short, memorable statement of 4 to 10 words, in the preacher's own voice and wording where possible. Return JSON {"text": "..."}`,
   points: `Turn this into a slide: a short title (2 to 6 words) and 2 to 4 parallel points, each 2 to 8 words. Use his wording where possible. Return JSON {"title": "...", "points": ["...", "..."]}`,
   question: `Write one reflection question (under 18 words) the congregation can carry home from this, addressed to "you". Return JSON {"text": "..."}`,
+  infographic: `Turn this into an infographic slide that a listener can take in at a glance. Choose the layout that fits the content best: "steps" (a process or ordered progression, 3 to 5 items), "timeline" (events in order, 3 to 6 items), "stats" (2 to 4 big figures; use only numbers that appear in the text or are plainly true), or "compare" (two contrasting sides, each with a heading and 2 to 4 points). Use the preacher's wording where possible, with labels of 1 to 4 words and details under 12 words. Do not add doctrine or claims the text does not make. Return JSON {"layout":"steps|timeline|stats|compare","title":"2 to 6 words, or empty","items":[{"label":"...","detail":"..."}]} for steps, timeline and stats, or {"layout":"compare","title":"...","left":{"head":"...","points":["..."]},"right":{"head":"...","points":["..."]}} for compare.`,
   blanks: `Copy the single most important sentence from this text word for word (shorten only if it is over 25 words), and wrap the 1 to 3 key words a listener would write in their notes in double square brackets, like "Faith is [[walking]] by the light you have." Return JSON {"text": "..."}`,
   art: null
 };
@@ -5017,6 +5841,12 @@ async function askClaude(fresh) {
     const { value: r } = await askJson(prompt, { tier: key === "art" ? "complex" : "default", fresh });
     if (!mk || mk.kind !== key) return;
     if (key === "points") { d.title = String(r.title || "").slice(0, 80); d.points = (Array.isArray(r.points) ? r.points : []).slice(0, 4).map(x => String(x).slice(0, 90)); }
+    else if (key === "infographic") {
+      const lay = IG_LAYOUTS[r.layout] ? r.layout : "steps"; d.layout = lay; d.title = String(r.title || "").slice(0, 60);
+      d.info = lay === "compare" ? infoText([r.left, r.right].filter(Boolean).map(c => ({ h: String(c.head || "").slice(0, 40), pts: (Array.isArray(c.points) ? c.points : []).map(x => String(x).slice(0, 90)) })), "compare")
+        : infoText((Array.isArray(r.items) ? r.items : []).slice(0, IG_MAX[lay]).map(i => ({ h: String(i.label || "").slice(0, 40), t: String(i.detail || "").slice(0, 110) })), lay);
+      if (!d.info.trim()) throw { code: "empty" };
+    }
     else if (key === "art") { d.prompt = String(r.prompt || "").slice(0, 600); if (!d.caption) d.caption = String(r.caption || "").slice(0, 80); if (!d.prompt) throw { code: "empty" }; }
     else d.text = String(r.text || "").slice(0, 300);
   } catch (e) {
@@ -5041,15 +5871,12 @@ function cleanSvg(svg) {
 function draftSlides() {
   const d = mk.draft, s = mk.src;
   const title = t => { const w = String(t || "").replace(/\[\[|\]\]/g, "").split(/\s+/); return w.slice(0, 8).join(" ") + (w.length > 8 ? "…" : ""); };
-  if (d.made === "passage") {
-    const units = scUnits(s.d), book = bookOf(s.ref), out = [];
-    for (let i = 0; i < units.length; i += d.per) { const cs = units.slice(i, i + d.per); const ref = unitRef(book, cs[0], cs[cs.length - 1]); const text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
-    return out;
-  }
+  if (d.made === "passage") return passageSlides(s.d, d.per, d.theme);
   if (d.made === "keyverse") { const units = scUnits(s.d), u = units[d.vi] || units[0]; if (!u) return []; const ref = unitRef(bookOf(s.ref), u, u); const text = u.t.replace(/^\{\{[\d:]+\}\}\s*/, "").trim(); return [{ made: "keyverse", title: `${ref} (${s.ver})`, body: [scPlainText(text)], text, ref, ver: s.ver, theme: d.theme, notes: "", sc: { id: s.d.id, a: scKey(u), z: scKey(u) } }]; }
   if (d.made === "blanks") { const one = { ...d, title: title(d.text), body: [d.text.replace(/\[\[|\]\]/g, "")] }; return /\[\[[^\]]+\]\]/.test(d.text) ? [{ ...one, reveal: false }, { ...one, reveal: true }] : [{ ...one, made: "quote" }]; }
   if (d.made === "title") return [{ made: "title", section: !!d.section, kicker: d.kicker || "", title: d.ttl || "", ref: d.ref || "", img: d.pic === "own" ? d.img : null, noImg: d.pic === "none", theme: d.theme, notes: "", body: [d.kicker, d.ref].filter(Boolean) }].filter(x => x.title || x.kicker);
   if (d.made === "points") return [{ ...d, title: d.title || title(d.points && d.points[0]), body: (d.points || []).filter(Boolean) }];
+  if (d.made === "infographic") { const items = infoItems(d.info, d.layout); return items.length ? [{ made: "infographic", layout: d.layout, title: d.title || "", items, theme: d.theme, notes: "", ref: "", body: items.map(i => i.t ? `${i.h}: ${i.t}` : i.h || (i.pts || []).join("; ")) }] : []; }
   if (d.made === "photo") return d.img ? [{ ...d, title: d.caption || "Photo", body: d.caption ? [d.caption] : [] }] : [];
   if (d.made === "art") return d.img || d.svg ? [{ made: "art", img: d.img || null, svg: d.img ? "" : d.svg || "", caption: d.caption, ref: d.ref, ver: d.ver, theme: d.theme, notes: "", canva: d.link || "", hdUrl: d.hdUrl || "", media: d.media || "", title: d.caption || "Illustration", body: d.caption ? [d.caption] : [] }] : [];
   return [{ ...d, title: title(d.text), body: [String(d.text || "").replace(/\[\[|\]\]/g, "")] }];
@@ -5062,7 +5889,7 @@ function renderMkPreview() {
   const slides = draftSlides();
   if (!slides.length) { box.append(el("div", { class: "mk-wait", text: mk.kind === "photo" ? "Choose a picture to see the slide." : "Nothing to show yet." })); $("#mk-add").disabled = true; return; }
   $("#mk-add").disabled = false;
-  $("#mk-add").textContent = slides.length > 1 ? `Add ${slides.length} slides` : "Add slide";
+  $("#mk-add").textContent = mk.edit ? (slides.length > 1 ? `Save as ${slides.length} slides` : "Save slide") : slides.length > 1 ? `Add ${slides.length} slides` : "Add slide";
   const show = slides.slice(0, 4);
   show.forEach(sl => { const f = el("div", { class: "slide" }); f.style.aspectRatio = String(S.aspect || 16 / 9); renderMade(f, sl); box.append(f); });
   if (slides.length > 4) box.append(el("div", { class: "hint", text: `and ${slides.length - 4} more` }));
@@ -5088,6 +5915,12 @@ function renderMkFields() {
     sel.value = d.pic === "theme" && !d.theme.img ? "none" : d.pic; sel.onchange = () => { d.pic = sel.value; renderMkFields(); renderMkPreview(); };
     field("Header picture", sel, d.theme.img ? "" : "Choose a theme with a header picture in Materials, Slide theme, to use it here.");
     if (d.pic === "own") { const inp = el("input", { type: "file", id: "mk-f-img", accept: "image/*" }); inp.onchange = async () => { const file = inp.files[0]; if (!file) return; try { d.img = await shrinkImage(file); renderMkPreview(); } catch { toast("Couldn't read that picture. Try a JPEG or PNG."); } }; field("Picture", inp); }
+  }
+  else if (k === "infographic") {
+    const sel = el("select", { id: "mk-f-lay" }); Object.entries(IG_LAYOUTS).forEach(([v, t]) => sel.append(el("option", { value: v, text: t }))); sel.value = d.layout;
+    sel.onchange = () => { d.layout = sel.value; renderMkFields(); renderMkPreview(); }; field("Kind of picture", sel);
+    field("Title (optional)", tx("mk-f-title", d.title, v => d.title = v));
+    field("What it shows", ta("mk-f-info", d.info, 7, v => d.info = v), IG_HINT[d.layout]);
   }
   else if (k === "point") { field("Number", tx("mk-f-num", d.num, v => d.num = v, "II.")); field("Main point", ta("mk-f-text", d.text, 2, v => d.text = v)); }
   else if (k === "passage") { const sel = el("select", { id: "mk-f-per" }); [[1, "One verse per slide"], [2, "About two verses per slide"], [3, "About three verses per slide"]].forEach(([v, t]) => sel.append(el("option", { value: String(v), text: t }))); sel.value = String(d.per); sel.onchange = () => { d.per = +sel.value; renderMkPreview(); }; field("Verses per slide", sel); }
@@ -5277,6 +6110,7 @@ async function canvaPaint() {
 $("#mk-add").onclick = () => {
   if (!mk || mk.busy) return;
   const slides = draftSlides(); if (!slides.length) return;
+  if (mk.edit) { const { idx, count } = mk.edit; closePicker(); replaceSlides(idx, count, slides); return; }
   const s = mk.src; let target = s.target, snapped = false;
   if (s.kind === "text" && s.range) {   // the slide appears when you reach the highlighted words, so the paragraph splits there
     const b = topBlock(s.range.startContainer);
@@ -5289,6 +6123,82 @@ $("#mk-add").onclick = () => {
   closePicker();
   insertMadeSlides(target, slides, { noSnap: snapped });
 };
+
+/* ---- editing a slide already in the deck, or making it a different kind ----
+   The slide opens in the same picker it was made in, filled with what it says now. "Change the kind" offers every kind that
+   fits its words (a slide from Scripture keeps its verses), and Save puts the result in the slide's place: cues, pins, and
+   speaker notes stay with it, and Undo brings the old slide back. A slide read from a PowerPoint becomes a slide made here. */
+function slideTarget(idx) {   // the first block of the paragraph that brings the slide up, for kinds that read the outline
+  const x = buildSteps().find(st => st.slide === idx && st.sec != null), g = x && groupBlocks([...ed.children])[x.sec];
+  return g ? g.els[0] : null;
+}
+function slideWords(s) {
+  if (!s.made) return [s.title, ...(s.body || [])].filter(Boolean).join("\n");
+  if (s.made === "points") return [s.title, ...(s.points || [])].filter(Boolean).join("\n");
+  if (s.made === "infographic") return [s.title, ...(s.body || [])].filter(Boolean).join("\n");
+  if (s.made === "title") return [s.kicker, s.title].filter(Boolean).join("\n");
+  if (s.made === "photo" || s.made === "art") return s.caption || "";
+  return scPlainText(String(s.text || "").replace(/\[\[|\]\]/g, ""));
+}
+function slideSource(s, idx) {
+  const target = slideTarget(idx);
+  if ((s.made === "scripture" || s.made === "keyverse") && s.ver && s.ref) {
+    let t = String(s.text || "");
+    if (s.made === "keyverse" && !/^\{\{/.test(t)) t = `{{${s.sc ? String(s.sc.a).split(":")[1] : refStart(s.ref).v}}} ${t}`;
+    const d = { id: s.sc ? s.sc.id : uid(), ref: s.ref, ver: s.ver, texts: { [s.ver]: { t, s: "typed" } } };
+    return { kind: "scripture", d, ref: s.ref, ver: s.ver, tokens: t, text: scPlainText(t), target };
+  }
+  return { kind: "text", text: slideWords(s), target };
+}
+// a made slide back into the picker's draft for its kind
+function draftFromSlide(s, src) {
+  const base = { theme: s.theme ? { ...s.theme } : deckTheme(), notes: s.notes || "" }, rv = { ref: s.ref || "", ver: s.ver || "" };
+  switch (s.made) {
+    case "scripture": return ["passage", { ...base, made: "passage", per: Math.max(1, Math.min(3, scUnits(src.d).length || 1)) }];
+    case "keyverse": return ["keyverse", { ...base, made: "keyverse", vi: 0 }];
+    case "quote": return ["quote", { ...base, made: "quote", text: s.text || "", ref: s.ref || "" }];
+    case "statement": case "question": case "blanks": return [s.made, { ...base, made: s.made, text: s.text || "", ...(s.kicker ? { kicker: s.kicker } : {}), ...rv }];
+    case "points": return ["points", { ...base, made: "points", title: s.title || "", points: [...(s.points || [])], ...rv }];
+    case "point": return ["point", { ...base, made: "point", num: s.num || "", text: s.text || "" }];
+    case "title": return [s.section ? "section" : "title", { ...base, made: "title", section: !!s.section, kicker: s.kicker || "", ttl: s.title || "", ref: s.ref || "", pic: s.img ? "own" : s.noImg ? "none" : "theme", img: s.img || null }];
+    case "infographic": return ["infographic", { ...base, made: "infographic", layout: s.layout || "steps", title: s.title || "", info: infoText(s.items, s.layout || "steps") }];
+    case "photo": return ["photo", { ...base, made: "photo", img: s.img || null, caption: s.caption || "", ...rv }];
+    case "art": return ["art", { ...base, made: "art", img: s.img || null, svg: s.svg || "", style: "painterly", prompt: "", caption: s.caption || "", link: s.canva || "", hdUrl: s.hdUrl || "", media: s.media || "", hd: !!s.hd, ...rv }];
+  }
+  return [null, null];
+}
+function editSlide(idx) {
+  const s = S.slides[idx]; if (!s) return;
+  let start = idx, count = 1;
+  if (s.made === "blanks") { const j = s.reveal ? idx - 1 : idx + 1, o = S.slides[j]; if (o && o.made === "blanks" && o.text === s.text && !!o.reveal !== !!s.reveal) { start = Math.min(idx, j); count = 2; } }   // the blanks and the answers are one slide to edit
+  const orig = S.slides[start], src = slideSource(orig, start);
+  closeGutterPop(); getSelection().removeAllRanges();
+  openPicker(src, { idx: start, count, orig });
+  const [key, draft] = orig.made ? draftFromSlide(orig, src) : [null, null];
+  if (key && KINDS[key] && KINDS[key].for.includes(src.kind)) showKind(key, draft);
+}
+// phones have no slide column, so tapping a slide cue opens the slide it brings up
+ed.addEventListener("click", e => {
+  const c = e.target.closest(".pb-slide"); if (!c || !matchMedia("(max-width:640px)").matches) return;
+  let b = c.nextElementSibling; while (b && b.classList.contains("pb-slide")) b = b.nextElementSibling;
+  const i = b ? groupBlocks([...ed.children]).findIndex(g => g.els.includes(b)) : -1, at = i >= 0 && sections[i] ? sections[i].slide : +c.dataset.n - 1;
+  if (at >= 0 && S.slides[at]) { e.preventDefault(); editSlide(at); }
+});
+function replaceSlides(idx, count, newSlides) {
+  const old = S.slides[idx]; if (!newSlides.length || !old) return;
+  newSlides.forEach((sl, i) => { sl.notes = i === 0 ? old.notes || "" : sl.notes || ""; if (sl.sc) { const se = edSc(sl.sc.id); if (se) { const stk = scStkFor(readSc(se), sl); if (stk) sl.stk = stk; } } });
+  snapshot();
+  const n = newSlides.length, delta = n - count, map = p => p < idx ? p : p >= idx + count ? p + delta : Math.min(p, idx + n - 1);
+  ed.querySelectorAll(".pb-slide").forEach(c => {
+    const a0 = +c.dataset.n - 1; if (a0 < 0) return; const b0 = a0 + (+c.dataset.k || 1) - 1;
+    const [a, b] = a0 <= idx && b0 >= idx ? [a0, b0 + delta] : [map(a0), map(b0)], k = Math.max(1, b - a + 1);
+    c.dataset.n = String(a + 1); if (k > 1) c.dataset.k = String(k); else delete c.dataset.k;
+  });
+  for (const [k, v] of Object.entries(S.manual)) if (v != null) S.manual[k] = map(v);
+  S.slides.splice(idx, count, ...newSlides);
+  deckEdited();
+  toast((n === 1 ? `Slide ${idx + 1} saved` : `Slides ${idx + 1}–${idx + n} saved`) + ". Undo brings the old one back.");
+}
 
 /* entry points */
 $("#btn-make-slide").onclick = () => {
@@ -5368,10 +6278,12 @@ function syncScSlides(id) {
     else { const want = scPlainText(s.text); for (let a = 0; a < units.length && i < 0; a++) { let acc = ""; for (let b = a; b < units.length; b++) { acc += units[b].t; const plain = scPlainText(acc); if (plain === want) { i = a; j = b; break; } if (plain.length > want.length) break; } } }
     if (i < 0 || j < i) return s;
     const text = scSlideText(s, units.slice(i, j + 1)), sc = { id, a: scKey(units[i]), z: scKey(units[j]) };
-    if (s.sc && text === s.text) return s;
+    const stk = scStkFor(d, { ...s, sc }), stkSame = JSON.stringify(stk) === JSON.stringify(s.stk || null);
+    if (s.sc && text === s.text && stkSame) return s;
     if (!s.sc) linked = true;
-    if (text !== s.text) changed = true;
-    return { ...s, sc, text, body: [scPlainText(text)] };
+    if (text !== s.text || !stkSame) changed = true;
+    const o = { ...s, sc, text, body: [scPlainText(text)] }; if (stk) o.stk = stk; else delete o.stk;
+    return o;
   });
   if (changed) deckEdited(); else if (linked) save();
 }
@@ -5380,6 +6292,18 @@ function makeScriptureSlides(id) {
   const d = readSc(e);
   if (!d.texts[d.ver]) { toast(`Load the ${d.ver} text first, then make slides`); return; }
   openPicker({ kind: "scripture", d, ref: d.ref, ver: d.ver, tokens: d.texts[d.ver].t, text: scPlainText(d.texts[d.ver].t), target: e });
+}
+/* Every Scripture section you add gets its passage slides on its own, two verses a slide, cued where the section sits.
+   The section waits here until its text is in (loaded, or pasted after a failed load); one that already has slides is left alone. */
+const scAuto = new Set();
+function autoScSlides(id) {
+  if (!scAuto.has(id)) return;
+  const e = edSc(id); if (!e || !S) { scAuto.delete(id); return; }
+  const d = readSc(e); if (!d.texts[d.ver]) return;
+  scAuto.delete(id);
+  if (S.slides.some(s => s.sc && s.sc.id === id)) return;
+  const out = passageSlides(d, 2, deckTheme()); if (!out.length) return;
+  insertMadeSlides(e, out, { from: d.ref });
 }
 
 /* ---------------- side panel tabs: Suggestions | Outline ---------------- */
@@ -5903,7 +6827,7 @@ function renderPreachedAnalysis() {
   if (pw && dur) tile(String(Math.round(pw / (dur / 60))), "words per minute preached");
   if (cov) tile(Math.round(cov.filter(c => c.state === "preached").length / cov.length * 100) + "%", "of sections preached");
   if (st.children.length) box.append(st);
-  if (dur && pw && Math.abs(pw / (dur / 60) - (S.meta.wpm || 140)) > 12) box.append(el("button", { class: "btn ghost", text: `Use ${Math.round(pw / (dur / 60))} wpm as your pace`, onclick: () => { S.meta.wpm = Math.round(pw / (dur / 60)); $("#m-wpm").value = S.meta.wpm; save(); renderAnalysis(); toast("Pace updated"); } }));
+  if (dur && pw && Math.abs(pw / (dur / 60) - (S.meta.wpm || 140)) > 12) box.append(el("button", { class: "btn ghost", text: `Use ${Math.round(pw / (dur / 60))} wpm as your pace`, onclick: () => { S.meta.wpm = Math.round(pw / (dur / 60)); $("#m-wpm").value = S.meta.wpm; save(); renderEditStats(); renderAnalysis(); toast("Pace updated"); } }));
   if (cov) {
     const times = sectionTimes();
     const list = el("div", { class: "cov" });
@@ -5940,6 +6864,12 @@ const pushed = {};
 const DEVICE = (() => { try { let d = localStorage.getItem("pb-device"); if (!d) { d = uid() + uid(); localStorage.setItem("pb-device", d); } return d; } catch { return uid() + uid(); } })();
 const CHUNK = 60000, MAX_ASSET = 20 * 1048576;
 const sermonPath = id => `data/users/${userId}/${id}`;   // data/users/<you> is your private collection; each sermon is one document in it
+/* On sermon.freely.church the site's own controls (sharing a sermon by email) need the open sermon, and to open one
+   that was just added to this binder. */
+if (HOSTED) Object.assign(window.claude.hosted, {
+  current: () => S && !S.example ? { id: S.id, title: S.meta.title || "Untitled sermon" } : null,
+  open: async id => { if (!cdb) return false; const rec = await pullRecord(id); if (!rec) return false; openRec(rec); refreshLibrary(); goBuild("details"); return true; }
+});
 function setSync(state, detail) {
   const p = $("#sync"); if (!p) return;
   p.dataset.state = state;
@@ -6700,7 +7630,7 @@ function stRenderCompare() {
   const bad = Object.entries(sd.errors);
   if (!vs.length) {
     if (sd.busy.has("text")) p.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:18px" }, el("span", { class: "spin" }), "Loading the text…"));
-    else if (bad.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: bad[0][1] }), el("div", { class: "hint", text: "The text comes from Bible Gateway through your Firecrawl connection in Claude, or from Claude if you allow that in Settings." }));
+    else if (bad.length) p.append(el("div", { class: "hint", style: "color:var(--warn)", text: bad[0][1] }), el("div", { class: "hint", text: HOSTED ? "The text comes from Claude when Settings allows it, or you can paste it." : "The text comes from Bible Gateway through your Firecrawl connection in Claude, or from Claude if you allow that in Settings." }));
     else p.append(el("div", { class: "hint", text: "Choose a passage above and press Study this text." }));
     return;
   }
@@ -6782,7 +7712,7 @@ async function stXrefFor(vref, fresh) {
       const items = (r && Array.isArray(r.refs) ? r.refs : []).map(x => ({ ref: normalizeRef(String(x.ref || "")), text: String(x.why || "") })).filter(x => x.ref);
       if (items.length) return { items, src: "claude" };
     }
-    throw new Error("Couldn't find cross references. Connect Firecrawl in your Claude settings, or allow Claude on this page.");
+    throw new Error(HOSTED ? "Couldn't find cross references. Check that your Anthropic key is in Account." : "Couldn't find cross references. Connect Firecrawl in your Claude settings, or allow Claude on this page.");
   }, { fresh });
 }
 async function stFindXrefs(only) {
@@ -6885,7 +7815,7 @@ const unhtml = s => { const d = document.createElement("div"); d.innerHTML = Str
 async function stSefaria(vs, who) {
   const book = sefBook(study().ref); if (!book) return null;
   return (await stGet(stKey("sef", `${book} ${vs.ch}:${vs.v}`, who), async () => {
-    if (!mcpNs) throw new Error("Connect Firecrawl in your Claude settings to read Sefaria.");
+    if (!mcpNs) throw new Error(HOSTED ? "Reading Sefaria isn't offered on sermon.freely.church yet." : "Connect Firecrawl in your Claude settings to read Sefaria.");
     const title = `${who} on ${book}`, url = `https://www.sefaria.org/api/texts/${encodeURIComponent(title.replace(/ /g, "_"))}.${vs.ch}.${vs.v}?context=0&commentary=0&pad=0`;
     const md = mdFrom(await mcpNs.callTool("Firecrawl", "firecrawl_scrape", { url, formats: ["markdown"], onlyMainContent: true }));
     const m = md.match(/\{[\s\S]*\}/); let j = null; try { j = m && JSON.parse(m[0]); } catch {}
@@ -6941,7 +7871,7 @@ function stRenderHistory() {
       src.append(el("div", { class: "st-card" }, el("b", { text: who }), ...(r.en || []).map(t => el("p", { text: t })), ...(r.he || []).slice(0, 2).map(t => el("p", { class: "st-hebtext", lang: "he", dir: "rtl", text: t })),
         el("a", { class: "link-btn", style: "margin:0", href: `https://www.sefaria.org/${encodeURIComponent((r.ref || "").replace(/ /g, "_"))}`, target: "_blank", rel: "noopener", text: "Open on Sefaria ↗" })));
     }
-    if (!got && !mcpNs) src.append(el("div", { class: "hint", text: "Connect Firecrawl in your Claude settings to read Sefaria from here." }));
+    if (!got && !mcpNs) src.append(el("div", { class: "hint", text: HOSTED ? "Reading Sefaria here isn't offered on sermon.freely.church yet. Use the Sefaria link below." : "Connect Firecrawl in your Claude settings to read Sefaria from here." }));
     else if (!got) src.append(el("div", { class: "hint", text: "Rashi, Ibn Ezra, and others on this verse, from Sefaria (English translations, CC licenses). Each is read once and kept." }));
   }
   p.append(ch, jw, src);
@@ -7849,7 +8779,7 @@ function renderThemePanel() {
       el("button", { type: "button", class: "btn", text: "Use my own picture", onclick: thOwnPic }),
       th.img ? el("button", { type: "button", class: "btn ghost", text: "Remove picture", onclick: () => { th.img = null; th.link = ""; th.hdUrl = ""; th.media = ""; th.hd = false; thChanged(true); } }) : null));
   if (th.img) { const box = el("div", { id: "th-hd-box" }); fillThHd(box, th); pic.append(box); }
-  if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
+  if (imgService() === "canva" && !mcpNs) pic.append(el("div", { class: "hint", text: HOSTED ? "Canva isn't offered on sermon.freely.church. Choose Claude drawing in Settings, or use your own picture." : "Connect Canva in your Claude settings to paint a header picture here, or use your own picture." }));
   if (thBusy) pic.append(el("div", { class: "mk-wait", style: "aspect-ratio:auto;padding:12px" }, el("span", { class: "spin" }), imgService() === "claude-draw" ? "Claude is drawing…" : "Canva is painting… usually under a minute"));
   ed2.append(pic);
   // previews on this sermon's own words
@@ -8101,6 +9031,42 @@ async function deckPptx(onStep) {
         while ((m = re.exec(t))) { if (m.index > last) runs.push(R(t.slice(last, m.index), { size })); runs.push(s.reveal ? R(m[1], { size, b: true, u: true, color: acc }) : R(" ".repeat(Math.max(6, Math.round(m[1].length * 1.6))), { size, u: true, color: acc })); last = re.lastIndex; }
         if (last < t.length) runs.push(R(t.slice(last), { size })); blocks.push([P(runs, { algn: "ctr", lh: 1.38 / 1.2 })]); ref("ctr"); break;
       }
+      case "infographic": {   // real shapes and text boxes, so each part can be changed in PowerPoint
+        const items = s.items || [], lay = s.layout || "steps", H = 100 * CY / CX, fx = v => v / 100, fy = v => v / H, cardFill = pxSolid(rgba(fg, 0.09)), bgc = th.bg || "#1c2433";
+        const box = (x, y, w, h, o = {}) => sp(c, { x: fx(x), y: fy(y), w: fx(w), h: fy(h) }, o);
+        const para = (text, size, o = {}) => ({ runs: [{ text, sz: pt(size), b: o.b, color: o.color || fg, font: o.font || body }], algn: o.algn || "ctr", lnSpc: 0, spcBef: o.bef ? pt(o.bef) : 0, bullet: o.bullet || null, marL: o.marL || 0, indent: o.indent || 0 });
+        let top = 6;
+        if (s.title) { box(8, top, 84, 9, { name: "Title", body: pxBody([para(s.title, 4.6, { b: true, font: head })], { anchor: "ctr", fit: true }) }); top = 17; }
+        const area = H - 7 - top, n = items.length || 1, dot = pxSolid(acc);
+        if (lay === "compare") {
+          const w = 40.5, h = Math.min(area, 32), y = top + (area - h) / 2;
+          items.slice(0, 2).forEach((col, i) => { const x = 8 + i * (w + 3);
+            box(x, y, w, h, { name: "Card", geom: "roundRect", fill: cardFill, txBox: false });
+            box(x + 2.6, y + 2, w - 5.2, 5.4, { name: "Heading", body: pxBody([para(col.h, 3.3, { b: true, font: head, color: acc, algn: "l" })], { anchor: "ctr", fit: true }) });
+            box(x + 2.6, y + 7.6, w - 5.2, 0.35, { name: "Rule", fill: dot, txBox: false });
+            box(x + 2.6, y + 9.2, w - 5.2, h - 11, { name: "Points", body: pxBody((col.pts || []).map((t, k) => para(t, 2.5, { algn: "l", bef: k ? 1.2 : 0, bullet: { char: "•", color: acc }, marL: E(0.026 * CX), indent: -E(0.026 * CX) })), { fit: true }) }); });
+        } else if (lay === "steps") {
+          const gap = 2.2, w = (84 - gap * (n - 1)) / n, ch = Math.min(area - 6, 26), y0 = top + (area - (ch + 3)) / 2;
+          items.forEach((it, i) => { const x = 8 + i * (w + gap), cx = x + w / 2;
+            if (i < n - 1) box(cx + 3.4, y0 + 2.62, w + gap - 6.8, 0.35, { name: "Connector", fill: pxSolid(rgba(fg, 0.35)), txBox: false });
+            box(x, y0 + 3, w, ch, { name: "Card", geom: "roundRect", fill: cardFill, body: pxBody([para(it.h, 3, { b: true, font: head }), ...(it.t ? [para(it.t, 2.2, { bef: 0.8 })] : [])], { anchor: "ctr", ins: [E(0.012 * CX), E(0.03 * CX), E(0.012 * CX), E(0.012 * CX)], fit: true }) });
+            box(cx - 2.8, y0, 5.6, 5.6, { name: "Number", geom: "ellipse", fill: dot, body: pxBody([para(String(i + 1), 2.9, { b: true, color: bgc })], { anchor: "ctr" }) }); });
+        } else if (lay === "timeline") {
+          const w = 84 / n, ym = top + area / 2;
+          box(8, ym - 0.2, 84, 0.4, { name: "Line", fill: pxSolid(rgba(fg, 0.55)), txBox: false });
+          items.forEach((it, i) => { const cx = 8 + w * i + w / 2;
+            box(cx - w / 2 + 0.5, ym - 9.4, w - 1, 7.4, { name: "Label", body: pxBody([para(it.h, 3, { b: true, font: head })], { anchor: "b", fit: true }) });
+            box(cx - 1.4, ym - 1.4, 2.8, 2.8, { name: "Dot", geom: "ellipse", fill: dot, line: `<a:ln w="${E(0.006 * CX)}">${pxSolid(bgc)}</a:ln>`, txBox: false });
+            if (it.t) box(cx - w / 2 + 0.5, ym + 2.2, w - 1, 12, { name: "Detail", body: pxBody([para(it.t, 2.2)], { fit: true }) }); });
+        } else {
+          const gap = 2.2, w = (84 - gap * (n - 1)) / n, h = Math.min(area, 24), y = top + (area - h) / 2;
+          items.forEach((it, i) => { const x = 8 + i * (w + gap);
+            box(x, y, w, h, { name: "Card", geom: "roundRect", fill: cardFill, txBox: false });
+            box(x, y + 3, w, 9.4, { name: "Figure", body: pxBody([para(it.h, 7.4, { b: true, font: head, color: acc })], { anchor: "ctr", fit: true }) });
+            if (it.t) box(x + 1.2, y + 13, w - 2.4, h - 14.4, { name: "Caption", body: pxBody([para(it.t, 2.4)], { fit: true }) }); });
+        }
+        break;
+      }
       case "photo": case "art": {
         const full = s.made === "photo" || !!s.img;
         if (s.img) { const img = await getImg(s.img, { jpeg: true }); if (img) pic(c, FULL, img, { crop: cover(img, FULL), name: "Picture" }); }
@@ -8241,9 +9207,7 @@ function thBindOnce() {
   };
   $("#th-add-sc").onclick = () => {
     const th = curTheme(); const e = [...ed.querySelectorAll(".pb-scripture")].find(x => { const d = readSc(x); return d.texts[d.ver]; }); if (!th || !e) return;
-    thM().slideTheme = { ...th }; const d = readSc(e), units = scUnits(d), book = bookOf(d.ref), out = [];
-    for (let i = 0; i < units.length; i += 2) { const cs = units.slice(i, i + 2), ref = unitRef(book, cs[0], cs[cs.length - 1]), text = cs.map(u => u.t).join("").replace(/\n{2,}/g, "\n").trim(); out.push({ made: "scripture", title: `${ref} (${d.ver})`, body: [scPlainText(text)], text, ref, ver: d.ver, theme: { ...th }, notes: "", sc: { id: d.id, a: scKey(cs[0]), z: scKey(cs[cs.length - 1]) } }); }
-    insertMadeSlides(e, out); renderThemePanel();
+    thM().slideTheme = { ...th }; insertMadeSlides(e, passageSlides(readSc(e), 2, th)); renderThemePanel();
   };
   $("#th-save").onclick = async () => {
     const th = curTheme(); if (!th) return; const slug = (th.name || "theme").toLowerCase().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "");
@@ -8365,3 +9329,4 @@ $("#cur-slide").addEventListener("click", () => { if (matchMedia("(max-width:899
 setSideTab(sideTab);
 })();
 </script>
+
