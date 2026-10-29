@@ -14,7 +14,6 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
   - **Edit manuscript:** rich text manuscript with headings H1 to H4, highlights, pauses, slide cues, and Scripture sections (type a reference, press Tab, choose among favorite translations). Every Scripture section you add makes its own passage slides, two verses a slide, as soon as its text loads or is pasted. Any slide can be edited or turned into another kind from the slide column, from Bindings, or (on a phone) by tapping its slide cue; a slide read from a PowerPoint can be remade as a slide made here. Slides sit in a column beside the text and stay in sync. Side panel, which you can drag wider, with Claude's suggestions, an outline view (auto outline, add headings, and Write, which drafts a section's text with Claude from your prompt and places it under that heading), and the Text Study. Highlight text or use a Scripture section to make new slides (quote, key verse, big idea, summary points, fill in the blank, question, Canva illustration, photo).
 - **Present:** the manuscript scrolls and the matching slide follows along. Works on phones, with smaller slides so the text leads.
 - **Materials:** slide themes (Claude proposes colors, typefaces, a texture, and a Canva header picture from the sermon's text; previews on the sermon's own words; styles new slides, restyles made slides, adds title and Scripture slides, saves backgrounds), the bulletin notes page, a Scripture reading page (sermon name and the passage for whoever reads it), social invitations, and quote cards.
-- **Obsidian:** with Settings, Obsidian turned on, each sermon is kept as a Markdown note in the vault through the Obsidian connector (`AIOS/Sermons` by default): front matter, Logos links for Scripture, and every slide as a picture note embedded where it comes up. It saves about a minute after writing stops, only changed slides are written again, and Save to Obsidian in the sermon menu saves right away.
 - **Analysis:** word count, timing, passages cited, recurring words, voice, as-preached comparison, share text and chapters, and Claude's substance analysis.
 
 ## Repository layout
@@ -44,7 +43,6 @@ python3 tests/browser/canvahd.py   # full-size Canva pictures through the export
 python3 tests/browser/scauto.py   # passage slides made when a Scripture section is added
 python3 tests/browser/slideedit.py   # editing slides and changing their kind
 python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, sharing, account and admin pages
-python3 tests/browser/obsidian.py   # saving to Obsidian through a stand-in connector (notes go to tests/out/obsidian/)
 python3 tests/browser/hosted_pictures.py   # sermon.freely.church: picture keys in Account, painting a slide with them
 python3 tests/browser/libmenu.py   # the open-sermon card and More menu at every width
 ```

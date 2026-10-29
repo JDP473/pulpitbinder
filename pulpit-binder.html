@@ -1297,7 +1297,6 @@ body[data-view="present"] .sermon-bar{display:none}
           <div class="menu" id="sermon-menu" role="menu" aria-label="Sermon actions" hidden>
             <button class="menu-item" role="menuitem" id="btn-new" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg><span>New blank sermon</span></button>
             <button class="menu-item" role="menuitem" id="btn-import" type="button" title="Bring in sermons from a folder or files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 10v6M9 13l3 3 3-3"/></svg><span>Import sermons</span></button>
-            <button class="menu-item" role="menuitem" id="btn-obs" type="button" title="Save this sermon and its slides to your Obsidian vault" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>Save to Obsidian</span></button>
             <div class="menu-sep" role="separator"></div>
             <button class="menu-item danger" role="menuitem" id="btn-del" type="button" title="Delete the sermon that is open now"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg><span>Delete this sermon</span></button>
             <button class="menu-item danger" role="menuitem" id="btn-del-many" type="button" title="Tick several sermons and delete them together"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1.5"/><path d="M5 7.5l1.5 1.5L9 6"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><path d="M14 7h7M14 16h7"/></svg><span>Delete several…</span></button>
@@ -1882,7 +1881,6 @@ body[data-view="present"] .sermon-bar{display:none}
       <button type="button" class="set-tab" role="tab" id="set-tab-defaults" data-pane="defaults" aria-controls="set-pane-defaults" aria-selected="false">New sermons</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-brand" data-pane="brand" aria-controls="set-pane-brand" aria-selected="false">Branding</button>
       <button type="button" class="set-tab" role="tab" id="set-tab-ai" data-pane="ai" aria-controls="set-pane-ai" aria-selected="false">AI and images</button>
-      <button type="button" class="set-tab" role="tab" id="set-tab-obsidian" data-pane="obsidian" aria-controls="set-pane-obsidian" aria-selected="false">Obsidian</button>
     </div>
     <div class="set-body">
     <div class="set-pane" id="set-pane-scripture" role="tabpanel" aria-labelledby="set-tab-scripture">
@@ -1924,12 +1922,6 @@ body[data-view="present"] .sermon-bar{display:none}
         <div class="field"><label for="set-bweb">Website or page</label><input type="text" id="set-bweb" maxlength="80"></div>
       </div>
       <div class="field"><label for="set-bcolor">Accent color</label><input type="color" id="set-bcolor" class="brand-color"></div>
-    </div>
-    <div class="set-pane" id="set-pane-obsidian" role="tabpanel" aria-labelledby="set-tab-obsidian" hidden>
-      <span class="hint">Keep each sermon as a Markdown note in your Obsidian vault, with its slides as pictures where their cues are. It saves through your Obsidian connector in Claude, about a minute after you stop writing, and again whenever the sermon changes. Save to Obsidian in the sermon menu saves right away.</span>
-      <label class="fav" for="set-obs-on"><input type="checkbox" id="set-obs-on"> <span>Save my sermons to Obsidian</span></label>
-      <div class="field"><label for="set-obs-folder">Folder in your vault</label><input type="text" id="set-obs-folder" maxlength="120" placeholder="AIOS/Sermons" spellcheck="false"><span class="hint">A folder your Obsidian connector is allowed to write to. Each sermon gets a note named for its title, and a folder of slide pictures beside it.</span></div>
-      <span class="hint" id="set-obs-st" role="status"></span>
     </div>
     <div class="set-pane" id="set-pane-ai" role="tabpanel" aria-labelledby="set-tab-ai" hidden>
       <span class="hint" id="set-svc-hint">Which services Pulpit Binder uses for writing help and pictures. Everything here runs through your own Claude account and its connections.</span>
@@ -2078,7 +2070,7 @@ let S = null;          // current record
 let sections = [];     // derived [{text, forced, cue, slide, how}]
 let library = [];
 let saveT = null;
-const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); obsQueue(); }, 500); };
+const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }, 500); };
 
 /* ---------------- text tools ---------------- */
 const STOP = new Set("the a an and or but if then than so to of in on at by for with from as is are was were be been being it its this that these those there here we you he she they them his her our your their i me my mine us who whom whose which what when where why how not no yes do does did done have has had will would shall should can could may might must just also very into out up down over under about after before again more most some any all each every one two three said says say like get got go going come came let lets us oh well now today morning really want know think thing things much many even only because through while those which them him jesus god lord".split(" "));
@@ -3279,7 +3271,6 @@ $("#del-go").onclick = async () => {
   toast(failed ? `${n - failed} of ${n} deleted. ${failed} couldn't be removed from your account right now, so ${failed === 1 ? "it is" : "they are"} still listed; try ${failed === 1 ? "it" : "them"} again later.` : n === 1 ? "Sermon deleted" : `${n} sermons deleted`);
 };
 function openRec(r) {
-  obsFlush();   // a sermon waiting to go to Obsidian goes now, before another one opens
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
@@ -3463,8 +3454,18 @@ const liveSig = i => {
   return keyOf(str + "|" + (S.aspect || "")) + keyOf(str.slice(0, 997)).slice(-3) + "x" + str.length.toString(36);
 };
 async function liveShot(i) {
-  const d = await shotBox(renderSlide(i), S.aspect, 1600, 800000);   // each call to the relay carries at most 1 MiB
-  return d.slice(d.indexOf(",") + 1);
+  const h2c = await loadH2c();
+  const host = el("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1600px;pointer-events:none";
+  const box = renderSlide(i); box.style.width = "1600px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
+  host.append(box); document.body.append(host);
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: 1600, height: Math.round(1600 / (S.aspect || 16 / 9)) });
+    let q = 0.85, d = c.toDataURL("image/jpeg", q);
+    while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
+    return d.slice(d.indexOf(",") + 1);
+  } finally { host.remove(); }
 }
 function liveRender() {
   const st = $("#lv-state"), on = lv.on;
@@ -3914,164 +3915,6 @@ function mdFrontMatter() {
   return "---\n" + rows.filter(([, v]) => v !== "" && v != null).map(([k, v]) => `${k}: ${q(String(v))}`).join("\n") + (also.length ? "\nalso:\n" + also.join("\n") : "") + "\n---\n\n";
 }
 const mdDocument = () => mdFrontMatter() + htmlToMd(S.html);
-
-/* ---------------- Obsidian: each sermon as a Markdown note in the viewer's vault ----------------
-   Through the viewer's Obsidian connector (claude.use("mcp")), which writes text notes only. The sermon goes to
-   <folder>/<title>.md; each slide is its own small note holding the slide as a picture, <folder>/<title> slides/Slide 01.md,
-   embedded in the sermon where its cue is. One slide per note keeps every call to the connector under its size limit, and a
-   slide is written again only when it changed. Scripture links open in Logos (ref.ly). */
-const OBS_SRV = "Obsidian";
-const LOGOS_BOOK = { Genesis: "Ge", Exodus: "Ex", Leviticus: "Le", Numbers: "Nu", Deuteronomy: "Dt", Joshua: "Jos", Judges: "Jdg", Ruth: "Ru", Samuel: "Sa", Kings: "Ki", Chronicles: "Ch", Ezra: "Ezr", Nehemiah: "Ne", Esther: "Es", Job: "Job", Psalms: "Ps", Psalm: "Ps", Proverbs: "Pr", Ecclesiastes: "Ec", "Song of Solomon": "So", Isaiah: "Is", Jeremiah: "Je", Lamentations: "La", Ezekiel: "Eze", Daniel: "Da", Hosea: "Ho", Joel: "Joe", Amos: "Am", Obadiah: "Ob", Jonah: "Jon", Micah: "Mic", Nahum: "Na", Habakkuk: "Hab", Zephaniah: "Zep", Haggai: "Hag", Zechariah: "Zec", Malachi: "Mal", Matthew: "Mt", Mark: "Mk", Luke: "Lk", John: "Jn", Acts: "Ac", Romans: "Ro", Corinthians: "Co", Galatians: "Ga", Ephesians: "Eph", Philippians: "Php", Colossians: "Col", Thessalonians: "Th", Timothy: "Ti", Titus: "Tt", Philemon: "Phm", Hebrews: "Heb", James: "Jas", Peter: "Pe", Jude: "Jud", Revelation: "Re" };
-const LOGOS_RES = { ESV: ["esv", "ESV"], LSB: ["lsb", "LSB"], NASB: ["nasb95", "NASB95"], NKJV: ["nkjv", "NKJV"], KJV: ["kjv1900", "KJV1900"], NIV: ["niv2011", "NIV2011"], CSB: ["csb", "CSB"] };
-/* "Matthew 4:23-5:12" -> the ref.ly link Logos opens, in the given translation */
-function logosLink(ref, ver) {
-  const m = String(ref).replace(/[–—]/g, "-").match(/^([1-3] )?(.+?) (\d{1,3})(?::(\d{1,3}))?(?:-(\d{1,3})(?::(\d{1,3}))?)?$/);
-  const ab = m && LOGOS_BOOK[m[2]]; if (!ab) return "";
-  const [, num, , ch, v, a, b] = m;
-  let r = `${num ? num.trim() : ""}${ab}${ch}${v ? "." + v : ""}`;
-  if (b) r += `-${a}.${b}`; else if (a) r += `-${a}`;
-  const res = LOGOS_RES[ver] || LOGOS_RES.ESV;
-  return `https://ref.ly/logosres/${res[0]}?ref=Bible${res[1]}.${r}`;
-}
-const obsRefText = ref => String(ref).replace(/-/g, "–");
-/* Scripture references written in a paragraph become Logos links, the way the vault's other sermons read */
-function obsLinkRefs(md, ver) {
-  return md.split("\n").map(line => {
-    let out = "", at = 0;
-    for (const f of findRefs(line)) {
-      if (f.index < at) continue;
-      let ref = f.ref, len = f.length;
-      const more = /-\d{1,3}$/.test(ref) && line.slice(f.index + len).match(/^:(\d{1,3})/);   // 4:23-5:12 runs into the next chapter
-      if (more) { ref += ":" + more[1]; len += more[0].length; }
-      const url = logosLink(ref, ver); if (!url) continue;
-      out += line.slice(at, f.index) + `[${line.slice(f.index, f.index + len)}](${url})`; at = f.index + len;
-    }
-    return out + line.slice(at);
-  }).join("\n");
-}
-const obsName = s => String(s || "").replace(/[\\/:*?"<>|#^[\]]+/g, " ").replace(/^[.\s]+/, "").replace(/\s+/g, " ").trim().slice(0, 100) || "Untitled sermon";
-const obsFolder = () => ((settings.obsidian && settings.obsidian.folder) || "AIOS/Sermons").replace(/\/+$/, "");
-const obsPad = n => String(n).padStart(2, "0");
-const obsYaml = v => /^[A-Za-z0-9(][^#"'\\\n]*$/.test(v) && !/:(\s|$)/.test(v) && !/\s$/.test(v) ? v : JSON.stringify(v);
-/* The note itself, built from the sermon as it is right now. slideNote(n) is the vault path of slide n's note, without .md. */
-function obsMarkdown(slideNote) {
-  const m = S.meta, ver = settings.defVer, box = document.createElement("div"); box.innerHTML = S.html || "";
-  const series = String(m.series || "").split(",").map(x => x.trim()).filter(Boolean);
-  const rows = [["title", m.title], ["date", (m.when || "").replace("T", " ")], ["text", m.text], ["service", m.service], ["place", m.place], ["speaker", m.speaker]].filter(([, v]) => v);
-  const L = ["---", ...rows.map(([k, v]) => `${k}: ${obsYaml(String(v))}`)];
-  if (series.length) L.push("series:", ...series.map(x => `  - ${obsYaml(x)}`));
-  L.push("tags:", "  - sermon", `pulpit-binder: ${S.id}`, `updated: ${new Date().toISOString()}`, "---", "");
-  if (m.text) { const url = logosLink(normalizeRef(m.text) || m.text, ver); L.push(url ? `Text: [${obsRefText(m.text)}](${url})` : `Text: ${m.text}`, ""); }
-  // Each slide goes where it first comes up in Present: before the section it belongs to.
-  const groups = groupBlocks([...box.children]), startOf = new Map(groups.map((g, i) => [g.els[0], i])), at = new Map(), used = new Set();
-  if (groups.length === sections.length) for (const x of buildSteps()) {
-    if (x.slide == null || x.sec == null || used.has(x.slide + 1)) continue;
-    used.add(x.slide + 1); if (!at.has(x.sec)) at.set(x.sec, []); at.get(x.sec).push(x.slide + 1);
-  }
-  for (const n of box.children) {
-    if (startOf.has(n)) for (const i of at.get(startOf.get(n)) || []) L.push(`![[${slideNote(i)}]]`, "");
-    if (n.classList.contains("pb-slide") || MARKER_RE.test(blockText(n))) continue;   // cues become the pictures above
-    if (n.classList.contains("pb-scripture")) {
-      const d = readSc(n), t = d.texts[d.ver], url = logosLink(d.ref, d.ver);
-      L.push(url ? `[${obsRefText(d.ref)}](${url})` : obsRefText(d.ref), "", d.ver, "");
-      if (t) L.push(t.t.replace(SC_MARK_RE, "").replace(/\{\{(?:\d{1,3}:)?(\d{1,3})\}\}/g, "$1 ").split(/\n{2,}/).map(p => p.replace(/[ \t]*\n[ \t]*/g, " ").replace(/ {2,}/g, " ").trim()).filter(Boolean).join("\n\n"), "");
-      continue;
-    }
-    let md = htmlToMd(n.outerHTML).trim(); if (!md) continue;
-    md = md.replace(/==\{\w+\}/g, "==").replace(/\+\+([^\n]+?)\+\+/g, "<u>$1</u>").replace(/\[pause\]/g, "*(pause)*");
-    L.push(obsLinkRefs(md, ver), "");
-  }
-  const rest = S.slides.map((_, i) => i + 1).filter(i => !used.has(i));
-  if (rest.length) { L.push("## Other slides", ""); rest.forEach(i => L.push(`![[${slideNote(i)}]]`, "")); }
-  return L.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
-}
-/* a slide as a JPEG data URL small enough for one call to the connector (each call carries at most 1 MiB) */
-async function shotBox(box, aspect, W, maxLen) {
-  const h2c = await loadH2c();
-  const host = el("div"); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${W}px;pointer-events:none`;
-  box.style.width = W + "px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
-  host.append(box); document.body.append(host);
-  try {
-    if (document.fonts && document.fonts.ready) await document.fonts.ready;
-    await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
-    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: W, height: Math.round(W / (aspect || 16 / 9)) });
-    let q = 0.85, d = c.toDataURL("image/jpeg", q);
-    while (d.length > maxLen && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }
-    return d;
-  } finally { host.remove(); }
-}
-const obsKey = id => "pb-obs-" + id;
-const obsState = id => { try { return JSON.parse(localStorage.getItem(obsKey(id)) || "null") || {}; } catch { return {}; } };
-const obsKeep = (id, st) => { try { localStorage.setItem(obsKey(id), JSON.stringify(st)); } catch {} };
-const obsCall = (tool, input) => mcpNs.callTool(OBS_SRV, tool, input, { cache: false });
-const obsText = res => ((res && res.content) || []).filter(c => c && c.type === "text").map(c => c.text).join("\n");
-let obsBusy = null, obsAgain = false, obsT = 0, obsFor = "", obsLast = { at: 0, err: "" };
-const obsOn = () => !!(mcpNs && settings.obsidian && settings.obsidian.on);
-/* Save the open sermon to Obsidian. Everything is read from it before the first wait, so opening another sermon meanwhile is safe. */
-function obsSave(manual) {
-  clearTimeout(obsT); obsT = 0; obsFor = "";
-  if (!mcpNs || S.example || (!manual && !obsOn())) return Promise.resolve(false);
-  if (obsBusy) { obsAgain = true; return obsBusy; }
-  const id = S.id, st = obsState(id), folder = obsFolder(), base = obsName(S.meta.title), aspect = S.aspect;
-  const pathFor = name => ({ note: `${folder}/${name}.md`, slides: `${folder}/${name} slides` });
-  const date = (S.meta.when || "").slice(0, 10);
-  const mdFor = slidesDir => obsMarkdown(n => `${slidesDir}/Slide ${obsPad(n)}`);
-  let name = st.name && st.base === base && st.folder === folder ? st.name : base;
-  const firstTime = !(st.name === name && st.folder === folder);
-  const known = firstTime ? {} : st.sigs || {};   // only slides that changed are drawn again
-  const shots = S.slides.map((_, i) => { const sig = liveSig(i); return { n: i + 1, sig, box: known[i + 1] === sig ? null : renderSlide(i) }; });
-  const mdNow = { [name]: mdFor(pathFor(name).slides) };
-  if (firstTime && date) { const alt = `${base} (${date})`; mdNow[alt] = mdFor(pathFor(alt).slides); }
-  obsBusy = (async () => {
-    // A note already there with this title that another sermon wrote keeps its place; this one takes the date too.
-    if (firstTime) {
-      const there = await obsCall("read_note", { path: pathFor(name).note }).then(obsText, () => "");
-      if (there && !there.includes(`pulpit-binder: ${id}`) && date) name = `${base} (${date})`;
-    }
-    const p = pathFor(name), sigs = st.name === name && st.folder === folder ? st.sigs || {} : {};
-    for (const s of shots) {
-      if (sigs[s.n] === s.sig || !s.box) continue;
-      const img = await shotBox(s.box, aspect, 1280, 900000);
-      await obsCall("write_note", { path: `${p.slides}/Slide ${obsPad(s.n)}.md`, content: `![Slide ${s.n}](${img})\n` });
-      sigs[s.n] = s.sig;
-      obsKeep(id, { ...st, name, base, folder, sigs, count: Math.max(st.count || 0, s.n) });
-    }
-    for (let n = shots.length + 1; n <= (st.name === name ? st.count || 0 : 0); n++) { await obsCall("delete_note", { path: `${p.slides}/Slide ${obsPad(n)}.md` }).catch(() => {}); delete sigs[n]; }
-    await obsCall("write_note", { path: p.note, content: mdNow[name] });
-    // A renamed sermon leaves nothing behind under its old name.
-    if (st.name && (st.name !== name || st.folder !== folder)) {
-      const old = { note: `${st.folder}/${st.name}.md`, slides: `${st.folder}/${st.name} slides` };
-      await obsCall("delete_note", { path: old.note }).catch(() => {});
-      for (let n = 1; n <= (st.count || 0); n++) await obsCall("delete_note", { path: `${old.slides}/Slide ${obsPad(n)}.md` }).catch(() => {});
-    }
-    obsKeep(id, { name, base, folder, sigs, count: shots.length, at: Date.now() });
-    obsLast = { at: Date.now(), err: "", path: p.note };
-    return true;
-  })().catch(e => {
-    obsLast = { at: obsLast.at, err: e && e.code === "server_not_connected" ? "The Obsidian connector isn't connected in your Claude settings." : e && (e.code === "not_granted" || e.code === "not_in_manifest") ? "This page wasn't allowed to use Obsidian. Allow it from the page's Permissions menu." : e && e.code === "tool_error" ? `Obsidian refused that. Check that your connector may write to ${folder}.` : "Couldn't save to Obsidian. It will try again after your next change." };
-    if (manual) toast(obsLast.err);
-    return false;
-  }).finally(() => { obsBusy = null; renderObsStatus(); if (obsAgain) { obsAgain = false; obsQueue(); } });
-  renderObsStatus();
-  return obsBusy;
-}
-/* after a change, wait for a pause in the writing */
-function obsQueue() {
-  if (!obsOn() || S.example) return;
-  clearTimeout(obsT); obsFor = S.id; obsT = setTimeout(() => obsSave(false), 60000);
-}
-const obsFlush = () => { if (obsT && obsFor === S.id) obsSave(false); };
-addEventListener("pagehide", obsFlush);
-function renderObsStatus() {
-  const st = $("#set-obs-st"); if (!st) return;
-  st.textContent = HOSTED ? "Saving to Obsidian is not offered on sermon.freely.church." : !mcpNs ? "Needs the Obsidian connector in your Claude settings." : obsBusy ? "Saving to Obsidian…" : obsLast.err ? obsLast.err : obsLast.at ? `Last saved ${new Date(obsLast.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}${obsLast.path ? " to " + obsLast.path : ""}.` : "";
-  $("#btn-obs").hidden = !mcpNs || HOSTED;
-}
-$("#btn-obs").onclick = async () => {
-  if (S.example) { toast("The example sermon isn't saved to Obsidian. Open or start one of your own."); return; }
-  toast("Saving to Obsidian…");
-  if (await obsSave(true)) toast(`Saved to Obsidian: ${obsLast.path}`);
-};
 
 /* dates and times, read from a line of a file; frags are the pieces matched so the caller can tell what is left over */
 const MON_ABBR = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -4979,7 +4822,7 @@ const srvImg = id => (AI_SERVICES[id] || {}).where === "server" ? AI_SERVICES[id
 const srvReady = id => HOSTED && !!srvImg(id) && (window.claude.hosted.images || []).includes(srvImg(id));
 const imgReady = () => { const s = imgService(); return srvImg(s) ? srvReady(s) : s === "canva" ? !!mcpNs : s === "claude-draw" ? !!sample : false; };
 const imgWho = () => { const s = imgService(); return s === "claude-draw" ? "Claude" : s === "none" ? "Pictures" : srvImg(s) ? AI_SERVICES[s].short : "Canva"; };
-let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", obsidian: { on: false, folder: "AIOS/Sermons" }, brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
+let settings = { defVer: "ESV", favs: ["ESV", "LSB", "NASB", "NKJV"], claudeFallback: true, services: DEF_SERVICES, places: ["Bridge Creek church of Christ"], defPlace: "Bridge Creek church of Christ", speaker: "Jarred Pettijohn", wpm: 140, aiTier: "balanced", imgService: "canva", brand: { name: "", tagline: "", times: "", address: "", web: "", color: "", logo: "" }, updatedAt: 0 };
 if (HOSTED) settings = { ...settings, places: [], defPlace: "", speaker: window.claude.hosted.name || "", imgService: "claude-draw" };
 const cleanVer = v => (typeof v === "string" && /^[A-Z0-9]{2,10}$/.test(v)) ? v : null;
 const cleanStr = (s, n) => typeof s === "string" ? s.replace(/\s+/g, " ").trim().slice(0, n) : "";
@@ -5002,15 +4845,13 @@ function cleanBrand(j, base) {
   const color = typeof j.color === "string" && /^#[0-9a-f]{6}$/i.test(j.color) ? j.color.toLowerCase() : j.color === "" ? "" : b.color || "";
   return { name: cleanStr(j.name, 80), tagline: cleanStr(j.tagline, 120), times: cleanStr(j.times, 160), address: cleanStr(j.address, 160), web: cleanStr(j.web, 80), color, logo };
 }
-const cleanObsFolder = f => typeof f === "string" ? f.split("/").map(x => x.replace(/[\\:*?"<>|#^[\]]+/g, "").trim()).filter(x => x && x !== "." && x !== "..").join("/").slice(0, 120) : "";
-const cleanObs = (o, base) => o && typeof o === "object" ? { on: o.on === true, folder: cleanObsFolder(o.folder) || base.folder } : base;
 function normSettings(j, base) {
   const favs = Array.isArray(j.favs) ? j.favs.map(cleanVer).filter(Boolean).slice(0, MAX_FAVS) : [];
   const services = cleanServices(j.services), places = cleanPlaces(j.places) || base.places;
   const dp = typeof j.defPlace === "string" ? j.defPlace : base.defPlace;
   return { ...base, defVer: cleanVer(j.defVer) || base.defVer, favs: favs.length ? favs : base.favs, claudeFallback: j.claudeFallback !== false,
     services: services && services.length ? services : base.services, places, defPlace: places.find(p => sameName(p, dp)) || "",
-    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, aiTier: AI_TIERS[j.aiTier] ? j.aiTier : base.aiTier, imgService: AI_SERVICES[j.imgService] && (AI_SERVICES[j.imgService].where === "here" || AI_SERVICES[j.imgService].where === "server") && AI_SERVICES[j.imgService].kind === "image" ? j.imgService : base.imgService, obsidian: cleanObs(j.obsidian, base.obsidian), brand: j.brand ? cleanBrand(j.brand, base.brand) : base.brand, updatedAt: +j.updatedAt || 0 };
+    speaker: typeof j.speaker === "string" ? cleanStr(j.speaker, 80) : base.speaker, wpm: cleanWpm(j.wpm) || base.wpm, aiTier: AI_TIERS[j.aiTier] ? j.aiTier : base.aiTier, imgService: AI_SERVICES[j.imgService] && AI_SERVICES[j.imgService].where === "here" && AI_SERVICES[j.imgService].kind === "image" ? j.imgService : base.imgService, brand: j.brand ? cleanBrand(j.brand, base.brand) : base.brand, updatedAt: +j.updatedAt || 0 };
 }
 try { const j = JSON.parse(localStorage.getItem("pb-settings") || "null"); if (j && typeof j === "object") settings = normSettings(j, settings); } catch {}
 const svcByName = n => settings.services.find(s => sameName(s.name, n));
@@ -5498,7 +5339,6 @@ function openSettings(opts = {}) {
     box.append(el("label", { class: "fav", for: id }, cb, el("b", { text: code }), el("span", { text: name })));
   });
   $("#set-claude").checked = settings.claudeFallback;
-  $("#set-obs-on").checked = settings.obsidian.on; $("#set-obs-folder").value = settings.obsidian.folder; renderObsStatus();
   setDraft = { services: settings.services.map(s => ({ ...s, orig: s.name })), places: settings.places.map(p => ({ name: p, orig: p, key: uid() })), defKey: null, pick: !!opts.pick };
   setDraft.defKey = (setDraft.places.find(p => sameName(p.name, settings.defPlace)) || {}).key || null;
   if (opts.add && opts.tab === "services") setDraft.services.push({ name: "", day: null, time: "", orig: null, pick: true });
@@ -5552,9 +5392,7 @@ $("#settings-form").addEventListener("submit", e => {
   settings.speaker = cleanStr($("#set-speaker").value, 80); settings.wpm = wpm; settings.brand = readBrandFields();
   settings.aiTier = AI_TIERS[$("#set-tier").value] ? $("#set-tier").value : "balanced";
   const img = ($("#set-img input:checked") || {}).value; if (AI_SERVICES[img]) settings.imgService = img;
-  const obsWas = settings.obsidian.on; settings.obsidian = { on: $("#set-obs-on").checked, folder: cleanObsFolder($("#set-obs-folder").value) || "AIOS/Sermons" };
   saveSettings(); closeSettings(); toast("Settings saved"); if (view === "materials") renderThemePanel();
-  if (settings.obsidian.on && !obsWas && !S.example) obsSave(true);   // the first save asks to use the connector, and shows it works
   // Follow a rename through to the open sermon; past sermons keep the name they were saved with.
   let changed = false;
   const sv = svcs.find(s => s.orig && s.orig !== s.name && s.orig === S.meta.service); if (sv) { S.meta.service = sv.name; changed = true; }
@@ -9503,7 +9341,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
-  claude.use("mcp").then(m => { mcpNs = m; renderObsStatus(); }).catch(() => {});
+  claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
   claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
 const setCollapsed = c => { document.body.classList.toggle("sb-collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
