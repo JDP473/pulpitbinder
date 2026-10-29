@@ -88,6 +88,10 @@ async def main():
             print("keys card", await pg.inner_text(".ai-later .ai-card-h"), "|", await pg.inner_text("#set-keys-hint"), "| planned", await pg.eval_on_selector_all("#set-later li > span:first-child", "els => els.map(e => e.textContent)"))
             await pg.check("#set-img-openai-image"); await pg.locator("#set-img").screenshot(path=str(OUT / "hosted_pic_settings_1400_light.png"))
             await pg.click("#settings-form button[type=submit]"); await pg.wait_for_timeout(300)
+            await pg.reload(); await pg.wait_for_timeout(2000)
+            await pg.click("#btn-settings"); await pg.wait_for_timeout(300); await pg.click("#set-tab-ai"); await pg.wait_for_timeout(200)
+            print("after reload, chosen", await pg.evaluate("(document.querySelector('#set-img input:checked') || {}).value"))
+            await pg.click("#set-cancel"); await pg.wait_for_timeout(200)
 
             # An Illustration slide painted by OpenAI through the server
             await pg.click("#tab-build"); await pg.wait_for_timeout(200)
