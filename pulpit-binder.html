@@ -365,6 +365,21 @@ span.st-var.stack{display:inline-flex;flex-direction:column;vertical-align:top;l
 .st-ans{border-left:3px solid var(--ok);padding-left:10px;display:flex;flex-direction:column;gap:6px}
 .st-ans p{margin:0}
 .st-qform{display:flex;flex-direction:column;gap:8px}
+.st-thread{display:flex;flex-direction:column;gap:10px;margin-left:6px;padding-left:10px;border-left:1px dashed var(--line)}
+.st-turn{display:flex;flex-direction:column;gap:6px}
+.st-tq{font:600 13px var(--f-ui);color:var(--muted)}
+.st-turn .st-qa{gap:12px}
+.st-turn .link-btn{margin-left:0}
+.st-fu{display:flex;flex-direction:column;gap:6px}
+.st-chips{display:flex;gap:6px;flex-wrap:wrap}
+.st-chips .chip{cursor:pointer}
+.st-fu-row{display:flex;gap:6px;align-items:flex-end}
+.st-fu-row textarea{flex:1;min-height:36px;resize:vertical}
+.st-more{display:block;margin:4px 0 0;font-size:12px}
+li .st-more{display:inline;margin:0}
+.st-obs li{margin-bottom:4px}
+.st-selbtn{position:fixed;z-index:61;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:6px 12px;font-size:13px}
+.st-selbtn[hidden]{display:none}
 .st-ioa{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .st-ioa summary{cursor:pointer}
 .st-ioa-l{display:flex;flex-direction:column;gap:3px;margin-top:8px}
@@ -7822,8 +7837,8 @@ function stRenderContext() {
   const facts = el("div", { class: "tags" }); [["Author", c.author], ["Audience", c.audience], ["Date", c.date], ["Genre", c.genre]].forEach(([k, v]) => { if (v) facts.append(el("span", { class: "chip" }, el("b", { text: k }), v)); }); p.append(facts);
   if (c.setting) p.append(el("p", { text: c.setting }));
   if ((c.structure || []).length) { p.append(el("h3", { class: "sub", text: "How it is built" })); const ol = el("div", { class: "st-struct" }); c.structure.forEach((s, i) => ol.append(el("div", { class: "st-sec" + (" s" + (i % 4)) }, el("b", { text: s.range || "" }), el("span", { text: s.label || "" })))); p.append(ol); }
-  if ((c.keyWords || []).length) { p.append(el("h3", { class: "sub", text: "Words behind the translations" })); const g = el("div", { class: "st-cards" }); c.keyWords.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: /[֐-׿]/.test(w.original || "") ? "he" : "grc", dir: /[֐-׿]/.test(w.original || "") ? "rtl" : "ltr", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.gloss ? el("div", { text: w.gloss }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null))); p.append(g); }
-  if ((c.observations || []).length) { p.append(el("h3", { class: "sub", text: "Worth noticing" })); p.append(list(c.observations)); }
+  if ((c.keyWords || []).length) { p.append(el("h3", { class: "sub", text: "Words behind the translations" })); const g = el("div", { class: "st-cards" }); c.keyWords.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: /[֐-׿]/.test(w.original || "") ? "he" : "grc", dir: /[֐-׿]/.test(w.original || "") ? "rtl" : "ltr", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.gloss ? el("div", { text: w.gloss }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null, stMoreBtn(`the word "${w.word || ""}"${w.original ? ` (${w.original})` : ""}`, "the word study")))); p.append(g); }
+  if ((c.observations || []).length) { p.append(el("h3", { class: "sub", text: "Worth noticing" })); const ul = el("ul", { class: "st-obs" }); c.observations.forEach(o => { const t = typeof o === "string" ? o : JSON.stringify(o); ul.append(el("li", {}, el("span", { text: t + " " }), stMoreBtn(t, "what is worth noticing"))); }); p.append(ul); }
   p.append(el("div", { class: "hint", text: "From Claude's knowledge. Check dates and word meanings against a commentary or lexicon." }));
 }
 /* ---- Hebrew and Jewish sources, from Sefaria, one verse at a time ---- */
@@ -7868,7 +7883,7 @@ function stRenderHistory() {
   }
   const jw = row("Hebrew and Jewish understanding", sd.jw, "jw", stRunJw, "The Hebrew behind the text, and how Jewish interpreters have understood it from the Second Temple period to today.");
   if (sd.jw) {
-    if ((sd.jw.hebrew || []).length) { const g = el("div", { class: "st-cards" }); sd.jw.hebrew.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: "he", dir: "rtl", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.meaning ? el("div", { text: w.meaning }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null))); jw.append(g); }
+    if ((sd.jw.hebrew || []).length) { const g = el("div", { class: "st-cards" }); sd.jw.hebrew.forEach(w => g.append(el("div", { class: "st-card" }, el("div", { class: "st-orig" }, el("span", { class: "st-heb", lang: "he", dir: "rtl", text: w.original || "" }), el("i", { text: w.translit || "" })), el("b", { text: w.word || "" }), w.meaning ? el("div", { text: w.meaning }) : null, w.note ? el("div", { class: "hint", text: w.note }) : null, stMoreBtn(`the word "${w.word || ""}"${w.original ? ` (${w.original})` : ""}`, "the word study")))); jw.append(g); }
     jw.append(stEras(sd.jw));
     if (sd.jw.howItChanged) jw.append(el("p", { class: "big-idea", style: "font-size:1.05rem", text: sd.jw.howItChanged }));
     if (sd.jw.caution) jw.append(el("div", { class: "hint", text: sd.jw.caution }));
@@ -7910,18 +7925,60 @@ function stAnswerView(a) {
   if (a.uncertainty) box.append(el("div", { class: "hint", text: a.uncertainty }));
   return box;
 }
+/* A question is a short conversation: the first answer, then follow-ups that build on it ("Go deeper", or his own). */
+const ST_MORE = [
+  ["Go deeper", "Go deeper on this. What is underneath it, and what would a careful reader notice that a quick reading misses?"],
+  ["Show me in Scripture", "Where else does Scripture say this or something close to it? Walk me through the strongest passages and how they connect."],
+  ["The other side", "What is the strongest case for a different reading, and why do serious readers hold it?"],
+  ["How would I preach it?", "How could I bring this to the congregation? Give me the point in one sentence, an illustration that fits it, and what it asks of the hearers."]
+];
+const stLive = new Set();   // questions and follow-ups waiting on Claude right now (never saved, so a reload shows no stuck spinner)
+const stParas = t => String(t || "").split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+async function stAskClaude(q, turn, again) {
+  const ref = q.ref || study().ref, here = sd && sd.ref === ref, thread = q.thread || [];
+  const upto = turn ? thread.slice(0, thread.indexOf(turn)) : [];
+  const ctx = here && sd.ctx ? `Background already worked out: ${sd.ctx.mainIdea || ""} ${sd.ctx.setting || ""}` : "";
+  const talk = turn ? [`Q: ${q.q}`, `A: ${(q.a && q.a.answer) || ""}`, ...upto.flatMap(t => [`Q: ${t.q}`, `A: ${(t.a && t.a.answer) || ""}`])].join("\n") : "";
+  const ask = turn ? turn.q : q.q;
+  const key = stKey("q", ref || "general", fingerprint([q.q, q.v || "", ...upto.map(t => t.q), turn ? turn.q : ""].join("|")));
+  const prompt = `${stPre()}\n\nTask: ${turn ? "continue a conversation about a passage. He is asking a follow-up to elaborate on an idea." : "answer a question about a passage."}\n${ref ? `Passage: ${ref}.` : ""}${here ? stTextBlock() : ""}\n${ctx}\n${q.v ? `The question is about verse ${q.v}.` : ""}\n${turn ? `The conversation so far:\n"""${talk}"""\nFollow-up: ${ask}\nBuild on what was already said instead of repeating it. Answer plainly and pastorally in 4 to 10 sentences, in short paragraphs separated by a blank line.` : `Question: ${ask}\nAnswer plainly and pastorally in 3 to 6 sentences.`} Say where serious readers differ, and give the Scripture that bears on it. Return ONLY JSON {"answer":"","refs":["Book C:V"],"alternatives":"other serious readings, or empty","uncertainty":"what is uncertain or disputed, or empty"}`;
+  return stGet(key, () => sample.json(prompt, { modelTier: turn ? "complex" : "default", cache: again ? { gcTime: DAY, refresh: true } : { gcTime: DAY } }), { fresh: again });
+}
+const stAskFail = e => toast({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again.");
 async function stAskQuestion(q, again) {
   if (!sample) { toast("Claude is not available in this view"); return; }
-  const ref = q.ref || study().ref, key = stKey("q", ref || "general", fingerprint(q.q + "|" + (q.v || "")));
-  q.busy = true; stRenderQuestions();
-  const here = sd && sd.ref === ref;
-  const ctx = here && sd.ctx ? `Background already worked out: ${sd.ctx.mainIdea || ""} ${sd.ctx.setting || ""}` : "";
-  try {
-    const { value, cached } = await stGet(key, () => sample.json(`${stPre()}\n\nTask: answer a question about a passage.\n${ref ? `Passage: ${ref}.` : ""}${here ? stTextBlock() : ""}\n${ctx}\n${q.v ? `The question is about verse ${q.v}.` : ""}\nQuestion: ${q.q}\nAnswer plainly and pastorally in 3 to 6 sentences, say where serious readers differ, and give the Scripture that bears on it. Return ONLY JSON {"answer":"","refs":["Book C:V"],"alternatives":"other serious readings, or empty","uncertainty":"what is uncertain or disputed, or empty"}`, { modelTier: "default", cache: again ? { gcTime: DAY, refresh: true } : { gcTime: DAY } }), { fresh: again });
-    q.a = value; q.done = true; if (cached) toast("Shown from the saved answer. Ask again for a fresh one.");
-  } catch (e) { toast({ not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."); }
-  q.busy = false; save(); stRenderQuestions();
+  stLive.add(q.id); stRenderQuestions();
+  try { const { value, cached } = await stAskClaude(q, null, again); q.a = value; q.done = true; if (cached) toast("Shown from the saved answer. Ask again for a fresh one."); }
+  catch (e) { stAskFail(e); }
+  stLive.delete(q.id); save(); stRenderQuestions();
 }
+async function stFollowUp(q, text, turn, label) {
+  if (!sample) { toast("Claude is not available in this view"); return; }
+  q.thread = q.thread || [];
+  const again = !!turn; if (!turn) { turn = { id: uid(), q: text, label: label || "", a: null, at: Date.now() }; q.thread.push(turn); }
+  stLive.add(turn.id); stRenderQuestions(); stScrollTo("stt-" + turn.id);
+  try { const { value, cached } = await stAskClaude(q, turn, again); turn.a = value; if (cached && !again) toast("Shown from the saved answer. Ask again for a fresh one."); }
+  catch (e) { stAskFail(e); if (!turn.a) q.thread = q.thread.filter(t => t !== turn); }
+  stLive.delete(turn.id); save(); stRenderQuestions();
+}
+function stScrollTo(id) { requestAnimationFrame(() => { const n = document.getElementById(id); if (n) n.scrollIntoView({ behavior: "smooth", block: "nearest" }); }); }
+/* New question from anywhere in the study ("Tell me more"): kept at the top of the list and asked right away. */
+function stElaborate(text, where) {
+  const st = study(), t = String(text || "").replace(/\s+/g, " ").trim().slice(0, 300); if (!t) return;
+  const q = { id: uid(), q: `Tell me more about "${t}"${where ? ` (from ${where})` : ""}.`, v: null, ref: st.ref, a: null, done: false, thread: [], at: Date.now() };
+  st.questions.unshift(q); save(); stRenderQuestions(); stScrollTo("stq-card-" + q.id);
+  if (sample) stAskQuestion(q, false);
+}
+const stMoreBtn = (text, where) => el("button", { type: "button", class: "link-btn st-more", text: "Tell me more", title: "Ask Claude to elaborate on this", disabled: sample ? null : "", onclick: () => stElaborate(text, where) });
+function stAnswerView(a) {
+  const box = el("div", { class: "st-ans" });
+  stParas(a.answer).forEach(t => box.append(el("p", { text: t })));
+  if ((a.refs || []).length) box.append(el("div", { class: "tags" }, ...a.refs.map(r => el("button", { type: "button", class: "chip", text: r, title: "Study this passage", onclick: () => stStudyRef(r) }))));
+  if (a.alternatives) box.append(el("div", { class: "hint", text: "Other readings: " + a.alternatives }));
+  if (a.uncertainty) box.append(el("div", { class: "hint", text: a.uncertainty }));
+  return box;
+}
+const stQMd = q => [q.q, q.a && q.a.answer, ...(q.thread || []).flatMap(t => [t.label || t.q, t.a && t.a.answer])].filter(Boolean);
 function stRenderQuestions() {
   const p = $("#st-questions"), st = study(); p.replaceChildren();
   const open = st.questions.filter(q => !q.done).length;
@@ -7930,25 +7987,75 @@ function stRenderQuestions() {
   const ta = el("textarea", { id: "st-q-text", rows: "2", placeholder: "What do you want to understand about this text?", "aria-label": "A question about the text" });
   const vs = sd ? stVerseList() : [];
   const vsel = el("select", { id: "st-q-v", "aria-label": "About which verse" }, el("option", { value: "", text: "Whole passage" }), ...vs.map(x => el("option", { value: String(x.v), text: `Verse ${x.v}` }))); vsel.value = stQV != null ? String(stQV) : "";
-  form.append(ta, el("div", { class: "sc-pop-row" }, vsel, el("div", { class: "spacer" }), el("button", { class: "btn primary", type: "submit", text: "Add question" })));
-  ta.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); form.requestSubmit(); } });
-  form.onsubmit = e => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; st.questions.unshift({ id: uid(), q: t, v: vsel.value ? +vsel.value : null, ref: st.ref, a: null, done: false, at: Date.now() }); stQV = null; save(); stRenderQuestions(); };
+  let askNow = !!sample;
+  const keep = el("button", { class: "btn" + (sample ? " ghost" : " primary"), type: "submit", id: "st-q-keep", text: "Save for later", title: "Keep the question without asking yet" }); keep.onclick = () => { askNow = false; };
+  const ask = sample ? el("button", { class: "btn primary", type: "submit", id: "st-q-ask", text: "Ask Claude", title: "Ask now (Ctrl+Enter)" }) : null; if (ask) ask.onclick = () => { askNow = true; };
+  form.append(ta, el("div", { class: "sc-pop-row" }, vsel, el("div", { class: "spacer" }), keep, ask));
+  ta.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); askNow = !!sample; form.requestSubmit(); } });
+  form.onsubmit = e => { e.preventDefault(); const t = ta.value.trim(); if (!t) return; const q = { id: uid(), q: t, v: vsel.value ? +vsel.value : null, ref: st.ref, a: null, done: false, thread: [], at: Date.now() }; st.questions.unshift(q); stQV = null; save(); const now = askNow; askNow = !!sample; if (now) stAskQuestion(q, false); else stRenderQuestions(); };
   p.append(form);
-  if (!st.questions.length) p.append(el("div", { class: "hint", text: "Keep the questions the text raises. Click a verse number to ask about that verse. Claude can answer each one, and the answer is kept with it." }));
+  if (!st.questions.length) p.append(el("div", { class: "hint", text: "Ask what the text raises, then keep going: every answer takes follow-up questions. Click a verse number to ask about that verse, or highlight any phrase in the study and choose Tell me more." }));
   st.questions.forEach(q => {
     const done = el("input", { type: "checkbox", id: "stq-" + q.id, "aria-label": "Answered" }); done.checked = !!q.done; done.onchange = () => { q.done = done.checked; save(); stRenderQuestions(); };
     const arm = (btn, label, act) => { btn.onclick = () => { if (stArm === q.id + label) { stArm = null; act(); } else { stArm = q.id + label; btn.textContent = "Sure?"; setTimeout(() => { if (stArm === q.id + label) { stArm = null; btn.textContent = label; } }, 3000); } }; return btn; };
-    const card = el("div", { class: "st-q" + (q.done ? " done" : "") }, el("div", { class: "st-qh" }, done, el("label", { for: "stq-" + q.id, class: "st-qt", text: q.q })),
+    const card = el("div", { class: "st-q" + (q.done ? " done" : ""), id: "stq-card-" + q.id, "data-q": q.id }, el("div", { class: "st-qh" }, done, el("label", { for: "stq-" + q.id, class: "st-qt", text: q.q })),
       el("div", { class: "st-qm" }, q.ref && q.ref !== st.ref ? el("button", { type: "button", class: "chip", text: q.ref, title: "Study this passage", onclick: () => stStudyRef(q.ref) }) : null, q.v ? el("button", { type: "button", class: "chip", text: `Verse ${q.v}`, onclick: () => stGoVerse(q.v) }) : null));
-    if (q.busy) card.append(stWait("Claude is thinking…"));
+    const qBusy = stLive.has(q.id); delete q.busy;
+    if (qBusy) card.append(stWait("Claude is thinking…"));
     else if (q.a) card.append(stAnswerView(q.a));
+    const thread = q.thread || [], busyT = thread.some(t => stLive.has(t.id));
+    if (thread.length) {
+      const tl = el("div", { class: "st-thread" });
+      thread.forEach((t, i) => {
+        const last = i === thread.length - 1, tBusy = stLive.has(t.id); delete t.busy;
+        tl.append(el("div", { class: "st-turn", id: "stt-" + t.id }, el("div", { class: "st-tq", text: t.label || t.q, title: t.label ? t.q : null }),
+          tBusy ? stWait("Claude is thinking…") : t.a ? stAnswerView(t.a) : null,
+          tBusy ? null : el("div", { class: "st-qa" },
+            last && t.a ? el("button", { type: "button", class: "link-btn", text: "Ask again", disabled: sample ? null : "", onclick: () => stFollowUp(q, t.q, t) }) : null,
+            arm(el("button", { type: "button", class: "link-btn", text: "Remove" }), "Remove", () => { q.thread = thread.filter(x => x !== t); save(); stRenderQuestions(); }))));
+      });
+      card.append(tl);
+    }
+    if (q.a && !qBusy && sample) {
+      const fu = el("form", { class: "st-fu", autocomplete: "off" });
+      const inp = el("textarea", { rows: "1", placeholder: "Ask a follow-up…", "aria-label": "Follow-up question" });
+      inp.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); fu.requestSubmit(); } });
+      fu.onsubmit = e => { e.preventDefault(); const t = inp.value.trim(); if (!t || busyT) return; stFollowUp(q, t); };
+      fu.append(el("div", { class: "st-chips" }, ...ST_MORE.map(([label, text]) => el("button", { type: "button", class: "chip", text: label, disabled: busyT ? "" : null, onclick: () => stFollowUp(q, text, null, label) }))),
+        el("div", { class: "st-fu-row" }, inp, el("button", { class: "btn", type: "submit", text: "Ask", disabled: busyT ? "" : null })));
+      card.append(fu);
+    }
     const act = el("div", { class: "st-qa" },
-      el("button", { type: "button", class: "btn" + (q.a ? " ghost" : ""), text: q.a ? "Ask again" : "Ask Claude", disabled: sample && !q.busy ? null : "", onclick: () => stAskQuestion(q, !!q.a) }),
-      q.a ? el("button", { type: "button", class: "btn ghost", text: "Add to notes", onclick: () => stAddNote(`${q.q} ${q.a.answer || ""}`.trim()) }) : null,
+      q.a ? null : el("button", { type: "button", class: "btn", text: "Ask Claude", disabled: sample && !qBusy ? null : "", onclick: () => stAskQuestion(q, false) }),
+      q.a ? el("button", { type: "button", class: "btn ghost", text: "Ask again", title: "A fresh first answer", disabled: sample && !qBusy && !busyT ? null : "", onclick: () => stAskQuestion(q, true) }) : null,
+      q.a ? el("button", { type: "button", class: "btn ghost", text: "Add to notes", onclick: () => stAddNote(stQMd(q).join(" ")) }) : null,
       arm(el("button", { type: "button", class: "btn ghost", text: "Remove" }), "Remove", () => { st.questions = st.questions.filter(x => x !== q); save(); stRenderQuestions(); }));
     card.append(act); p.append(card);
   });
 }
+/* Highlight any phrase in the study (an answer, a key word, a summary) and a Tell me more button appears beside it. */
+const stSelBtn = (() => { const b = el("button", { type: "button", class: "btn primary st-selbtn", id: "st-selbtn", text: "Tell me more", hidden: "" }); try { document.body.append(b); } catch {} return b; })();
+let stSelT = 0, stSel = null;
+function stSelCheck() {
+  const sel = getSelection(), box = $("#study-box"); stSel = null;
+  if (!sample || !sel || sel.isCollapsed || !sel.rangeCount || !box) { stSelBtn.hidden = true; return; }
+  const r = sel.getRangeAt(0), n = r.commonAncestorContainer, host = n.nodeType === 1 ? n : n.parentElement;
+  const text = (r.cloneContents().textContent || "").replace(/\s+/g, " ").trim();   // the words as written, not as styled (headings are shown in capitals)
+  if (!host || !box.contains(host) || host.closest("textarea,input,select,.st-fu") || text.length < 2 || text.length > 400 || box.offsetParent === null) { stSelBtn.hidden = true; return; }
+  const panel = host.closest(".panel"), card = host.closest(".st-q"), h = panel && panel.querySelector("h2");
+  stSel = { text, card: card ? card.dataset.q : null, where: h && !card ? h.textContent : "" };
+  const rc = r.getBoundingClientRect(); stSelBtn.hidden = false;
+  const w = stSelBtn.offsetWidth || 120, top = rc.bottom + 8 + 40 > innerHeight ? rc.top - 44 : rc.bottom + 8;
+  stSelBtn.style.left = Math.max(8, Math.min(innerWidth - w - 8, rc.left + rc.width / 2 - w / 2)) + "px"; stSelBtn.style.top = Math.max(8, top) + "px";
+}
+document.addEventListener("selectionchange", () => { clearTimeout(stSelT); stSelT = setTimeout(stSelCheck, 250); });
+addEventListener("scroll", () => { if (!stSelBtn.hidden) stSelCheck(); }, { passive: true, capture: true });
+stSelBtn.addEventListener("mousedown", e => e.preventDefault());   // keep the selection while the button is pressed
+stSelBtn.onclick = () => {
+  const s = stSel; stSelBtn.hidden = true; if (!s) return; try { getSelection().removeAllRanges(); } catch {}
+  const q = s.card && study().questions.find(x => x.id === s.card);
+  if (q && q.a) stFollowUp(q, `Tell me more about "${s.text.slice(0, 300)}".`); else stElaborate(s.text, s.where);
+};
 function stRenderNotes() {
   const p = $("#st-notes"), st = study(); p.replaceChildren();
   p.append(el("div", { class: "bind-head" }, el("h2", { text: "Notes" })));
@@ -8115,7 +8222,7 @@ function studyMd() {
   const c = sd && sd.ctx; if (c) { L.push("## Background", ""); if (c.mainIdea) L.push(`**Main idea:** ${c.mainIdea}`, ""); [["Author", c.author], ["Audience", c.audience], ["Date", c.date], ["Genre", c.genre], ["Setting", c.setting]].forEach(([k, v]) => { if (v) L.push(`- **${k}:** ${v}`); }); (c.structure || []).forEach(s => L.push(`- ${s.range}: ${s.label}`)); L.push(""); if ((c.keyWords || []).length) L.push("### Key words", "", ...c.keyWords.map(w => `- ${w.word}: ${w.original || ""} ${w.translit ? `(${w.translit})` : ""} ${w.gloss || ""}. ${w.note || ""}`), ""); }
   const eras = (name, d) => { if (d && (d.eras || []).some(e => e.summary)) L.push(`## ${name}`, "", ...d.eras.filter(e => e.summary).map(e => `- **${e.era}:** ${e.summary}${(e.voices || []).length ? ` (${e.voices.join(", ")})` : ""}`), ""); };
   eras("Christian interpretation through history", sd && sd.ch); eras("Hebrew and Jewish understanding through history", sd && sd.jw);
-  if (st.questions.length) L.push("## Questions", "", ...st.questions.flatMap(q => [`- ${q.done ? "[x]" : "[ ]"} ${q.q}${q.v ? ` (v. ${q.v})` : ""}`, ...(q.a && q.a.answer ? [`  - ${q.a.answer}`] : [])]), "");
+  if (st.questions.length) L.push("## Questions", "", ...st.questions.flatMap(q => [`- ${q.done ? "[x]" : "[ ]"} ${q.q}${q.v ? ` (v. ${q.v})` : ""}`, ...(q.a && q.a.answer ? [`  - ${q.a.answer.replace(/\s*\n\s*/g, " ")}`] : []), ...(q.thread || []).flatMap(t => [`  - **${t.label || t.q}**`, ...(t.a && t.a.answer ? [`    ${t.a.answer.replace(/\s*\n\s*/g, " ")}`] : [])])]), "");
   [["Observation", st.ioa.obs], ["Interpretation", st.ioa.int], ["Application", st.ioa.app], ["Notes", st.notes]].forEach(([k, v]) => { if (v && v.trim()) L.push(`## ${k}`, "", v.trim(), ""); });
   return L.join("\n").replace(/\n{3,}/g, "\n\n");
 }
