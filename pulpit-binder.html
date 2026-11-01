@@ -621,6 +621,36 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 .editor ul,.editor ol{margin:0 0 .95em;padding-left:1.4em}
 .sec ul,.sec ol{margin:0 0 .6em;padding-left:1.4em}
 .sec-body > *:last-child{margin-bottom:0}
+.slide.copyable{cursor:copy}
+.slide.copyable:hover,.slide.copyable:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Sermon PDF: letter pages drawn off screen, always light whatever the app's theme */
+.pdfp{position:relative;width:816px;height:1056px;padding:60px 56px 0 64px;background:#ffffff;color:#1a2130;font:14.5px/1.62 var(--f-read);overflow:hidden;overflow-wrap:break-word;
+  --ink:#1a2130; --muted:#5b6476; --line:#d9dde5; --accent:#8a5d0b; --sunk:#eef0f4; --surface:#ffffff;
+  --hl-yellow:#fff0a6; --hl-green:#d4f2d0; --hl-blue:#d6e6ff; --hl-pink:#fbd9e8; --sc-accent:#2f5d8a; --sc-bg:#f3f7fb; --sc-line:#d3dfeb}
+.pdfp-head{border-bottom:2px solid #8a5d0b;padding-bottom:10px;margin-bottom:18px}
+.pdfp-title{font:600 25px/1.2 var(--f-read);margin:0}
+.pdfp-sub{font:500 12.5px/1.5 var(--f-ui);color:#5b6476;margin-top:4px}
+.pdfp-row{display:flex;gap:22px;align-items:flex-start;margin-bottom:11px}
+.pdfp-row.hd{margin-top:16px}
+.pdfp-txt{flex:1;min-width:0}
+.pdfp-txt > *:first-child{margin-top:0}.pdfp-txt > *:last-child{margin-bottom:0}
+.pdfp-txt p{margin:0 0 .7em}
+.pdfp-txt h1,.pdfp-txt h2{font-weight:600;line-height:1.25;margin:0 0 .4em;color:#1a2130}
+.pdfp-txt h1{font-size:1.5em;padding-bottom:.2em;border-bottom:1.5px solid #8a5d0b}.pdfp-txt h2{font-size:1.25em}
+.pdfp-txt h3{font:700 .78em/1.4 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;margin:0 0 .4em;color:#8a5d0b}
+.pdfp-txt h4{font-size:1em;font-weight:600;font-style:italic;margin:0 0 .3em;color:#5b6476}
+.pdfp-txt blockquote{margin:0 0 .7em;padding:.4em .9em;border-left:3px solid #8a5d0b;background:#f6f1e6;font-style:italic}
+.pdfp-txt ul,.pdfp-txt ol{margin:0 0 .7em;padding-left:1.4em}
+.pdfp-txt mark{color:inherit;padding:0 1px}
+.pdfp-sc{border:1px solid #d3dfeb;border-left:4px solid #2f5d8a;border-radius:3px 8px 8px 3px;background:#f3f7fb;padding:6px 12px 2px;margin:0 0 .7em}
+.pdfp-sc-h{font:700 10.5px/1.4 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:#2f5d8a;margin-bottom:3px}
+.pdfp-sc p{margin:0 0 .5em}.pdfp-sc .vn{font:700 .62em/1 var(--f-ui);color:#2f5d8a;vertical-align:.55em;margin:0 .2em 0 .1em}
+.pdfp .pb-cue{display:inline-block;font:600 9px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 5px;border-radius:3px;background:#eef0f4;color:#5b6476;border:1px solid #d9dde5;vertical-align:.15em}
+.pdfp-side{flex:none;width:170px;display:flex;flex-direction:column;gap:9px;padding-top:3px}
+.pdfp-side figure{margin:0}
+.pdfp-side img{display:block;width:100%;border:1px solid #c9ced8;border-radius:3px;background:#1c2433}
+.pdfp-side figcaption{font:600 9px/1.3 var(--f-mono);letter-spacing:.05em;color:#5b6476;margin-top:3px}
+.pdfp-foot{position:absolute;left:64px;right:56px;bottom:30px;display:flex;justify-content:space-between;font:500 10px/1 var(--f-ui);color:#7a8294;border-top:1px solid #e1e4ea;padding-top:8px}
 .pb-slide{display:block;user-select:none;cursor:default;font:600 11px/1.4 var(--f-mono);letter-spacing:.05em;color:var(--accent);border-top:1px dashed var(--accent);padding-top:5px;margin:1.1em 0 .5em;max-width:44em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pb-cue{display:inline-block;user-select:none;font:600 10px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 6px;border-radius:4px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);vertical-align:.15em}
 .ed-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
@@ -1380,7 +1410,7 @@ body[data-view="present"] .sermon-bar{display:none}
           </div>
           <input type="file" id="file-pptx" accept=".pptx,.pdf" multiple hidden>
           <div class="hint" id="deck-progress" aria-live="polite"></div>
-          <div class="mat-act"><button type="button" class="btn" id="btn-save-pptx" hidden>Save slides as PowerPoint (.pptx)</button></div>
+          <div class="mat-act"><button type="button" class="btn" id="btn-save-pptx" hidden>Save slides as PowerPoint (.pptx)</button><button type="button" class="btn" id="btn-save-spdf" hidden title="The manuscript on letter pages, with each slide small in the margin beside the words that bring it up">Save sermon PDF with slides beside</button></div>
           <div id="deck-status" class="deck-status"></div>
           <div class="tip" id="deck-tip" hidden><b>For a pixel-exact match,</b> also drop the PDF export of this deck. In PowerPoint choose File, then Export (or Save As), then PDF. The .pptx still supplies speaker notes and text matching.</div>
         </div>
@@ -2822,7 +2852,7 @@ function renderBindings() {
     sel.value = sec.slide == null ? "" : String(sec.slide);
     sel.onchange = () => { S.manual[sec.key] = sel.value === "" ? null : +sel.value; rebuild(); renderBindings(); save(); };
     const badge = el("span", { class: "badge " + sec.how, text: sec.how === "auto" ? "auto" : sec.how === "manual" ? "pinned" : "marker" });
-    const side = el("div", { class: "side" }, renderSlide(sec.slide, { small: true }), sel);
+    const side = el("div", { class: "side" }, copyable(renderSlide(sec.slide, { small: true }), sec.slide), sel);
     const ride = steps.filter(s => s.sec === i && s.extra).map(s => s.slide + 1);
     if (ride.length) side.append(el("div", { class: "hint", text: `Also shows slide${ride.length > 1 ? "s" : ""} ${ride.join(", ")} during this section` }));
     if (sec.slide != null && S.slides[sec.slide]) side.append(el("button", { type: "button", class: "btn", text: S.slides[sec.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(sec.slide) }));
@@ -3468,19 +3498,48 @@ const liveSig = i => {
   const str = JSON.stringify(sl, (k, v) => v instanceof Blob ? "blob:" + v.size + ":" + v.type : v);
   return keyOf(str + "|" + (S.aspect || "")) + keyOf(str.slice(0, 997)).slice(-3) + "x" + str.length.toString(36);
 };
-async function liveShot(i) {
+/* one slide drawn to a canvas, w pixels wide, as the projector shows it */
+async function slideCanvas(i, w = 1600) {
   const h2c = await loadH2c();
-  const host = el("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1600px;pointer-events:none";
-  const box = renderSlide(i); box.style.width = "1600px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
+  const host = el("div"); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${w}px;pointer-events:none`;
+  const box = renderSlide(i); box.style.width = w + "px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
   host.append(box); document.body.append(host);
   try {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
-    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: 1600, height: Math.round(1600 / (S.aspect || 16 / 9)) });
-    let q = 0.85, d = c.toDataURL("image/jpeg", q);
-    while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
-    return d.slice(d.indexOf(",") + 1);
+    return await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: w, height: Math.round(w / (S.aspect || 16 / 9)) });
   } finally { host.remove(); }
+}
+/* Click a slide to copy it as a full-size picture (1920 pixels wide), ready to paste into PowerPoint or Keynote.
+   Where this page may not write pictures to the clipboard, the picture is saved as a file instead. */
+async function copySlidePic(i) {
+  if (!S.slides[i]) return;
+  const png = slideCanvas(i, 1920).then(c => canvasBlob(c));
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) throw new Error("no clipboard");
+    toast(`Copying slide ${i + 1}…`);
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);   // the promise keeps the click's permission while the picture is drawn
+    toast(`Slide ${i + 1} copied. Paste it into PowerPoint.`);
+  } catch (e) {
+    let blob = null; try { blob = await png; } catch (e2) { toast("Couldn't draw that slide: " + ((e2 && e2.message) || e2)); return; }
+    if (!downloads) { toast("This view can't copy pictures or save files. Open Pulpit Binder in its own tab and try again."); return; }
+    try { await downloads.save({ filename: `${matSlug()}-slide-${i + 1}.png`, data: blob }); toast("Copying pictures isn't allowed here, so the slide was saved as a picture instead."); }
+    catch (e3) { if (e3 && e3.code !== "declined") toast("The picture could not be copied or saved here."); }
+  }
+}
+function copyable(box, i) {
+  if (i == null || !S.slides[i]) return box;
+  box.classList.add("copyable"); box.tabIndex = 0; box.setAttribute("role", "button"); box.title = "Click to copy this slide as a full-size picture";
+  box.setAttribute("aria-label", `Copy slide ${i + 1} as a picture`);
+  box.addEventListener("click", e => { e.stopPropagation(); copySlidePic(i); });
+  box.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copySlidePic(i); } });
+  return box;
+}
+async function liveShot(i) {
+  const c = await slideCanvas(i);
+  let q = 0.85, d = c.toDataURL("image/jpeg", q);
+  while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
+  return d.slice(d.indexOf(",") + 1);
 }
 function liveRender() {
   const st = $("#lv-state"), on = lv.on;
@@ -3620,7 +3679,7 @@ function renderAnalysis() {
 function list(items) { const ul = el("ul"); (items || []).forEach(x => ul.append(el("li", { text: typeof x === "string" ? x : (x.ref ? `${x.ref}: ${x.use || ""}` : JSON.stringify(x)) }))); return ul; }
 function renderAI() {
   const out = $("#ai-out"); const ai = S.ai;
-  $("#btn-export").hidden = !downloads; $("#btn-save-pptx").hidden = !downloads;
+  $("#btn-export").hidden = !downloads; $("#btn-save-pptx").hidden = !downloads; $("#btn-save-spdf").hidden = !downloads;
   if (!ai) return;
   out.replaceChildren();
   if (ai.error) { out.append(el("div", { class: "refuse", text: ai.error })); return; }
@@ -3734,6 +3793,7 @@ ${preachedPlain().slice(0, 40000)}
 };
 
 $("#btn-save-pptx").onclick = () => savePptx($("#btn-save-pptx"));
+$("#btn-save-spdf").onclick = () => saveSermonPdf($("#btn-save-spdf"));
 $("#btn-export").onclick = async () => {
   const m = S.meta, a = localAnalysis(), ai = S.ai && !S.ai.error ? S.ai : null;
   const L = [];
@@ -4677,13 +4737,13 @@ function openGutterPop(anchorEl, x) {
     const b = groupBlocks([...ed.children])[x.sec]; if (!b) return; snapshot();
     const t = document.createElement("template"); t.innerHTML = slideCueHtml(x.slide + 1); ed.insertBefore(t.content, b.els[0]); refreshCueLabels(); onEdit(true); toast(`Slide cue placed for slide ${x.slide + 1}`); } });
   const pop = el("div", { class: "g-pop", role: "dialog", "aria-label": "Slide details" },
-    renderSlide(x.slide, { small: true }),
+    copyable(renderSlide(x.slide, { small: true }), x.slide),
     el("div", { class: "g-pop-h", text: `Slide ${x.slide + 1} · paragraph ${x.sec + 1}` }),
     el("div", { class: "hint", text: x.extra ? "No paragraph matched this slide, so it comes up on a click during this paragraph. Put the cursor where it belongs and use Slide cue in the toolbar, or start it at this paragraph." : "Choose which slide this paragraph brings up. A pin lasts until the paragraph's wording changes; a slide cue is permanent." }),
     el("label", { class: "g-pop-h", for: "g-pop-sel", text: "This paragraph shows" }), sel,
     slideHdLinks(S.slides[x.slide]),
     S.slides[x.slide] ? el("button", { type: "button", class: "btn primary", text: S.slides[x.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(x.slide) }) : null,
-    el("div", { class: "sg-act" }, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
+    el("div", { class: "sg-act" }, S.slides[x.slide] ? el("button", { class: "btn ghost", text: "Copy picture", title: "Copy this slide as a full-size picture to paste into PowerPoint", onclick: () => copySlidePic(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
   pop.style.top = anchorEl.style.top; pop.onclick = e => e.stopPropagation();
   $("#gutter").append(pop); gutterPop = pop; sel.focus({ preventScroll: true });
 }
@@ -8492,16 +8552,22 @@ function matWhenAuto() {
 }
 /* ---- files: PNG, a one-page PDF, and a zip ---- */
 const canvasBlob = (c, type = "image/png", q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), type, q));
-async function canvasPdf(c, wIn, hIn) {
-  const jpg = new Uint8Array(await (await canvasBlob(c, "image/jpeg", 0.93)).arrayBuffer()), enc = new TextEncoder(), pw = (wIn * 72).toFixed(2), ph = (hIn * 72).toFixed(2);
+async function canvasPdf(c, wIn, hIn) { return jpegPdf([await canvasJpeg(c)], wIn, hIn); }
+const canvasJpeg = async (c, q = 0.93) => ({ bytes: new Uint8Array(await (await canvasBlob(c, "image/jpeg", q)).arrayBuffer()), w: c.width, h: c.height });
+/* a PDF of whole-page pictures, one page per JPEG, each page wIn by hIn inches */
+function jpegPdf(pages, wIn, hIn) {
+  const enc = new TextEncoder(), pw = (wIn * 72).toFixed(2), ph = (hIn * 72).toFixed(2), n = pages.length, size = 3 + 3 * n;
   const parts = [], offs = []; let len = 0; const push = d => { const b = typeof d === "string" ? enc.encode(d) : d; parts.push(b); len += b.length; };
   push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n${body}\nendobj\n`); };
-  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
-  obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
-  offs[4] = len; push(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${c.width} /Height ${c.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); push(jpg); push("\nendstream\nendobj\n");
-  const content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(5, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
-  const xr = len; push(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map(n => String(offs[n]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
+  const obj = (k, body) => { offs[k] = len; push(`${k} 0 obj\n${body}\nendobj\n`); };
+  const pg = i => 3 + 3 * i;   // page i is object pg(i), its picture pg(i)+1, its drawing pg(i)+2
+  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, `<< /Type /Pages /Kids [${pages.map((_, i) => pg(i) + " 0 R").join(" ")}] /Count ${n} >>`);
+  pages.forEach((im, i) => {
+    obj(pg(i), `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 ${pg(i) + 1} 0 R >> >> /Contents ${pg(i) + 2} 0 R >>`);
+    offs[pg(i) + 1] = len; push(`${pg(i) + 1} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`); push(im.bytes); push("\nendstream\nendobj\n");
+    const content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(pg(i) + 2, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  });
+  const xr = len; push(`xref\n0 ${size}\n0000000000 65535 f \n${Array.from({ length: size - 1 }, (_, k) => String(offs[k + 1]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size ${size} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
   const out = new Uint8Array(len); let p = 0; for (const b of parts) { out.set(b, p); p += b.length; } return new Blob([out], { type: "application/pdf" });
 }
 async function matSave(name, data) {
@@ -9311,6 +9377,117 @@ async function deckPptx(onStep) {
   media.forEach(([name, blob]) => z.file("ppt/media/" + name, blob));
   return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation", compression: "DEFLATE" });
 }
+/* ---- the sermon as a PDF: manuscript on letter pages, each slide small in the margin beside the words that bring it up ----
+   Pages are laid out as HTML off screen, then drawn with html2canvas, like the live view's slides. A section that runs past the
+   bottom of a page is cut between words and carries on at the top of the next; its slides stay with its first part. */
+const PDFP = { w: 816, h: 1056, foot: 70 };   // 8.5 x 11 inches at 96 pixels an inch; room kept for the footer
+function pdfSecBody(sec) {
+  const b = el("div", { class: "pdfp-txt" });
+  if (sec.html) {
+    b.innerHTML = sanitize(sec.html);
+    b.querySelectorAll(".pb-slide").forEach(x => x.remove());
+    b.querySelectorAll(".pb-scripture").forEach(x => {
+      const d = readSc(x), t = d.texts[d.ver], box = el("div", { class: "pdfp-sc" }, el("div", { class: "pdfp-sc-h", text: `${d.ref} · ${d.ver}` }));
+      const body = el("div"); body.innerHTML = t ? scBodyHtml(t.t) : ""; box.append(body); x.replaceWith(box);
+    });
+  } else sec.text.split(/\n+/).forEach(p => b.append(el("p", { text: p })));
+  return b;
+}
+/* slides that come up at each section, in order, as Present marks them */
+function pdfSlidesBySec() {
+  const st = buildSteps(), out = sections.map(() => []);
+  st.forEach((s, k) => { if (s.sec == null || s.slide == null || (k > 0 && st[k - 1].slide === s.slide)) return; if (!out[s.sec].includes(s.slide)) out[s.sec].push(s.slide); });
+  return out;
+}
+/* cut a laid-out block where its text passes maxH pixels; the block keeps the first part and the rest comes back */
+function pdfCut(txt, maxH) {
+  const top = txt.getBoundingClientRect().top, w = document.createTreeWalker(txt, NodeFilter.SHOW_TEXT), r = document.createRange(); let cut = null, any = false;
+  const below = n => { let px = 0; for (let e = n.parentElement; e && e !== txt; e = e.parentElement) { const cs = getComputedStyle(e); px += parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth); } return px; };   // a box around the words closes below them
+  for (let n; !cut && (n = w.nextNode());) {
+    const re = /\S+/g; let m; const pad = below(n);
+    while ((m = re.exec(n.data))) {
+      r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length); const rs = r.getClientRects(), last = rs[rs.length - 1];
+      if (last && last.bottom + pad - top > maxH) { cut = [n, m.index]; break; }
+      any = true;
+    }
+  }
+  if (!cut || !any) return null;
+  const rest = document.createRange(), prev = cut[0].previousSibling; rest.setStart(cut[0], cut[1]); rest.setEndAfter(txt.lastChild);
+  if (!cut[0].data.slice(0, cut[1]).trim() && prev && prev.classList && prev.classList.contains("vn")) rest.setStartBefore(prev);   // a verse number goes with its verse
+  const frag = rest.extractContents(), out = el("div", { class: "pdfp-txt" }); out.append(frag);
+  const prune = node => { for (const c of [...node.childNodes]) { if (c.nodeType === 1) { prune(c); if (!c.textContent.trim() && !/^(BR)$/.test(c.tagName)) c.remove(); } } };
+  prune(txt); prune(out);
+  return out.textContent.trim() ? out : null;
+}
+async function sermonPdf(onStep) {
+  rebuild();
+  if (!sections.length) throw new Error("There is no manuscript yet. Write or open it under Edit manuscript first.");
+  const bySec = pdfSlidesBySec(), need = [...new Set(bySec.flat())], pics = new Map();
+  for (let k = 0; k < need.length; k++) {   // each slide once, as a small picture
+    onStep(`Drawing slide ${k + 1} of ${need.length}…`);
+    try { const c = await slideCanvas(need[k], 640); pics.set(need[k], c.toDataURL("image/jpeg", 0.9)); } catch (e) { console.warn(e); }
+  }
+  const h2c = await loadH2c();
+  const host = el("div"); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${PDFP.w}px;pointer-events:none`; document.body.append(host);
+  const pages = [], m = S.meta;
+  const newPage = () => {
+    const pg = el("div", { class: "pdfp" }), flow = el("div");
+    if (!pages.length) {
+      const sub = [m.text, fmtWhen(m.when), m.service, m.place, m.speaker].filter(Boolean).join(" · ");
+      pg.append(el("div", { class: "pdfp-head" }, el("h1", { class: "pdfp-title", text: m.title || "Untitled sermon" }), sub ? el("div", { class: "pdfp-sub", text: sub }) : null));
+    }
+    pg.append(flow); host.append(pg); pages.push(pg);
+    return { flow, limit: PDFP.h - PDFP.foot - flow.offsetTop };
+  };
+  const row = (txt, slides) => {
+    const r = el("div", { class: "pdfp-row" + (/^H[1-4]$/.test((txt.firstElementChild || {}).tagName || "") ? " hd" : "") }, txt);
+    r.append(el("div", { class: "pdfp-side" }, ...slides.map(i => el("figure", {}, pics.has(i) ? el("img", { src: pics.get(i), alt: "" }) : null, el("figcaption", { text: `SLIDE ${i + 1}` })))));
+    return r;
+  };
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    let cur = newPage();
+    const used = () => { const l = cur.flow.lastElementChild; return l ? l.offsetTop + l.offsetHeight - cur.flow.offsetTop : 0; };
+    for (let i = 0; i < sections.length; i++) {
+      onStep(`Laying out page ${pages.length}…`);
+      let r = row(pdfSecBody(sections[i]), bySec[i]);
+      for (let guard = 0; r && guard < 200; guard++) {
+        const before = used(); cur.flow.append(r);
+        await Promise.all([...r.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+        if (used() <= cur.limit) break;
+        const room = cur.limit - (r.offsetTop - cur.flow.offsetTop), side = r.querySelector(".pdfp-side");
+        const fresh = before === 0;
+        let rest = null;
+        if (side.offsetHeight <= room || fresh) rest = room > 40 ? pdfCut(r.firstElementChild, room) : null;
+        if (rest) { cur = newPage(); r = row(rest, []); continue; }
+        if (fresh) break;   // too tall even for an empty page and cannot be cut: let it run off rather than loop
+        r.remove(); cur = newPage();
+      }
+    }
+    const title = m.title || "Sermon", out = [];
+    pages.forEach((pg, k) => pg.append(el("div", { class: "pdfp-foot" }, el("span", { text: title }), el("span", { text: `Page ${k + 1} of ${pages.length}` }))));
+    for (let k = 0; k < pages.length; k++) {
+      onStep(`Drawing page ${k + 1} of ${pages.length}…`);
+      const c = await h2c(pages[k], { backgroundColor: "#ffffff", scale: 2, logging: false, width: PDFP.w, height: PDFP.h });
+      out.push(await canvasJpeg(c, 0.9));
+    }
+    return jpegPdf(out, 8.5, 11);
+  } finally { host.remove(); }
+}
+let spdfBusy = false;
+async function saveSermonPdf(btn) {
+  if (spdfBusy) return;
+  if (!downloads) { toast("Saving files is not available in this view."); return; }
+  spdfBusy = true; const label = btn ? btn.textContent : ""; if (btn) btn.disabled = true;
+  try {
+    const blob = await sermonPdf(t => { if (btn) btn.textContent = t; });
+    if (btn) btn.textContent = label;
+    try { await downloads.save({ filename: `${matSlug()}-with-slides.pdf`, data: blob }); toast("Sermon PDF saved"); }
+    catch (e) { if (e && e.code !== "declined") toast("The PDF could not be saved here."); }
+  } catch (e) { console.error(e); toast("Couldn't build the PDF: " + ((e && e.message) || e)); }
+  if (btn) { btn.textContent = label; btn.disabled = false; }
+  spdfBusy = false;
+}
 let pptxBusy = false;
 async function savePptx(btn) {
   if (pptxBusy) return;
@@ -9449,7 +9626,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
-  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; matSaveState(); }).catch(() => {});
+  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; $("#btn-save-spdf").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
 const setCollapsed = c => { document.body.classList.toggle("sb-collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
 $("#btn-collapse").onclick = () => setCollapsed(!document.body.classList.contains("sb-collapsed"));
