@@ -52,6 +52,8 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 
 `rebuild()` splits the manuscript into sections, treats cues and pins as fixed points, and aligns the rest with a dynamic-programming match on words between them. `buildSteps()` produces the Present sequence so every slide is shown, including slides with no matching text.
 
+A change to the deck (`deckEdited`) updates the manuscript, its cues, and the slide column at once; the Details slide list and Bindings, out of sight while writing, redraw when the browser is idle (`deckViewsSoon`). Dialogs hand focus back with `preventScroll`, and adding a slide puts the caret at the paragraph it came from and keeps those words where they were on screen.
+
 ## Slides
 
 - PowerPoint: parsed with JSZip into a model (boxes, images, lines, tables, placeholders inherited from layout and master, theme colors) and drawn as HTML.

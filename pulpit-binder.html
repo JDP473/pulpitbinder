@@ -4326,7 +4326,7 @@ function updateHist() {
 function snapshot(opts) { undoStack.push(histState(opts && opts.meta)); if (undoStack.length > 80) undoStack.shift(); redoStack = []; burstT && clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist(); }
 function applyHist(u) {
   ed.innerHTML = typeof u === "string" ? u : u.h;
-  if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
+  if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); deckViewsSoon(); }
   if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
   refreshCueLabels(); onEdit(true);
   if (u.caret) { try { ed.focus({ preventScroll: true }); const [a, ao] = edPoint(u.caret[0]), [b, bo] = edPoint(u.caret[1]), r = document.createRange(); r.setStart(a, ao); r.setEnd(b, bo); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch {} }
@@ -5533,7 +5533,15 @@ function insertMadeSlides(target, newSlides, opts = {}) {
   toast((count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`) + (opts.from ? ` for ${opts.from}` : ""));
   return pos;
 }
-function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
+function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); deckViewsSoon(); queueGutter(); }
+/* The slide list in Details and the Bindings list are out of sight while you write, so a change to the deck redraws them when
+   the browser is free instead of making you wait. Opening Bindings draws it fresh in any case. */
+let deckViewsT = 0;
+function deckViewsSoon() {
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 200)), stop = window.cancelIdleCallback || clearTimeout;
+  if (deckViewsT) stop(deckViewsT);
+  deckViewsT = idle(() => { deckViewsT = 0; renderDeckStatus(); if (view === "build") renderBindings(); }, { timeout: 1500 });
+}
 function replacePicture(idx) {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
   inp.onchange = async () => {
@@ -5825,7 +5833,7 @@ function openPicker(src, edit) {
   });
   $("#mk-step1").hidden = false; $("#mk-step2").hidden = true;
   mkModal.hidden = false; selPop.hidden = true;
-  (grid.querySelector(".last:not([disabled])") || grid.querySelector("button:not([disabled])")).focus();
+  (grid.querySelector(".last:not([disabled])") || grid.querySelector("button:not([disabled])")).focus({ preventScroll: true });
 }
 function closePicker() { mkModal.hidden = true; mk = null; }
 $("#mk-cancel").onclick = closePicker; $("#mk-cancel2").onclick = closePicker;
@@ -6207,6 +6215,7 @@ $("#mk-add").onclick = () => {
   const slides = draftSlides(); if (!slides.length) return;
   if (mk.edit) { const { idx, count } = mk.edit; closePicker(); replaceSlides(idx, count, slides); return; }
   const s = mk.src; let target = s.target, snapped = false;
+  const at = (() => { try { const r = s.range || null, e = r ? r.getClientRects()[0] : target && target.getBoundingClientRect(); return e ? e.top : null; } catch { return null; } })();   // where the words sit on screen now
   if (s.kind === "text" && s.range) {   // the slide appears when you reach the highlighted words, so the paragraph splits there
     const b = topBlock(s.range.startContainer);
     if (b && b.isConnected && /^(P|BLOCKQUOTE)$/.test(b.tagName)) {
@@ -6217,6 +6226,11 @@ $("#mk-add").onclick = () => {
   }
   closePicker();
   insertMadeSlides(target, slides, { noSnap: snapped });
+  if (target && target.isConnected && ed.contains(target)) {
+    try { setCaret(target, 0); } catch {}   // keep writing where you were; the dialog hands focus back here without scrolling
+    const d = at == null ? 0 : target.getBoundingClientRect().top - at;   // the new cue line pushes the words down; follow them so they stay put on screen
+    if (Math.abs(d) > 2) window.scrollBy({ top: d, behavior: "instant" });
+  }
 };
 
 /* ---- editing a slide already in the deck, or making it a different kind ----
@@ -9603,7 +9617,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
     const vis = () => [...m.querySelectorAll(FOCUSABLE)].filter(e => e.offsetParent !== null);
     new MutationObserver(() => {
       if (!m.hidden) { back = lastOut; const card = m.querySelector(".modal-card"); if (card && !card.hasAttribute("tabindex")) card.tabIndex = -1; setTimeout(() => { if (!m.contains(document.activeElement)) (vis()[0] || card).focus(); }, 0); }
-      else if (back) { const t = document.contains(back) && back.offsetParent !== null ? back : $("#btn-sermon"); try { t.focus(); } catch {} back = null; }
+      else if (back) { const t = document.contains(back) && back.offsetParent !== null ? back : $("#btn-sermon"); try { t.focus({ preventScroll: true }); } catch {} back = null; }   // never scroll: the editor would jump to wherever its caret landed
     }).observe(m, { attributes: true, attributeFilter: ["hidden"] });
     m.addEventListener("keydown", e => {
       if (e.key !== "Tab") return; const f = vis(); if (!f.length) return;
