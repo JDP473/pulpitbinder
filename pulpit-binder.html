@@ -727,6 +727,31 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 
 
 .bind-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* Slides tab: the deck in order, dragged to reorder */
+.sl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:18px 16px}
+.sl-card{position:relative;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sl-card:hover{border-color:var(--muted)}
+.sl-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sl-card.sl-from{opacity:.35}
+.sl-card .slide{border-radius:5px;pointer-events:none}
+.sl-card .slide .n{display:none}
+.sl-meta{display:flex;gap:8px;align-items:baseline;min-width:0;font-size:13.5px}
+.sl-meta b{font:600 12px var(--f-mono);color:var(--accent);flex:none}
+.sl-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sl-at{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-at.extra{color:var(--warn)}
+.sl-act{display:flex;gap:4px;align-items:center}
+.sl-act .icon-btn{width:30px;height:30px;font-size:15px}
+.sl-act .btn{min-height:30px;padding:0 10px;font-size:13px;margin-left:auto}
+.sl-card.drop-before::before,.sl-card.drop-after::after{content:"";position:absolute;top:4px;bottom:4px;width:4px;border-radius:2px;background:var(--accent)}
+.sl-card.drop-before::before{left:-11px}.sl-card.drop-after::after{right:-11px}
+.sl-grid.one-col .sl-card.drop-before::before,.sl-grid.one-col .sl-card.drop-after::after{top:auto;bottom:auto;left:4px;right:4px;width:auto;height:4px}
+.sl-grid.one-col .sl-card.drop-before::before{top:-11px}.sl-grid.one-col .sl-card.drop-after::after{bottom:-11px}
+.sl-ghost{position:fixed;z-index:70;pointer-events:none;border-radius:6px;box-shadow:0 14px 34px rgba(0,0,0,.32);transform:rotate(2deg);opacity:.95}
+.sl-ghost .slide .n{display:none}
+body.sl-dragging,body.sl-dragging *{cursor:grabbing!important}
+@media (pointer:coarse){.sl-act .icon-btn{width:40px;height:40px}.sl-act .btn{min-height:40px}}
+@media (max-width:560px){.sl-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}.sl-card{padding:6px;gap:4px}.sl-at{display:none}.sl-act{flex-wrap:wrap}.sl-act .btn{margin-left:0;flex:1 1 100%;min-height:36px}.sl-card.drop-before::before{left:-7px}.sl-card.drop-after::after{right:-7px}}
 .bind-list{display:flex;flex-direction:column;gap:10px}
 .bind{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 @media (max-width:640px){.bind{grid-template-columns:minmax(0,1fr)}}
@@ -1368,6 +1393,7 @@ body[data-view="present"] .sermon-bar{display:none}
   <div class="subtabs" id="subtabs" role="tablist" aria-label="Build sections" hidden>
     <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
     <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
+    <button class="subtab" role="tab" id="sub-slides" data-sub="slides" aria-selected="false" aria-controls="build-slides" tabindex="-1">Slides</button>
     <button class="subtab" role="tab" id="sub-series" data-sub="series" aria-selected="false" aria-controls="build-series" tabindex="-1" hidden>Series documents</button>
     <button class="subtab" role="tab" id="sub-bindings" data-sub="bindings" aria-selected="false" aria-controls="build-bind" tabindex="-1">Bindings</button>
   </div>
@@ -1425,6 +1451,17 @@ body[data-view="present"] .sermon-bar{display:none}
           <div class="field"><label for="rec-preached">As-preached transcript</label><textarea id="rec-preached" rows="5" placeholder="Paste the transcript of the recording. From YouTube: under the video choose … then Show transcript, select it all, and copy."></textarea><span class="hint" id="rec-preached-note"></span></div>
         </div>
       </div>
+    </div>
+
+    <div id="build-slides" hidden>
+        <div class="panel">
+          <div class="bind-head">
+            <h2>Slides</h2><span class="hint" id="sl-summary"></span><div class="spacer"></div>
+            <button type="button" class="btn ghost" id="sl-undo" disabled>Undo</button>
+          </div>
+          <div class="hint" id="sl-hint">Drag a slide to move it, or use its arrows. Slide cues in the manuscript follow the slide to its new place.</div>
+          <div class="sl-grid" id="sl-grid" role="list" aria-label="Slides in order"></div>
+        </div>
     </div>
 
     <div id="build-bind" hidden>
@@ -3318,7 +3355,7 @@ $("#del-go").onclick = async () => {
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
-  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
+  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials(); if (view === "build" && buildSub === "slides") renderSlidesTab();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
   watchCurrent();
@@ -5540,7 +5577,7 @@ let deckViewsT = 0;
 function deckViewsSoon() {
   const idle = window.requestIdleCallback || (f => setTimeout(f, 200)), stop = window.cancelIdleCallback || clearTimeout;
   if (deckViewsT) stop(deckViewsT);
-  deckViewsT = idle(() => { deckViewsT = 0; renderDeckStatus(); if (view === "build") renderBindings(); }, { timeout: 1500 });
+  deckViewsT = idle(() => { deckViewsT = 0; renderDeckStatus(); if (view === "build") { renderBindings(); if (buildSub === "slides" && !slDrag) renderSlidesTab(); } }, { timeout: 1500 });
 }
 function replacePicture(idx) {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
@@ -5551,6 +5588,121 @@ function replacePicture(idx) {
   };
   inp.click();
 }
+/* ---- the Slides tab: the deck in thumbnail order, dragged (or moved with the arrows) into a new order ----
+   A slide keeps everything that points at it: a numbered slide cue in the manuscript and a paragraph pinned to it follow it
+   to its new place, and a cue covering several slides grows to cover the run its slides now sit in. "Next slide" cues keep
+   meaning the next slide in order. Undo, here or in Edit manuscript, puts the old order back. */
+function moveSlide(from, to) {
+  const m = S.slides.length; if (from === to || from < 0 || to < 0 || from >= m || to >= m) return;
+  const order = S.slides.map((_, i) => i); order.splice(to, 0, order.splice(from, 1)[0]);
+  const at = new Array(m); order.forEach((old, k) => { at[old] = k; });
+  snapshot();
+  S.slides = order.map(i => S.slides[i]);
+  ed.querySelectorAll(".pb-slide").forEach(c => {
+    const n = +c.dataset.n; if (!n || n > m) return; const k = Math.max(1, +c.dataset.k || 1);
+    const now = Array.from({ length: Math.min(k, m - n + 1) }, (_, j) => at[n - 1 + j]), lo = Math.min(...now), hi = Math.max(...now);
+    c.dataset.n = String(lo + 1); if (hi > lo) c.dataset.k = String(hi - lo + 1); else delete c.dataset.k;
+  });
+  for (const [k, v] of Object.entries(S.manual)) if (v != null && v < m) S.manual[k] = at[v];
+  deckEdited();
+}
+let slDrag = null;
+function renderSlidesTab() {
+  const grid = $("#sl-grid"); if (!grid || !S) return;
+  const had = document.activeElement && grid.contains(document.activeElement) ? document.activeElement.closest(".sl-card") : null, keep = had ? had.dataset.i : null;   // a redraw keeps the keyboard on the same slide
+  grid.replaceChildren();
+  const m = S.slides.length;
+  $("#sl-summary").textContent = m ? `${m} slide${m === 1 ? "" : "s"}` : "";
+  $("#sl-hint").hidden = m < 2; $("#sl-undo").disabled = !undoStack.length;
+  $("#sl-hint").textContent = `${matchMedia("(pointer:coarse)").matches ? "Hold a slide for a moment, then drag it" : "Drag a slide"} to move it, or use its arrows. Slide cues in the manuscript follow the slide to its new place.`;
+  if (!m) { grid.append(el("div", { class: "empty", style: "grid-column:1/-1", text: "No slides yet. Drop a .pptx in Details, or highlight words in Edit manuscript and choose Make slide." })); return; }
+  // where each slide comes up in the manuscript
+  const where = new Map(); let st = []; try { st = buildSteps(); } catch {}
+  st.forEach(x => { if (x.slide != null && !where.has(x.slide) && x.sec != null) where.set(x.slide, x); });
+  S.slides.forEach((sl, i) => {
+    const w = where.get(i), sec = w && sections[w.sec];
+    const at = !sections.length ? "" : w && sec ? `${w.extra ? "No text matched, rides with" : "Comes up at"} §${w.sec + 1} · ${sec.text.replace(/\s+/g, " ").slice(0, 60)}` : "";
+    const btn = (label, glyph, off, fn) => el("button", { type: "button", class: "icon-btn", title: label, "aria-label": label, text: glyph, disabled: off ? "" : null, onclick: e => { e.stopPropagation(); fn(); } });
+    const card = el("div", { class: "sl-card", role: "listitem", tabindex: "0", "data-i": String(i), "aria-label": `Slide ${i + 1} of ${m}: ${sl.title || "untitled"}. Alt and an arrow key move it.` },
+      renderSlide(i, { small: true }),
+      el("div", { class: "sl-meta" }, el("b", { text: String(i + 1) }), el("span", { class: "sl-t", text: sl.title || (sl.made ? "Made slide" : "Untitled"), title: sl.title || "" })),
+      at ? el("div", { class: "sl-at" + (w && w.extra ? " extra" : ""), text: at, title: at }) : null,
+      el("div", { class: "sl-act" },
+        btn("Move earlier", "←", i === 0, () => slMoveBy(i, -1)),
+        btn("Move later", "→", i === m - 1, () => slMoveBy(i, 1)),
+        el("button", { type: "button", class: "btn ghost", text: sl.made ? "Edit" : "Change", title: sl.made ? "Edit this slide" : "Make this slide into a new kind", onclick: e => { e.stopPropagation(); editSlide(i); } })));
+    grid.append(card);
+  });
+  if (keep != null) { const c = grid.querySelector(`.sl-card[data-i="${keep}"]`); if (c) c.focus({ preventScroll: true }); }
+}
+function slMoveBy(i, d) { const j = i + d; if (j < 0 || j >= S.slides.length) return; slMove(i, j); }
+function slMove(from, to) {
+  moveSlide(from, to); renderSlidesTab();
+  const c = $(`#sl-grid .sl-card[data-i="${to}"]`); if (c) { c.focus({ preventScroll: true }); c.scrollIntoView({ block: "nearest" }); }
+  toast(`Slide ${from + 1} is now slide ${to + 1}. Undo puts it back.`);
+}
+$("#sl-undo").onclick = () => { undoEdit(); renderSlidesTab(); };
+$("#sl-grid").addEventListener("keydown", e => {
+  const card = e.target.closest(".sl-card"); if (!card || !e.altKey) return;
+  const i = +card.dataset.i, d = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key]; if (!d) return;
+  e.preventDefault(); slMoveBy(i, d);
+});
+/* dragging: a mouse drags at once; a finger holds still for a moment first, so swiping still scrolls the page */
+(() => {
+  const grid = $("#sl-grid"); let p = null, raf = 0;
+  const cards = () => [...grid.querySelectorAll(".sl-card")];
+  const clearMarks = () => grid.querySelectorAll(".drop-before,.drop-after").forEach(c => c.classList.remove("drop-before", "drop-after"));
+  const oneCol = () => getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length < 2;
+  function begin() {
+    const r = p.card.getBoundingClientRect(), w = Math.min(r.width, 260);
+    const ghost = el("div", { class: "sl-ghost" }, renderSlide(p.from, { small: true })); ghost.style.width = w + "px";
+    document.body.append(ghost); p.ghost = ghost; p.gw = w; p.card.classList.add("sl-from"); document.body.classList.add("sl-dragging");
+    grid.classList.toggle("one-col", oneCol()); slDrag = p; place(p.x, p.y);
+    if (navigator.vibrate && p.touch) try { navigator.vibrate(12); } catch {}
+  }
+  function place(x, y) {
+    p.x = x; p.y = y; p.ghost.style.left = (x - p.gw / 2) + "px"; p.ghost.style.top = (y - p.gw * 0.28) + "px";
+    clearMarks(); p.slot = null;
+    const one = grid.classList.contains("one-col");
+    let best = null, bd = Infinity;   // the nearest card, then which side of it
+    for (const c of cards()) { const r = c.getBoundingClientRect(), cx = Math.max(r.left, Math.min(x, r.right)), cy = Math.max(r.top, Math.min(y, r.bottom)), d = Math.hypot(x - cx, y - cy); if (d < bd) { bd = d; best = { c, r }; } }
+    if (!best || bd > 120) return;
+    const j = +best.c.dataset.i, after = one ? y > best.r.top + best.r.height / 2 : x > best.r.left + best.r.width / 2;
+    const slot = after ? j + 1 : j, to = slot > p.from ? slot - 1 : slot;
+    if (to === p.from) return;
+    best.c.classList.add(after ? "drop-after" : "drop-before"); p.slot = to;
+  }
+  function scrollLoop() {   // near the top or bottom of the window, the page scrolls so a slide can travel the whole deck
+    if (!slDrag) return; const edge = p.touch ? 110 : 70, top = (parseFloat(getComputedStyle(root).getPropertyValue("--hdr-h")) || 0) + edge, bot = innerHeight - (parseFloat(getComputedStyle(root).getPropertyValue("--nav-h")) || 0) - edge;
+    const v = p.y < top ? -Math.min(24, (top - p.y) / 3 + 4) : p.y > bot ? Math.min(24, (p.y - bot) / 3 + 4) : 0;
+    if (v) { scrollBy(0, v); place(p.x, p.y); }
+    raf = requestAnimationFrame(scrollLoop);
+  }
+  function end(commit) {
+    clearTimeout(p && p.hold); cancelAnimationFrame(raf);
+    if (slDrag) { const { from, slot } = p; p.ghost.remove(); p.card.classList.remove("sl-from"); document.body.classList.remove("sl-dragging"); clearMarks(); slDrag = null; if (commit && slot != null) slMove(from, slot); }
+    p = null;
+  }
+  grid.addEventListener("pointerdown", e => {
+    const card = e.target.closest(".sl-card"); if (!card || e.button || e.target.closest("button")) return;
+    p = { card, from: +card.dataset.i, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, id: e.pointerId, touch: e.pointerType !== "mouse" };
+    if (p.touch) p.hold = setTimeout(() => { if (p && !slDrag) { begin(); scrollLoop(); } }, 320);
+  });
+  addEventListener("pointermove", e => {
+    if (!p || e.pointerId !== p.id) return;
+    if (!slDrag) {
+      const far = Math.hypot(e.clientX - p.x0, e.clientY - p.y0) > 6;
+      if (p.touch) { if (far) end(false); return; }   // a finger that moves before the hold is scrolling
+      if (!far) return; p.x = e.clientX; p.y = e.clientY; begin(); scrollLoop(); return;
+    }
+    e.preventDefault(); place(e.clientX, e.clientY);
+  });
+  addEventListener("pointerup", e => { if (p && e.pointerId === p.id) end(true); });
+  addEventListener("pointercancel", e => { if (p && e.pointerId === p.id) end(false); });
+  grid.addEventListener("touchmove", e => { if (slDrag) e.preventDefault(); }, { passive: false });   // once a slide is held, the finger drags it instead of the page
+  grid.addEventListener("contextmenu", e => { if (p || slDrag) e.preventDefault(); });
+  addEventListener("keydown", e => { if (e.key === "Escape" && slDrag) end(false); });
+})();
 function deleteSlideAt(idx) {
   if (!S.slides[idx]) return;
   snapshot();
@@ -9549,11 +9701,11 @@ function thBindOnce() {
 /* ---------------- views ---------------- */
 /* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
 let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") || "details"; } catch {}
-if (!["details", "edit", "series", "bindings"].includes(buildSub)) buildSub = "details";
+if (!["details", "edit", "slides", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
   if (!$("#settings").hidden) closeSettings();
-  if (v === "bindings" || v === "series") { buildSub = v; v = "build"; }
+  if (v === "bindings" || v === "series" || v === "slides") { buildSub = v; v = "build"; }
   if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
   if (v === "edit") buildSub = "edit";
@@ -9563,8 +9715,9 @@ function setView(v) {
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
   $("#subtabs").hidden = top !== "build";
   for (const b of document.querySelectorAll("#subtabs .subtab")) { const on = b.dataset.sub === buildSub; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; }
-  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series";
+  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series"; $("#build-slides").hidden = buildSub !== "slides";
   if (v === "build" && buildSub === "series") renderSeries();
+  if (v === "build" && buildSub === "slides") renderSlidesTab();
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") { placeStudy("view"); renderStudy(); }
@@ -9635,7 +9788,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "slides", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });

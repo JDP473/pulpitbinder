@@ -7,7 +7,7 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 | Tab | Section id | Render entry |
 |---|---|---|
 | Dashboard | `#view-dash` | `renderDash()` gathers every sermon, `drawDash()` draws |
-| Build: Details, Bindings | `#view-build` (`#build-details`, `#build-bind`) | `renderBindings()`, `renderMediaPanel()` |
+| Build: Details, Slides, Bindings | `#view-build` (`#build-details`, `#build-slides`, `#build-bind`) | `renderBindings()`, `renderSlidesTab()`, `renderMediaPanel()` |
 | Build: Edit manuscript | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
 | Present | `#view-present` | `renderPresent()` |
 | Analysis | `#view-analysis` | `renderAnalysis()`, `renderAI()` |
@@ -58,6 +58,7 @@ A change to the deck (`deckEdited`) updates the manuscript, its cues, and the sl
 
 - PowerPoint: parsed with JSZip into a model (boxes, images, lines, tables, placeholders inherited from layout and master, theme colors) and drawn as HTML.
 - PDF export: rendered page images via pdf.js, for exact appearance.
+- Reordering (Slides tab, `moveSlide(from, to)`): thumbnails in deck order, moved by mouse drag, a held-then-dragged finger, the arrow buttons, or Alt with an arrow key. Numbered slide cues and pins follow their slide; a cue spanning several slides grows to cover the run they now sit in; "next slide" cues stay relative. One undo step per move.
 - Made slides: `made` is quote, scripture, keyverse, statement, points, point, blanks, question, art, or photo, styled from `deckTheme()`.
 
 ## Integrations
