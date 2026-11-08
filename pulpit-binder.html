@@ -727,6 +727,39 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 
 
 .bind-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* Listen tab: the sermon read aloud, with the sentence being read marked */
+.ls-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px));z-index:5;background:var(--surface);margin:-6px -8px 0;padding:6px 8px;border-radius:10px}   /* the controls stay in reach while reading along */
+.ls-bar #ls-play{min-width:96px}
+.ls-now-at{margin-left:4px}
+@media (max-width:560px){.ls-now-at{flex:1 1 100%;min-height:1.45em;margin:0}}   /* its own line, always there, so the controls never change height*/
+.ls-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}
+.ls-opts input[type=range]{width:100%;accent-color:var(--accent);height:var(--ctl)}
+.ls-coach{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ls-coach:has(#ls-coach[hidden]):has(#ls-coach-st:empty){display:none}
+.ls-grid{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.ls-grid{grid-template-columns:minmax(0,1fr)}}
+.ls-parts{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px}
+.ls-parts-h{display:flex;align-items:center;gap:12px;padding:2px 6px 6px;font-size:13px}
+.ls-parts-h .link-btn{margin:0}
+.ls-list{display:flex;flex-direction:column;gap:1px;max-height:min(56vh,560px);overflow:auto}
+.ls-part{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;padding:6px 8px;border-radius:7px;cursor:pointer;padding-left:calc(8px + (var(--lv,1) - 1) * 14px);font-size:13.5px;line-height:1.35}
+.ls-part:hover{background:var(--sunk)}
+.ls-part input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--accent)}
+.ls-part b{font:600 11.5px var(--f-mono);color:var(--accent);margin-right:4px}
+.ls-part .hint{white-space:nowrap}
+.ls-part.on-air{background:var(--accent-soft)}
+.ls-read{border:1px solid var(--line);border-radius:10px;padding:14px clamp(14px,2.4vw,28px);max-height:min(64vh,720px);overflow:auto;font-family:var(--f-read);font-size:1.05rem;line-height:1.7;overscroll-behavior:contain}
+.ls-read p{margin:0 0 .85em}
+.ls-read h3{font:600 1.1em/1.3 var(--f-read);margin:1em 0 .4em;color:var(--ink)}
+.ls-read h3:first-child{margin-top:0}
+.ls-read .ls-s{cursor:pointer;border-radius:3px;transition:background .15s}
+.ls-read .ls-s:hover{background:var(--sunk)}
+.ls-read .ls-s.key{font-weight:600}
+.ls-read .ls-s.now{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+.ls-read .ls-cue{font:600 10px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 6px;border-radius:4px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);vertical-align:.15em;margin:0 3px}
+.ls-read .ls-cue.now{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ls-read .ls-sc{border-left:4px solid var(--sc-accent);background:var(--sc-bg);border-radius:3px 8px 8px 3px;padding:8px 12px;margin:0 0 .85em}
+.ls-read .ls-sc .ls-ref{display:block;font:700 11px/1.4 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--sc-accent);margin-bottom:4px}
 /* Slides tab: the deck in order, dragged to reorder */
 .sl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:18px 16px}
 .sl-card{position:relative;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -1394,6 +1427,7 @@ body[data-view="present"] .sermon-bar{display:none}
     <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
     <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
     <button class="subtab" role="tab" id="sub-slides" data-sub="slides" aria-selected="false" aria-controls="build-slides" tabindex="-1">Slides</button>
+    <button class="subtab" role="tab" id="sub-listen" data-sub="listen" aria-selected="false" aria-controls="build-listen" tabindex="-1">Listen</button>
     <button class="subtab" role="tab" id="sub-series" data-sub="series" aria-selected="false" aria-controls="build-series" tabindex="-1" hidden>Series documents</button>
     <button class="subtab" role="tab" id="sub-bindings" data-sub="bindings" aria-selected="false" aria-controls="build-bind" tabindex="-1">Bindings</button>
   </div>
@@ -1451,6 +1485,33 @@ body[data-view="present"] .sermon-bar{display:none}
           <div class="field"><label for="rec-preached">As-preached transcript</label><textarea id="rec-preached" rows="5" placeholder="Paste the transcript of the recording. From YouTube: under the video choose … then Show transcript, select it all, and copy."></textarea><span class="hint" id="rec-preached-note"></span></div>
         </div>
       </div>
+    </div>
+
+    <div id="build-listen" hidden>
+        <div class="panel ls">
+          <div class="bind-head"><h2>Listen</h2><span class="hint" id="ls-summary"></span></div>
+          <div class="ls-bar" role="group" aria-label="Playback">
+            <button type="button" class="btn primary" id="ls-play">Play</button>
+            <button type="button" class="icon-btn" id="ls-prev" aria-label="Back one sentence" title="Back one sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="2.6" height="14" rx="1"/><path d="M19 5.6v12.8a.8.8 0 0 1-1.25.66L9.4 12.66a.8.8 0 0 1 0-1.32l8.35-6.4A.8.8 0 0 1 19 5.6z"/></svg></button>
+            <button type="button" class="icon-btn" id="ls-next" aria-label="Ahead one sentence" title="Ahead one sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="16.4" y="5" width="2.6" height="14" rx="1"/><path d="M5 5.6v12.8a.8.8 0 0 0 1.25.66l8.35-6.4a.8.8 0 0 0 0-1.32L6.25 4.94A.8.8 0 0 0 5 5.6z"/></svg></button>
+            <button type="button" class="btn ghost" id="ls-stop">Stop</button>
+            <span class="ls-now-at hint" id="ls-pos" aria-live="polite"></span>
+          </div>
+          <div class="ls-opts">
+            <div class="field"><label for="ls-style">Delivery</label><select id="ls-style"><option value="preach">Preaching, with passion</option><option value="teach">Teaching, steady</option><option value="plain">Plain reading</option></select></div>
+            <div class="field"><label for="ls-voice">Voice</label><select id="ls-voice"></select></div>
+            <div class="field"><label for="ls-speed">Speed <span class="hint" id="ls-speed-v"></span></label><input type="range" id="ls-speed" min="0.7" max="1.4" step="0.05" value="1"></div>
+          </div>
+          <div class="ls-coach"><button type="button" class="btn" id="ls-coach" hidden>Direct the delivery with Claude</button><span class="hint" id="ls-coach-st"></span></div>
+          <div class="hint" id="ls-note"></div>
+          <div class="ls-grid">
+            <div class="ls-parts">
+              <div class="ls-parts-h"><b>Hear</b><div class="spacer"></div><button type="button" class="link-btn" id="ls-all">All</button><button type="button" class="link-btn" id="ls-none">None</button></div>
+              <div id="ls-list" class="ls-list" role="group" aria-label="Parts of the sermon to hear"></div>
+            </div>
+            <div class="ls-read" id="ls-read" aria-label="The words being read"></div>
+          </div>
+        </div>
     </div>
 
     <div id="build-slides" hidden>
@@ -3355,7 +3416,7 @@ $("#del-go").onclick = async () => {
 function openRec(r) {
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
-  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials(); if (view === "build" && buildSub === "slides") renderSlidesTab();
+  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials(); if (view === "build" && buildSub === "slides") renderSlidesTab(); listenReset();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
   watchCurrent();
@@ -5703,6 +5764,217 @@ $("#sl-grid").addEventListener("keydown", e => {
   grid.addEventListener("contextmenu", e => { if (p || slDrag) e.preventDefault(); });
   addEventListener("keydown", e => { if (e.key === "Escape" && slDrag) end(false); });
 })();
+/* ---- Listen: the sermon read aloud, as a preacher would deliver it ----
+   The page can't reach a voice service, so it uses the voices built into the browser and gives them a preacher's delivery
+   with the four things they can change: speed, pitch, loudness, and the silence between sentences. Questions lift, key
+   (bold or highlighted) sentences slow and land, a short line after a long one gets a beat of silence, repeated openings
+   build, Scripture is read slower and steadier, headings are announced, and a PAUSE cue is a real pause. Claude can direct
+   the delivery line by line instead. Parts are chosen by heading (a point takes its sub-points with it), or all. */
+const synth = window.speechSynthesis || null;
+const ls = { chunks: [], sel: null, selFor: "", q: [], i: 0, playing: false, gen: 0, timer: 0, coach: new Map(), coachFor: "", watchdog: 0 };
+let lsStyle = "preach", lsSpeed = 1, lsVoiceName = "";
+try { lsStyle = localStorage.getItem("pb-ls-style") || "preach"; lsSpeed = +localStorage.getItem("pb-ls-speed") || 1; lsVoiceName = localStorage.getItem("pb-ls-voice") || ""; } catch {}
+const LS_AMP = { preach: 1, teach: 0.45, plain: 0 };
+const LS_TONES = { plain: {}, build: { r: .06, p: .06 }, strong: { r: -.08, p: -.04, a: .55, b: .2 }, soft: { r: -.1, p: -.02, v: .8, a: .45 }, question: { p: .12, a: .45 }, urgent: { r: .1, p: .07 }, tender: { r: -.12, p: -.04, v: .82, a: .6 }, joyful: { r: .05, p: .1 }, solemn: { r: -.14, p: -.07, a: .7 } };
+const lsKey = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+/* Psalm 119:105-112 is read "Psalm 119, verses 105 through 112", not as a clock time */
+const spokenRef = r => String(r).replace(/(\d+):(\d+)\s*[-–]\s*(\d+):(\d+)/g, "$1 verse $2 through chapter $3 verse $4").replace(/(\d+):(\d+)\s*[-–]\s*(\d+)/g, "$1, verses $2 through $3").replace(/(\d+):(\d+)/g, "$1, verse $2");
+const sayable = t => { let out = "", last = 0; for (const r of findRefs(t)) { out += t.slice(last, r.index) + spokenRef(r.ref); last = r.index + r.length; } return (out + t.slice(last)).replace(/\s+/g, " ").trim(); };
+const lsSentences = t => (String(t).replace(/\s+/g, " ").trim().match(/[^.!?…]+(?:[.!?…]+["”’)\]]*|$)/g) || []).map(x => x.trim()).filter(Boolean)
+  .flatMap(x => x.split(/\s+/).length > 34 ? x.split(/(?<=[;:—])\s+/) : [x]);   // a very long sentence breathes at its semicolons
+/* the manuscript in parts: what comes before the first heading, then each heading with what follows it */
+function listenChunks() {
+  const out = [{ id: "intro", lv: 0, title: "Before the first heading", blocks: [] }], c = [0, 0, 0, 0, 0];
+  for (const b of ed.children) {
+    if (b.classList.contains("pb-slide")) continue;
+    const lv = levelOf(b);
+    if (lv) { c[lv]++; for (let l = lv + 1; l <= 4; l++) c[l] = 0; out.push({ id: "h" + out.length + ":" + keyOf(blockText(b)), lv, title: blockText(b) || "(untitled heading)", num: lv === 2 ? ROMAN(c[2]) + "." : lv === 3 ? LETTER(c[3]) + "." : lv === 4 ? c[4] + "." : "", blocks: [b] }); continue; }
+    out[out.length - 1].blocks.push(b);
+  }
+  if (!out[0].blocks.some(b => blockText(b).trim())) out.shift();
+  if (out.length === 1 && out[0].lv === 0)   // no headings: each paragraph is a part
+    return out[0].blocks.filter(b => blockText(b).trim()).map((b, i) => ({ id: "p" + i + ":" + keyOf(blockText(b)), lv: 1, title: blockText(b).replace(/\s+/g, " ").slice(0, 80), num: `¶${i + 1}`, blocks: [b], para: true }));
+  out.forEach(ch => { ch.words = ch.blocks.reduce((a, b) => a + words(blockText(b)).length, 0); });
+  return out;
+}
+/* the reading queue: one item per sentence (or silence), each with its delivery, and the read-along text it lights up */
+function listenBuild() {
+  const read = $("#ls-read"); read.replaceChildren(); ls.q = [];
+  const chosen = ls.chunks.filter(ch => ls.sel.has(ch.id)), A = LS_AMP[lsStyle] ?? 1;
+  const last = chosen.length && chosen[chosen.length - 1] === ls.chunks[ls.chunks.length - 1] ? chosen[chosen.length - 1].blocks.filter(b => blockText(b).trim()).slice(-1)[0] : null;
+  let prev = null, run = 0;
+  const say = (text, kind, host, o = {}) => {
+    const shown = o.shown != null ? o.shown : text, spoken = sayable(text); if (!spoken) return;
+    const n = spoken.split(/\s+/).length, first2 = lsKey(spoken).split(" ").slice(0, 2).join(" ");
+    let r = 1, p = 1, v = 1, before = 0, after = 300;
+    if (kind === "head") { r = 1 - .1 * A; p = 1 - .05 * A; before = 350; after = 650 + 300 * A; }
+    else if (kind === "ref") { r = 1 - .1 * A; after = 450; }
+    else if (kind === "scripture") { r = 1 - .12 * A; p = 1 - .04 * A; after = 260 + 200 * A; }
+    else {
+      if (/\?["”’)]*$/.test(spoken)) { p += .12 * A; after += 250 * A; }
+      if (/!["”’)]*$/.test(spoken)) { r += .05 * A; p += .08 * A; }
+      if (o.key) { r -= .1 * A; p -= .04 * A; before += 220 * A; after += 500 * A; }
+      if (n <= 6 && prev && prev.n >= 12) { r -= .12 * A; after += 550 * A; }   // the short line that lands after a long one
+      run = prev && prev.first2 === first2 && first2.includes(" ") ? run + 1 : 0;   // "A lamp ... A lamp ..." builds
+      if (run) { r += Math.min(3, run) * .04 * A; p += Math.min(3, run) * .03 * A; }
+      if (o.closing) { r -= .08 * A; v = 1 - .1 * A; }
+    }
+    const coach = ls.coach.get(lsKey(spoken));
+    if (coach && A > 0) { const t = LS_TONES[coach.tone] || {}; r = 1 + (t.r || 0) * A + (kind === "scripture" ? -.1 * A : 0); p = 1 + (t.p || 0) * A; v = t.v || 1; before = (t.b || 0) * 1000 * A; after = Math.max(200, Math.min(2500, (coach.pause != null ? coach.pause * 1000 : 300 + (t.a || 0) * 1000) * (0.4 + .6 * A))); }
+    const span = el("span", { class: "ls-s" + (o.key ? " key" : ""), text: shown }); host.append(span, " ");
+    if (before > 40) ls.q.push({ kind: "pause", ms: before, el: span });
+    const it = { kind: "say", say: spoken, rate: r, pitch: p, vol: v, after, el: span, chunk: o.chunk, n };
+    span.onclick = () => listenPlay(ls.q.indexOf(it));
+    ls.q.push(it); prev = { n, first2 };
+  };
+  const pauseAfter = ms => { const l = ls.q[ls.q.length - 1]; if (l && l.kind === "say") l.after += ms; };
+  for (const ch of chosen) for (const b of ch.blocks) {
+    if (b.classList.contains("pb-scripture")) {
+      const d = readSc(b), t = d.texts[d.ver], box = el("div", { class: "ls-sc" }), refEl = el("span", { class: "ls-ref" });
+      read.append(box); box.append(refEl);
+      say(`${d.ref}.`, "ref", refEl, { chunk: ch.id, shown: `${d.ref} · ${d.ver}` }); refEl.lastChild && refEl.lastChild.remove();
+      if (t) { const pEl = el("p"); box.append(pEl); lsSentences(scPlainText(t.t)).forEach(x => say(x, "scripture", pEl, { chunk: ch.id })); }
+      else box.append(el("span", { class: "hint", text: `The ${d.ver} text isn't loaded yet, so only the reference is read.` }));
+      pauseAfter(500 * A); continue;
+    }
+    if (levelOf(b)) { const h = el("h3"); read.append(h); say(blockText(b), "head", h, { chunk: ch.id }); continue; }
+    if (b.tagName === "UL" || b.tagName === "OL") { const pEl = el("p"); read.append(pEl); [...b.children].forEach(li => lsSentences(li.textContent).forEach(x => say(x, "para", pEl, { chunk: ch.id }))); pauseAfter(350); continue; }
+    // a paragraph: its key words (bold, highlighted), and its PAUSE cues as real silence
+    const c = b.cloneNode(true), keys = [...c.querySelectorAll("strong,b,mark,u")].map(x => lsKey(x.textContent)).filter(k => k.length > 3);
+    c.querySelectorAll(".pb-cue").forEach(x => x.replaceWith("‖")); c.querySelectorAll("br").forEach(x => x.replaceWith(" "));
+    const pEl = el(b.tagName === "BLOCKQUOTE" ? "blockquote" : "p"); read.append(pEl);
+    c.textContent.split("‖").forEach((seg, k, all) => {
+      lsSentences(seg).forEach(x => say(x, "para", pEl, { chunk: ch.id, key: keys.some(kk => lsKey(x).includes(kk)), closing: b === last }));
+      if (k < all.length - 1) { const cue = el("span", { class: "ls-cue", text: "PAUSE" }); pEl.append(cue, " "); ls.q.push({ kind: "pause", ms: 1400, el: cue }); }
+    });
+    pauseAfter(380 * (0.5 + A));
+  }
+  if (!ls.q.length) read.append(el("div", { class: "hint", text: chosen.length ? "There are no words in the parts you chose." : "Choose the parts of the sermon to hear." }));
+  ls.i = Math.min(ls.i, Math.max(0, ls.q.length - 1));
+  const w = ls.q.reduce((a, x) => a + (x.kind === "say" ? x.n : 0), 0), mins = w / (155 * lsSpeed);
+  $("#ls-summary").textContent = w ? `${chosen.length === ls.chunks.length ? "The whole sermon" : `${chosen.length} of ${ls.chunks.length} parts`} · about ${mins < 1 ? "1" : Math.round(mins)} min` : "";
+}
+function listenVoices() {
+  const sel = $("#ls-voice"); if (!synth) return;
+  const all = synth.getVoices(), lang = (document.documentElement.lang || navigator.language || "en").slice(0, 2).toLowerCase();
+  const mine = all.filter(v => v.lang.toLowerCase().startsWith(lang)), list = (mine.length ? mine : all).slice();
+  const good = v => (/natural|neural|premium|enhanced|online/i.test(v.name) ? 0 : 1) + (v.localService ? .5 : 0) + (/^(google|microsoft)/i.test(v.name) ? -.2 : 0);
+  list.sort((a, b) => good(a) - good(b) || a.name.localeCompare(b.name));
+  sel.replaceChildren(...list.map(v => el("option", { value: v.name, text: `${v.name.replace(/^Microsoft /, "")}${/natural|neural|premium|enhanced/i.test(v.name) ? "" : ""} · ${v.lang}` })));
+  if (!list.length) sel.append(el("option", { value: "", text: "This device's default voice" }));
+  sel.value = list.some(v => v.name === lsVoiceName) ? lsVoiceName : (list[0] ? list[0].name : "");
+}
+if (synth) { try { synth.addEventListener("voiceschanged", () => { if (!$("#build-listen").hidden) listenVoices(); }); } catch {} }
+function renderListen() {
+  const ok = !!synth;
+  for (const id of ["#ls-play", "#ls-prev", "#ls-next", "#ls-stop", "#ls-voice", "#ls-style", "#ls-speed"]) $(id).disabled = !ok;
+  $("#ls-note").textContent = !ok ? "This browser can't read aloud. Try Chrome, Edge, or Safari." : "Voices come from this device. The most lifelike are the ones marked Natural (Edge on Windows) or the Enhanced and Premium voices (Settings on an iPhone or Mac). Click any sentence to start from there.";
+  $("#ls-style").value = lsStyle; $("#ls-speed").value = String(lsSpeed); $("#ls-speed-v").textContent = `${Math.round(lsSpeed * 100)}%`;
+  $("#ls-coach").hidden = !sample;
+  listenVoices();
+  if (ls.playing) { listenUi(); return; }   // leave the words being read where they are
+  ls.chunks = listenChunks();
+  if (!ls.sel || ls.selFor !== S.id) { ls.sel = new Set(ls.chunks.map(c => c.id)); ls.selFor = S.id; }
+  else { const had = ls.sel.size, ids = new Set(ls.chunks.map(c => c.id)); ls.sel = new Set([...ls.sel].filter(id => ids.has(id))); if (had && !ls.sel.size) ls.chunks.forEach(c => ls.sel.add(c.id)); }   // headings rewritten since: start again from all
+  const list = $("#ls-list"); list.replaceChildren();
+  if (!ls.chunks.length) list.append(el("div", { class: "hint", style: "padding:6px", text: "Write some of the manuscript first." }));
+  ls.chunks.forEach((ch, k) => {
+    const cb = el("input", { type: "checkbox", id: "ls-c" + k }); cb.checked = ls.sel.has(ch.id);
+    cb.onchange = () => { // a point takes the sub-points under it along
+      for (let j = k; j < ls.chunks.length; j++) { if (j > k && (ch.lv === 0 || ch.para || ls.chunks[j].lv <= ch.lv)) break; if (cb.checked) ls.sel.add(ls.chunks[j].id); else ls.sel.delete(ls.chunks[j].id); }
+      renderListen();
+    };
+    const mins = (ch.words || words(ch.blocks.map(blockText).join(" ")).length) / 155;
+    const row = el("label", { class: "ls-part", for: "ls-c" + k, "data-id": ch.id }, cb, el("span", {}, ch.num ? el("b", { text: ch.num }) : null, ch.title), el("span", { class: "hint", text: mins < 1 ? "<1 min" : `${Math.round(mins)} min` }));
+    row.style.setProperty("--lv", String(Math.max(1, ch.lv)));
+    list.append(row);
+  });
+  listenBuild(); listenUi();
+}
+function listenUi() {
+  const it = ls.q[ls.i];
+  $("#ls-play").textContent = ls.playing ? "Pause" : ls.i > 0 && it ? "Resume" : "Play";
+  $("#ls-play").disabled = !synth || !ls.q.length;
+  const says = ls.q.filter(x => x.kind === "say"), at = it ? says.indexOf(it.kind === "say" ? it : ls.q.slice(ls.i).find(x => x.kind === "say")) : -1;
+  $("#ls-pos").textContent = ls.q.length && (ls.playing || ls.i > 0) && at >= 0 ? `Sentence ${at + 1} of ${says.length}` : "";
+  document.querySelectorAll("#ls-list .ls-part").forEach(r => r.classList.toggle("on-air", !!(it && ls.playing && r.dataset.id === it.chunk)));
+}
+function listenMark(it) {
+  document.querySelectorAll("#ls-read .now").forEach(x => x.classList.remove("now"));
+  if (!it || !it.el) return; it.el.classList.add("now");
+  const box = $("#ls-read"), r = it.el.getBoundingClientRect(), b = box.getBoundingClientRect();   // keep the line in view inside the reading box, never moving the page
+  if (r.top < b.top + 20 || r.bottom > b.bottom - 20) box.scrollTop += r.top - b.top - box.clientHeight * 0.3;
+  listenUi();
+}
+function listenStep(g) {
+  if (g !== ls.gen || !ls.playing) return;
+  clearTimeout(ls.watchdog);
+  const it = ls.q[ls.i];
+  if (!it) { ls.playing = false; ls.i = 0; listenMark(null); listenUi(); toast("Finished"); return; }
+  if (it.kind === "pause") { listenMark(it); ls.timer = setTimeout(() => { if (g !== ls.gen) return; ls.i++; listenStep(g); }, it.ms); return; }
+  const u = new SpeechSynthesisUtterance(it.say), voice = synth.getVoices().find(v => v.name === lsVoiceName);
+  if (voice) { u.voice = voice; u.lang = voice.lang; }
+  u.rate = Math.max(.5, Math.min(2, it.rate * lsSpeed)); u.pitch = Math.max(0, Math.min(2, it.pitch)); u.volume = Math.max(0, Math.min(1, it.vol));
+  let done = false;
+  const fin = () => { if (done || g !== ls.gen) return; done = true; clearTimeout(ls.watchdog); ls.i++; ls.timer = setTimeout(() => listenStep(g), it.after); };
+  u.onend = fin; u.onerror = e => { if (e && (e.error === "interrupted" || e.error === "canceled")) return; fin(); };
+  listenMark(it);
+  ls.watchdog = setTimeout(fin, 4000 + it.n * 700 / u.rate);   // some browsers drop the end of a sentence now and then; never stall on it
+  synth.speak(u);
+}
+function listenPlay(from) {
+  if (!synth || !ls.q.length) return;
+  if (from != null && from >= 0) ls.i = from;
+  ls.gen++; clearTimeout(ls.timer); clearTimeout(ls.watchdog); synth.cancel();
+  ls.playing = true; listenUi();
+  const g = ls.gen; setTimeout(() => listenStep(g), 60);   // a fresh start after cancel, or some browsers drop the first sentence
+}
+function listenPause() { ls.gen++; ls.playing = false; clearTimeout(ls.timer); clearTimeout(ls.watchdog); if (synth) synth.cancel(); listenUi(); }
+function listenStop() { listenPause(); ls.i = 0; listenMark(null); listenUi(); }
+function listenReset() { if (ls.playing) listenStop(); ls.coach = new Map(); ls.coachFor = ""; $("#ls-coach-st").textContent = ""; }
+function listenSkip(d) {
+  const says = ls.q.map((x, k) => x.kind === "say" ? k : -1).filter(k => k >= 0); if (!says.length) return;
+  let pos = says.findIndex(k => k >= ls.i); if (pos < 0) pos = says.length - 1;
+  const to = says[Math.max(0, Math.min(says.length - 1, pos + d))];
+  if (ls.playing) listenPlay(to); else { ls.i = to; listenMark(ls.q[to]); }
+}
+$("#ls-play").onclick = () => ls.playing ? listenPause() : listenPlay();
+$("#ls-stop").onclick = listenStop;
+$("#ls-prev").onclick = () => listenSkip(-1);
+$("#ls-next").onclick = () => listenSkip(1);
+$("#ls-all").onclick = () => { ls.chunks.forEach(c => ls.sel.add(c.id)); if (ls.playing) listenStop(); renderListen(); };
+$("#ls-none").onclick = () => { ls.sel.clear(); if (ls.playing) listenStop(); renderListen(); };
+$("#ls-list").addEventListener("change", () => { if (ls.playing) listenStop(); }, true);
+const lsRestart = () => { const at = ls.i, was = ls.playing; if (was) listenPause(); listenBuild(); ls.i = Math.min(at, Math.max(0, ls.q.length - 1)); if (was) listenPlay(); else listenUi(); };
+$("#ls-style").onchange = () => { lsStyle = $("#ls-style").value; try { localStorage.setItem("pb-ls-style", lsStyle); } catch {} lsRestart(); };
+$("#ls-voice").onchange = () => { lsVoiceName = $("#ls-voice").value; try { localStorage.setItem("pb-ls-voice", lsVoiceName); } catch {} if (ls.playing) listenPlay(ls.i); };
+$("#ls-speed").oninput = () => { lsSpeed = +$("#ls-speed").value || 1; $("#ls-speed-v").textContent = `${Math.round(lsSpeed * 100)}%`; try { localStorage.setItem("pb-ls-speed", String(lsSpeed)); } catch {} };
+$("#ls-speed").onchange = () => { if (ls.playing) listenPlay(ls.i); else listenBuild(); };
+/* Claude reads the chosen parts and directs each line: its tone and the silence after it */
+$("#ls-coach").onclick = async () => {
+  if (!sample) return;
+  const lines = ls.q.filter(x => x.kind === "say").map(x => x.say); if (!lines.length) { toast("Choose the parts to hear first"); return; }
+  const btn = $("#ls-coach"), st = $("#ls-coach-st"); btn.disabled = true; st.textContent = "Claude is reading the sermon…";
+  const sent = lines.slice(0, 700);
+  try {
+    const { value: r, cached, at } = await askJson(`You are coaching the delivery of a sermon by a preacher in the churches of Christ. A speech voice will read it aloud, and it can change only its speed, pitch, loudness, and the silence after each line. For each numbered line, choose how a sincere, passionate preacher would deliver it to a congregation: where he builds, where he slows to let a truth land, where he softens to plead, where he lets a question hang. Most lines are plain; save strong, urgent, and solemn for the moments that carry the sermon, and use tender for pleading and the invitation. Scripture is read with reverence.
+
+Tones: plain, build, strong, soft, question, urgent, tender, joyful, solemn.
+"pause" is the seconds of silence after the line, from 0.2 to 2.5; most lines take 0.3, a line that should land takes 1 to 2.
+
+Sermon: ${S.meta.title || "(untitled)"}${S.meta.text ? ", text " + S.meta.text : ""}.
+
+Lines:
+${sent.map((t, k) => `${k + 1}. ${t}`).join("\n")}
+
+Return ONLY JSON: {"lines":[{"n":1,"tone":"plain","pause":0.3}]} with one entry for every line.`, { id: "ls-coach" });
+    const got = (r && Array.isArray(r.lines) ? r.lines : []).filter(x => x && sent[+x.n - 1] && LS_TONES[x.tone]);
+    got.forEach(x => ls.coach.set(lsKey(sent[+x.n - 1]), { tone: x.tone, pause: Math.max(.2, Math.min(2.5, +x.pause || .3)) }));
+    st.textContent = got.length ? `Claude directed ${got.length} of ${sent.length} lines.${cached ? " " + savedNote(at) : ""}${lsStyle !== "preach" ? " Choose Preaching to hear it in full." : ""}` : "Claude didn't return directions. Try again.";
+    lsRestart();
+  } catch (e) { st.textContent = { not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."; }
+  btn.disabled = false;
+};
 function deleteSlideAt(idx) {
   if (!S.slides[idx]) return;
   snapshot();
@@ -9701,11 +9973,11 @@ function thBindOnce() {
 /* ---------------- views ---------------- */
 /* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
 let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") || "details"; } catch {}
-if (!["details", "edit", "slides", "series", "bindings"].includes(buildSub)) buildSub = "details";
+if (!["details", "edit", "slides", "listen", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
   if (!$("#settings").hidden) closeSettings();
-  if (v === "bindings" || v === "series" || v === "slides") { buildSub = v; v = "build"; }
+  if (v === "bindings" || v === "series" || v === "slides" || v === "listen") { buildSub = v; v = "build"; }
   if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
   if (v === "edit") buildSub = "edit";
@@ -9715,9 +9987,10 @@ function setView(v) {
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
   $("#subtabs").hidden = top !== "build";
   for (const b of document.querySelectorAll("#subtabs .subtab")) { const on = b.dataset.sub === buildSub; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; }
-  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series"; $("#build-slides").hidden = buildSub !== "slides";
+  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series"; $("#build-slides").hidden = buildSub !== "slides"; $("#build-listen").hidden = buildSub !== "listen";
   if (v === "build" && buildSub === "series") renderSeries();
   if (v === "build" && buildSub === "slides") renderSlidesTab();
+  if (v === "build" && buildSub === "listen") renderListen();
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") { placeStudy("view"); renderStudy(); }
@@ -9788,7 +10061,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "slides", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
+  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "slides", "listen", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });

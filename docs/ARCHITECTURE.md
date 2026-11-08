@@ -7,7 +7,7 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 | Tab | Section id | Render entry |
 |---|---|---|
 | Dashboard | `#view-dash` | `renderDash()` gathers every sermon, `drawDash()` draws |
-| Build: Details, Slides, Bindings | `#view-build` (`#build-details`, `#build-slides`, `#build-bind`) | `renderBindings()`, `renderSlidesTab()`, `renderMediaPanel()` |
+| Build: Details, Slides, Listen, Bindings | `#view-build` (`#build-details`, `#build-slides`, `#build-listen`, `#build-bind`) | `renderBindings()`, `renderSlidesTab()`, `renderListen()`, `renderMediaPanel()` |
 | Build: Edit manuscript | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
 | Present | `#view-present` | `renderPresent()` |
 | Analysis | `#view-analysis` | `renderAnalysis()`, `renderAI()` |
@@ -73,6 +73,10 @@ A change to the deck (`deckEdited`) updates the manuscript, its cues, and the sl
 - Sermon PDF (`sermonPdf`, "Save sermon PDF with slides beside" in Details): the manuscript on letter pages with each slide small in a right-hand column beside the section that brings it up (the same slides Present marks with SLIDE cues). Pages are laid out as HTML off screen (`.pdfp`, always light), sections that run past a page are cut between words by `pdfCut` (a verse number stays with its verse; a section's slides stay with its first part), then each page is drawn with html2canvas and written as a picture page by `jpegPdf`.
 - Copy a slide (`copySlidePic`): clicking a slide picture in Bindings or in the editor's slide popup (or its "Copy picture" button) draws the slide at 1920 pixels wide with `slideCanvas` and writes a PNG to the clipboard, ready to paste into PowerPoint. Where the clipboard refuses pictures, the PNG is saved through `downloads` instead. Present is left alone, since clicking there moves through the sermon.
 - Full-size pictures: the page can't download from Canva, so it places the media on the one 1920 x 1080 page of a design in the viewer's Canva titled "Pulpit Binder full-size pictures" (`read-design` with a transaction, `edit-design` `update_fill` on the page background, then commit) and exports that page with `export-design` as a PNG. The export link is signed and expires within about a day; the viewer opens it, saves the file, and chooses it to swap in. The design is found with `search-designs` (its id cached in `localStorage` as `pb-canva-holder`) or made once with `create-design` and `get-create-design-async-job`. Exports run one at a time because they share that page. Slides and themes keep `media`, `hdUrl`, and `canva`; a saved slide's popup exports again once the link has expired.
+
+## Listen
+
+The manuscript read aloud through the browser's own voices (`speechSynthesis`; the page can't reach a voice service). `listenChunks()` splits it by heading (or by paragraph when there are none); choosing a point takes its sub-points with it. `listenBuild()` makes one queue item per sentence or silence, each with a rate, pitch, volume, and the pause after it: questions lift, bold or highlighted sentences slow and land, a short line after a long one gets a beat, repeated openings build, Scripture is slower with its reference read as words ("Psalm 119, verses 105 through 106"), headings are announced, PAUSE cues are 1.4 s of silence, and the last paragraph softens. Delivery: Preaching, Teaching, or Plain scales those changes. "Direct the delivery with Claude" asks for a tone and pause per line (`LS_TONES`), cached like every `askJson` answer. Pause cancels and resumes at the same sentence; a watchdog moves on if a browser drops a sentence's end. The read-along box marks the sentence being read and scrolls itself, never the page.
 
 ## Dashboard
 
