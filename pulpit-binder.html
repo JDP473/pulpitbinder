@@ -2134,8 +2134,25 @@ const store = {
   },
   async put(rec) {
     mem.set(rec.id, rec);
+    if (!idb) return false;
+    return new Promise(res => {
+      try {
+        const tx = idb.transaction("sermons", "readwrite"); tx.objectStore("sermons").put(rec);
+        tx.oncomplete = () => res(true); tx.onerror = tx.onabort = () => { localTrouble(tx.error); res(false); };
+      } catch (e) { localTrouble(e); res(false); }
+    });
+  },
+  /* Changes a saved sermon in one step, so a newer save can't land between reading and writing it. fn returns false to leave it. */
+  async patch(id, fn) {
+    const m = mem.get(id); if (m) fn(m);
     if (!idb) return;
-    try { idb.transaction("sermons", "readwrite").objectStore("sermons").put(rec); } catch {}
+    return new Promise(res => {
+      try {
+        const tx = idb.transaction("sermons", "readwrite"), os = tx.objectStore("sermons"), q = os.get(id);
+        q.onsuccess = () => { const r = q.result; if (r && fn(r) !== false) os.put(r); };
+        tx.oncomplete = () => res(true); tx.onerror = tx.onabort = () => res(false);
+      } catch { res(false); }
+    });
   },
   async del(id) {
     mem.delete(id);
@@ -2143,6 +2160,13 @@ const store = {
     try { idb.transaction("sermons", "readwrite").objectStore("sermons").delete(id); } catch {}
   }
 };
+/* A save this browser refused (storage full, private window) is said out loud, at most every few minutes. */
+let localWarnAt = 0;
+function localTrouble(e) {
+  console.warn("local save", e);
+  if (Date.now() - localWarnAt < 300000) return; localWarnAt = Date.now();
+  try { toast(cdb ? "This browser would not save the sermon on this device. It is still being saved to your account." : "This browser would not save the sermon. Free some space, or open Pulpit Binder in Claude while signed in so it saves to your account."); } catch {}
+}
 /* Small records kept on this device: saved Claude answers ("ai-…") and text studies ("study-…"). */
 const kvMem = new Map();
 const kv = {
@@ -2213,7 +2237,8 @@ let S = null;          // current record
 let sections = [];     // derived [{text, forced, cue, slide, how}]
 let library = [];
 let saveT = null;
-const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }, 500); };
+function commitSave() { saveT = null; S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }
+const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(commitSave, 500); };
 
 /* ---------------- text tools ---------------- */
 const STOP = new Set("the a an and or but if then than so to of in on at by for with from as is are was were be been being it its this that these those there here we you he she they them his her our your their i me my mine us who whom whose which what when where why how not no yes do does did done have has had will would shall should can could may might must just also very into out up down over under about after before again more most some any all each every one two three said says say like get got go going come came let lets us oh well now today morning really want know think thing things much many even only because through while those which them him jesus god lord".split(" "));
@@ -3209,7 +3234,7 @@ function drawLibrary() {
 async function openSermonById(id) {
   let r = library.find(x => x.id === id); if (!r) return false;
   const c = cloudMetas.get(r.id);
-  if (cdb && c && (r.cloudOnly || c.updatedAt > (r.updatedAt || 0) + 1000)) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync("synced"); } catch { setSync("error"); } }
+  if (cdb && c && (r.cloudOnly || (!unsent(r) && c.updatedAt !== r.syncedAt))) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync(failing.size ? "error" : outbox.size ? "saving" : "synced"); } catch { setSync(failing.size ? "error" : "synced"); toast("Couldn't reach your account; showing the copy on this device"); } }
   if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return false; }
   const v = view; openRec(r); setView(v); return true;
 }
@@ -3316,7 +3341,7 @@ document.addEventListener("keydown", e => {
 /* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
    Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */
 async function removeSermon(id) {
-  await store.del(id); delete pushed[id]; dashCache.delete(id);
+  await store.del(id); dashCache.delete(id);
   const m = cloudMetas.get(id);
   if (!cdb || !userId || !m) return true;
   const base = sermonPath(id), q = Object.entries(m.chunks || {}).flatMap(([name, n]) => Array.from({ length: n }, (_, k) => `${base}/parts/${name}.${k}`));
@@ -3329,7 +3354,8 @@ async function removeSermon(id) {
 /* Returns how many could not be removed from the account. */
 async function deleteSermons(ids, onProgress) {
   const gone = new Set(ids), openGone = S && gone.has(S.id);
-  if (openGone) { clearTimeout(saveT); clearTimeout(cloudT); }
+  ids.forEach(id => { gone.add(id); outbox.delete(id); failing.delete(id); });
+  if (openGone) { clearTimeout(saveT); saveT = null; clearTimeout(edT); edT = null; clearTimeout(recT); recT = null; clearTimeout(thT); thT = 0; clearTimeout(mdT); mdT = 0; }
   if (onProgress) onProgress(0, ids.length, true);
   // a save already on its way to the account finishes first, so it can't bring a deleted sermon back
   const run = pushing.catch(() => {}).then(async () => { let failed = 0, n = 0; for (const id of ids) { if (!(await removeSermon(id))) failed++; if (onProgress) onProgress(++n, ids.length); } return failed; });
@@ -3414,6 +3440,7 @@ $("#del-go").onclick = async () => {
   toast(failed ? `${n - failed} of ${n} deleted. ${failed} couldn't be removed from your account right now, so ${failed === 1 ? "it is" : "they are"} still listed; try ${failed === 1 ? "it" : "them"} again later.` : n === 1 ? "Sermon deleted" : `${n} sermons deleted`);
 };
 function openRec(r) {
+  if (S && S !== r) flushPending();   // the sermon being left keeps its last few seconds of changes
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
   cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials(); if (view === "build" && buildSub === "slides") renderSlidesTab(); listenReset();
@@ -4355,7 +4382,7 @@ function refreshCueLabels() {
 function onEdit(immediate) {
   clearTimeout(edT);
   const run = () => {
-    S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html);
+    edT = null; S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html);
     rebuild(); save(); renderEditStats(); if (sideTab === "ol") renderOutline(); else renderSuggestions(); queueGutter();
   };
   if (immediate) run(); else edT = setTimeout(run, 350);
@@ -4614,7 +4641,7 @@ async function impRun(entries, fromFolder) {
   const stopped = impStop; impBusy = false;
   if (made.length && S && S.example) { const ex = S.id; await store.del(ex); openRec(made[0].rec); }
   await refreshLibrary();
-  if (made.length && cdb) { setSync("saving"); made.forEach(r => { pushing = pushing.then(() => pushRecord(r.rec)).catch(e => console.warn("sync", e)); }); pushing.then(() => setSync("synced"), () => setSync("error")); }
+  if (made.length && cdb) { made.forEach(r => queueCloud(r.rec)); flushCloud(); }
   impStep("done"); impSummary({ made, dupes, failed, skipped, stopped, total: groups.length });
 }
 function impSummary(r) {
@@ -4668,7 +4695,7 @@ function mdShow(on) {
   else { clearTimeout(mdT); mdApply(true); queueGutter(); }
 }
 $("#btn-md").onclick = () => mdShow(!mdOn);
-$("#md-src").addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } clearTimeout(mdT); mdT = setTimeout(() => mdApply(false), 700); });
+$("#md-src").addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } clearTimeout(mdT); mdT = setTimeout(() => { mdT = 0; mdApply(false); }, 700); });
 $("#btn-md-copy").onclick = () => copyText($("#md-src").value, $("#md-src"));
 $("#btn-md-save").onclick = async () => {
   const name = ((S.meta.title || "sermon").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "sermon") + (S.meta.when ? "-" + S.meta.when.slice(0, 10) : "") + ".md";
@@ -7335,7 +7362,7 @@ function renderMediaPanel() {
 }
 $("#rec-link").addEventListener("input", () => { media().link = $("#rec-link").value.trim(); save(); renderMediaPanel(); });
 let recT = null;
-$("#rec-preached").addEventListener("input", () => { media().preached = $("#rec-preached").value; clearTimeout(recT); recT = setTimeout(() => { save(); renderMediaPanel(); }, 400); });
+$("#rec-preached").addEventListener("input", () => { media().preached = $("#rec-preached").value; clearTimeout(recT); recT = setTimeout(() => { recT = null; save(); renderMediaPanel(); }, 400); });
 $("#rec-drop").onclick = () => $("#rec-input").click();
 $("#rec-drop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#rec-input").click(); } };
 $("#rec-drop").ondragover = e => { e.preventDefault(); $("#rec-drop").classList.add("over"); };
@@ -7393,7 +7420,7 @@ $("#btn-copy-ch").onclick = () => { const ch = chapters(); if (ch.length < 3) { 
    Text parts are chunked into documents; slide images, PDF pages and small recordings
    go to the page's file storage and are referenced by id. */
 let cdb = null, cassets = null, userId = null, cloudMetas = new Map(), cloudReady = false, unsubCur = null, lastEditAt = 0, cloudT = null, pushing = Promise.resolve();
-const pushed = {};
+const TAB = uid() + uid();   // this open page; tells its own writes from another tab's or device's
 const DEVICE = (() => { try { let d = localStorage.getItem("pb-device"); if (!d) { d = uid() + uid(); localStorage.setItem("pb-device", d); } return d; } catch { return uid() + uid(); } })();
 const CHUNK = 60000, MAX_ASSET = 20 * 1048576;
 const sermonPath = id => `data/users/${userId}/${id}`;   // data/users/<you> is your private collection; each sermon is one document in it
@@ -7406,8 +7433,8 @@ if (HOSTED) Object.assign(window.claude.hosted, {
 function setSync(state, detail) {
   const p = $("#sync"); if (!p) return;
   p.dataset.state = state;
-  p.textContent = { off: "On this device", saving: "Saving…", synced: "Synced", error: "Sync paused", loading: "Syncing…" }[state] || state;
-  p.title = detail || { off: "Sermons are saved in this browser. Open this page in Claude while signed in to sync across devices.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and will sync when the connection returns.", loading: "Checking your account for sermons" }[state] || "";
+  p.textContent = { off: "On this device", saving: "Saving…", synced: "Synced", error: "Not synced yet", loading: "Syncing…" }[state] || state;
+  p.title = detail || { off: "Sermons are saved in this browser. Open this page in Claude while signed in to sync across devices.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and are being sent to your account again. Nothing is lost.", loading: "Checking your account for sermons" }[state] || "";
 }
 /* Files go up once. Each upload is remembered by the file's content on this device, so reopening the page, or a
    change elsewhere in the deck, never sends the same picture again. */
@@ -7429,52 +7456,86 @@ async function upBlob(b) {
   if (!p) { p = uploadOnce(b); blobUp.set(b, p); p.catch(() => blobUp.delete(b)); }
   const id = await p; return id ? { asset: id } : null;
 }
-async function deepUp(v) {
-  if (v instanceof Blob) return upBlob(v);
-  if (Array.isArray(v)) { const out = []; for (const x of v) out.push(await deepUp(x)); return out; }
-  if (v && typeof v === "object") { if (v.asset) return v; const o = {}; for (const [k, x] of Object.entries(v)) o[k] = await deepUp(x); return o; }
+async function deepUp(v, up = upBlob) {
+  if (v instanceof Blob) return up(v);
+  if (Array.isArray(v)) { const out = []; for (const x of v) out.push(await deepUp(x, up)); return out; }
+  if (v && typeof v === "object") { if (v.asset) return v; const o = {}; for (const [k, x] of Object.entries(v)) o[k] = await deepUp(x, up); return o; }
   return v;
 }
 const runPool = async (tasks, n = 4) => { const q = tasks.slice(); await Promise.all(Array.from({ length: Math.min(n, q.length) }, async () => { while (q.length) await q.shift()(); })); };   // a few at a time: the store limits concurrent writes
 const partHash = str => keyOf(str) + ":" + str.length;
 /* What is already in the account is recorded in the sermon's own document (hashes of each part), so a new session, or
    another device, sends only the parts that changed. */
+/* A copy on this device is unsent when it changed after it last matched the account. syncedAt is the account's
+   updatedAt that it last matched, set after each push and pull. */
+const unsent = r => !!r && !r.example && (!!r.picsPending || r.syncedAt == null || (r.updatedAt || 0) > r.syncedAt);
 async function pushRecord(rec) {
-  if (!cdb || !userId || rec.example) return;
-  const base = sermonPath(rec.id);
-  const last = (pushed[rec.id] = pushed[rec.id] || {});
-  const prevMeta = cloudMetas.get(rec.id);
-  const chunks = { ...((prevMeta && prevMeta.chunks) || {}), ...(last.chunks || {}) };
-  const hashes = { ...((prevMeta && prevMeta.hashes) || {}), ...(last.hashes || {}) };
+  if (!cdb || !userId || rec.example || gone.has(rec.id)) return;
+  const base = sermonPath(rec.id), at = rec.updatedAt || Date.now();
+  // the account's copy is read fresh first, so a change made on another device is never written over; if it can't be
+  // read, nothing is written and the push is tried again later
+  const readLive = async () => { const ms = await dbWrite(() => cdb.doc(base).get()); return ms.exists ? ms.data() : null; };
+  let live = await readLive();
+  if (live && live.tab !== TAB && (rec.syncedAt != null ? live.updatedAt !== rec.syncedAt : live.updatedAt > at + 1000)) {
+    await keepTheirs(rec.id); live = await readLive();   // their version is now its own sermon; this one takes the place
+  }
+  const prevMeta = live;
+  // what the account holds now decides which parts need sending
+  const chunks = { ...((prevMeta && prevMeta.chunks) || {}) };
+  const hashes = { ...((prevMeta && prevMeta.hashes) || {}) };
+  let picsMissing = null;
+  const up = b => upBlob(b).catch(e => { picsMissing = e || { code: "unavailable" }; return null; });   // a picture that won't upload never holds back the text
   const md = rec.media || {};
   let fileRef = null, fileLocal = false;
-  if (md.file && md.file.blob) { fileRef = await upBlob(md.file.blob); fileLocal = !fileRef; }
+  if (md.file && md.file.blob) { fileRef = await up(md.file.blob); fileLocal = !fileRef; }
   const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, mat: rec.mat || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
   const parts = [["core", core], ["html", rec.html || ""], ["preached", md.preached || ""]];
   const slideCount = (rec.slides || []).length, oldCount = prevMeta ? prevMeta.slideCount || 0 : 0, trims = [];
-  if (!prevMeta || (prevMeta.deckVer || 0) !== (rec.deckVer || 0) || oldCount !== slideCount) {
+  if (!prevMeta || prevMeta.picsPending || (prevMeta.deckVer || 0) !== (rec.deckVer || 0) || oldCount !== slideCount) {
     const strs = new Array(slideCount);
-    await runPool(rec.slides.map((sl, i) => async () => { strs[i] = JSON.stringify(await deepUp(sl)); }), 3);
+    await runPool(rec.slides.map((sl, i) => async () => { strs[i] = JSON.stringify(await deepUp(sl, up)); }), 3);
     strs.forEach((t, i) => parts.push(["s" + i, t]));
-    parts.push(["pdf", JSON.stringify(await deepUp(rec.pdfPages || null))]);
+    parts.push(["pdf", JSON.stringify(await deepUp(rec.pdfPages || null, up))]);
     for (let i = slideCount; i < oldCount; i++) { for (let k = 0; k < (chunks["s" + i] || 1); k++) trims.push(`${base}/parts/s${i}.${k}`); delete chunks["s" + i]; delete hashes["s" + i]; }
   }
   const writes = [];
   for (const [name, str] of parts) {
     const h = partHash(str); if (hashes[name] === h && chunks[name] != null) continue;
     const n = Math.max(1, Math.ceil(str.length / CHUNK));
-    for (let k = 0; k < n; k++) writes.push(() => cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) }));
+    for (let k = 0; k < n; k++) writes.push(() => dbWrite(() => cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) })));
     for (let k = n; k < (chunks[name] || 0); k++) trims.push(`${base}/parts/${name}.${k}`);
     chunks[name] = n; hashes[name] = h;
   }
   await runPool(writes);
+  const meta = { id: rec.id, updatedAt: at, device: DEVICE, tab: TAB, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, hashes, fileLocal, picsPending: !!picsMissing, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
+  await dbWrite(() => cdb.doc(base).set(meta));
+  // leftover pieces go only after the sermon's own document points past them
   await runPool(trims.map(p => () => cdb.doc(p).delete().catch(() => {})));
-  const meta = { id: rec.id, updatedAt: rec.updatedAt || Date.now(), device: DEVICE, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, hashes, fileLocal, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
-  await cdb.doc(base).set(meta);
-  last.chunks = chunks; last.hashes = hashes;
   cloudMetas.set(rec.id, meta);
+  markSynced(rec, at, !!picsMissing);
+  if (picsMissing) { const e = new Error("pictures"); e.code = picsMissing.code === "quota_or_state" || picsMissing.code === "quota_exceeded" ? "quota_or_state" : "pictures"; throw e; }
 }
-async function pullRecord(id) {
+/* What went up is recorded on each copy of that version, here and on this device; a newer version stays unsent. */
+function markSynced(rec, at, pics) {
+  const mark = r => { if ((r.updatedAt || 0) !== at) return false; r.syncedAt = at; r.picsPending = pics; };
+  mark(rec); if (S && S !== rec && S.id === rec.id) mark(S);
+  return store.patch(rec.id, mark);
+}
+/* One retry after a short pause for a passing hiccup, as the store asks. */
+const dbWrite = async fn => { try { return await fn(); } catch (e) { if (!e || !["unavailable", "resource_exhausted"].includes(e.code)) throw e; await new Promise(r => setTimeout(r, 800 + Math.random() * 1200)); return fn(); } };
+/* The same sermon changed here and on another device since they last matched: neither is lost. The other device's
+   version is saved as a separate sermon, and the one on this device keeps its place. */
+async function keepTheirs(id) {
+  const theirs = await pullRecord(id, true); if (!theirs) return;
+  const stamp = new Date(theirs.updatedAt || Date.now()).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const copy = { ...theirs, id: uid(), syncedAt: undefined, picsPending: false, meta: { ...theirs.meta, title: `${theirs.meta.title || "Untitled sermon"} (other device, ${stamp})` } };
+  await store.put(copy);
+  // kept on this device first; if it can't go up yet it waits with the other unsent sermons, and this one still goes ahead
+  try { await pushRecord(copy); } catch (e) { pushFailed(copy, e); }
+  toast(`"${theirs.meta.title || "Untitled sermon"}" was also changed on another device. Both versions are kept; the other one is in your library marked "other device".`);
+  refreshLibrary();
+}
+async function pullRecord(id, readOnly) {
   const base = sermonPath(id);
   const ms = await cdb.doc(base).get(); if (!ms.exists) return null;
   const m = ms.data();
@@ -7485,40 +7546,90 @@ async function pullRecord(id) {
   const core = parseJ(coreT, {});
   const local = (await store.all()).find(r => r.id === id);
   const rec = {
-    id, updatedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
+    id, updatedAt: m.updatedAt, syncedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
     slides: slidesT.map(t => parseJ(t, { title: "", body: [], notes: "" })), pptxName: m.pptxName, pdfName: m.pdfName, pdfNote: m.pdfNote, pdfAspect: m.pdfAspect, aspect: m.aspect, slidesFromPdf: m.slidesFromPdf, deckVer: m.deckVer || 0,
     pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, study: core.study || null, mat: core.mat || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
     media: { link: (core.media && core.media.link) || "", preached, file: (core.media && core.media.file) || (local && local.media && local.media.file && m.fileLocal ? local.media.file : null) }
   };
   rec.transcript = plainFromHtml(rec.html);
-  pushed[id] = { chunks: { ...(m.chunks || {}) }, hashes: { ...(m.hashes || {}), html: partHash(html), preached: partHash(preached) } };
+  if (readOnly) return rec;
+  cloudMetas.set(id, m);
   await store.put(rec);
   return rec;
 }
-/* A short pause after typing stops gathers a burst of edits into one push; steady typing still goes up every few seconds. */
-let cloudFirst = 0;
-function queueCloud() {
-  if (!cdb || !S || S.example) return;
+/* Sermons changed here wait in an outbox until the account confirms them. A short pause after typing stops gathers
+   a burst of edits into one push; steady typing still goes up every few seconds. A push that fails stays in the
+   outbox and is tried again, sooner for a passing hiccup, and right away when the connection or the page comes back. */
+const outbox = new Map(), failing = new Map(), sending = new Set(), gone = new Set();
+let cloudFirst = 0, retryT = 0, retryN = 0;
+function queueCloud(rec = S) {
+  if (!cdb || !rec || rec.example || gone.has(rec.id)) return;
+  outbox.set(rec.id, rec); failing.delete(rec.id);
   clearTimeout(cloudT);
   setSync("saving");
   const now = Date.now(); if (!cloudFirst) cloudFirst = now;
-  cloudT = setTimeout(() => {
-    cloudFirst = 0;
-    const rec = S;
-    pushing = pushing.then(() => pushRecord(rec)).then(() => setSync("synced")).catch(e => { console.warn("sync", e); setSync("error", e && e.code === "quota_or_state" ? "Your page's file storage is full. Text still syncs; remove old sermons' slides or recordings to make room." : null); });
-  }, Math.max(0, Math.min(600, cloudFirst + 4000 - now)));
+  cloudT = setTimeout(flushCloud, Math.max(0, Math.min(600, cloudFirst + 4000 - now)));
 }
+function flushCloud() {
+  clearTimeout(cloudT); cloudT = null; cloudFirst = 0;
+  if (!cdb || !outbox.size) return pushing;
+  const recs = [...outbox.values()]; outbox.clear();
+  for (const rec of recs) { sending.add(rec); pushing = pushing.then(() => pushRecord(rec)).then(() => { sending.delete(rec); pushDone(rec); }, e => { sending.delete(rec); pushFailed(rec, e); }); }
+  return pushing;
+}
+function pushDone(rec) {
+  failing.delete(rec.id);
+  if (!failing.size) { retryN = 0; clearTimeout(retryT); retryT = 0; }
+  if (!outbox.size && !failing.size && !sending.size && !cloudT) setSync("synced");
+}
+const SYNC_DEAD = ["revoked", "not_granted", "capability_disabled", "capability_removed"];
+function pushFailed(rec, e) {
+  console.warn("sync", rec.id, e);
+  if (gone.has(rec.id)) return;
+  failing.set(rec.id, rec);
+  const code = e && e.code;
+  if (SYNC_DEAD.includes(code)) { setSync("error", "Your account can't be reached from this page right now. Changes are kept on this device and go up the next time you open Pulpit Binder."); return; }
+  const stuck = ["quota_exceeded", "quota_or_state", "invalid_argument", "transform_error"].includes(code);
+  setSync("error", code === "quota_or_state" ? "Your page's file storage is full. The text is saved to your account; slide pictures and recordings will go up once you remove old sermons' slides or recordings." : code === "pictures" ? "The text is saved to your account. Some slide pictures have not gone up yet; trying again." : code === "quota_exceeded" ? "Your account's sermon storage is full. Changes are kept on this device; remove old sermons to make room." : null);
+  const wait = stuck ? 600000 : Math.min(60000, 2000 * 2 ** retryN) * (0.75 + Math.random() / 2);
+  retryN++; clearTimeout(retryT); retryT = setTimeout(retrySync, wait);
+}
+function retrySync() {
+  clearTimeout(retryT); retryT = 0;
+  if (!cdb || !failing.size) return;
+  for (const [id, r] of failing) outbox.set(id, S && S.id === id ? S : r);
+  failing.clear(); setSync("saving"); flushCloud();
+}
+const editsWaiting = () => !!(saveT || edT || mdT || recT || thT);
+/* Everything waiting on a timer is written now: before another sermon opens, and when the page is hidden or closed. */
+function flushPending() {
+  if (!S) return;
+  if (edT) onEdit(true);
+  if (mdT) { clearTimeout(mdT); mdT = 0; mdApply(false); }
+  if (recT || thT) { clearTimeout(recT); clearTimeout(thT); recT = null; thT = 0; save(); }
+  if (saveT) { clearTimeout(saveT); commitSave(); }
+  if (cloudT) flushCloud();
+}
+addEventListener("pagehide", flushPending);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushPending(); else if (failing.size) retrySync(); });
+addEventListener("online", () => { if (failing.size) retrySync(); });
 function watchCurrent() {
   if (unsubCur) { try { unsubCur(); } catch {} unsubCur = null; }
   if (!cdb || !userId || !S) return;
   const id = S.id;
-  unsubCur = cdb.doc(sermonPath(id)).onSnapshot(async snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites || !S || S.id !== id) return;
-    const d = snap.data(); cloudMetas.set(id, d);
-    if (d.device !== DEVICE && d.updatedAt > (S.updatedAt || 0) + 500 && Date.now() - lastEditAt > 4000 && document.activeElement !== ed) {
-      const rec = await pullRecord(id); if (rec && S.id === id) { const v = view, c = cur; openRec(rec, true); cur = c; setView(v); toast("Updated from another device"); }
-    }
-  }, () => {});
+  // A newer copy from another tab or device replaces this one only when nothing here is unsent (that is settled when
+  // it pushes) and the preacher isn't mid-sentence; otherwise it is looked at again shortly, so it is never missed.
+  let later = 0, unsub = null;
+  const consider = async d => {
+    clearTimeout(later); later = 0;
+    if ((unsub && unsubCur !== unsub) || !S || S.id !== id || d.tab === TAB || unsent(S) || d.updatedAt === S.syncedAt) return;
+    if (editsWaiting() || Date.now() - lastEditAt < 4000 || document.activeElement === ed) { later = setTimeout(() => consider(cloudMetas.get(id) || d), 2500); return; }
+    const rec = await pullRecord(id); if (rec && S.id === id && !unsent(S)) { const v = view, c = cur; openRec(rec, true); cur = c; setView(v); toast("Updated from another device"); }
+  };
+  unsub = unsubCur = cdb.doc(sermonPath(id)).onSnapshot(snap => {
+    if (!snap.exists || (snap.metadata && snap.metadata.hasPendingWrites) || !S || S.id !== id) return;
+    const d = snap.data(); cloudMetas.set(id, d); consider(d);
+  }, e => { if (unsubCur === unsub && !(e && SYNC_DEAD.concat("invalid_argument").includes(e.code))) setTimeout(() => { if (unsubCur === unsub && S && S.id === id) watchCurrent(); }, 5000); });
 }
 let syncKnown; const syncSettled = new Promise(r => { syncKnown = r; });   // resolves once we know whether the account is reachable
 async function startSync() { try { await startSyncInner(); } finally { syncKnown(); } }
@@ -7529,30 +7640,46 @@ async function startSyncInner() {
   try { userId = await user.id(); } catch { userId = null; }
   if (!userId) { setSync("off"); return; }
   cdb = db; cassets = assets; setSync("loading");
-  let first = true;
+  watchLibrary();
+}
+let libSeen = false;
+function watchLibrary() {
   cdb.collection(`data/users/${userId}`).onSnapshot(async snap => {
     for (const ch of snap.docChanges()) {
       if (ch.doc.id.startsWith("_")) { if (ch.doc.id === "_prefs" && ch.type !== "removed") applySettings(ch.doc.data(), true); if (ch.doc.id === "_dash" && ch.type !== "removed") applyDashAI(ch.doc.data(), true); continue; }
       if (ch.type === "removed") cloudMetas.delete(ch.doc.id); else cloudMetas.set(ch.doc.id, ch.doc.data());
     }
-    if (first) {
-      first = false; cloudReady = true;
+    if (!libSeen) {
+      libSeen = true; cloudReady = true;
       const locals = await store.all();
-      // a newer copy in the cloud wins for the sermon on screen
-      const cm = cloudMetas.get(S.id);
       if (S.example && cloudMetas.size && !locals.some(r => !r.example)) {
         const newest = [...cloudMetas.values()].sort((a, b) => b.updatedAt - a.updatedAt)[0];
         const exId = S.id; const rec = await pullRecord(newest.id); if (rec) { await store.del(exId); openRec(rec); }
-      } else if (cm && cm.updatedAt > (S.updatedAt || 0) + 1000) {
-        const rec = await pullRecord(S.id); if (rec) { const v = view; openRec(rec); setView(v); }
+      } else {
+        for (const l of locals) {
+          const r = l.id === S.id ? S : l, c = cloudMetas.get(r.id);
+          if (r.example || r.syncedAt != null || !c) continue;
+          // copies saved before this check existed: matched by time, as before
+          const was = r.updatedAt || 0;
+          if (Math.abs(was - c.updatedAt) <= 1000) r.syncedAt = c.updatedAt;
+          else if (c.updatedAt > was) r.syncedAt = was;
+          else continue;
+          const syncedAt = r.syncedAt; store.patch(r.id, x => (x.updatedAt || 0) === was && x.syncedAt == null ? (x.syncedAt = syncedAt, true) : false);
+        }
+        // a newer copy in the account replaces the sermon on screen only when nothing here is waiting to go up
+        const cm = cloudMetas.get(S.id);
+        if (cm && !unsent(S) && cm.updatedAt !== S.syncedAt && !editsWaiting()) { const rec = await pullRecord(S.id); if (rec && !unsent(S)) { const v = view; openRec(rec); setView(v); } }
       }
-      // anything only on this device, or newer here, goes up
-      for (const r of locals) { const c = cloudMetas.get(r.id); if (!r.example && (!c || (r.updatedAt || 0) > c.updatedAt + 1000)) pushing = pushing.then(() => pushRecord(r)).catch(e => console.warn("sync", e)); }
-      pushing.then(() => setSync("synced"), () => setSync("error"));
+      // anything only on this device, or changed here since it last matched, goes up
+      for (const l of locals) { const r = S && l.id === S.id ? S : l; if (unsent(r)) outbox.set(r.id, r); }
+      if (outbox.size) { setSync("saving"); flushCloud(); } else if (!failing.size) setSync("synced");
       watchCurrent();
     }
     refreshLibrary();
-  }, () => setSync("error"));
+  }, e => {
+    setSync("error");
+    if (!(e && SYNC_DEAD.concat("invalid_argument").includes(e.code))) setTimeout(watchLibrary, 5000);   // the listener ended; only a fresh one recovers
+  });
 }
 
 /* ---------------- Dashboard: every sermon at once ---------------- */
@@ -9449,7 +9576,7 @@ function thFullSize(th) {
   canvaFullSize(media).then(url => { if (th.media === media) { th.hdUrl = url; thChanged(false); } }).catch(e => { if (thHd.media === media) thHd.err = hdErrText(e); })
     .finally(() => { if (thHd.media === media) thHd.busy = false; redraw(); });
 }
-function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
+function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { thT = 0; save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
 async function thAsk() {
   if (!sample) return;
   const m = S.meta, ai = S.ai && !S.ai.error ? S.ai : null, heads = (() => { try { return outlineModel().items.map(i => `${i.num || ""} ${i.text}`.trim()); } catch { return []; } })();
@@ -10061,6 +10188,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
+  if (!idb) syncSettled.then(() => { if (!cdb) toast("This browser is not keeping sermons between visits. Open Pulpit Binder in Claude while signed in so they are saved to your account."); });
   const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "slides", "listen", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {

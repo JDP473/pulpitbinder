@@ -38,6 +38,14 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - The sermon document records `hashes` of each part. A push compares against them and writes only parts that changed, so a new session or another device does not resend everything. Slides are sent only when `deckVer` or the slide count differs from the account's copy.
 - Each uploaded file is remembered on the device by its SHA-256 (`kv` key `asset-<hash>`), so the same picture is never uploaded twice.
 - Writes go a few at a time. A save waits 0.5 s after typing stops, then about 0.6 s more before pushing (at most 4 s during steady typing).
+- Nothing is dropped on the way (`tests/browser/syncsafe.py`):
+  - `flushPending()` writes every waiting timer (editor text, Markdown source, recording text, theme, the save itself, the push) before another sermon opens (`openRec`) and on `pagehide` or when the page is hidden.
+  - Sermons waiting to go up sit in `outbox`. A push that fails moves to `failing` and is retried with backoff (2 s doubling to 60 s; 10 min for a full store), and at once on `online` or when the page is shown again. A full store or a revoked grant gets its own status text. The pill reads "Synced" only when nothing is queued, sending, or failing.
+  - Each record carries `syncedAt`, the account's `updatedAt` it last matched; `unsent(r)` is true when it changed since. A copy with unsent changes is never replaced by a pull (on start, on opening from the library, or from `watchCurrent`).
+  - Before writing, `pushRecord` reads the account's record fresh; if that read fails, nothing is written and the push is retried. If another tab or device changed it since `syncedAt` (`tab` identifies the open page), `keepTheirs` saves that version as a separate sermon marked "other device" and this one keeps its place. Older copies without `syncedAt` are matched by time on the first snapshot.
+  - Leftover chunks are deleted only after the sermon's own document points past them. A picture that won't upload leaves the text to go up anyway; `picsPending` on the record and its account document sends the slides again on the next push.
+  - Each write is retried once after a short pause on `unavailable` or `resource_exhausted`. Listeners that end are opened again.
+  - `store.put` waits for IndexedDB to confirm and says so (`localTrouble`) when the browser refuses.
 - `data/users/<userId>/_prefs`: settings (default translation, favorites).
 - `data/users/<userId>/_dash`: the latest Claude read across all sermons.
 - Ids starting with `_` are not sermons and are skipped in the library.
