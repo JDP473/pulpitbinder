@@ -117,6 +117,11 @@ header.collapsed .hdr-toggle svg{transform:rotate(180deg)}
 .chip.example{background:transparent;border-style:dashed;color:var(--warn)}
 a.chip{text-decoration:none}
 a.chip:hover{border-color:var(--accent)}
+.refchip a{color:inherit;text-decoration:none}
+.refchip a:hover{text-decoration:underline}
+.chip a.lgo{text-decoration:none;color:var(--accent);font-size:11px;font-weight:500;border-left:1px solid var(--line);padding-left:6px}
+.lg-link{color:var(--accent);font:500 11.5px var(--f-ui);text-decoration:none;margin-left:8px}
+.lg-link:hover{text-decoration:underline}
 
 main{padding-block:18px 40px}
 .view[hidden]{display:none!important}
@@ -1859,7 +1864,7 @@ body[data-view="present"] .sermon-bar{display:none}
         <div class="panel">
           <h2>Scripture cited</h2>
           <div class="tags" id="refs"></div>
-          <div class="hint">Links open in ESV on Bible Gateway.</div>
+          <div class="hint">Each passage opens in ESV on Bible Gateway, or tap Logos to open it in Logos Bible Software.</div>
         </div>
         <div class="panel">
           <h2>Recurring words</h2>
@@ -2800,6 +2805,22 @@ async function parseDocx(file) {
 /* ---------------- tags ---------------- */
 function fmtWhen(v) { if (!v) return ""; const d = new Date(v); if (isNaN(d)) return v; return d.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); }
 const bgLink = ref => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=ESV`;
+/* Logos Bible Software: ref.ly opens the passage in the Logos app where it is installed, and in the Logos web app otherwise */
+const LOGOS_NUM = new Map("Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation".split("|").map((b, i) => [b, i < 39 ? i + 1 : i + 22]));
+const ONE_CHAPTER = new Set(["Obadiah", "Philemon", "2 John", "3 John", "Jude"]);
+function logosLink(ref) {
+  const first = String(ref || "").split(/[;,]/)[0].trim(); if (!first) return "";
+  let n = normalizeRef(first); if (!n) { const fr = findRefs(first); n = fr.length ? fr[0].ref : null; }
+  const m = n && n.match(/^(.+?) (\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/); if (!m) return "";
+  const book = m[1] === "Psalms" ? "Psalm" : m[1], num = LOGOS_NUM.get(book); if (!num) return "";
+  const [, , a, b, c, d] = m; let from, to = "";
+  if (ONE_CHAPTER.has(book) && !b && !d) { from = `1.${a}`; if (c) to = `1.${c}`; }
+  else if (b) { from = `${a}.${b}`; if (d) to = `${c}.${d}`; else if (c) to = `${a}.${c}`; }
+  else { from = a; if (c) to = d ? `${c}.${d}` : c; }
+  return `https://ref.ly/logosref/bible.${num}.${from}${to ? `-${num}.${to}` : ""}`;
+}
+const logosA = (ref, attrs, text) => { const href = logosLink(ref); return href ? el("a", Object.assign({ href, target: "_blank", rel: "noopener", title: `Open ${ref} in Logos`, text: text || "Logos" }, attrs || {})) : null; };
+const refChip = (ref, cls) => { const lg = logosA(ref, { class: "lgo" }); const a = el("a", { href: bgLink(ref), target: "_blank", rel: "noopener", title: `Open ${ref} on Bible Gateway`, text: ref }); return el("span", { class: "chip refchip" + (cls ? " " + cls : "") }, a, lg); };
 function renderTags() {
   const bar = $("#tagbar"); bar.replaceChildren();
   $("#sb-title").textContent = S.meta.title || "Untitled sermon"; updateSermonCard();
@@ -2810,7 +2831,7 @@ function renderTags() {
   const ds = deliveriesOf(m);
   if (ds.length > 1) ds.forEach((d, i) => chip(i ? "Also" : "Presented", fmtDelivery(d)));
   else { chip("When", fmtWhen(m.when)); chip("Where", m.place); chip("Service", m.service); }
-  chip("Text", m.text, "accent"); chip("Speaker", m.speaker);
+  if (m.text) bar.append(el("span", { class: "chip accent" }, el("b", { text: "Text" }), m.text, logosA(m.text, { class: "lgo" }))); chip("Speaker", m.speaker);
   (m.series || "").split(",").map(s => s.trim()).filter(Boolean).forEach(s => chip("Tag", s));
   if (S.ai && !S.ai.error) {
     if (S.ai.approach) chip("Approach", S.ai.approach, "accent");
@@ -3095,7 +3116,7 @@ async function renderSerDoc(r) {
   const m = { ...blank().meta, ...(r.meta || {}) }, cur = r.id === S.id;
   const ds = deliveriesOf(m).filter(d => d.when || d.place);
   const head = el("div", { class: "ser-head" }, el("h3", { text: m.title || "Untitled sermon" }),
-    el("div", { class: "tags" }, ...ds.map(d => el("span", { class: "chip" }, el("b", { text: d === ds[0] ? "Preached" : "Also" }), fmtDelivery(d))), m.text ? el("a", { class: "chip accent", href: bgLink(m.text), target: "_blank", rel: "noopener", text: m.text }) : null, ...tagsOf(m).map(t => el("span", { class: "chip", text: t }))));
+    el("div", { class: "tags" }, ...ds.map(d => el("span", { class: "chip" }, el("b", { text: d === ds[0] ? "Preached" : "Also" }), fmtDelivery(d))), m.text ? refChip(m.text, "accent") : null, ...tagsOf(m).map(t => el("span", { class: "chip", text: t }))));
   const local = !r.cloudOnly && r.ai && !r.ai.error ? r.ai : null, sum = cloudMetas.get(r.id) && cloudMetas.get(r.id).dash;
   const idea = (local && local.bigIdea) || (sum && sum.ai && sum.ai.bigIdea);
   if (idea) head.append(el("p", { class: "big-idea", style: "font-size:1.1rem", text: idea }));
@@ -3797,7 +3818,7 @@ function renderAnalysis() {
     .forEach(([v, k]) => st.append(el("div", { class: "stat" }, el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k }))));
   const refs = $("#refs"); refs.replaceChildren();
   if (!a.refs.length) refs.append(el("span", { class: "hint", text: "No references found. Write them like John 3:16 or Psalm 23." }));
-  a.refs.forEach(r => refs.append(el("a", { class: "chip", href: bgLink(r), target: "_blank", rel: "noopener", text: r })));
+  a.refs.forEach(r => refs.append(refChip(r)));
   bars($("#keywords"), a.kw); bars($("#voice"), a.voice);
   renderAI(); renderPreachedAnalysis();
 }
@@ -5129,7 +5150,9 @@ function scInnerHtml(d) {
   else if (busy && busy.err) body = `<p class="pb-sc-err">${esc(busy.err)}</p><p><button type="button" class="pb-sc-btn" data-act="retry">Try again</button> <button type="button" class="pb-sc-btn" data-act="paste">Paste the text</button></p>`;
   else body = `<p class="pb-sc-wait">${esc(d.ver)} text not loaded yet. <button type="button" class="pb-sc-btn" data-act="retry">Load it</button></p>`;
   const bg = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(d.ref)}&version=${encodeURIComponent(d.ver)}`;
-  if (cur) foot = (cur.s === "claude" ? `<span class="pb-sc-warn">Filled in by Claude. Check the wording against your Bible.</span>` : cur.s === "typed" ? `<span>Pasted text</span>` : `<span>${esc(VER_NAME[d.ver] || d.ver)} · Bible Gateway</span>`) + ` <a href="${esc(bg)}" target="_blank" rel="noopener">Open</a>` + (cur.s !== "bg" ? ` <button type="button" class="pb-sc-btn" data-act="retry">Reload</button>` : "");
+  const lg = logosLink(d.ref), lgA = lg ? ` <a href="${esc(lg)}" target="_blank" rel="noopener" title="Open this passage in Logos Bible Software">Open in Logos</a>` : "";
+  if (cur) foot = (cur.s === "claude" ? `<span class="pb-sc-warn">Filled in by Claude. Check the wording against your Bible.</span>` : cur.s === "typed" ? `<span>Pasted text</span>` : `<span>${esc(VER_NAME[d.ver] || d.ver)} · Bible Gateway</span>`) + ` <a href="${esc(bg)}" target="_blank" rel="noopener" title="Open on Bible Gateway">Open</a>${lgA}` + (cur.s !== "bg" ? ` <button type="button" class="pb-sc-btn" data-act="retry">Reload</button>` : "");
+  else foot = lgA.trim();
   return `<div class="pb-sc-head"><span class="pb-sc-kicker">Scripture</span><button type="button" class="pb-sc-ref" data-act="ref" title="Change the reference">${esc(d.ref)}</button><span class="pb-sc-tabs">${tabs}</span><button type="button" class="pb-sc-mk pb-sc-stk-btn" data-act="stackmenu" aria-expanded="${stkOpen}" title="Show other translations stacked under the words you choose">Stack translations${nSel ? " · " + nSel : ""} ▾</button><button type="button" class="pb-sc-mk" data-act="slides" title="Make slides from this passage">+ Slides</button><button type="button" class="pb-sc-x" data-act="remove" title="Remove this Scripture section" aria-label="Remove this Scripture section">×</button></div>${stkOpen && cur ? scStackPanel(d, model) : ""}<div class="pb-sc-body">${body}</div><div class="pb-sc-foot">${foot}</div>`;
 }
 function writeSc(e, d) {
@@ -7847,7 +7870,7 @@ function drawDash() {
 
   const top = tally(rows, r => r.refs).slice(0, 10); const tl = $("#dash-passages"); tl.replaceChildren();
   if (!top.length) tl.append(el("div", { class: "hint", text: "No references found yet." }));
-  top.forEach(x => tl.append(el("li", {}, el("a", { href: bgLink(x.label), target: "_blank", rel: "noopener", text: x.label }), el("span", { class: "c", "data-tip": tipList(x.titles), text: `${x.n} sermon${x.n === 1 ? "" : "s"}` }))));
+  top.forEach(x => tl.append(el("li", {}, el("a", { href: bgLink(x.label), target: "_blank", rel: "noopener", text: x.label }), logosA(x.label, { class: "lg-link" }), el("span", { class: "c", "data-tip": tipList(x.titles), text: `${x.n} sermon${x.n === 1 ? "" : "s"}` }))));
 
   const vw = rows.filter(r => r.words > 200), per = k => vw.length ? (vw.reduce((a, r) => a + r[k] / r.words * 1000, 0) / vw.length).toFixed(1) : "–";
   const voice = $("#dash-voice"); voice.replaceChildren();
@@ -8021,7 +8044,7 @@ function drawDashAI(rows) {
   if (a.ideas && a.ideas.length) {
     out.append(el("h3", { class: "sub", text: "Ideas for upcoming sermons" }));
     const g = el("div", { class: "dash-ideas" });
-    a.ideas.forEach(i => g.append(el("div", { class: "idea" }, el("b", { text: i.title || "" }), i.text ? el("a", { class: "mono", href: bgLink(i.text), target: "_blank", rel: "noopener", text: i.text }) : null, el("span", { class: "hint", text: i.why || "" }))));
+    a.ideas.forEach(i => g.append(el("div", { class: "idea" }, el("b", { text: i.title || "" }), i.text ? el("span", { class: "idea-ref" }, el("a", { class: "mono", href: bgLink(i.text), target: "_blank", rel: "noopener", text: i.text }), logosA(i.text, { class: "lg-link" })) : null, el("span", { class: "hint", text: i.why || "" }))));
     out.append(g);
   }
   out.append(el("div", { class: "hint", text: `Read ${a.count || "?"} sermon${a.count === 1 ? "" : "s"}${a.scope ? " (" + a.scope + ")" : ""} on ${new Date(a.at).toLocaleString()}` }));
@@ -8419,7 +8442,7 @@ function stRenderXref() {
     const d = el("details", { class: "st-xr", open: x.key === open ? "" : null }, el("summary", {}, el("b", { text: `Verse ${x.v}` }), el("span", { class: "hint", text: ` · ${items.length} reference${items.length === 1 ? "" : "s"}${r.src === "claude" ? " · suggested by Claude" : ""}` })));
     if (r.err) d.append(el("div", { class: "hint", style: "color:var(--warn)", text: r.err }));
     items.forEach(i => d.append(el("div", { class: "st-xi" }, el("div", { class: "st-xh" }, el("button", { type: "button", class: "link-btn st-xref-go", style: "margin:0;font-weight:600", text: i.ref, title: "Study this passage", onclick: () => stStudyRef(i.ref) }),
-      el("a", { class: "link-btn", style: "margin-left:8px", href: bgLink(i.ref), target: "_blank", rel: "noopener", text: "Read ↗" }),
+      el("a", { class: "link-btn", style: "margin-left:8px", href: bgLink(i.ref), target: "_blank", rel: "noopener", text: "Read ↗" }), logosA(i.ref, { class: "link-btn", style: "margin-left:8px" }, "Logos ↗"),
       el("button", { type: "button", class: "link-btn", text: "Add to notes", onclick: () => stAddNote(`${i.ref} (cross reference to ${stVRef(x, study().ref)})`) })), i.text ? el("div", { class: "st-xt", text: i.text }) : null)));
     p.append(d);
   });
