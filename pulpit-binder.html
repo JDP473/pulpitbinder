@@ -1278,6 +1278,115 @@ body[data-view="present"] .sermon-bar{display:none}
 #manuscript .pb-sc-stk-btn{display:none}
 #manuscript .sc-var{pointer-events:none}
 @media (pointer:coarse){.pb-sc-stk-opt{min-height:44px;padding:0 12px}#editor .sc-var{padding:2px 1px}}
+/* ================= Refinements from usability testing, late 2026 =================
+   First-time preachers, played by smaller Claude models, walked through the app on a desktop and a phone. This layer
+   answers what tripped them: unlabeled icons, rows cut off at the edge of the screen, floating chips over the text,
+   long pages with no way to jump, and controls that looked older than the rest. */
+:root{--chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6476' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2397a0b2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}}
+:root[data-theme="dark"]{--chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2397a0b2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+/* form controls drawn like the rest of the app */
+input[type=checkbox],input[type=radio],input[type=range],progress{accent-color:var(--accent)}
+input[type=checkbox],input[type=radio]{width:17px;height:17px;flex:none;cursor:pointer}
+select{appearance:none;-webkit-appearance:none;background-image:var(--chev);background-repeat:no-repeat;background-position:right 9px center;background-size:14px 14px;padding-right:30px;cursor:pointer;text-overflow:ellipsis}
+select.sm,.ed-toolbar select{padding-right:26px;background-position:right 7px center}
+#ed-block{width:186px}
+select:hover:not(:disabled):not(:focus),input[type=text]:hover:not(:focus),input[type=datetime-local]:hover:not(:focus),input[type=number]:hover:not(:focus),input[type=time]:hover:not(:focus),input[type=search]:hover:not(:focus),textarea:hover:not(:focus){border-color:color-mix(in srgb,var(--muted) 55%,var(--line))}
+::placeholder{color:color-mix(in srgb,var(--muted) 78%,transparent);opacity:1}
+select:disabled,input:disabled,textarea:disabled{opacity:.6;cursor:default}
+.btn:not(.primary):not(.danger):not(.ghost):hover:not(:disabled){background:color-mix(in srgb,var(--sunk) 55%,var(--surface))}
+.btn.ghost:hover:not(:disabled){background:var(--sunk);border-color:transparent}
+.btn:active:not(:disabled),.icon-btn:active:not(:disabled),.jump-b:active{transform:translateY(1px)}
+.icon-btn{border-radius:9px;transition:background-color .15s,border-color .15s}
+.link-btn:hover{text-decoration:underline}
+#sg-undo:not(:disabled){border-color:var(--line);background:var(--surface)}
+/* one main button a screen: inside the Study's cards the actions are quieter than Study this text and Ask Claude */
+#st-panels .btn.primary{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--ink);box-shadow:none}
+#st-panels .btn.primary:hover:not(:disabled){filter:none;border-color:var(--accent)}
+/* card titles read as titles: sentence case, in ink */
+.panel h2{font:600 14.5px/1.3 var(--f-ui);letter-spacing:0;text-transform:none;color:var(--ink)}
+.stats{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.stat .v{font-family:var(--f-ui);font-variant-numeric:normal;font-weight:650;font-size:1.5rem;letter-spacing:-.015em}
+#deck-progress:empty,.mat-act:not(:has(> :not([hidden]))){display:none}
+:where(body *){scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--muted) 45%,transparent) transparent}
+/* notices: easier to see, above dialogs, and able to carry Undo */
+.toast{display:flex;align-items:center;gap:12px;width:max-content;max-width:min(560px,calc(100vw - 32px));padding:10px 14px;border-radius:11px;font-size:14px;line-height:1.35;z-index:45;box-shadow:0 10px 30px rgba(0,0,0,.28);transform:translate(-50%,8px);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.act.show{pointer-events:auto}
+.toast-act{flex:none;font:700 13.5px var(--f-ui);color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 40%,transparent);border-radius:7px;padding:5px 11px;min-height:32px;cursor:pointer}
+.toast-act:hover{background:color-mix(in srgb,currentColor 14%,transparent)}
+/* dialogs and sections arrive gently */
+.modal{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.modal-card{border-radius:16px;animation:pb-pop .16s ease-out}
+.view:not([hidden]){animation:pb-fade .18s ease-out}
+@keyframes pb-pop{from{opacity:0;transform:translateY(8px) scale(.985)}}
+@keyframes pb-fade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}.spin{animation-duration:.9s!important;animation-iteration-count:infinite!important}}
+/* a row that scrolls sideways fades at the side that has more */
+.fade-x[data-more="r"]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent)}
+.fade-x[data-more="l"]{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent)}
+.fade-x[data-more="lr"]{-webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent)}
+/* jump links on the long pages */
+.jump{position:sticky;top:var(--hdr-h,0px);z-index:6;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 0;margin-block:-8px;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.jump::-webkit-scrollbar{display:none}
+.jump[hidden]{display:none}
+.jump-l{flex:none;font-size:12.5px;color:var(--muted);margin-right:2px}
+.jump-b{flex:none;font:500 13px var(--f-ui);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 12px;min-height:32px;cursor:pointer;white-space:nowrap}
+.jump-b:hover{border-color:var(--accent);color:var(--accent)}
+.sg-col .jump{display:none}
+.mat > .panel,#st-panels > .panel,.st-side > .panel{scroll-margin-top:calc(var(--hdr-h,0px) + 58px)}
+@media (pointer:coarse){.jump-b{min-height:38px}}
+/* Overview: coverage said in words, counts beside their passages, quarter labels that fit */
+.bk-say{margin-top:10px;font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.bk-say p{margin:0}
+.bk-say summary{cursor:pointer;color:var(--muted);width:max-content;max-width:100%;border-radius:4px}
+.bk-say summary:hover{color:var(--ink)}
+.bk-say details p{margin-top:4px;color:var(--muted);line-height:1.5}
+.dash-pass li{line-height:1.5}
+.dash-pass .c{line-height:inherit;font:inherit;font-size:12.5px;font-variant-numeric:tabular-nums}
+.rh-col{white-space:normal;line-height:1.15;padding-bottom:2px}
+/* the time to preach: named in the sidebar, in the top bar on a phone, never floating over the text */
+.est-pill{background:transparent;font-family:inherit;color:var(--ink);cursor:pointer}
+.est-l{display:none}
+@media (min-width:1100px){
+  .hdr-tools .est-pill{width:100%;justify-content:flex-start;text-align:left}
+  .hdr-tools .est-pill:hover{filter:brightness(.97)}
+  .est-pill .est-l{display:inline;margin-left:-8px;font-weight:500}
+  .est-pill[data-empty="true"] .est-l,body[data-view="present"] .est-l{display:none}
+  .top-row .lib .sc-t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  /* Present: the folded sidebar keeps its names, as a rail of icon over word */
+  body[data-view="present"]{--app-nav:78px}
+  body[data-view="present"] .top-row{padding-inline:6px}
+  body[data-view="present"] .tab{flex-direction:column;gap:3px;min-height:54px;padding:7px 0 6px}
+  body[data-view="present"] .tab-tx,body[data-view="present"] .tool-l{position:static;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal;text-align:center;font-size:10.5px;font-weight:600;line-height:1.15}
+  body[data-view="present"] .hdr-tools .icon-btn{flex-direction:column;gap:3px;height:auto;min-height:50px;padding:7px 2px 6px}
+  body[data-view="present"] .hdr-tools .est-pill{width:auto;justify-content:center;text-align:center;white-space:normal;line-height:1.15}
+}
+@media (max-width:700px){
+  .est-pill{position:static;box-shadow:none;height:var(--ctl);background:transparent}
+  body.set-open .est-pill,body:has(.sg-col.open) .est-pill{display:inline-flex}
+  /* Present: Previous and Next get the first row to themselves; text size and the live view sit under them, nothing cut off */
+  #view-present .controls{flex-wrap:wrap}
+  #view-present .controls #btn-prev,#view-present .controls #btn-next{flex:1 1 40%}
+  #view-present .controls #btn-live{flex:1 1 auto}
+}
+/* saved or not, at a glance: an icon for each state, with the words beside it where there is room */
+.sync-pill{cursor:pointer}
+.sync-pill::before{width:15px;height:15px;border-radius:0;flex:none;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat;
+  --i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.7 2.7L16 9.6'/%3E%3C/svg%3E")}
+.sync-pill[data-state="off"]::before{background:var(--ok)}
+.sync-pill[data-state="synced"]::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18.5a4.5 4.5 0 0 1-.7-8.95A6 6 0 0 1 17.9 9.6 4.5 4.5 0 0 1 17.5 18.5z'/%3E%3Cpath d='M9.4 13.4l1.9 1.9 3.5-3.7'/%3E%3C/svg%3E")}
+.sync-pill[data-state="saving"]::before,.sync-pill[data-state="loading"]::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.4-5.7M20 4v4.3h-4.3'/%3E%3C/svg%3E")}
+.sync-pill[data-state="error"]::before{--i:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4.5l8.5 15h-17z'/%3E%3Cpath d='M12 10.5v4M12 17.3v.2'/%3E%3C/svg%3E")}
+@media (max-width:700px){.sync-pill{width:var(--ctl);height:var(--ctl);border-radius:9px;background:var(--surface)}.sync-pill::before{width:19px;height:19px}}
+/* Present on a phone: which slide is up, in words under the clock */
+.clock-wrap{display:inline-flex;flex-direction:column;justify-content:center;min-width:0}
+.pos-s{display:none;font-size:11.5px;color:var(--muted);white-space:nowrap;line-height:1.2}
+@media (max-width:899px){.pos-s{display:block}}
+/* the open sermon can be deleted from the Overview too: it is named right above the menu */
+body[data-view="dash"] #btn-del{display:flex}
+/* binding badges are sentences now, not codes */
+.badge.auto,.badge.manual,.badge.marker{text-transform:none;letter-spacing:0;font-size:11.5px;font-weight:600;padding:2px 7px}
 </style>
 
 <a class="skip" href="#main" id="skip-link">Skip to content</a>
@@ -1288,16 +1397,6 @@ body[data-view="present"] .sermon-bar{display:none}
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="11" height="16" rx="1.5" stroke="currentColor" stroke-width="1.6"/><rect x="10" y="7" width="11" height="10" rx="1.5" fill="var(--accent)"/></svg>
         Pulpit Binder
       </div>
-      <nav class="tabs" role="tablist" aria-label="Sections">
-        <button class="tab" role="tab" id="tab-dash" aria-selected="false" aria-controls="view-dash" tabindex="-1" data-view="dash"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span class="tab-tx">Overview</span></button>
-        <button class="tab" role="tab" id="tab-build" aria-selected="true" aria-controls="view-build" tabindex="0" data-view="build"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg><span class="tab-tx">Write</span></button>
-        <button class="tab" role="tab" id="tab-study" aria-selected="false" aria-controls="view-study" tabindex="-1" data-view="study"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 22H20v-4"/><path d="M9 8h7"/></svg><span class="tab-tx">Study</span></button>
-        <button class="tab" role="tab" id="tab-present" aria-selected="false" aria-controls="view-present" tabindex="-1" data-view="present"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M10 8v4l4-2-4-2z"/><path d="M8 20h8M12 16v4"/></svg><span class="tab-tx">Present</span></button>
-        <button class="tab" role="tab" id="tab-materials" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-view="materials"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span class="tab-tx">Materials</span></button>
-        <button class="tab" role="tab" id="tab-analysis" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-view="analysis"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 5-6"/></svg><span class="tab-tx">Analysis</span></button>
-      </nav>
-      <span class="hdr-title" id="hdr-title"></span>
-      <div class="spacer"></div>
       <div class="lib">
         <button type="button" class="sermon-card" id="sermon-card" aria-haspopup="dialog" aria-controls="sp-modal" title="Find a sermon (Ctrl+K)">
           <span class="sc-k">Open sermon</span><span class="sc-t" id="sc-title">Untitled sermon</span><span class="sc-m" id="sc-meta"></span>
@@ -1305,8 +1404,8 @@ body[data-view="present"] .sermon-bar{display:none}
         </button>
         <select id="library" aria-label="Saved sermons" hidden></select>
         <div class="lib-row">
-          <button type="button" class="btn primary" id="btn-new-top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
-        <span class="sync-pill" id="sync" data-state="off" role="status">On this device</span>
+          <button type="button" class="btn primary" id="btn-new-top" aria-label="New sermon" title="Start a new sermon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
+        <span class="sync-pill" id="sync" data-state="off" role="status">Saved on this device</span>
         <div class="menu-wrap">
           <button class="btn" id="btn-sermon" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sermon-menu" aria-label="More sermon actions" title="More sermon actions"><svg class="more-dots" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg><span class="more-l">More</span> <svg class="more-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
           <div class="menu" id="sermon-menu" role="menu" aria-label="Sermon actions" hidden>
@@ -1319,8 +1418,18 @@ body[data-view="present"] .sermon-bar{display:none}
         </div>
         </div>
       </div>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" role="tab" id="tab-dash" aria-selected="false" aria-controls="view-dash" tabindex="-1" data-view="dash"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span class="tab-tx">Overview</span></button>
+        <button class="tab" role="tab" id="tab-build" aria-selected="true" aria-controls="view-build" tabindex="0" data-view="build"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg><span class="tab-tx">Write</span></button>
+        <button class="tab" role="tab" id="tab-study" aria-selected="false" aria-controls="view-study" tabindex="-1" data-view="study"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 22H20v-4"/><path d="M9 8h7"/></svg><span class="tab-tx">Study</span></button>
+        <button class="tab" role="tab" id="tab-present" aria-selected="false" aria-controls="view-present" tabindex="-1" data-view="present"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M10 8v4l4-2-4-2z"/><path d="M8 20h8M12 16v4"/></svg><span class="tab-tx">Present</span></button>
+        <button class="tab" role="tab" id="tab-materials" aria-selected="false" aria-controls="view-materials" tabindex="-1" data-view="materials"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg><span class="tab-tx">Materials</span></button>
+        <button class="tab" role="tab" id="tab-analysis" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-view="analysis"><svg class="tab-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 5-6"/></svg><span class="tab-tx">Analysis</span></button>
+      </nav>
+      <span class="hdr-title" id="hdr-title"></span>
+      <div class="spacer"></div>
       <div class="hdr-tools">
-        <span class="est-pill" id="est-pill" role="status"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span id="est-tx"></span></span>
+        <button type="button" class="est-pill" id="est-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg><span id="est-tx"></span><span class="est-l"> to preach</span></button>
         <button class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="tool-l">Settings</span></button>
         <button class="icon-btn" id="btn-theme" aria-label="Toggle light or dark mode" title="Light / dark">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7a5 5 0 0 0 0 10z" fill="currentColor"/></svg><span class="tool-l">Light or dark</span>
@@ -1441,6 +1550,7 @@ body[data-view="present"] .sermon-bar{display:none}
           </div>
           <div class="hint" id="st-status" role="status" aria-live="polite"></div>
         </div>
+        <nav class="jump" id="st-jump" aria-label="On this page" hidden></nav>
         <div id="st-panels" hidden>
           <div class="panel" id="st-compare"></div>
           <div class="panel" id="st-xref"></div>
@@ -1546,7 +1656,7 @@ body[data-view="present"] .sermon-bar{display:none}
       <div class="manuscript" id="manuscript" aria-label="Manuscript"></div>
       <div class="stage">
         <div class="stage-meta">
-          <span class="clock" id="clock">00:00</span>
+          <span class="clock-wrap"><span class="clock" id="clock">00:00</span><span class="pos-s" id="pos-s"></span></span>
           <span class="hint" id="clock-target"></span>
           <div class="spacer"></div>
           <button class="btn" id="btn-timer">Start timer</button>
@@ -1580,6 +1690,7 @@ body[data-view="present"] .sermon-bar{display:none}
         <div class="mat-brand-act"><button type="button" class="btn" id="mat-edit-brand">Edit branding</button><button type="button" class="btn primary" id="mat-all" hidden>Save all as .zip</button></div>
       </div>
 
+      <nav class="jump" id="mat-jump" aria-label="On this page" hidden></nav>
       <div class="panel" id="mat-theme">
         <div class="bind-head"><h2>Slide theme</h2><div class="spacer"></div><span class="hint">The look of the slides made here, drawn from this sermon's text</span></div>
         <div class="mat-act"><button type="button" class="btn primary" id="th-ai">Suggest themes with Claude</button><button type="button" class="btn" id="th-local">Themes from my slides and branding</button></div>
@@ -1691,6 +1802,7 @@ body[data-view="present"] .sermon-bar{display:none}
           <label>Period <select id="dash-range"><option value="all">All time</option><option value="12m">Last 12 months</option><option value="6m">Last 6 months</option><option value="ytd">This year</option><option value="last">Last year</option></select></label>
           <label>Service <select id="dash-svc"><option value="all">All services</option></select></label>
           <button class="btn" id="dash-refresh" title="Read every sermon again">Refresh</button>
+          <button class="btn" id="dash-import" title="Bring in sermons you already have as Word, PowerPoint, PDF, or text files">Import sermons</button>
         </div>
       </div>
       <div class="stats" id="dash-kpi"></div>
@@ -1963,7 +2075,14 @@ body[data-view="present"] .sermon-bar{display:none}
 "use strict";
 const $ = s => document.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k,v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else if (v !== false && v != null) e.setAttribute(k, v); } for (const k of kids) if (k != null) e.append(k); return e; };
-const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), Math.max(2200, String(m).length * 50)); };
+/* A short notice at the foot of the screen. When it mentions Undo it carries an Undo button, and stays a little longer. */
+const toast = (m) => {
+  const t = $("#toast"), undo = /\bUndo\b/.test(String(m)) && typeof undoEdit === "function";
+  t.replaceChildren(Object.assign(document.createElement("span"), { textContent: m }));
+  if (undo) { const b = Object.assign(document.createElement("button"), { type: "button", className: "toast-act", textContent: "Undo" }); b.onclick = () => { t.classList.remove("show"); undoEdit(); }; t.append(b); }
+  t.classList.toggle("act", undo); t.classList.add("show"); clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), Math.max(undo ? 7000 : 2200, String(m).length * 50));
+};
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
 const localNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
@@ -1985,7 +2104,13 @@ $("#btn-theme").onclick = () => {
   const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   root.dataset.theme = dark ? "light" : "dark";
   try { localStorage.setItem("pb-theme", root.dataset.theme); } catch {}
+  themeLabel();
 };
+function themeLabel() {
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches, b = $("#btn-theme"), to = dark ? "Switch to light" : "Switch to dark";
+  b.querySelector(".tool-l").textContent = to; b.title = to; b.setAttribute("aria-label", to);
+}
+themeLabel(); try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", themeLabel); } catch {}
 
 /* ---------------- storage (IndexedDB, falls back to memory) ---------------- */
 const mem = new Map();
@@ -2821,7 +2946,7 @@ function renderBindings() {
     S.slides.forEach((s, j) => sel.append(el("option", { value: j, text: `${j + 1}. ${(s.title || "Untitled").slice(0, 40)}` })));
     sel.value = sec.slide == null ? "" : String(sec.slide);
     sel.onchange = () => { S.manual[sec.key] = sel.value === "" ? null : +sel.value; rebuild(); renderBindings(); save(); };
-    const badge = el("span", { class: "badge " + sec.how, text: sec.how === "auto" ? "auto" : sec.how === "manual" ? "pinned" : "marker" });
+    const badge = el("span", { class: "badge " + sec.how, text: sec.how === "auto" ? "matched by wording" : sec.how === "manual" ? "pinned by you" : "slide cue", title: sec.how === "auto" ? "Pulpit Binder chose this slide because its words match this part of the text" : sec.how === "manual" ? "You chose this slide for this part of the text" : "A slide cue in the manuscript brings this slide up here" });
     const side = el("div", { class: "side" }, renderSlide(sec.slide, { small: true }), sel);
     const ride = steps.filter(s => s.sec === i && s.extra).map(s => s.slide + 1);
     if (ride.length) side.append(el("div", { class: "hint", text: `Also shows slide${ride.length > 1 ? "s" : ""} ${ride.join(", ")} during this section` }));
@@ -2855,9 +2980,10 @@ async function loadPptx(f) {
   try {
     const { slides, aspect } = await parsePptx(f, (i, n) => progress(`Reading slide ${i} of ${n}…`));
     if (!slides.length) throw new Error("No slides were found in that file.");
+    const had = S.slides.length, mine = S.slides.filter(x => x.made).length; snapshot();
     if (S.example) { S.example = false; S.pdfPages = null; S.pdfName = ""; }
     S.slides = slides; S.aspect = aspect; S.pptxName = f.name; S.slidesFromPdf = false; S.manual = {};
-    applyPdf(); progress(""); deckChanged(`Loaded all ${slides.length} slides`);
+    applyPdf(); progress(""); deckChanged(`Loaded all ${slides.length} slides` + (had ? `. They took the place of the ${had} that were here${mine ? `, ${mine} of them made here` : ""}. Undo brings those back.` : ""));
   } catch (err) { progress("Could not read that file: " + (err.message || err)); }
 }
 async function loadPdf(f) {
@@ -2865,6 +2991,7 @@ async function loadPdf(f) {
   try {
     const { pages, aspect } = await parsePdf(f, (i, n) => progress(`Rendering page ${i} of ${n}…`));
     if (!pages.length) throw new Error("That PDF has no pages.");
+    snapshot();
     if (S.example) { S.example = false; S.slides = []; S.pptxName = ""; }
     S.pdfPages = pages; S.pdfName = f.name; S.pdfAspect = aspect; S.manual = S.slidesFromPdf || !S.slides.length ? {} : S.manual;
     applyPdf(); progress(""); deckChanged(`Loaded ${pages.length} PDF pages`);
@@ -2875,8 +3002,8 @@ function renderDeckStatus() {
   const row = (name, detail, onRemove) => box.append(el("div", { class: "deck-row" }, el("div", { style: "min-width:0" }, el("div", { class: "deck-name", text: name }), el("div", { class: "hint", text: detail })), onRemove ? el("button", { class: "btn ghost", text: "Remove", onclick: onRemove }) : null));
   if (S.example) row("Example slides", "Drop your own .pptx to replace them.", null);
   else {
-    if (S.pptxName && !S.slidesFromPdf) { const h = S.slides.filter(x => x.hidden).length; row(S.pptxName, `${S.slides.length} slides${h ? `, ${h} hidden` : ""}, all in deck order`, () => { S.slides = []; S.pptxName = ""; S.manual = {}; applyPdf(); deckChanged("Removed the PowerPoint"); }); }
-    if (S.pdfName && S.pdfPages && S.pdfPages.length) row(S.pdfName, S.pdfNote || "", () => { S.pdfPages = null; S.pdfName = ""; applyPdf(); deckChanged("Removed the PDF"); });
+    if (S.pptxName && !S.slidesFromPdf) { const h = S.slides.filter(x => x.hidden).length; row(S.pptxName, `${S.slides.length} slides${h ? `, ${h} hidden` : ""}, all in deck order`, () => { snapshot(); S.slides = []; S.pptxName = ""; S.manual = {}; applyPdf(); deckChanged("Removed the PowerPoint. Undo brings it back."); }); }
+    if (S.pdfName && S.pdfPages && S.pdfPages.length) row(S.pdfName, S.pdfNote || "", () => { snapshot(); S.pdfPages = null; S.pdfName = ""; applyPdf(); deckChanged("Removed the PDF. Undo brings it back."); });
   }
   const made = S.slides.filter(x => x.made).length;
   if (made && !S.example) row("Made in Pulpit Binder", `${made} slide${made === 1 ? "" : "s"} from highlighted text and Scripture sections, styled to match your deck. Edit, change, or delete one from the slide column in Edit manuscript, or from Bindings.`, null);
@@ -3273,7 +3400,7 @@ $("#del-go").onclick = async () => {
   if (!delArmed) {
     delArmed = true; go.textContent = n === 1 ? "Yes, delete it" : `Yes, delete all ${n}`;
     $("#del-msg").textContent = "Press again to delete. This can't be undone.";
-    delArmT = setTimeout(() => delUpdate(), 5000); return;
+    delArmT = setTimeout(() => delUpdate(), 15000); return;
   }
   delDisarm(); delBusy = true;
   for (const e of $("#del-modal").querySelectorAll("input,button")) e.disabled = true;
@@ -3321,7 +3448,7 @@ function highlightRefs(text) {
 function renderPresent() {
   steps = buildSteps(); shownSec = null; secGeo = null;
   const ms = $("#manuscript"); ms.replaceChildren();
-  if (!sections.length) ms.append(el("div", { class: "empty", text: S.slides.length ? "No transcript yet. Next still steps through every slide; add one under Build, Edit manuscript, to bind them." : "No transcript yet. Add one under Build, Edit manuscript." }));
+  if (!sections.length) ms.append(el("div", { class: "empty", text: S.slides.length ? "No transcript yet. Next still steps through every slide; add one under Write, Edit manuscript, to bind them." : "No transcript yet. Add one under Build, Edit manuscript." }));
   sections.forEach((sec, i) => {
     // While slides follow scrolling, a single tap must not move the text: on phones and tablets
     // the tap that stops a scroll lands on a paragraph. Double-tap or double-click jumps instead.
@@ -3375,7 +3502,7 @@ function updatePresent(scroll = true) {
   const parts = [];
   if (si != null) parts.push(`Slide ${si + 1} of ${S.slides.length}`);
   if (st.sec != null) parts.push(`Section ${st.sec + 1} of ${sections.length}`);
-  $("#pos").textContent = parts.join(" · ");
+  $("#pos").textContent = parts.join(" · "); $("#pos-s").textContent = parts[0] || "";
   $("#prog").style.width = steps.length ? `${((cur + 1) / steps.length) * 100}%` : "0";
   updateClock(); liveShowSoon();
 }
@@ -3609,10 +3736,10 @@ function bars(container, rows) {
 function renderAnalysis() {
   const a = localAnalysis();
   const st = $("#stats"); st.replaceChildren();
-  [[a.words.toLocaleString(), "words"], [`${Math.floor(a.minutes)}:${pad(Math.round((a.minutes % 1) * 60))}`, `minutes at ${S.meta.wpm} wpm`], [a.sections, "sections"], [a.slides, "slides"], [a.refs.length, "passages cited"], [a.grade.toFixed(1), "reading grade level"]]
+  [[a.words.toLocaleString(), "words"], [(t => `${Math.floor(t / 60)}:${pad(t % 60)}`)(Math.round(a.minutes * 60)), `to preach (min:sec) at ${S.meta.wpm} words a minute`], [a.sections, "sections"], [a.slides, "slides"], [a.refs.length, "passages cited"], [a.grade.toFixed(1), "reading grade level"]]
     .forEach(([v, k]) => st.append(el("div", { class: "stat" }, el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k }))));
   const refs = $("#refs"); refs.replaceChildren();
-  if (!a.refs.length) refs.append(el("span", { class: "hint", text: "No references found. Write them like John 3:16 or Psalm 23." }));
+  if (!a.refs.length) refs.append(el("span", { class: "hint", text: "No references found in the manuscript. Write them like John 3:16 or Psalm 23." }));
   a.refs.forEach(r => refs.append(el("a", { class: "chip", href: bgLink(r), target: "_blank", rel: "noopener", text: r })));
   bars($("#keywords"), a.kw); bars($("#voice"), a.voice);
   renderAI(); renderPreachedAnalysis();
@@ -3731,6 +3858,7 @@ ${preachedPlain().slice(0, 40000)}
   }
   btn.disabled = false; btn.textContent = "Analyze again";
   renderAI(); renderTags(); save();
+  if (view === "analysis") btn.closest(".panel").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 };
 
 $("#btn-save-pptx").onclick = () => savePptx($("#btn-save-pptx"));
@@ -4257,7 +4385,8 @@ let redoStack = [], burstT = 0, burstKind = "";
 const edOff = (node, off) => { const r = document.createRange(); r.setStart(ed, 0); r.setEnd(node, off); return r.toString().length; };
 function edPoint(o) { const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let n, pos = 0; while ((n = w.nextNode())) { const L = n.length; if (o <= pos + L) return [n, o - pos]; pos += L; } return [ed, ed.childNodes.length]; }
 function edCaret() { const s = getSelection(); if (!s || !s.rangeCount) return null; const r = s.getRangeAt(0); if (!ed.contains(r.startContainer) || !ed.contains(r.endContainer)) return null; return [edOff(r.startContainer, r.startOffset), edOff(r.endContainer, r.endOffset)]; }
-const histState = withMeta => ({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, meta: withMeta ? { ...S.meta } : null, caret: edCaret() });
+const DECK_KEYS = ["pptxName", "aspect", "slidesFromPdf", "example", "pdfPages", "pdfName", "pdfAspect"];
+const histState = withMeta => ({ h: ed.innerHTML, slides: S.slides.slice(), manual: { ...S.manual }, deck: Object.fromEntries(DECK_KEYS.map(k => [k, S[k]])), meta: withMeta ? { ...S.meta } : null, caret: edCaret() });
 function updateHist() {
   $("#sg-undo").disabled = !undoStack.length;
   const u = document.querySelector('#ed-toolbar [data-cmd="undo"]'), r = document.querySelector('#ed-toolbar [data-cmd="redo"]');
@@ -4266,6 +4395,9 @@ function updateHist() {
 function snapshot(opts) { undoStack.push(histState(opts && opts.meta)); if (undoStack.length > 80) undoStack.shift(); redoStack = []; burstT && clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist(); }
 function applyHist(u) {
   ed.innerHTML = typeof u === "string" ? u : u.h;
+  if (u.deck && DECK_KEYS.some(k => u.deck[k] !== S[k])) {   // a deck was loaded or removed: put the files and their slides back together
+    Object.assign(S, u.deck); S.slides = u.slides; S.manual = u.manual; applyPdf(); liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; renderDeckStatus(); renderBindings(); renderTags(); if (view === "present") renderPresent();
+  }
   if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
   if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
   refreshCueLabels(); onEdit(true);
@@ -4479,7 +4611,8 @@ function impSummary(r) {
   box.append(el("div", { class: "sc-pop-row" }, el("div", { class: "spacer" }), el("button", { type: "button", class: "btn", text: "Import more", onclick: () => impStep("pick") }), el("button", { type: "button", class: "btn primary", id: "imp-ok", text: "Done", onclick: closeImport })));
   $("#imp-ok").focus();
 }
-$("#btn-import").onclick = openImport;
+$("#btn-import").onclick = openImport; $("#dash-import").onclick = openImport;
+$("#sync").onclick = () => toast($("#sync").title || $("#sync").textContent);
 $("#imp-folder").onclick = () => $("#imp-in-folder").click();
 $("#imp-files").onclick = () => $("#imp-in-files").click();
 $("#imp-in-folder").onchange = e => { const fs = [...e.target.files]; e.target.value = ""; if (fs.length) impRun(fs.map(f => ({ file: f, path: f.webkitRelativePath || f.name })), fs.some(f => (f.webkitRelativePath || "").includes("/"))); };
@@ -4590,11 +4723,13 @@ ed.addEventListener("keydown", e => {
 });
 function renderEditStats() {
   const w = words(S.transcript).length, mins = w / (S.meta.wpm || 140);
-  const txt = `${w.toLocaleString()} words · about ${Math.round(mins)} min · ${sections.length} sections`;
+  const txt = `${w.toLocaleString()} words · ${mins < 0.75 ? "under 1 min" : `about ${Math.round(mins)} min`} · ${sections.length} section${sections.length === 1 ? "" : "s"}`;
   $("#ed-stats").textContent = txt; const ms = $("#sub-edit"); if (ms) ms.title = sections.length ? txt : "No manuscript yet";
   const m = Math.round(mins), pill = $("#est-pill");
   $("#est-tx").textContent = !w ? "No text yet" : mins < 0.75 ? "Under 1 min" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
-  pill.title = `Estimated sermon time: ${w.toLocaleString()} words at ${S.meta.wpm || 140} words a minute`; pill.setAttribute("aria-label", pill.title);
+  pill.dataset.empty = String(!w);
+  pill.title = w ? `About ${mins < 0.75 ? "under a minute" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} minute${m === 1 ? "" : "s"}`} to preach: ${w.toLocaleString()} words at ${S.meta.wpm || 140} words a minute. Change the pace under Write, Details.`.replace("About under", "Under") : "The time to preach shows here once the manuscript has words."; pill.setAttribute("aria-label", pill.title);
+  pill.onclick = () => toast(pill.title);
 }
 
 /* slide gutter: thumbnails beside the paragraph that brings each slide up */
@@ -4620,7 +4755,7 @@ function renderGutter() {
   if (view !== "edit") return;
   const g = $("#gutter"); closeGutterPop(); g.replaceChildren();
   const edBox = ed.getBoundingClientRect(); g.style.height = edBox.height + "px";
-  if (!S.slides.length) { g.append(el("div", { class: "g-empty", text: "Load slides under Build, Details, to see them here, beside the text they go with." })); return; }
+  if (!S.slides.length) { g.append(el("div", { class: "g-empty", text: "Add slides under Details to see them here, beside the text they go with." })); return; }
   const groups = groupBlocks([...ed.children]);
   if (groups.length !== sections.length) { S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html); rebuild(); if (groupBlocks([...ed.children]).length !== sections.length) return; }
   if (!groups.length) return;
@@ -4648,7 +4783,7 @@ function renderGutter() {
     const hot = on => groups[c.sec].els.forEach(e => e.classList.toggle("hot", on));
     const box = el("div", { class: "g-cl" + (compact ? " compact" : "") }); box.style.top = y + "px"; box.style.width = W + "px";
     const chip = (x, big) => {
-      const tag = x.extra ? "no text matched" : sec.how === "manual" ? "pinned" : sec.how === "marker" ? "slide cue" : "matched";
+      const tag = x.extra ? "no text matched" : sec.how === "manual" ? "pinned by you" : sec.how === "marker" ? "slide cue" : "matched by wording";
       const b = el("button", { class: "g-thumb" + (x.extra ? " extra" : "") + (big ? "" : " mini"), title: `Slide ${x.slide + 1}: ${S.slides[x.slide].title || ""} (${tag}). Click to change.`, "aria-label": `Slide ${x.slide + 1}, ${tag}, paragraph ${c.sec + 1}` },
         big ? renderSlide(x.slide, { small: true }) : null, el("span", { class: "g-lbl" }, el("b", { text: String(x.slide + 1) }), big ? " " + tag : ""));
       b.onmouseenter = () => hot(true); b.onmouseleave = () => hot(false); b.onfocus = () => hot(true); b.onblur = () => hot(false);
@@ -6150,8 +6285,10 @@ $("#mk-add").onclick = () => {
   if (s.kind === "text" && s.range) {   // the slide appears when you reach the highlighted words, so the paragraph splits there
     const b = topBlock(s.range.startContainer);
     if (b && b.isConnected && /^(P|BLOCKQUOTE)$/.test(b.tagName)) {
-      const pre = document.createRange(); pre.setStart(b, 0); pre.setEnd(s.range.startContainer, s.range.startOffset);
-      if (pre.toString().trim()) { snapshot(); snapped = true; const rr = document.createRange(); rr.setStart(s.range.startContainer, s.range.startOffset); rr.setEnd(b, b.childNodes.length); const nb = document.createElement(b.tagName.toLowerCase()); nb.append(rr.extractContents()); b.after(nb); target = nb; }
+      let sc = s.range.startContainer, so = s.range.startOffset;
+      if (sc.nodeType === 3) while (so > 0 && /["“‘'(\[]/.test(sc.data[so - 1])) so--;   // keep an opening quotation mark with its words
+      const pre = document.createRange(); pre.setStart(b, 0); pre.setEnd(sc, so);
+      if (pre.toString().trim()) { snapshot(); snapped = true; const rr = document.createRange(); rr.setStart(sc, so); rr.setEnd(b, b.childNodes.length); const nb = document.createElement(b.tagName.toLowerCase()); nb.append(rr.extractContents()); b.after(nb); target = nb; }
       else target = b;
     }
   }
@@ -6628,7 +6765,7 @@ ${lines.join("\n\n")}`, { id: "ao" });
 };
 $("#btn-ao-slides").onclick = () => {
   onEdit(true);
-  if (!S.slides.length) { toast("Load slides under Build, Details, first"); return; }
+  if (!S.slides.length) { toast("Add slides under Write, Details, first"); return; }
   const groups = groupBlocks([...ed.children]);
   if (groups.length !== sections.length) { toast("Try again in a moment"); return; }
   const st = buildSteps(); const rows = []; let last = null, lastTitle = "";
@@ -6854,7 +6991,7 @@ function renderPreachedAnalysis() {
   const md = media(); const cov = coverage();
   const dur = (md.file && md.file.duration) || (() => { const s = parseTimed(md.preached); return s.length ? s[s.length - 1].t + 10 : null; })();
   const pw = words(preachedPlain()).length;
-  if (!md.preached && !dur && !md.link) { box.append(el("div", { class: "hint", text: "Add a recording under Build, Details. Paste the as-preached transcript (YouTube: … under the video, Show transcript, select all, copy) to compare it with the manuscript and build chapters." })); $("#share-panel").hidden = !S.meta.title; renderShare(); return; }
+  if (!md.preached && !dur && !md.link) { box.append(el("div", { class: "hint", text: "Add a recording under Write, Details. Paste the as-preached transcript (YouTube: … under the video, Show transcript, select all, copy) to compare it with the manuscript and build chapters." })); $("#share-panel").hidden = !S.meta.title; renderShare(); return; }
   const st = el("div", { class: "stats" });
   const est = words(S.transcript).length / (S.meta.wpm || 140) * 60;
   const tile = (v, k) => st.append(el("div", { class: "stat" }, el("div", { class: "v", text: v }), el("div", { class: "k", text: k })));
@@ -6908,7 +7045,7 @@ if (HOSTED) Object.assign(window.claude.hosted, {
 function setSync(state, detail) {
   const p = $("#sync"); if (!p) return;
   p.dataset.state = state;
-  p.textContent = { off: "On this device", saving: "Saving…", synced: "Synced", error: "Sync paused", loading: "Syncing…" }[state] || state;
+  p.textContent = { off: "Saved on this device", saving: "Saving…", synced: "Saved and synced", error: "Sync paused", loading: "Syncing…" }[state] || state;
   p.title = detail || { off: "Sermons are saved in this browser. Open this page in Claude while signed in to sync across devices.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and will sync when the connection returns.", loading: "Checking your account for sermons" }[state] || "";
 }
 /* Files go up once. Each upload is remembered by the file's content on this device, so reopening the page, or a
@@ -7266,7 +7403,7 @@ function drawMonths(dated, multi) {
   const ticks = max <= 4 ? Array.from({ length: max + 1 }, (_, i) => i) : [0, max / 2, max];
   ticks.forEach(t => { s += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" class="grid"/><text x="${L - 6}" y="${y(t) + 4}" class="ax" text-anchor="end">${t}</text>`; });
   const lab = b => { if (q) { const yr = Math.floor(b.k / 4), qt = b.k % 4; return { short: qt === 0 ? String(yr) : "", long: `Q${qt + 1} ${yr}` }; } const yr = Math.floor(b.k / 12), mo = b.k % 12; const d = new Date(yr, mo, 1); return { short: n <= 14 ? d.toLocaleDateString(undefined, { month: "short" }) : mo === 0 ? String(yr) : n <= 30 && mo % 3 === 0 ? d.toLocaleDateString(undefined, { month: "short" }) : "", long: fmtMonth(d) }; };
-  const every = Math.max(1, Math.ceil(n / Math.floor((W - L - R) / 34)));
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - L - R) / 34))), labs = [];
   buckets.forEach((b, i) => {
     const cx = L + bw * i + bw / 2, c = b.rows.length, lb = lab(b);
     if (c) { const top = y(c), x = cx - barW / 2, r = Math.min(4, barW / 2, (H - B - top)); s += `<path class="bar" d="M${x},${H - B} V${top + r} Q${x},${top} ${x + r},${top} H${x + barW - r} Q${x + barW},${top} ${x + barW},${top + r} V${H - B} Z"/>`; }
@@ -7274,8 +7411,17 @@ function drawMonths(dated, multi) {
     let txt = "";
     if (!q && n <= 14) { if (i % every === 0) txt = lb.short + (i === 0 || b.k % 12 === 0 ? " ’" + String(Math.floor(b.k / 12)).slice(2) : ""); }
     else txt = lb.short;
-    if (txt) s += `<text x="${cx}" y="${H - 8}" class="ax" text-anchor="middle">${esc(txt)}</text>`;
+    labs.push(txt);
   });
+  const wd = t => t.length * 6.4; let prev = -1;   // a label that would touch the one before it gives way: first its year, then itself
+  labs.forEach((t, i) => {
+    if (!t) return;
+    const touch = () => prev >= 0 && (i - prev) * bw < (wd(labs[prev]) + wd(labs[i])) / 2 + 6;
+    if (touch() && / ’\d+$/.test(labs[prev]) && / ’\d+$/.test(t)) labs[prev] = labs[prev].replace(/ ’\d+$/, "");
+    if (touch()) { labs[i] = ""; return; }
+    prev = i;
+  });
+  labs.forEach((t, i) => { if (t) s += `<text x="${L + bw * i + bw / 2}" y="${H - 8}" class="ax" text-anchor="middle">${esc(t)}</text>`; });
   s += `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" class="base"/>`;
   box.innerHTML = svgEl(W, H, s, `Sermons per ${q ? "quarter" : "month"}`);
   $("#dash-months-h").textContent = (multi ? "Times preached by " : "Sermons by ") + (q ? "quarter" : "month");
@@ -7305,11 +7451,16 @@ function drawBooks(n, refsN, titles) {
   const lvl = c => c ? Math.min(4, Math.ceil(c / max * 4)) : 0;
   const mk = (from, to, label) => {
     const grid = el("div", { class: "bk-grid" });
-    for (let i = from; i < to; i++) { const b = BIBLE[i]; grid.append(el("button", { type: "button", class: "bk l" + lvl(n[i]), "data-tip": `${b.name}: ${n[i] ? `${n[i]} sermon${n[i] === 1 ? "" : "s"}, ${refsN[i]} reference${refsN[i] === 1 ? "" : "s"}\n${tipList(titles[i])}` : "not cited yet"}`, "aria-label": `${b.name}, ${n[i]} sermons`, text: b.ab, onclick: () => { if (!n[i]) return; dashF.q = b.name; $("#dash-q").value = b.name; drawDashTable(dashFiltered()); $("#dash-table-panel").scrollIntoView({ behavior: "smooth", block: "start" }); } })); }
+    for (let i = from; i < to; i++) { const b = BIBLE[i]; grid.append(el("button", { type: "button", class: "bk l" + lvl(n[i]), "data-tip": `${b.name}: ${n[i] ? `${n[i]} sermon${n[i] === 1 ? "" : "s"}, ${refsN[i]} reference${refsN[i] === 1 ? "" : "s"}\n${tipList(titles[i])}` : "not cited yet"}`, "aria-label": `${b.name}, ${n[i]} sermon${n[i] === 1 ? "" : "s"}`, text: b.ab, onclick: () => { if (!n[i]) return; dashF.q = b.name; $("#dash-q").value = b.name; drawDashTable(dashFiltered()); $("#dash-table-panel").scrollIntoView({ behavior: "smooth", block: "start" }); } })); }
     return el("div", { class: "bk-sec" }, el("div", { class: "bk-h", text: `${label} · ${n.slice(from, to).filter(Boolean).length} of ${to - from}` }), grid);
   };
   const legend = el("div", { class: "bk-legend" }, el("span", { text: "Fewer" }), ...[0, 1, 2, 3, 4].map(l => el("i", { class: "bk l" + l })), el("span", { text: "More sermons" }));
-  $("#dash-books").replaceChildren(mk(0, 39, "Old Testament"), mk(39, 66, "New Testament"), legend);
+  const most = BIBLE.map((b, i) => [b.name, n[i]]).filter(x => x[1]).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const none = BIBLE.filter((b, i) => !n[i]).map(b => b.name);
+  const say = el("div", { class: "bk-say" });
+  if (most.length) say.append(el("p", {}, el("b", { text: "Most preached: " }), most.map(([name, c]) => `${name} (${c})`).join(", ") + "."));
+  if (most.length && none.length) say.append(el("details", {}, el("summary", { text: `Not preached from yet: ${none.length} book${none.length === 1 ? "" : "s"}` }), el("p", { text: none.join(", ") + "." })));
+  $("#dash-books").replaceChildren(mk(0, 39, "Old Testament"), mk(39, 66, "New Testament"), legend, say);
 }
 function drawRhythm(rows) {
   const box = $("#dash-rhythm"); box.replaceChildren();
@@ -7996,7 +8147,7 @@ function stRenderQuestions() {
   p.append(form);
   if (!st.questions.length) p.append(el("div", { class: "hint", text: "Ask what the text raises, then keep going: every answer takes follow-up questions. Click a verse number to ask about that verse, or highlight any phrase in the study and choose Tell me more." }));
   st.questions.forEach(q => {
-    const done = el("input", { type: "checkbox", id: "stq-" + q.id, "aria-label": "Answered" }); done.checked = !!q.done; done.onchange = () => { q.done = done.checked; save(); stRenderQuestions(); };
+    const done = el("input", { type: "checkbox", id: "stq-" + q.id, "aria-label": "Answered", title: "Tick this when the question is settled. It moves to the answered ones." }); done.checked = !!q.done; done.onchange = () => { q.done = done.checked; save(); stRenderQuestions(); };
     const arm = (btn, label, act) => { btn.onclick = () => { if (stArm === q.id + label) { stArm = null; act(); } else { stArm = q.id + label; btn.textContent = "Sure?"; setTimeout(() => { if (stArm === q.id + label) { stArm = null; btn.textContent = label; } }, 3000); } }; return btn; };
     const card = el("div", { class: "st-q" + (q.done ? " done" : ""), id: "stq-card-" + q.id, "data-q": q.id }, el("div", { class: "st-qh" }, done, el("label", { for: "stq-" + q.id, class: "st-qt", text: q.q })),
       el("div", { class: "st-qm" }, q.ref && q.ref !== st.ref ? el("button", { type: "button", class: "chip", text: q.ref, title: "Study this passage", onclick: () => stStudyRef(q.ref) }) : null, q.v ? el("button", { type: "button", class: "chip", text: `Verse ${q.v}`, onclick: () => stGoVerse(q.v) }) : null));
@@ -8228,8 +8379,26 @@ function studyMd() {
 }
 
 /* ---- loading a passage, and putting the view together ---- */
-function stShowPanels(on) { $("#st-panels").hidden = !on; }
-function stRenderAll() { if (!sd) return; stRenderCompare(); stRenderXref(); stRenderContext(); stRenderHistory(); stRenderViz(); stRenderQuestions(); }
+function stShowPanels(on) { $("#st-panels").hidden = !on; studyJump(); }
+function stRenderAll() { if (!sd) return; stRenderCompare(); stRenderXref(); stRenderContext(); stRenderHistory(); stRenderViz(); stRenderQuestions(); studyJump(); }
+/* ---- Jump links: a long page (Study, Materials) gets a row of links to its parts that stays at the top ---- */
+function jumpNav(nav, panels) {
+  const items = panels.filter(p => p && !p.hidden && p.offsetParent !== null).map(p => [p, ((p.querySelector("h2") || {}).textContent || "").trim()]).filter(x => x[1]);
+  nav.hidden = items.length < 3; if (nav.hidden) { nav.dataset.sig = ""; return; }
+  const sig = items.map(x => x[1]).join("|"); if (nav.dataset.sig === sig) return; nav.dataset.sig = sig;
+  nav.replaceChildren(el("span", { class: "jump-l", text: "Jump to" }), ...items.map(([p, t]) => el("button", { type: "button", class: "jump-b", text: t, onclick: () => p.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }) })));
+  fadeEdges(nav);
+}
+const studyJump = () => requestAnimationFrame(() => jumpNav($("#st-jump"), [...document.querySelectorAll("#st-panels > .panel"), $("#st-questions"), $("#st-notes")]));
+/* A row that scrolls sideways fades at the side that has more, so nothing looks cut off */
+function fadeEdges(row) {
+  if (!row || row._fade) return; row._fade = true; row.classList.add("fade-x");
+  const up = () => { const more = row.scrollWidth - row.clientWidth; row.dataset.more = more < 4 ? "" : (row.scrollLeft > 4 ? "l" : "") + (row.scrollLeft < more - 4 ? "r" : ""); };
+  row.addEventListener("scroll", up, { passive: true });
+  try { new ResizeObserver(up).observe(row); new MutationObserver(up).observe(row, { childList: true, subtree: true, characterData: true }); } catch {}
+  up();
+}
+for (const q of ["#tagbar", "#subtabs", "#ed-toolbar", ".set-card .set-tabs"]) fadeEdges(document.querySelector(q));
 async function stLoadTexts(fresh) {
   const st = study(), ref = st.ref, mine = sd; if (!ref || !mine) return;
   stBusySet("text", true); $("#st-status").textContent = "Loading the text…"; stRenderCompare();
@@ -8506,7 +8675,7 @@ async function canvasPdf(c, wIn, hIn) {
 }
 async function matSave(name, data) {
   if (!downloads) { toast("Saving is not available in this view. Press and hold the picture to save it."); return false; }
-  try { await downloads.save({ filename: name, data }); return true; } catch (e) { if (e && e.code !== "declined") toast("That file could not be saved here."); return false; }
+  try { await downloads.save({ filename: name, data }); toast(`Saved ${name}`); return true; } catch (e) { if (e && e.code !== "declined") toast("That file could not be saved here."); return false; }
 }
 async function matFiles() {   // everything chosen, as named blobs
   const m = matM(), out = [], tmp = document.createElement("canvas");
@@ -8749,6 +8918,7 @@ function renderMaterials() {
   if (!m.quotes.length && !m.quotesDone) { m.quotes = matLocalQuotes(); m.quotes.slice(0, 3).forEach(q => { q.on = true; }); m.quotesDone = true; m.qSel = m.quotes[0] && m.quotes[0].id; }
   matBrandStrip(); matFill(); matBind(); thBindOnce(); renderThemePanel();
   matSaveState(); matDraw();
+  requestAnimationFrame(() => jumpNav($("#mat-jump"), [...document.querySelectorAll("#view-materials .mat > .panel[id]")]));
 }
 function matBind() {
   if (matBound) return; matBound = true;
@@ -9361,12 +9531,14 @@ let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") 
 if (!["details", "edit", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
+  const was = view;
   if (!$("#settings").hidden) closeSettings();
   if (v === "bindings" || v === "series") { buildSub = v; v = "build"; }
   if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
   if (v === "edit") buildSub = "edit";
   view = v; document.body.dataset.view = v; requestAnimationFrame(measureHeader);
+  if (v !== "edit") $("#sel-pop").hidden = true;
   const top = v === "edit" ? "build" : v;
   for (const t of document.querySelectorAll(".tab")) { const on = t.dataset.view === top; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; }
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
@@ -9382,6 +9554,7 @@ function setView(v) {
   if (v === "materials") renderMaterials();
   if (v === "analysis") renderAnalysis();
   try { history.replaceState(null, "", "#" + (v === "build" && buildSub !== "details" ? buildSub : v)); } catch {}
+  if (was !== v && was) window.scrollTo(0, 0);   // each section opens at its top, not where the last one was left
 }
 const openTab = v => v === "build" ? goBuild(buildSub) : setView(v);
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => openTab(t.dataset.view));
@@ -9394,7 +9567,7 @@ $("#subtabs").addEventListener("keydown", e => {
 /* tabs: arrow keys, Home and End move between sections, as in any tab list */
 $(".tabs").addEventListener("keydown", e => {
   const tabs = [...document.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement); if (i < 0) return;
-  const to = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+  const to = { ArrowRight: (i + 1) % tabs.length, ArrowDown: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, ArrowUp: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
   if (to == null) return; e.preventDefault(); tabs[to].focus(); openTab(tabs[to].dataset.view);
 });
 /* Sermon menu */

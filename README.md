@@ -26,6 +26,7 @@ Today it runs inside Claude as a published page on Jarred Pettijohn's account, w
 | `saas/` | sermon.freely.church: the server, public page, account pages, and the shim that runs this file outside Claude. |
 | `docs/ROADMAP.md` | The path from the Claude-hosted version to a standalone product. |
 | `tests/browser/` | Playwright scripts that load the page with mocked Claude, Canva, and Firecrawl. |
+| `tests/usability/` | A step-at-a-time browser for usability walk-throughs by smaller Claude models. |
 | `tests/node/` | jsdom checks for boot and sync. |
 | `tests/fixtures/` | A generic 12-slide deck and placeholder images for tests. |
 
@@ -46,11 +47,16 @@ python3 tests/browser/slideedit.py   # editing slides and changing their kind
 python3 tests/browser/hosted.py   # sermon.freely.church: sign up, sync, Claude, sharing, account and admin pages
 python3 tests/browser/hosted_pictures.py   # sermon.freely.church: picture keys in Account, painting a slide with them
 python3 tests/browser/libmenu.py   # the open-sermon card and More menu at every width
+python3 tests/browser/usability.py   # what the usability walk-throughs turned up, kept fixed
 ```
 
 `pk.py` and `sc.py` also need `tests/fixtures/samples.json` (Bible Gateway print-view markdown for ESV, LSB, and NKJV). It is not committed because the Bible text is copyrighted; capture it locally if you need those tests.
 
 Screenshots go to `tests/out/`.
+
+## Usability walk-throughs
+
+`tests/usability/` holds a browser that a tester drives one step at a time from screenshots alone. Smaller Claude models play preachers who have never seen the app and report where they got lost; see [tests/usability/README.md](tests/usability/README.md).
 
 ## Your sermons are not in this repo
 
