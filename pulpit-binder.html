@@ -117,6 +117,11 @@ header.collapsed .hdr-toggle svg{transform:rotate(180deg)}
 .chip.example{background:transparent;border-style:dashed;color:var(--warn)}
 a.chip{text-decoration:none}
 a.chip:hover{border-color:var(--accent)}
+.refchip a{color:inherit;text-decoration:none}
+.refchip a:hover{text-decoration:underline}
+.chip a.lgo{text-decoration:none;color:var(--accent);font-size:11px;font-weight:500;border-left:1px solid var(--line);padding-left:6px}
+.lg-link{color:var(--accent);font:500 11.5px var(--f-ui);text-decoration:none;margin-left:8px}
+.lg-link:hover{text-decoration:underline}
 
 main{padding-block:18px 40px}
 .view[hidden]{display:none!important}
@@ -621,6 +626,36 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 .editor ul,.editor ol{margin:0 0 .95em;padding-left:1.4em}
 .sec ul,.sec ol{margin:0 0 .6em;padding-left:1.4em}
 .sec-body > *:last-child{margin-bottom:0}
+.slide.copyable{cursor:copy}
+.slide.copyable:hover,.slide.copyable:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Sermon PDF: letter pages drawn off screen, always light whatever the app's theme */
+.pdfp{position:relative;width:816px;height:1056px;padding:60px 56px 0 64px;background:#ffffff;color:#1a2130;font:14.5px/1.62 var(--f-read);overflow:hidden;overflow-wrap:break-word;
+  --ink:#1a2130; --muted:#5b6476; --line:#d9dde5; --accent:#8a5d0b; --sunk:#eef0f4; --surface:#ffffff;
+  --hl-yellow:#fff0a6; --hl-green:#d4f2d0; --hl-blue:#d6e6ff; --hl-pink:#fbd9e8; --sc-accent:#2f5d8a; --sc-bg:#f3f7fb; --sc-line:#d3dfeb}
+.pdfp-head{border-bottom:2px solid #8a5d0b;padding-bottom:10px;margin-bottom:18px}
+.pdfp-title{font:600 25px/1.2 var(--f-read);margin:0}
+.pdfp-sub{font:500 12.5px/1.5 var(--f-ui);color:#5b6476;margin-top:4px}
+.pdfp-row{display:flex;gap:22px;align-items:flex-start;margin-bottom:11px}
+.pdfp-row.hd{margin-top:16px}
+.pdfp-txt{flex:1;min-width:0}
+.pdfp-txt > *:first-child{margin-top:0}.pdfp-txt > *:last-child{margin-bottom:0}
+.pdfp-txt p{margin:0 0 .7em}
+.pdfp-txt h1,.pdfp-txt h2{font-weight:600;line-height:1.25;margin:0 0 .4em;color:#1a2130}
+.pdfp-txt h1{font-size:1.5em;padding-bottom:.2em;border-bottom:1.5px solid #8a5d0b}.pdfp-txt h2{font-size:1.25em}
+.pdfp-txt h3{font:700 .78em/1.4 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;margin:0 0 .4em;color:#8a5d0b}
+.pdfp-txt h4{font-size:1em;font-weight:600;font-style:italic;margin:0 0 .3em;color:#5b6476}
+.pdfp-txt blockquote{margin:0 0 .7em;padding:.4em .9em;border-left:3px solid #8a5d0b;background:#f6f1e6;font-style:italic}
+.pdfp-txt ul,.pdfp-txt ol{margin:0 0 .7em;padding-left:1.4em}
+.pdfp-txt mark{color:inherit;padding:0 1px}
+.pdfp-sc{border:1px solid #d3dfeb;border-left:4px solid #2f5d8a;border-radius:3px 8px 8px 3px;background:#f3f7fb;padding:6px 12px 2px;margin:0 0 .7em}
+.pdfp-sc-h{font:700 10.5px/1.4 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:#2f5d8a;margin-bottom:3px}
+.pdfp-sc p{margin:0 0 .5em}.pdfp-sc .vn{font:700 .62em/1 var(--f-ui);color:#2f5d8a;vertical-align:.55em;margin:0 .2em 0 .1em}
+.pdfp .pb-cue{display:inline-block;font:600 9px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 5px;border-radius:3px;background:#eef0f4;color:#5b6476;border:1px solid #d9dde5;vertical-align:.15em}
+.pdfp-side{flex:none;width:170px;display:flex;flex-direction:column;gap:9px;padding-top:3px}
+.pdfp-side figure{margin:0}
+.pdfp-side img{display:block;width:100%;border:1px solid #c9ced8;border-radius:3px;background:#1c2433}
+.pdfp-side figcaption{font:600 9px/1.3 var(--f-mono);letter-spacing:.05em;color:#5b6476;margin-top:3px}
+.pdfp-foot{position:absolute;left:64px;right:56px;bottom:30px;display:flex;justify-content:space-between;font:500 10px/1 var(--f-ui);color:#7a8294;border-top:1px solid #e1e4ea;padding-top:8px}
 .pb-slide{display:block;user-select:none;cursor:default;font:600 11px/1.4 var(--f-mono);letter-spacing:.05em;color:var(--accent);border-top:1px dashed var(--accent);padding-top:5px;margin:1.1em 0 .5em;max-width:44em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pb-cue{display:inline-block;user-select:none;font:600 10px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 6px;border-radius:4px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);vertical-align:.15em}
 .ed-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
@@ -697,6 +732,64 @@ body.sg-resizing{cursor:col-resize;user-select:none}
 
 
 .bind-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* Listen tab: the sermon read aloud, with the sentence being read marked */
+.ls-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr-h,0px));z-index:5;background:var(--surface);margin:-6px -8px 0;padding:6px 8px;border-radius:10px}   /* the controls stay in reach while reading along */
+.ls-bar #ls-play{min-width:96px}
+.ls-now-at{margin-left:4px}
+@media (max-width:560px){.ls-now-at{flex:1 1 100%;min-height:1.45em;margin:0}}   /* its own line, always there, so the controls never change height*/
+.ls-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}
+.ls-opts input[type=range]{width:100%;accent-color:var(--accent);height:var(--ctl)}
+.ls-coach{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ls-coach:has(#ls-coach[hidden]):has(#ls-coach-st:empty){display:none}
+.ls-grid{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.ls-grid{grid-template-columns:minmax(0,1fr)}}
+.ls-parts{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px}
+.ls-parts-h{display:flex;align-items:center;gap:12px;padding:2px 6px 6px;font-size:13px}
+.ls-parts-h .link-btn{margin:0}
+.ls-list{display:flex;flex-direction:column;gap:1px;max-height:min(56vh,560px);overflow:auto}
+.ls-part{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;padding:6px 8px;border-radius:7px;cursor:pointer;padding-left:calc(8px + (var(--lv,1) - 1) * 14px);font-size:13.5px;line-height:1.35}
+.ls-part:hover{background:var(--sunk)}
+.ls-part input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--accent)}
+.ls-part b{font:600 11.5px var(--f-mono);color:var(--accent);margin-right:4px}
+.ls-part .hint{white-space:nowrap}
+.ls-part.on-air{background:var(--accent-soft)}
+.ls-read{border:1px solid var(--line);border-radius:10px;padding:14px clamp(14px,2.4vw,28px);max-height:min(64vh,720px);overflow:auto;font-family:var(--f-read);font-size:1.05rem;line-height:1.7;overscroll-behavior:contain}
+.ls-read p{margin:0 0 .85em}
+.ls-read h3{font:600 1.1em/1.3 var(--f-read);margin:1em 0 .4em;color:var(--ink)}
+.ls-read h3:first-child{margin-top:0}
+.ls-read .ls-s{cursor:pointer;border-radius:3px;transition:background .15s}
+.ls-read .ls-s:hover{background:var(--sunk)}
+.ls-read .ls-s.key{font-weight:600}
+.ls-read .ls-s.now{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+.ls-read .ls-cue{font:600 10px/1.6 var(--f-mono);letter-spacing:.06em;padding:0 6px;border-radius:4px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);vertical-align:.15em;margin:0 3px}
+.ls-read .ls-cue.now{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ls-read .ls-sc{border-left:4px solid var(--sc-accent);background:var(--sc-bg);border-radius:3px 8px 8px 3px;padding:8px 12px;margin:0 0 .85em}
+.ls-read .ls-sc .ls-ref{display:block;font:700 11px/1.4 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--sc-accent);margin-bottom:4px}
+/* Slides tab: the deck in order, dragged to reorder */
+.sl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:18px 16px}
+.sl-card{position:relative;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sl-card:hover{border-color:var(--muted)}
+.sl-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sl-card.sl-from{opacity:.35}
+.sl-card .slide{border-radius:5px;pointer-events:none}
+.sl-card .slide .n{display:none}
+.sl-meta{display:flex;gap:8px;align-items:baseline;min-width:0;font-size:13.5px}
+.sl-meta b{font:600 12px var(--f-mono);color:var(--accent);flex:none}
+.sl-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sl-at{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-at.extra{color:var(--warn)}
+.sl-act{display:flex;gap:4px;align-items:center}
+.sl-act .icon-btn{width:30px;height:30px;font-size:15px}
+.sl-act .btn{min-height:30px;padding:0 10px;font-size:13px;margin-left:auto}
+.sl-card.drop-before::before,.sl-card.drop-after::after{content:"";position:absolute;top:4px;bottom:4px;width:4px;border-radius:2px;background:var(--accent)}
+.sl-card.drop-before::before{left:-11px}.sl-card.drop-after::after{right:-11px}
+.sl-grid.one-col .sl-card.drop-before::before,.sl-grid.one-col .sl-card.drop-after::after{top:auto;bottom:auto;left:4px;right:4px;width:auto;height:4px}
+.sl-grid.one-col .sl-card.drop-before::before{top:-11px}.sl-grid.one-col .sl-card.drop-after::after{bottom:-11px}
+.sl-ghost{position:fixed;z-index:70;pointer-events:none;border-radius:6px;box-shadow:0 14px 34px rgba(0,0,0,.32);transform:rotate(2deg);opacity:.95}
+.sl-ghost .slide .n{display:none}
+body.sl-dragging,body.sl-dragging *{cursor:grabbing!important}
+@media (pointer:coarse){.sl-act .icon-btn{width:40px;height:40px}.sl-act .btn{min-height:40px}}
+@media (max-width:560px){.sl-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}.sl-card{padding:6px;gap:4px}.sl-at{display:none}.sl-act{flex-wrap:wrap}.sl-act .btn{margin-left:0;flex:1 1 100%;min-height:36px}.sl-card.drop-before::before{left:-7px}.sl-card.drop-after::after{right:-7px}}
 .bind-list{display:flex;flex-direction:column;gap:10px}
 .bind{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 @media (max-width:640px){.bind{grid-template-columns:minmax(0,1fr)}}
@@ -1300,6 +1393,8 @@ select:disabled,input:disabled,textarea:disabled{opacity:.6;cursor:default}
 .icon-btn{border-radius:9px;transition:background-color .15s,border-color .15s}
 .link-btn:hover{text-decoration:underline}
 #sg-undo:not(:disabled){border-color:var(--line);background:var(--surface)}
+.tb-h{font-family:var(--f-read);font-weight:700}
+@media (max-width:700px){#sp-import{flex:none}}
 /* one main button a screen: inside the Study's cards the actions are quieter than Study this text and Ask Claude */
 #st-panels .btn.primary{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--ink);box-shadow:none}
 #st-panels .btn.primary:hover:not(:disabled){filter:none;border-color:var(--accent)}
@@ -1364,7 +1459,11 @@ select:disabled,input:disabled,textarea:disabled{opacity:.6;cursor:default}
 }
 @media (max-width:700px){
   .est-pill{position:static;box-shadow:none;height:var(--ctl);background:transparent}
-  body.set-open .est-pill,body:has(.sg-col.open) .est-pill{display:inline-flex}
+  body:has(.sg-col.open) .est-pill{display:inline-flex}
+  body.set-open .est-pill,.est-pill[data-empty="true"]{display:none}
+  .top-row .brand{min-width:0;flex:0 1 auto;overflow:hidden}
+  /* on a phone the jump links wrap in place instead of riding along the top */
+  .jump{position:static;flex-wrap:wrap;overflow:visible;margin-block:0;padding:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}
   /* Present: Previous and Next get the first row to themselves; text size and the live view sit under them, nothing cut off */
   #view-present .controls{flex-wrap:wrap}
   #view-present .controls #btn-prev,#view-present .controls #btn-next{flex:1 1 40%}
@@ -1382,7 +1481,7 @@ select:disabled,input:disabled,textarea:disabled{opacity:.6;cursor:default}
 /* Present on a phone: which slide is up, in words under the clock */
 .clock-wrap{display:inline-flex;flex-direction:column;justify-content:center;min-width:0}
 .pos-s{display:none;font-size:11.5px;color:var(--muted);white-space:nowrap;line-height:1.2}
-@media (max-width:899px){.pos-s{display:block}}
+@media (max-width:899px){.pos-s{display:block;white-space:pre-line}}
 /* the open sermon can be deleted from the Overview too: it is named right above the menu */
 body[data-view="dash"] #btn-del{display:flex}
 /* binding badges are sentences now, not codes */
@@ -1447,6 +1546,8 @@ body[data-view="dash"] #btn-del{display:flex}
   <div class="subtabs" id="subtabs" role="tablist" aria-label="Build sections" hidden>
     <button class="subtab" role="tab" id="sub-details" data-sub="details" aria-selected="true" aria-controls="build-details">Details</button>
     <button class="subtab" role="tab" id="sub-edit" data-sub="edit" aria-selected="false" aria-controls="view-edit" tabindex="-1">Edit manuscript</button>
+    <button class="subtab" role="tab" id="sub-slides" data-sub="slides" aria-selected="false" aria-controls="build-slides" tabindex="-1">Slides</button>
+    <button class="subtab" role="tab" id="sub-listen" data-sub="listen" aria-selected="false" aria-controls="build-listen" tabindex="-1">Listen</button>
     <button class="subtab" role="tab" id="sub-series" data-sub="series" aria-selected="false" aria-controls="build-series" tabindex="-1" hidden>Series documents</button>
     <button class="subtab" role="tab" id="sub-bindings" data-sub="bindings" aria-selected="false" aria-controls="build-bind" tabindex="-1">Bindings</button>
   </div>
@@ -1489,7 +1590,7 @@ body[data-view="dash"] #btn-del{display:flex}
           </div>
           <input type="file" id="file-pptx" accept=".pptx,.pdf" multiple hidden>
           <div class="hint" id="deck-progress" aria-live="polite"></div>
-          <div class="mat-act"><button type="button" class="btn" id="btn-save-pptx" hidden>Save slides as PowerPoint (.pptx)</button></div>
+          <div class="mat-act"><button type="button" class="btn" id="btn-save-pptx" hidden>Save slides as PowerPoint (.pptx)</button><button type="button" class="btn" id="btn-save-spdf" hidden title="The manuscript on letter pages, with each slide small in the margin beside the words that bring it up">Save sermon PDF with slides beside</button></div>
           <div id="deck-status" class="deck-status"></div>
           <div class="tip" id="deck-tip" hidden><b>For a pixel-exact match,</b> also drop the PDF export of this deck. In PowerPoint choose File, then Export (or Save As), then PDF. The .pptx still supplies speaker notes and text matching.</div>
         </div>
@@ -1504,6 +1605,44 @@ body[data-view="dash"] #btn-del{display:flex}
           <div class="field"><label for="rec-preached">As-preached transcript</label><textarea id="rec-preached" rows="5" placeholder="Paste the transcript of the recording. From YouTube: under the video choose … then Show transcript, select it all, and copy."></textarea><span class="hint" id="rec-preached-note"></span></div>
         </div>
       </div>
+    </div>
+
+    <div id="build-listen" hidden>
+        <div class="panel ls">
+          <div class="bind-head"><h2>Listen</h2><span class="hint" id="ls-summary"></span></div>
+          <div class="ls-bar" role="group" aria-label="Playback">
+            <button type="button" class="btn primary" id="ls-play">Play</button>
+            <button type="button" class="icon-btn" id="ls-prev" aria-label="Back one sentence" title="Back one sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="2.6" height="14" rx="1"/><path d="M19 5.6v12.8a.8.8 0 0 1-1.25.66L9.4 12.66a.8.8 0 0 1 0-1.32l8.35-6.4A.8.8 0 0 1 19 5.6z"/></svg></button>
+            <button type="button" class="icon-btn" id="ls-next" aria-label="Ahead one sentence" title="Ahead one sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="16.4" y="5" width="2.6" height="14" rx="1"/><path d="M5 5.6v12.8a.8.8 0 0 0 1.25.66l8.35-6.4a.8.8 0 0 0 0-1.32L6.25 4.94A.8.8 0 0 0 5 5.6z"/></svg></button>
+            <button type="button" class="btn ghost" id="ls-stop">Stop</button>
+            <span class="ls-now-at hint" id="ls-pos" aria-live="polite"></span>
+          </div>
+          <div class="ls-opts">
+            <div class="field"><label for="ls-style">Delivery</label><select id="ls-style"><option value="preach">Preaching, with passion</option><option value="teach">Teaching, steady</option><option value="plain">Plain reading</option></select></div>
+            <div class="field"><label for="ls-voice">Voice</label><select id="ls-voice"></select></div>
+            <div class="field"><label for="ls-speed">Speed <span class="hint" id="ls-speed-v"></span></label><input type="range" id="ls-speed" min="0.7" max="1.4" step="0.05" value="1"></div>
+          </div>
+          <div class="ls-coach"><button type="button" class="btn" id="ls-coach" hidden>Direct the delivery with Claude</button><span class="hint" id="ls-coach-st"></span></div>
+          <div class="hint" id="ls-note"></div>
+          <div class="ls-grid">
+            <div class="ls-parts">
+              <div class="ls-parts-h"><b>Hear</b><div class="spacer"></div><button type="button" class="link-btn" id="ls-all">All</button><button type="button" class="link-btn" id="ls-none">None</button></div>
+              <div id="ls-list" class="ls-list" role="group" aria-label="Parts of the sermon to hear"></div>
+            </div>
+            <div class="ls-read" id="ls-read" aria-label="The words being read"></div>
+          </div>
+        </div>
+    </div>
+
+    <div id="build-slides" hidden>
+        <div class="panel">
+          <div class="bind-head">
+            <h2>Slides</h2><span class="hint" id="sl-summary"></span><div class="spacer"></div>
+            <button type="button" class="btn ghost" id="sl-undo" disabled>Undo</button>
+          </div>
+          <div class="hint" id="sl-hint">Drag a slide to move it, or use its arrows. Slide cues in the manuscript follow the slide to its new place.</div>
+          <div class="sl-grid" id="sl-grid" role="list" aria-label="Slides in order"></div>
+        </div>
     </div>
 
     <div id="build-bind" hidden>
@@ -1574,7 +1713,7 @@ body[data-view="dash"] #btn-del{display:flex}
         <div class="ed-toolbar" id="ed-toolbar" role="toolbar" aria-label="Formatting">
           <select id="ed-block" aria-label="Paragraph style" title="Ctrl+Alt+1 to 4 for headings, Ctrl+Alt+0 for body, Ctrl+Alt+5 for a quotation"><option value="p">Body</option><option value="h1">Heading 1 · Division</option><option value="h2">Heading 2 · Main point</option><option value="h3">Heading 3 · Sub-point</option><option value="h4">Heading 4 · Minor point</option><option value="blockquote">Quotation</option></select>
           <span class="sep"></span>
-          <button class="tb" data-cmd="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
+          <button class="tb tb-h" data-cmd="heading" title="Heading: make this line a main point, or turn it back into body text. More levels are in the list at the left." aria-label="Heading">H</button><button class="tb" data-cmd="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
           <button class="tb" data-cmd="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i>I</i></button>
           <button class="tb" data-cmd="underline" title="Underline (Ctrl+U)" aria-label="Underline"><u>U</u></button>
           <span class="sep"></span>
@@ -1665,8 +1804,8 @@ body[data-view="dash"] #btn-del{display:flex}
         <div class="prog" aria-hidden="true"><i id="prog"></i></div>
         <div id="cur-slide"></div>
         <div class="controls">
-          <button class="btn" id="btn-prev">Previous</button>
-          <button class="btn primary" id="btn-next">Next</button>
+          <button class="btn" id="btn-prev" title="Back one part of the manuscript">Previous</button>
+          <button class="btn primary" id="btn-next" title="On to the next part of the manuscript. The slide changes when that part has its own slide.">Next</button>
           <span class="hint" id="pos"></span>
           <label class="follow-tg" title="Change slides as the paragraph under the dashed line changes"><input type="checkbox" id="follow-scroll"> Slides follow scrolling</label>
           <div class="spacer"></div>
@@ -1843,7 +1982,7 @@ body[data-view="dash"] #btn-del{display:flex}
         <div class="panel">
           <h2>Scripture cited</h2>
           <div class="tags" id="refs"></div>
-          <div class="hint">Links open in ESV on Bible Gateway.</div>
+          <div class="hint">Each passage opens in ESV on Bible Gateway, or tap Logos to open it in Logos Bible Software.</div>
         </div>
         <div class="panel">
           <h2>Recurring words</h2>
@@ -1904,6 +2043,7 @@ body[data-view="dash"] #btn-del{display:flex}
       <div class="sp-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input type="search" id="sp-q" role="combobox" aria-expanded="true" aria-controls="sp-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Search by title, text, tag, speaker, date, or words in the manuscript"></div>
       <button type="button" class="btn primary" id="sp-new"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New sermon</span></button>
+      <button type="button" class="btn" id="sp-import" title="Bring in sermons you already have as Word, PowerPoint, PDF, or text files">Import</button>
       <button type="button" class="icon-btn sp-x" id="sp-close" aria-label="Close">×</button>
     </div>
     <div class="sp-filters" id="sp-filters" role="group" aria-label="Narrow by tag"></div>
@@ -2131,8 +2271,25 @@ const store = {
   },
   async put(rec) {
     mem.set(rec.id, rec);
+    if (!idb) return false;
+    return new Promise(res => {
+      try {
+        const tx = idb.transaction("sermons", "readwrite"); tx.objectStore("sermons").put(rec);
+        tx.oncomplete = () => res(true); tx.onerror = tx.onabort = () => { localTrouble(tx.error); res(false); };
+      } catch (e) { localTrouble(e); res(false); }
+    });
+  },
+  /* Changes a saved sermon in one step, so a newer save can't land between reading and writing it. fn returns false to leave it. */
+  async patch(id, fn) {
+    const m = mem.get(id); if (m) fn(m);
     if (!idb) return;
-    try { idb.transaction("sermons", "readwrite").objectStore("sermons").put(rec); } catch {}
+    return new Promise(res => {
+      try {
+        const tx = idb.transaction("sermons", "readwrite"), os = tx.objectStore("sermons"), q = os.get(id);
+        q.onsuccess = () => { const r = q.result; if (r && fn(r) !== false) os.put(r); };
+        tx.oncomplete = () => res(true); tx.onerror = tx.onabort = () => res(false);
+      } catch { res(false); }
+    });
   },
   async del(id) {
     mem.delete(id);
@@ -2140,6 +2297,13 @@ const store = {
     try { idb.transaction("sermons", "readwrite").objectStore("sermons").delete(id); } catch {}
   }
 };
+/* A save this browser refused (storage full, private window) is said out loud, at most every few minutes. */
+let localWarnAt = 0;
+function localTrouble(e) {
+  console.warn("local save", e);
+  if (Date.now() - localWarnAt < 300000) return; localWarnAt = Date.now();
+  try { toast(cdb ? "This browser would not save the sermon on this device. It is still being saved to your account." : "This browser would not save the sermon. Free some space, or open Pulpit Binder in Claude while signed in so it saves to your account."); } catch {}
+}
 /* Small records kept on this device: saved Claude answers ("ai-…") and text studies ("study-…"). */
 const kvMem = new Map();
 const kv = {
@@ -2210,7 +2374,8 @@ let S = null;          // current record
 let sections = [];     // derived [{text, forced, cue, slide, how}]
 let library = [];
 let saveT = null;
-const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(() => { S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }, 500); };
+function commitSave() { saveT = null; S.updatedAt = Date.now(); store.put(S); touchLibrary(); queueCloud(); }
+const save = () => { lastEditAt = Date.now(); clearTimeout(saveT); saveT = setTimeout(commitSave, 500); };
 
 /* ---------------- text tools ---------------- */
 const STOP = new Set("the a an and or but if then than so to of in on at by for with from as is are was were be been being it its this that these those there here we you he she they them his her our your their i me my mine us who whom whose which what when where why how not no yes do does did done have has had will would shall should can could may might must just also very into out up down over under about after before again more most some any all each every one two three said says say like get got go going come came let lets us oh well now today morning really want know think thing things much many even only because through while those which them him jesus god lord".split(" "));
@@ -2772,6 +2937,22 @@ async function parseDocx(file) {
 /* ---------------- tags ---------------- */
 function fmtWhen(v) { if (!v) return ""; const d = new Date(v); if (isNaN(d)) return v; return d.toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); }
 const bgLink = ref => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=ESV`;
+/* Logos Bible Software: ref.ly opens the passage in the Logos app where it is installed, and in the Logos web app otherwise */
+const LOGOS_NUM = new Map("Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|1 Samuel|2 Samuel|1 Kings|2 Kings|1 Chronicles|2 Chronicles|Ezra|Nehemiah|Esther|Job|Psalm|Proverbs|Ecclesiastes|Song of Solomon|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|1 Corinthians|2 Corinthians|Galatians|Ephesians|Philippians|Colossians|1 Thessalonians|2 Thessalonians|1 Timothy|2 Timothy|Titus|Philemon|Hebrews|James|1 Peter|2 Peter|1 John|2 John|3 John|Jude|Revelation".split("|").map((b, i) => [b, i < 39 ? i + 1 : i + 22]));
+const ONE_CHAPTER = new Set(["Obadiah", "Philemon", "2 John", "3 John", "Jude"]);
+function logosLink(ref) {
+  const first = String(ref || "").split(/[;,]/)[0].trim(); if (!first) return "";
+  let n = normalizeRef(first); if (!n) { const fr = findRefs(first); n = fr.length ? fr[0].ref : null; }
+  const m = n && n.match(/^(.+?) (\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/); if (!m) return "";
+  const book = m[1] === "Psalms" ? "Psalm" : m[1], num = LOGOS_NUM.get(book); if (!num) return "";
+  const [, , a, b, c, d] = m; let from, to = "";
+  if (ONE_CHAPTER.has(book) && !b && !d) { from = `1.${a}`; if (c) to = `1.${c}`; }
+  else if (b) { from = `${a}.${b}`; if (d) to = `${c}.${d}`; else if (c) to = `${a}.${c}`; }
+  else { from = a; if (c) to = d ? `${c}.${d}` : c; }
+  return `https://ref.ly/logosref/bible.${num}.${from}${to ? `-${num}.${to}` : ""}`;
+}
+const logosA = (ref, attrs, text) => { const href = logosLink(ref); return href ? el("a", Object.assign({ href, target: "_blank", rel: "noopener", title: `Open ${ref} in Logos`, text: text || "Logos" }, attrs || {})) : null; };
+const refChip = (ref, cls) => { const lg = logosA(ref, { class: "lgo" }); const a = el("a", { href: bgLink(ref), target: "_blank", rel: "noopener", title: `Open ${ref} on Bible Gateway`, text: ref }); return el("span", { class: "chip refchip" + (cls ? " " + cls : "") }, a, lg); };
 function renderTags() {
   const bar = $("#tagbar"); bar.replaceChildren();
   $("#sb-title").textContent = S.meta.title || "Untitled sermon"; updateSermonCard();
@@ -2782,7 +2963,7 @@ function renderTags() {
   const ds = deliveriesOf(m);
   if (ds.length > 1) ds.forEach((d, i) => chip(i ? "Also" : "Presented", fmtDelivery(d)));
   else { chip("When", fmtWhen(m.when)); chip("Where", m.place); chip("Service", m.service); }
-  chip("Text", m.text, "accent"); chip("Speaker", m.speaker);
+  if (m.text) bar.append(el("span", { class: "chip accent" }, el("b", { text: "Text" }), m.text, logosA(m.text, { class: "lgo" }))); chip("Speaker", m.speaker);
   (m.series || "").split(",").map(s => s.trim()).filter(Boolean).forEach(s => chip("Tag", s));
   if (S.ai && !S.ai.error) {
     if (S.ai.approach) chip("Approach", S.ai.approach, "accent");
@@ -2947,7 +3128,7 @@ function renderBindings() {
     sel.value = sec.slide == null ? "" : String(sec.slide);
     sel.onchange = () => { S.manual[sec.key] = sel.value === "" ? null : +sel.value; rebuild(); renderBindings(); save(); };
     const badge = el("span", { class: "badge " + sec.how, text: sec.how === "auto" ? "matched by wording" : sec.how === "manual" ? "pinned by you" : "slide cue", title: sec.how === "auto" ? "Pulpit Binder chose this slide because its words match this part of the text" : sec.how === "manual" ? "You chose this slide for this part of the text" : "A slide cue in the manuscript brings this slide up here" });
-    const side = el("div", { class: "side" }, renderSlide(sec.slide, { small: true }), sel);
+    const side = el("div", { class: "side" }, copyable(renderSlide(sec.slide, { small: true }), sec.slide), sel);
     const ride = steps.filter(s => s.sec === i && s.extra).map(s => s.slide + 1);
     if (ride.length) side.append(el("div", { class: "hint", text: `Also shows slide${ride.length > 1 ? "s" : ""} ${ride.join(", ")} during this section` }));
     if (sec.slide != null && S.slides[sec.slide]) side.append(el("button", { type: "button", class: "btn", text: S.slides[sec.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(sec.slide) }));
@@ -2975,7 +3156,21 @@ async function loadDeckFiles(files) {
   if (pdf) await loadPdf(pdf);
 }
 function deckChanged(msg) { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; rebuild(); renderBindings(); renderDeckStatus(); renderTags(); if (view === "present") renderPresent(); save(); if (msg) toast(msg); }
+/* A yes-or-no question in the app's own dialog. Resolves true for yes; Escape, Cancel, or a click outside is no. */
+function askConfirm(title, body, yes) {
+  return new Promise(done => {
+    const ok = el("button", { type: "button", class: "btn primary", text: yes }), no = el("button", { type: "button", class: "btn", text: "Cancel" });
+    const card = el("div", { class: "modal-card", role: "dialog", "aria-modal": "true", "aria-label": title }, el("h2", { text: title }), el("p", { style: "margin:0;line-height:1.5", text: body }), el("div", { style: "display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap" }, no, ok));
+    const box = el("div", { class: "modal" }, card), was = document.activeElement;
+    const end = v => { document.removeEventListener("keydown", key, true); box.remove(); if (was && was.focus) was.focus(); done(v); };
+    const key = e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); end(false); } else if (e.key === "Tab") { e.preventDefault(); (document.activeElement === no ? ok : no).focus(); } };
+    ok.onclick = () => end(true); no.onclick = () => end(false); box.onclick = e => { if (e.target === box) end(false); };
+    document.addEventListener("keydown", key, true); document.body.append(box); no.focus();
+  });
+}
 async function loadPptx(f) {
+  const made = S.slides.filter(x => x.made).length;
+  if (made && !(await askConfirm("Replace the slides made here?", `This sermon has ${made} slide${made === 1 ? "" : "s"} made in Pulpit Binder, such as Scripture and quote slides. A PowerPoint takes the place of every slide in the sermon, ${made === 1 ? "that one" : "those"} included. You can press Undo afterward to bring them back.`, "Replace them"))) { progress(""); return; }
   progress("Reading slides…");
   try {
     const { slides, aspect } = await parsePptx(f, (i, n) => progress(`Reading slide ${i} of ${n}…`));
@@ -2983,7 +3178,7 @@ async function loadPptx(f) {
     const had = S.slides.length, mine = S.slides.filter(x => x.made).length; snapshot();
     if (S.example) { S.example = false; S.pdfPages = null; S.pdfName = ""; }
     S.slides = slides; S.aspect = aspect; S.pptxName = f.name; S.slidesFromPdf = false; S.manual = {};
-    applyPdf(); progress(""); deckChanged(`Loaded all ${slides.length} slides` + (had ? `. They took the place of the ${had} that were here${mine ? `, ${mine} of them made here` : ""}. Undo brings those back.` : ""));
+    applyPdf(); progress(""); deckChanged(`Loaded all ${slides.length} slides` + (had ? `. They took the place of the ${had} that were here${mine ? `, ${mine} of them made in Pulpit Binder` : ""}. Undo brings those back.` : ""));
   } catch (err) { progress("Could not read that file: " + (err.message || err)); }
 }
 async function loadPdf(f) {
@@ -3069,7 +3264,7 @@ async function renderSerDoc(r) {
   const m = { ...blank().meta, ...(r.meta || {}) }, cur = r.id === S.id;
   const ds = deliveriesOf(m).filter(d => d.when || d.place);
   const head = el("div", { class: "ser-head" }, el("h3", { text: m.title || "Untitled sermon" }),
-    el("div", { class: "tags" }, ...ds.map(d => el("span", { class: "chip" }, el("b", { text: d === ds[0] ? "Preached" : "Also" }), fmtDelivery(d))), m.text ? el("a", { class: "chip accent", href: bgLink(m.text), target: "_blank", rel: "noopener", text: m.text }) : null, ...tagsOf(m).map(t => el("span", { class: "chip", text: t }))));
+    el("div", { class: "tags" }, ...ds.map(d => el("span", { class: "chip" }, el("b", { text: d === ds[0] ? "Preached" : "Also" }), fmtDelivery(d))), m.text ? refChip(m.text, "accent") : null, ...tagsOf(m).map(t => el("span", { class: "chip", text: t }))));
   const local = !r.cloudOnly && r.ai && !r.ai.error ? r.ai : null, sum = cloudMetas.get(r.id) && cloudMetas.get(r.id).dash;
   const idea = (local && local.bigIdea) || (sum && sum.ai && sum.ai.bigIdea);
   if (idea) head.append(el("p", { class: "big-idea", style: "font-size:1.1rem", text: idea }));
@@ -3208,7 +3403,7 @@ function drawLibrary() {
 async function openSermonById(id) {
   let r = library.find(x => x.id === id); if (!r) return false;
   const c = cloudMetas.get(r.id);
-  if (cdb && c && (r.cloudOnly || c.updatedAt > (r.updatedAt || 0) + 1000)) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync("synced"); } catch { setSync("error"); } }
+  if (cdb && c && (r.cloudOnly || (!unsent(r) && c.updatedAt !== r.syncedAt))) { setSync("loading"); try { r = (await pullRecord(r.id)) || r; setSync(failing.size ? "error" : outbox.size ? "saving" : "synced"); } catch { setSync(failing.size ? "error" : "synced"); toast("Couldn't reach your account; showing the copy on this device"); } }
   if (r.cloudOnly) { toast("Couldn't load that sermon right now"); refreshLibrary(); return false; }
   const v = view; openRec(r); setView(v); return true;
 }
@@ -3315,7 +3510,7 @@ document.addEventListener("keydown", e => {
 /* A sermon lives in this browser and, once synced, as a document with chunked parts in the account; deleting takes both.
    Files it uploaded (slide pictures, recordings) stay in the page's file storage, since another copy of a sermon may use them. */
 async function removeSermon(id) {
-  await store.del(id); delete pushed[id]; dashCache.delete(id);
+  await store.del(id); dashCache.delete(id);
   const m = cloudMetas.get(id);
   if (!cdb || !userId || !m) return true;
   const base = sermonPath(id), q = Object.entries(m.chunks || {}).flatMap(([name, n]) => Array.from({ length: n }, (_, k) => `${base}/parts/${name}.${k}`));
@@ -3328,7 +3523,8 @@ async function removeSermon(id) {
 /* Returns how many could not be removed from the account. */
 async function deleteSermons(ids, onProgress) {
   const gone = new Set(ids), openGone = S && gone.has(S.id);
-  if (openGone) { clearTimeout(saveT); clearTimeout(cloudT); }
+  ids.forEach(id => { gone.add(id); outbox.delete(id); failing.delete(id); });
+  if (openGone) { clearTimeout(saveT); saveT = null; clearTimeout(edT); edT = null; clearTimeout(recT); recT = null; clearTimeout(thT); thT = 0; clearTimeout(mdT); mdT = 0; }
   if (onProgress) onProgress(0, ids.length, true);
   // a save already on its way to the account finishes first, so it can't bring a deleted sermon back
   const run = pushing.catch(() => {}).then(async () => { let failed = 0, n = 0; for (const id of ids) { if (!(await removeSermon(id))) failed++; if (onProgress) onProgress(++n, ids.length); } return failed; });
@@ -3413,9 +3609,10 @@ $("#del-go").onclick = async () => {
   toast(failed ? `${n - failed} of ${n} deleted. ${failed} couldn't be removed from your account right now, so ${failed === 1 ? "it is" : "they are"} still listed; try ${failed === 1 ? "it" : "them"} again later.` : n === 1 ? "Sermon deleted" : `${n} sermons deleted`);
 };
 function openRec(r) {
+  if (S && S !== r) flushPending();   // the sermon being left keeps its last few seconds of changes
   S = r; S.manual = S.manual || {}; S.meta = { ...blank().meta, ...S.meta }; S.meta.more = cleanMore(S.meta.more);
   undoStack = []; redoStack = []; clearTimeout(burstT); burstT = 0; burstKind = ""; updateHist();
-  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials();
+  cur = 0; loadForm(); loadEditor(); S.transcript = plainFromHtml(S.html); rebuild(); renderEditStats(); renderMediaPanel(); renderBindings(); renderTags(); renderAnalysis(); if (view === "present") renderPresent(); if (view === "materials") renderMaterials(); if (view === "build" && buildSub === "slides") renderSlidesTab(); listenReset();
   if (mdOn) $("#md-src").value = mdDocument();
   sd = null; stXrOpen = null; if (view === "study" || (view === "edit" && sideTab === "st")) renderStudy();
   watchCurrent();
@@ -3502,7 +3699,7 @@ function updatePresent(scroll = true) {
   const parts = [];
   if (si != null) parts.push(`Slide ${si + 1} of ${S.slides.length}`);
   if (st.sec != null) parts.push(`Section ${st.sec + 1} of ${sections.length}`);
-  $("#pos").textContent = parts.join(" · "); $("#pos-s").textContent = parts[0] || "";
+  $("#pos").textContent = parts.join(" · "); $("#pos-s").textContent = parts.join("\n");
   $("#prog").style.width = steps.length ? `${((cur + 1) / steps.length) * 100}%` : "0";
   updateClock(); liveShowSoon();
 }
@@ -3595,19 +3792,48 @@ const liveSig = i => {
   const str = JSON.stringify(sl, (k, v) => v instanceof Blob ? "blob:" + v.size + ":" + v.type : v);
   return keyOf(str + "|" + (S.aspect || "")) + keyOf(str.slice(0, 997)).slice(-3) + "x" + str.length.toString(36);
 };
-async function liveShot(i) {
+/* one slide drawn to a canvas, w pixels wide, as the projector shows it */
+async function slideCanvas(i, w = 1600) {
   const h2c = await loadH2c();
-  const host = el("div"); host.style.cssText = "position:fixed;left:-99999px;top:0;width:1600px;pointer-events:none";
-  const box = renderSlide(i); box.style.width = "1600px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
+  const host = el("div"); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${w}px;pointer-events:none`;
+  const box = renderSlide(i); box.style.width = w + "px"; box.style.maxWidth = "none"; box.style.borderRadius = "0"; box.querySelectorAll(".n,.hid").forEach(x => x.remove());
   host.append(box); document.body.append(host);
   try {
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     await Promise.all([...box.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
-    const c = await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: 1600, height: Math.round(1600 / (S.aspect || 16 / 9)) });
-    let q = 0.85, d = c.toDataURL("image/jpeg", q);
-    while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
-    return d.slice(d.indexOf(",") + 1);
+    return await h2c(box, { backgroundColor: null, scale: 1, logging: false, width: w, height: Math.round(w / (S.aspect || 16 / 9)) });
   } finally { host.remove(); }
+}
+/* Click a slide to copy it as a full-size picture (1920 pixels wide), ready to paste into PowerPoint or Keynote.
+   Where this page may not write pictures to the clipboard, the picture is saved as a file instead. */
+async function copySlidePic(i) {
+  if (!S.slides[i]) return;
+  const png = slideCanvas(i, 1920).then(c => canvasBlob(c));
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.write || !window.ClipboardItem) throw new Error("no clipboard");
+    toast(`Copying slide ${i + 1}…`);
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);   // the promise keeps the click's permission while the picture is drawn
+    toast(`Slide ${i + 1} copied. Paste it into PowerPoint.`);
+  } catch (e) {
+    let blob = null; try { blob = await png; } catch (e2) { toast("Couldn't draw that slide: " + ((e2 && e2.message) || e2)); return; }
+    if (!downloads) { toast("This view can't copy pictures or save files. Open Pulpit Binder in its own tab and try again."); return; }
+    try { await downloads.save({ filename: `${matSlug()}-slide-${i + 1}.png`, data: blob }); toast("Copying pictures isn't allowed here, so the slide was saved as a picture instead."); }
+    catch (e3) { if (e3 && e3.code !== "declined") toast("The picture could not be copied or saved here."); }
+  }
+}
+function copyable(box, i) {
+  if (i == null || !S.slides[i]) return box;
+  box.classList.add("copyable"); box.tabIndex = 0; box.setAttribute("role", "button"); box.title = "Click to copy this slide as a full-size picture";
+  box.setAttribute("aria-label", `Copy slide ${i + 1} as a picture`);
+  box.addEventListener("click", e => { e.stopPropagation(); copySlidePic(i); });
+  box.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copySlidePic(i); } });
+  return box;
+}
+async function liveShot(i) {
+  const c = await slideCanvas(i);
+  let q = 0.85, d = c.toDataURL("image/jpeg", q);
+  while (d.length > 800000 && q > 0.35) { q -= 0.1; d = c.toDataURL("image/jpeg", q); }   // each call to the relay carries at most 1 MiB
+  return d.slice(d.indexOf(",") + 1);
 }
 function liveRender() {
   const st = $("#lv-state"), on = lv.on;
@@ -3740,14 +3966,14 @@ function renderAnalysis() {
     .forEach(([v, k]) => st.append(el("div", { class: "stat" }, el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k }))));
   const refs = $("#refs"); refs.replaceChildren();
   if (!a.refs.length) refs.append(el("span", { class: "hint", text: "No references found in the manuscript. Write them like John 3:16 or Psalm 23." }));
-  a.refs.forEach(r => refs.append(el("a", { class: "chip", href: bgLink(r), target: "_blank", rel: "noopener", text: r })));
+  a.refs.forEach(r => refs.append(refChip(r)));
   bars($("#keywords"), a.kw); bars($("#voice"), a.voice);
   renderAI(); renderPreachedAnalysis();
 }
 function list(items) { const ul = el("ul"); (items || []).forEach(x => ul.append(el("li", { text: typeof x === "string" ? x : (x.ref ? `${x.ref}: ${x.use || ""}` : JSON.stringify(x)) }))); return ul; }
 function renderAI() {
   const out = $("#ai-out"); const ai = S.ai;
-  $("#btn-export").hidden = !downloads; $("#btn-save-pptx").hidden = !downloads;
+  $("#btn-export").hidden = !downloads; $("#btn-save-pptx").hidden = !downloads; $("#btn-save-spdf").hidden = !downloads;
   if (!ai) return;
   out.replaceChildren();
   if (ai.error) { out.append(el("div", { class: "refuse", text: ai.error })); return; }
@@ -3862,6 +4088,7 @@ ${preachedPlain().slice(0, 40000)}
 };
 
 $("#btn-save-pptx").onclick = () => savePptx($("#btn-save-pptx"));
+$("#btn-save-spdf").onclick = () => saveSermonPdf($("#btn-save-spdf"));
 $("#btn-export").onclick = async () => {
   const m = S.meta, a = localAnalysis(), ai = S.ai && !S.ai.error ? S.ai : null;
   const L = [];
@@ -4325,7 +4552,7 @@ function refreshCueLabels() {
 function onEdit(immediate) {
   clearTimeout(edT);
   const run = () => {
-    S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html);
+    edT = null; S.html = ed.innerHTML; S.transcript = plainFromHtml(S.html);
     rebuild(); save(); renderEditStats(); if (sideTab === "ol") renderOutline(); else renderSuggestions(); queueGutter();
   };
   if (immediate) run(); else edT = setTimeout(run, 350);
@@ -4364,6 +4591,7 @@ $("#ed-toolbar").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   const a = b.dataset.cmd;
   if (a === "undo") undoEdit(); else if (a === "redo") redoEdit();
+  else if (a === "heading") { restoreSel(); snapshot(); const tag = /^h[1-4]$/.test($("#ed-block").value) ? "p" : "h2"; $("#ed-block").value = tag; cmd("formatBlock", `<${tag}>`); }
   else if (a === "bold" || a === "italic" || a === "underline" || a === "insertUnorderedList" || a === "insertOrderedList") { restoreSel(); snapshot(); cmd(a); }
   else if (a === "hl") { const c = HL[b.dataset.c]; restoreSel(); snapshot(); cmd("hiliteColor", `rgb(${c.join(",")})`); }
   else if (a === "unhl") { restoreSel(); const r = savedRange; if (!r) return; snapshot(); ed.querySelectorAll("mark").forEach(m => { if (r.intersectsNode(m)) m.replaceWith(...m.childNodes); }); onEdit(); }
@@ -4398,7 +4626,7 @@ function applyHist(u) {
   if (u.deck && DECK_KEYS.some(k => u.deck[k] !== S[k])) {   // a deck was loaded or removed: put the files and their slides back together
     Object.assign(S, u.deck); S.slides = u.slides; S.manual = u.manual; applyPdf(); liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; renderDeckStatus(); renderBindings(); renderTags(); if (view === "present") renderPresent();
   }
-  if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); renderDeckStatus(); renderBindings(); }
+  if (u.slides && (u.slides.length !== S.slides.length || u.slides.some((x, i) => x !== S.slides[i]))) { S.slides = u.slides; S.manual = u.manual; S.deckVer = Date.now(); deckViewsSoon(); }
   if (u.meta) { S.meta = { ...u.meta }; loadForm(); renderTags(); refreshLibrary(); }
   refreshCueLabels(); onEdit(true);
   if (u.caret) { try { ed.focus({ preventScroll: true }); const [a, ao] = edPoint(u.caret[0]), [b, bo] = edPoint(u.caret[1]), r = document.createRange(); r.setStart(a, ao); r.setEnd(b, bo); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); } catch {} }
@@ -4588,7 +4816,7 @@ async function impRun(entries, fromFolder) {
   const stopped = impStop; impBusy = false;
   if (made.length && S && S.example) { const ex = S.id; await store.del(ex); openRec(made[0].rec); }
   await refreshLibrary();
-  if (made.length && cdb) { setSync("saving"); made.forEach(r => { pushing = pushing.then(() => pushRecord(r.rec)).catch(e => console.warn("sync", e)); }); pushing.then(() => setSync("synced"), () => setSync("error")); }
+  if (made.length && cdb) { made.forEach(r => queueCloud(r.rec)); flushCloud(); }
   impStep("done"); impSummary({ made, dupes, failed, skipped, stopped, total: groups.length });
 }
 function impSummary(r) {
@@ -4611,7 +4839,7 @@ function impSummary(r) {
   box.append(el("div", { class: "sc-pop-row" }, el("div", { class: "spacer" }), el("button", { type: "button", class: "btn", text: "Import more", onclick: () => impStep("pick") }), el("button", { type: "button", class: "btn primary", id: "imp-ok", text: "Done", onclick: closeImport })));
   $("#imp-ok").focus();
 }
-$("#btn-import").onclick = openImport; $("#dash-import").onclick = openImport;
+$("#btn-import").onclick = openImport; $("#dash-import").onclick = openImport; $("#sp-import").onclick = () => { closeSermons(false); openImport(); };
 $("#sync").onclick = () => toast($("#sync").title || $("#sync").textContent);
 $("#imp-folder").onclick = () => $("#imp-in-folder").click();
 $("#imp-files").onclick = () => $("#imp-in-files").click();
@@ -4643,7 +4871,7 @@ function mdShow(on) {
   else { clearTimeout(mdT); mdApply(true); queueGutter(); }
 }
 $("#btn-md").onclick = () => mdShow(!mdOn);
-$("#md-src").addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } clearTimeout(mdT); mdT = setTimeout(() => mdApply(false), 700); });
+$("#md-src").addEventListener("input", () => { if (S.example) { S.example = false; renderTags(); } clearTimeout(mdT); mdT = setTimeout(() => { mdT = 0; mdApply(false); }, 700); });
 $("#btn-md-copy").onclick = () => copyText($("#md-src").value, $("#md-src"));
 $("#btn-md-save").onclick = async () => {
   const name = ((S.meta.title || "sermon").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "sermon") + (S.meta.when ? "-" + S.meta.when.slice(0, 10) : "") + ".md";
@@ -4726,7 +4954,8 @@ function renderEditStats() {
   const txt = `${w.toLocaleString()} words · ${mins < 0.75 ? "under 1 min" : `about ${Math.round(mins)} min`} · ${sections.length} section${sections.length === 1 ? "" : "s"}`;
   $("#ed-stats").textContent = txt; const ms = $("#sub-edit"); if (ms) ms.title = sections.length ? txt : "No manuscript yet";
   const m = Math.round(mins), pill = $("#est-pill");
-  $("#est-tx").textContent = !w ? "No text yet" : mins < 0.75 ? "Under 1 min" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
+  const narrow = matchMedia("(max-width:700px)").matches;   // a phone's top bar has room for a few characters
+  $("#est-tx").textContent = !w ? "No text yet" : mins < 0.75 ? (narrow ? "<1 min" : "Under 1 min") : m >= 60 ? (narrow ? `${Math.floor(m / 60)}h ${m % 60}m` : `${Math.floor(m / 60)} h ${m % 60} min`) : `${m} min`;
   pill.dataset.empty = String(!w);
   pill.title = w ? `About ${mins < 0.75 ? "under a minute" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} minute${m === 1 ? "" : "s"}`} to preach: ${w.toLocaleString()} words at ${S.meta.wpm || 140} words a minute. Change the pace under Write, Details.`.replace("About under", "Under") : "The time to preach shows here once the manuscript has words."; pill.setAttribute("aria-label", pill.title);
   pill.onclick = () => toast(pill.title);
@@ -4812,13 +5041,13 @@ function openGutterPop(anchorEl, x) {
     const b = groupBlocks([...ed.children])[x.sec]; if (!b) return; snapshot();
     const t = document.createElement("template"); t.innerHTML = slideCueHtml(x.slide + 1); ed.insertBefore(t.content, b.els[0]); refreshCueLabels(); onEdit(true); toast(`Slide cue placed for slide ${x.slide + 1}`); } });
   const pop = el("div", { class: "g-pop", role: "dialog", "aria-label": "Slide details" },
-    renderSlide(x.slide, { small: true }),
+    copyable(renderSlide(x.slide, { small: true }), x.slide),
     el("div", { class: "g-pop-h", text: `Slide ${x.slide + 1} · paragraph ${x.sec + 1}` }),
     el("div", { class: "hint", text: x.extra ? "No paragraph matched this slide, so it comes up on a click during this paragraph. Put the cursor where it belongs and use Slide cue in the toolbar, or start it at this paragraph." : "Choose which slide this paragraph brings up. A pin lasts until the paragraph's wording changes; a slide cue is permanent." }),
     el("label", { class: "g-pop-h", for: "g-pop-sel", text: "This paragraph shows" }), sel,
     slideHdLinks(S.slides[x.slide]),
     S.slides[x.slide] ? el("button", { type: "button", class: "btn primary", text: S.slides[x.slide].made ? "Edit slide" : "Change kind of slide", onclick: () => editSlide(x.slide) }) : null,
-    el("div", { class: "sg-act" }, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
+    el("div", { class: "sg-act" }, S.slides[x.slide] ? el("button", { class: "btn ghost", text: "Copy picture", title: "Copy this slide as a full-size picture to paste into PowerPoint", onclick: () => copySlidePic(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].img ? el("button", { class: "btn ghost", text: "Replace picture", onclick: () => replacePicture(x.slide) }) : null, S.slides[x.slide] && S.slides[x.slide].made ? el("button", { class: "btn ghost", text: "Delete slide", onclick: () => { closeGutterPop(); deleteSlideAt(x.slide); } }) : null, x.extra ? placeHere : null, el("button", { class: "btn ghost", text: "Close", onclick: closeGutterPop })));
   pop.style.top = anchorEl.style.top; pop.onclick = e => e.stopPropagation();
   $("#gutter").append(pop); gutterPop = pop; sel.focus({ preventScroll: true });
 }
@@ -5079,7 +5308,9 @@ function scInnerHtml(d) {
   else if (busy && busy.err) body = `<p class="pb-sc-err">${esc(busy.err)}</p><p><button type="button" class="pb-sc-btn" data-act="retry">Try again</button> <button type="button" class="pb-sc-btn" data-act="paste">Paste the text</button></p>`;
   else body = `<p class="pb-sc-wait">${esc(d.ver)} text not loaded yet. <button type="button" class="pb-sc-btn" data-act="retry">Load it</button></p>`;
   const bg = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(d.ref)}&version=${encodeURIComponent(d.ver)}`;
-  if (cur) foot = (cur.s === "claude" ? `<span class="pb-sc-warn">Filled in by Claude. Check the wording against your Bible.</span>` : cur.s === "typed" ? `<span>Pasted text</span>` : `<span>${esc(VER_NAME[d.ver] || d.ver)} · Bible Gateway</span>`) + ` <a href="${esc(bg)}" target="_blank" rel="noopener">Open</a>` + (cur.s !== "bg" ? ` <button type="button" class="pb-sc-btn" data-act="retry">Reload</button>` : "");
+  const lg = logosLink(d.ref), lgA = lg ? ` <a href="${esc(lg)}" target="_blank" rel="noopener" title="Open this passage in Logos Bible Software">Open in Logos</a>` : "";
+  if (cur) foot = (cur.s === "claude" ? `<span class="pb-sc-warn">Filled in by Claude. Check the wording against your Bible.</span>` : cur.s === "typed" ? `<span>Pasted text</span>` : `<span>${esc(VER_NAME[d.ver] || d.ver)} · Bible Gateway</span>`) + ` <a href="${esc(bg)}" target="_blank" rel="noopener" title="Open on Bible Gateway">Open</a>${lgA}` + (cur.s !== "bg" ? ` <button type="button" class="pb-sc-btn" data-act="retry">Reload</button>` : "");
+  else foot = lgA.trim();
   return `<div class="pb-sc-head"><span class="pb-sc-kicker">Scripture</span><button type="button" class="pb-sc-ref" data-act="ref" title="Change the reference">${esc(d.ref)}</button><span class="pb-sc-tabs">${tabs}</span><button type="button" class="pb-sc-mk pb-sc-stk-btn" data-act="stackmenu" aria-expanded="${stkOpen}" title="Show other translations stacked under the words you choose">Stack translations${nSel ? " · " + nSel : ""} ▾</button><button type="button" class="pb-sc-mk" data-act="slides" title="Make slides from this passage">+ Slides</button><button type="button" class="pb-sc-x" data-act="remove" title="Remove this Scripture section" aria-label="Remove this Scripture section">×</button></div>${stkOpen && cur ? scStackPanel(d, model) : ""}<div class="pb-sc-body">${body}</div><div class="pb-sc-foot">${foot}</div>`;
 }
 function writeSc(e, d) {
@@ -5608,7 +5839,15 @@ function insertMadeSlides(target, newSlides, opts = {}) {
   toast((count === 1 ? `Slide ${pos + 1} added` : `Slides ${pos + 1}–${pos + count} added`) + (opts.from ? ` for ${opts.from}` : ""));
   return pos;
 }
-function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); renderDeckStatus(); renderBindings(); queueGutter(); }
+function deckEdited() { liveDeckSoon(); S.deckVer = Date.now(); cacheDeck = null; refreshCueLabels(); onEdit(true); deckViewsSoon(); queueGutter(); }
+/* The slide list in Details and the Bindings list are out of sight while you write, so a change to the deck redraws them when
+   the browser is free instead of making you wait. Opening Bindings draws it fresh in any case. */
+let deckViewsT = 0;
+function deckViewsSoon() {
+  const idle = window.requestIdleCallback || (f => setTimeout(f, 200)), stop = window.cancelIdleCallback || clearTimeout;
+  if (deckViewsT) stop(deckViewsT);
+  deckViewsT = idle(() => { deckViewsT = 0; renderDeckStatus(); if (view === "build") { renderBindings(); if (buildSub === "slides" && !slDrag) renderSlidesTab(); } }, { timeout: 1500 });
+}
 function replacePicture(idx) {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*";
   inp.onchange = async () => {
@@ -5618,6 +5857,332 @@ function replacePicture(idx) {
   };
   inp.click();
 }
+/* ---- the Slides tab: the deck in thumbnail order, dragged (or moved with the arrows) into a new order ----
+   A slide keeps everything that points at it: a numbered slide cue in the manuscript and a paragraph pinned to it follow it
+   to its new place, and a cue covering several slides grows to cover the run its slides now sit in. "Next slide" cues keep
+   meaning the next slide in order. Undo, here or in Edit manuscript, puts the old order back. */
+function moveSlide(from, to) {
+  const m = S.slides.length; if (from === to || from < 0 || to < 0 || from >= m || to >= m) return;
+  const order = S.slides.map((_, i) => i); order.splice(to, 0, order.splice(from, 1)[0]);
+  const at = new Array(m); order.forEach((old, k) => { at[old] = k; });
+  snapshot();
+  S.slides = order.map(i => S.slides[i]);
+  ed.querySelectorAll(".pb-slide").forEach(c => {
+    const n = +c.dataset.n; if (!n || n > m) return; const k = Math.max(1, +c.dataset.k || 1);
+    const now = Array.from({ length: Math.min(k, m - n + 1) }, (_, j) => at[n - 1 + j]), lo = Math.min(...now), hi = Math.max(...now);
+    c.dataset.n = String(lo + 1); if (hi > lo) c.dataset.k = String(hi - lo + 1); else delete c.dataset.k;
+  });
+  for (const [k, v] of Object.entries(S.manual)) if (v != null && v < m) S.manual[k] = at[v];
+  deckEdited();
+}
+let slDrag = null;
+function renderSlidesTab() {
+  const grid = $("#sl-grid"); if (!grid || !S) return;
+  const had = document.activeElement && grid.contains(document.activeElement) ? document.activeElement.closest(".sl-card") : null, keep = had ? had.dataset.i : null;   // a redraw keeps the keyboard on the same slide
+  grid.replaceChildren();
+  const m = S.slides.length;
+  $("#sl-summary").textContent = m ? `${m} slide${m === 1 ? "" : "s"}` : "";
+  $("#sl-hint").hidden = m < 2; $("#sl-undo").disabled = !undoStack.length;
+  $("#sl-hint").textContent = `${matchMedia("(pointer:coarse)").matches ? "Hold a slide for a moment, then drag it" : "Drag a slide"} to move it, or use its arrows. Slide cues in the manuscript follow the slide to its new place.`;
+  if (!m) { grid.append(el("div", { class: "empty", style: "grid-column:1/-1", text: "No slides yet. Drop a .pptx in Details, or highlight words in Edit manuscript and choose Make slide." })); return; }
+  // where each slide comes up in the manuscript
+  const where = new Map(); let st = []; try { st = buildSteps(); } catch {}
+  st.forEach(x => { if (x.slide != null && !where.has(x.slide) && x.sec != null) where.set(x.slide, x); });
+  S.slides.forEach((sl, i) => {
+    const w = where.get(i), sec = w && sections[w.sec];
+    const at = !sections.length ? "" : w && sec ? `${w.extra ? "No text matched, rides with" : "Comes up at"} §${w.sec + 1} · ${sec.text.replace(/\s+/g, " ").slice(0, 60)}` : "";
+    const btn = (label, glyph, off, fn) => el("button", { type: "button", class: "icon-btn", title: label, "aria-label": label, text: glyph, disabled: off ? "" : null, onclick: e => { e.stopPropagation(); fn(); } });
+    const card = el("div", { class: "sl-card", role: "listitem", tabindex: "0", "data-i": String(i), "aria-label": `Slide ${i + 1} of ${m}: ${sl.title || "untitled"}. Alt and an arrow key move it.` },
+      renderSlide(i, { small: true }),
+      el("div", { class: "sl-meta" }, el("b", { text: String(i + 1) }), el("span", { class: "sl-t", text: sl.title || (sl.made ? "Made slide" : "Untitled"), title: sl.title || "" })),
+      at ? el("div", { class: "sl-at" + (w && w.extra ? " extra" : ""), text: at, title: at }) : null,
+      el("div", { class: "sl-act" },
+        btn("Move earlier", "←", i === 0, () => slMoveBy(i, -1)),
+        btn("Move later", "→", i === m - 1, () => slMoveBy(i, 1)),
+        el("button", { type: "button", class: "btn ghost", text: sl.made ? "Edit" : "Change", title: sl.made ? "Edit this slide" : "Make this slide into a new kind", onclick: e => { e.stopPropagation(); editSlide(i); } })));
+    grid.append(card);
+  });
+  if (keep != null) { const c = grid.querySelector(`.sl-card[data-i="${keep}"]`); if (c) c.focus({ preventScroll: true }); }
+}
+function slMoveBy(i, d) { const j = i + d; if (j < 0 || j >= S.slides.length) return; slMove(i, j); }
+function slMove(from, to) {
+  moveSlide(from, to); renderSlidesTab();
+  const c = $(`#sl-grid .sl-card[data-i="${to}"]`); if (c) { c.focus({ preventScroll: true }); c.scrollIntoView({ block: "nearest" }); }
+  toast(`Slide ${from + 1} is now slide ${to + 1}. Undo puts it back.`);
+}
+$("#sl-undo").onclick = () => { undoEdit(); renderSlidesTab(); };
+$("#sl-grid").addEventListener("keydown", e => {
+  const card = e.target.closest(".sl-card"); if (!card || !e.altKey) return;
+  const i = +card.dataset.i, d = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key]; if (!d) return;
+  e.preventDefault(); slMoveBy(i, d);
+});
+/* dragging: a mouse drags at once; a finger holds still for a moment first, so swiping still scrolls the page */
+(() => {
+  const grid = $("#sl-grid"); let p = null, raf = 0;
+  const cards = () => [...grid.querySelectorAll(".sl-card")];
+  const clearMarks = () => grid.querySelectorAll(".drop-before,.drop-after").forEach(c => c.classList.remove("drop-before", "drop-after"));
+  const oneCol = () => getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length < 2;
+  function begin() {
+    const r = p.card.getBoundingClientRect(), w = Math.min(r.width, 260);
+    const ghost = el("div", { class: "sl-ghost" }, renderSlide(p.from, { small: true })); ghost.style.width = w + "px";
+    document.body.append(ghost); p.ghost = ghost; p.gw = w; p.card.classList.add("sl-from"); document.body.classList.add("sl-dragging");
+    grid.classList.toggle("one-col", oneCol()); slDrag = p; place(p.x, p.y);
+    if (navigator.vibrate && p.touch) try { navigator.vibrate(12); } catch {}
+  }
+  function place(x, y) {
+    p.x = x; p.y = y; p.ghost.style.left = (x - p.gw / 2) + "px"; p.ghost.style.top = (y - p.gw * 0.28) + "px";
+    clearMarks(); p.slot = null;
+    const one = grid.classList.contains("one-col");
+    let best = null, bd = Infinity;   // the nearest card, then which side of it
+    for (const c of cards()) { const r = c.getBoundingClientRect(), cx = Math.max(r.left, Math.min(x, r.right)), cy = Math.max(r.top, Math.min(y, r.bottom)), d = Math.hypot(x - cx, y - cy); if (d < bd) { bd = d; best = { c, r }; } }
+    if (!best || bd > 120) return;
+    const j = +best.c.dataset.i, after = one ? y > best.r.top + best.r.height / 2 : x > best.r.left + best.r.width / 2;
+    const slot = after ? j + 1 : j, to = slot > p.from ? slot - 1 : slot;
+    if (to === p.from) return;
+    best.c.classList.add(after ? "drop-after" : "drop-before"); p.slot = to;
+  }
+  function scrollLoop() {   // near the top or bottom of the window, the page scrolls so a slide can travel the whole deck
+    if (!slDrag) return; const edge = p.touch ? 110 : 70, top = (parseFloat(getComputedStyle(root).getPropertyValue("--hdr-h")) || 0) + edge, bot = innerHeight - (parseFloat(getComputedStyle(root).getPropertyValue("--nav-h")) || 0) - edge;
+    const v = p.y < top ? -Math.min(24, (top - p.y) / 3 + 4) : p.y > bot ? Math.min(24, (p.y - bot) / 3 + 4) : 0;
+    if (v) { scrollBy(0, v); place(p.x, p.y); }
+    raf = requestAnimationFrame(scrollLoop);
+  }
+  function end(commit) {
+    clearTimeout(p && p.hold); cancelAnimationFrame(raf);
+    if (slDrag) { const { from, slot } = p; p.ghost.remove(); p.card.classList.remove("sl-from"); document.body.classList.remove("sl-dragging"); clearMarks(); slDrag = null; if (commit && slot != null) slMove(from, slot); }
+    p = null;
+  }
+  grid.addEventListener("pointerdown", e => {
+    const card = e.target.closest(".sl-card"); if (!card || e.button || e.target.closest("button")) return;
+    p = { card, from: +card.dataset.i, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, id: e.pointerId, touch: e.pointerType !== "mouse" };
+    if (p.touch) p.hold = setTimeout(() => { if (p && !slDrag) { begin(); scrollLoop(); } }, 320);
+  });
+  addEventListener("pointermove", e => {
+    if (!p || e.pointerId !== p.id) return;
+    if (!slDrag) {
+      const far = Math.hypot(e.clientX - p.x0, e.clientY - p.y0) > 6;
+      if (p.touch) { if (far) end(false); return; }   // a finger that moves before the hold is scrolling
+      if (!far) return; p.x = e.clientX; p.y = e.clientY; begin(); scrollLoop(); return;
+    }
+    e.preventDefault(); place(e.clientX, e.clientY);
+  });
+  addEventListener("pointerup", e => { if (p && e.pointerId === p.id) end(true); });
+  addEventListener("pointercancel", e => { if (p && e.pointerId === p.id) end(false); });
+  grid.addEventListener("touchmove", e => { if (slDrag) e.preventDefault(); }, { passive: false });   // once a slide is held, the finger drags it instead of the page
+  grid.addEventListener("contextmenu", e => { if (p || slDrag) e.preventDefault(); });
+  addEventListener("keydown", e => { if (e.key === "Escape" && slDrag) end(false); });
+})();
+/* ---- Listen: the sermon read aloud, as a preacher would deliver it ----
+   The page can't reach a voice service, so it uses the voices built into the browser and gives them a preacher's delivery
+   with the four things they can change: speed, pitch, loudness, and the silence between sentences. Questions lift, key
+   (bold or highlighted) sentences slow and land, a short line after a long one gets a beat of silence, repeated openings
+   build, Scripture is read slower and steadier, headings are announced, and a PAUSE cue is a real pause. Claude can direct
+   the delivery line by line instead. Parts are chosen by heading (a point takes its sub-points with it), or all. */
+const synth = window.speechSynthesis || null;
+const ls = { chunks: [], sel: null, selFor: "", q: [], i: 0, playing: false, gen: 0, timer: 0, coach: new Map(), coachFor: "", watchdog: 0 };
+let lsStyle = "preach", lsSpeed = 1, lsVoiceName = "";
+try { lsStyle = localStorage.getItem("pb-ls-style") || "preach"; lsSpeed = +localStorage.getItem("pb-ls-speed") || 1; lsVoiceName = localStorage.getItem("pb-ls-voice") || ""; } catch {}
+const LS_AMP = { preach: 1, teach: 0.45, plain: 0 };
+const LS_TONES = { plain: {}, build: { r: .06, p: .06 }, strong: { r: -.08, p: -.04, a: .55, b: .2 }, soft: { r: -.1, p: -.02, v: .8, a: .45 }, question: { p: .12, a: .45 }, urgent: { r: .1, p: .07 }, tender: { r: -.12, p: -.04, v: .82, a: .6 }, joyful: { r: .05, p: .1 }, solemn: { r: -.14, p: -.07, a: .7 } };
+const lsKey = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+/* Psalm 119:105-112 is read "Psalm 119, verses 105 through 112", not as a clock time */
+const spokenRef = r => String(r).replace(/(\d+):(\d+)\s*[-–]\s*(\d+):(\d+)/g, "$1 verse $2 through chapter $3 verse $4").replace(/(\d+):(\d+)\s*[-–]\s*(\d+)/g, "$1, verses $2 through $3").replace(/(\d+):(\d+)/g, "$1, verse $2");
+const sayable = t => { let out = "", last = 0; for (const r of findRefs(t)) { out += t.slice(last, r.index) + spokenRef(r.ref); last = r.index + r.length; } return (out + t.slice(last)).replace(/\s+/g, " ").trim(); };
+const lsSentences = t => (String(t).replace(/\s+/g, " ").trim().match(/[^.!?…]+(?:[.!?…]+["”’)\]]*|$)/g) || []).map(x => x.trim()).filter(Boolean)
+  .flatMap(x => x.split(/\s+/).length > 34 ? x.split(/(?<=[;:—])\s+/) : [x]);   // a very long sentence breathes at its semicolons
+/* the manuscript in parts: what comes before the first heading, then each heading with what follows it */
+function listenChunks() {
+  const out = [{ id: "intro", lv: 0, title: "Before the first heading", blocks: [] }], c = [0, 0, 0, 0, 0];
+  for (const b of ed.children) {
+    if (b.classList.contains("pb-slide")) continue;
+    const lv = levelOf(b);
+    if (lv) { c[lv]++; for (let l = lv + 1; l <= 4; l++) c[l] = 0; out.push({ id: "h" + out.length + ":" + keyOf(blockText(b)), lv, title: blockText(b) || "(untitled heading)", num: lv === 2 ? ROMAN(c[2]) + "." : lv === 3 ? LETTER(c[3]) + "." : lv === 4 ? c[4] + "." : "", blocks: [b] }); continue; }
+    out[out.length - 1].blocks.push(b);
+  }
+  if (!out[0].blocks.some(b => blockText(b).trim())) out.shift();
+  if (out.length === 1 && out[0].lv === 0)   // no headings: each paragraph is a part
+    return out[0].blocks.filter(b => blockText(b).trim()).map((b, i) => ({ id: "p" + i + ":" + keyOf(blockText(b)), lv: 1, title: blockText(b).replace(/\s+/g, " ").slice(0, 80), num: `¶${i + 1}`, blocks: [b], para: true }));
+  out.forEach(ch => { ch.words = ch.blocks.reduce((a, b) => a + words(blockText(b)).length, 0); });
+  return out;
+}
+/* the reading queue: one item per sentence (or silence), each with its delivery, and the read-along text it lights up */
+function listenBuild() {
+  const read = $("#ls-read"); read.replaceChildren(); ls.q = [];
+  const chosen = ls.chunks.filter(ch => ls.sel.has(ch.id)), A = LS_AMP[lsStyle] ?? 1;
+  const last = chosen.length && chosen[chosen.length - 1] === ls.chunks[ls.chunks.length - 1] ? chosen[chosen.length - 1].blocks.filter(b => blockText(b).trim()).slice(-1)[0] : null;
+  let prev = null, run = 0;
+  const say = (text, kind, host, o = {}) => {
+    const shown = o.shown != null ? o.shown : text, spoken = sayable(text); if (!spoken) return;
+    const n = spoken.split(/\s+/).length, first2 = lsKey(spoken).split(" ").slice(0, 2).join(" ");
+    let r = 1, p = 1, v = 1, before = 0, after = 300;
+    if (kind === "head") { r = 1 - .1 * A; p = 1 - .05 * A; before = 350; after = 650 + 300 * A; }
+    else if (kind === "ref") { r = 1 - .1 * A; after = 450; }
+    else if (kind === "scripture") { r = 1 - .12 * A; p = 1 - .04 * A; after = 260 + 200 * A; }
+    else {
+      if (/\?["”’)]*$/.test(spoken)) { p += .12 * A; after += 250 * A; }
+      if (/!["”’)]*$/.test(spoken)) { r += .05 * A; p += .08 * A; }
+      if (o.key) { r -= .1 * A; p -= .04 * A; before += 220 * A; after += 500 * A; }
+      if (n <= 6 && prev && prev.n >= 12) { r -= .12 * A; after += 550 * A; }   // the short line that lands after a long one
+      run = prev && prev.first2 === first2 && first2.includes(" ") ? run + 1 : 0;   // "A lamp ... A lamp ..." builds
+      if (run) { r += Math.min(3, run) * .04 * A; p += Math.min(3, run) * .03 * A; }
+      if (o.closing) { r -= .08 * A; v = 1 - .1 * A; }
+    }
+    const coach = ls.coach.get(lsKey(spoken));
+    if (coach && A > 0) { const t = LS_TONES[coach.tone] || {}; r = 1 + (t.r || 0) * A + (kind === "scripture" ? -.1 * A : 0); p = 1 + (t.p || 0) * A; v = t.v || 1; before = (t.b || 0) * 1000 * A; after = Math.max(200, Math.min(2500, (coach.pause != null ? coach.pause * 1000 : 300 + (t.a || 0) * 1000) * (0.4 + .6 * A))); }
+    const span = el("span", { class: "ls-s" + (o.key ? " key" : ""), text: shown }); host.append(span, " ");
+    if (before > 40) ls.q.push({ kind: "pause", ms: before, el: span });
+    const it = { kind: "say", say: spoken, rate: r, pitch: p, vol: v, after, el: span, chunk: o.chunk, n };
+    span.onclick = () => listenPlay(ls.q.indexOf(it));
+    ls.q.push(it); prev = { n, first2 };
+  };
+  const pauseAfter = ms => { const l = ls.q[ls.q.length - 1]; if (l && l.kind === "say") l.after += ms; };
+  for (const ch of chosen) for (const b of ch.blocks) {
+    if (b.classList.contains("pb-scripture")) {
+      const d = readSc(b), t = d.texts[d.ver], box = el("div", { class: "ls-sc" }), refEl = el("span", { class: "ls-ref" });
+      read.append(box); box.append(refEl);
+      say(`${d.ref}.`, "ref", refEl, { chunk: ch.id, shown: `${d.ref} · ${d.ver}` }); refEl.lastChild && refEl.lastChild.remove();
+      if (t) { const pEl = el("p"); box.append(pEl); lsSentences(scPlainText(t.t)).forEach(x => say(x, "scripture", pEl, { chunk: ch.id })); }
+      else box.append(el("span", { class: "hint", text: `The ${d.ver} text isn't loaded yet, so only the reference is read.` }));
+      pauseAfter(500 * A); continue;
+    }
+    if (levelOf(b)) { const h = el("h3"); read.append(h); say(blockText(b), "head", h, { chunk: ch.id }); continue; }
+    if (b.tagName === "UL" || b.tagName === "OL") { const pEl = el("p"); read.append(pEl); [...b.children].forEach(li => lsSentences(li.textContent).forEach(x => say(x, "para", pEl, { chunk: ch.id }))); pauseAfter(350); continue; }
+    // a paragraph: its key words (bold, highlighted), and its PAUSE cues as real silence
+    const c = b.cloneNode(true), keys = [...c.querySelectorAll("strong,b,mark,u")].map(x => lsKey(x.textContent)).filter(k => k.length > 3);
+    c.querySelectorAll(".pb-cue").forEach(x => x.replaceWith("‖")); c.querySelectorAll("br").forEach(x => x.replaceWith(" "));
+    const pEl = el(b.tagName === "BLOCKQUOTE" ? "blockquote" : "p"); read.append(pEl);
+    c.textContent.split("‖").forEach((seg, k, all) => {
+      lsSentences(seg).forEach(x => say(x, "para", pEl, { chunk: ch.id, key: keys.some(kk => lsKey(x).includes(kk)), closing: b === last }));
+      if (k < all.length - 1) { const cue = el("span", { class: "ls-cue", text: "PAUSE" }); pEl.append(cue, " "); ls.q.push({ kind: "pause", ms: 1400, el: cue }); }
+    });
+    pauseAfter(380 * (0.5 + A));
+  }
+  if (!ls.q.length) read.append(el("div", { class: "hint", text: chosen.length ? "There are no words in the parts you chose." : "Choose the parts of the sermon to hear." }));
+  ls.i = Math.min(ls.i, Math.max(0, ls.q.length - 1));
+  const w = ls.q.reduce((a, x) => a + (x.kind === "say" ? x.n : 0), 0), mins = w / (155 * lsSpeed);
+  $("#ls-summary").textContent = w ? `${chosen.length === ls.chunks.length ? "The whole sermon" : `${chosen.length} of ${ls.chunks.length} parts`} · about ${mins < 1 ? "1" : Math.round(mins)} min` : "";
+}
+function listenVoices() {
+  const sel = $("#ls-voice"); if (!synth) return;
+  const all = synth.getVoices(), lang = (document.documentElement.lang || navigator.language || "en").slice(0, 2).toLowerCase();
+  const mine = all.filter(v => v.lang.toLowerCase().startsWith(lang)), list = (mine.length ? mine : all).slice();
+  const good = v => (/natural|neural|premium|enhanced|online/i.test(v.name) ? 0 : 1) + (v.localService ? .5 : 0) + (/^(google|microsoft)/i.test(v.name) ? -.2 : 0);
+  list.sort((a, b) => good(a) - good(b) || a.name.localeCompare(b.name));
+  sel.replaceChildren(...list.map(v => el("option", { value: v.name, text: `${v.name.replace(/^Microsoft /, "")}${/natural|neural|premium|enhanced/i.test(v.name) ? "" : ""} · ${v.lang}` })));
+  if (!list.length) sel.append(el("option", { value: "", text: "This device's default voice" }));
+  sel.value = list.some(v => v.name === lsVoiceName) ? lsVoiceName : (list[0] ? list[0].name : "");
+}
+if (synth) { try { synth.addEventListener("voiceschanged", () => { if (!$("#build-listen").hidden) listenVoices(); }); } catch {} }
+function renderListen() {
+  const ok = !!synth;
+  for (const id of ["#ls-play", "#ls-prev", "#ls-next", "#ls-stop", "#ls-voice", "#ls-style", "#ls-speed"]) $(id).disabled = !ok;
+  $("#ls-note").textContent = !ok ? "This browser can't read aloud. Try Chrome, Edge, or Safari." : "Voices come from this device. The most lifelike are the ones marked Natural (Edge on Windows) or the Enhanced and Premium voices (Settings on an iPhone or Mac). Click any sentence to start from there.";
+  $("#ls-style").value = lsStyle; $("#ls-speed").value = String(lsSpeed); $("#ls-speed-v").textContent = `${Math.round(lsSpeed * 100)}%`;
+  $("#ls-coach").hidden = !sample;
+  listenVoices();
+  if (ls.playing) { listenUi(); return; }   // leave the words being read where they are
+  ls.chunks = listenChunks();
+  if (!ls.sel || ls.selFor !== S.id) { ls.sel = new Set(ls.chunks.map(c => c.id)); ls.selFor = S.id; }
+  else { const had = ls.sel.size, ids = new Set(ls.chunks.map(c => c.id)); ls.sel = new Set([...ls.sel].filter(id => ids.has(id))); if (had && !ls.sel.size) ls.chunks.forEach(c => ls.sel.add(c.id)); }   // headings rewritten since: start again from all
+  const list = $("#ls-list"); list.replaceChildren();
+  if (!ls.chunks.length) list.append(el("div", { class: "hint", style: "padding:6px", text: "Write some of the manuscript first." }));
+  ls.chunks.forEach((ch, k) => {
+    const cb = el("input", { type: "checkbox", id: "ls-c" + k }); cb.checked = ls.sel.has(ch.id);
+    cb.onchange = () => { // a point takes the sub-points under it along
+      for (let j = k; j < ls.chunks.length; j++) { if (j > k && (ch.lv === 0 || ch.para || ls.chunks[j].lv <= ch.lv)) break; if (cb.checked) ls.sel.add(ls.chunks[j].id); else ls.sel.delete(ls.chunks[j].id); }
+      renderListen();
+    };
+    const mins = (ch.words || words(ch.blocks.map(blockText).join(" ")).length) / 155;
+    const row = el("label", { class: "ls-part", for: "ls-c" + k, "data-id": ch.id }, cb, el("span", {}, ch.num ? el("b", { text: ch.num }) : null, ch.title), el("span", { class: "hint", text: mins < 1 ? "<1 min" : `${Math.round(mins)} min` }));
+    row.style.setProperty("--lv", String(Math.max(1, ch.lv)));
+    list.append(row);
+  });
+  listenBuild(); listenUi();
+}
+function listenUi() {
+  const it = ls.q[ls.i];
+  $("#ls-play").textContent = ls.playing ? "Pause" : ls.i > 0 && it ? "Resume" : "Play";
+  $("#ls-play").disabled = !synth || !ls.q.length;
+  const says = ls.q.filter(x => x.kind === "say"), at = it ? says.indexOf(it.kind === "say" ? it : ls.q.slice(ls.i).find(x => x.kind === "say")) : -1;
+  $("#ls-pos").textContent = ls.q.length && (ls.playing || ls.i > 0) && at >= 0 ? `Sentence ${at + 1} of ${says.length}` : "";
+  document.querySelectorAll("#ls-list .ls-part").forEach(r => r.classList.toggle("on-air", !!(it && ls.playing && r.dataset.id === it.chunk)));
+}
+function listenMark(it) {
+  document.querySelectorAll("#ls-read .now").forEach(x => x.classList.remove("now"));
+  if (!it || !it.el) return; it.el.classList.add("now");
+  const box = $("#ls-read"), r = it.el.getBoundingClientRect(), b = box.getBoundingClientRect();   // keep the line in view inside the reading box, never moving the page
+  if (r.top < b.top + 20 || r.bottom > b.bottom - 20) box.scrollTop += r.top - b.top - box.clientHeight * 0.3;
+  listenUi();
+}
+function listenStep(g) {
+  if (g !== ls.gen || !ls.playing) return;
+  clearTimeout(ls.watchdog);
+  const it = ls.q[ls.i];
+  if (!it) { ls.playing = false; ls.i = 0; listenMark(null); listenUi(); toast("Finished"); return; }
+  if (it.kind === "pause") { listenMark(it); ls.timer = setTimeout(() => { if (g !== ls.gen) return; ls.i++; listenStep(g); }, it.ms); return; }
+  const u = new SpeechSynthesisUtterance(it.say), voice = synth.getVoices().find(v => v.name === lsVoiceName);
+  if (voice) { u.voice = voice; u.lang = voice.lang; }
+  u.rate = Math.max(.5, Math.min(2, it.rate * lsSpeed)); u.pitch = Math.max(0, Math.min(2, it.pitch)); u.volume = Math.max(0, Math.min(1, it.vol));
+  let done = false;
+  const fin = () => { if (done || g !== ls.gen) return; done = true; clearTimeout(ls.watchdog); ls.i++; ls.timer = setTimeout(() => listenStep(g), it.after); };
+  u.onend = fin; u.onerror = e => { if (e && (e.error === "interrupted" || e.error === "canceled")) return; fin(); };
+  listenMark(it);
+  ls.watchdog = setTimeout(fin, 4000 + it.n * 700 / u.rate);   // some browsers drop the end of a sentence now and then; never stall on it
+  synth.speak(u);
+}
+function listenPlay(from) {
+  if (!synth || !ls.q.length) return;
+  if (from != null && from >= 0) ls.i = from;
+  ls.gen++; clearTimeout(ls.timer); clearTimeout(ls.watchdog); synth.cancel();
+  ls.playing = true; listenUi();
+  const g = ls.gen; setTimeout(() => listenStep(g), 60);   // a fresh start after cancel, or some browsers drop the first sentence
+}
+function listenPause() { ls.gen++; ls.playing = false; clearTimeout(ls.timer); clearTimeout(ls.watchdog); if (synth) synth.cancel(); listenUi(); }
+function listenStop() { listenPause(); ls.i = 0; listenMark(null); listenUi(); }
+function listenReset() { if (ls.playing) listenStop(); ls.coach = new Map(); ls.coachFor = ""; $("#ls-coach-st").textContent = ""; }
+function listenSkip(d) {
+  const says = ls.q.map((x, k) => x.kind === "say" ? k : -1).filter(k => k >= 0); if (!says.length) return;
+  let pos = says.findIndex(k => k >= ls.i); if (pos < 0) pos = says.length - 1;
+  const to = says[Math.max(0, Math.min(says.length - 1, pos + d))];
+  if (ls.playing) listenPlay(to); else { ls.i = to; listenMark(ls.q[to]); }
+}
+$("#ls-play").onclick = () => ls.playing ? listenPause() : listenPlay();
+$("#ls-stop").onclick = listenStop;
+$("#ls-prev").onclick = () => listenSkip(-1);
+$("#ls-next").onclick = () => listenSkip(1);
+$("#ls-all").onclick = () => { ls.chunks.forEach(c => ls.sel.add(c.id)); if (ls.playing) listenStop(); renderListen(); };
+$("#ls-none").onclick = () => { ls.sel.clear(); if (ls.playing) listenStop(); renderListen(); };
+$("#ls-list").addEventListener("change", () => { if (ls.playing) listenStop(); }, true);
+const lsRestart = () => { const at = ls.i, was = ls.playing; if (was) listenPause(); listenBuild(); ls.i = Math.min(at, Math.max(0, ls.q.length - 1)); if (was) listenPlay(); else listenUi(); };
+$("#ls-style").onchange = () => { lsStyle = $("#ls-style").value; try { localStorage.setItem("pb-ls-style", lsStyle); } catch {} lsRestart(); };
+$("#ls-voice").onchange = () => { lsVoiceName = $("#ls-voice").value; try { localStorage.setItem("pb-ls-voice", lsVoiceName); } catch {} if (ls.playing) listenPlay(ls.i); };
+$("#ls-speed").oninput = () => { lsSpeed = +$("#ls-speed").value || 1; $("#ls-speed-v").textContent = `${Math.round(lsSpeed * 100)}%`; try { localStorage.setItem("pb-ls-speed", String(lsSpeed)); } catch {} };
+$("#ls-speed").onchange = () => { if (ls.playing) listenPlay(ls.i); else listenBuild(); };
+/* Claude reads the chosen parts and directs each line: its tone and the silence after it */
+$("#ls-coach").onclick = async () => {
+  if (!sample) return;
+  const lines = ls.q.filter(x => x.kind === "say").map(x => x.say); if (!lines.length) { toast("Choose the parts to hear first"); return; }
+  const btn = $("#ls-coach"), st = $("#ls-coach-st"); btn.disabled = true; st.textContent = "Claude is reading the sermon…";
+  const sent = lines.slice(0, 700);
+  try {
+    const { value: r, cached, at } = await askJson(`You are coaching the delivery of a sermon by a preacher in the churches of Christ. A speech voice will read it aloud, and it can change only its speed, pitch, loudness, and the silence after each line. For each numbered line, choose how a sincere, passionate preacher would deliver it to a congregation: where he builds, where he slows to let a truth land, where he softens to plead, where he lets a question hang. Most lines are plain; save strong, urgent, and solemn for the moments that carry the sermon, and use tender for pleading and the invitation. Scripture is read with reverence.
+
+Tones: plain, build, strong, soft, question, urgent, tender, joyful, solemn.
+"pause" is the seconds of silence after the line, from 0.2 to 2.5; most lines take 0.3, a line that should land takes 1 to 2.
+
+Sermon: ${S.meta.title || "(untitled)"}${S.meta.text ? ", text " + S.meta.text : ""}.
+
+Lines:
+${sent.map((t, k) => `${k + 1}. ${t}`).join("\n")}
+
+Return ONLY JSON: {"lines":[{"n":1,"tone":"plain","pause":0.3}]} with one entry for every line.`, { id: "ls-coach" });
+    const got = (r && Array.isArray(r.lines) ? r.lines : []).filter(x => x && sent[+x.n - 1] && LS_TONES[x.tone]);
+    got.forEach(x => ls.coach.set(lsKey(sent[+x.n - 1]), { tone: x.tone, pause: Math.max(.2, Math.min(2.5, +x.pause || .3)) }));
+    st.textContent = got.length ? `Claude directed ${got.length} of ${sent.length} lines.${cached ? " " + savedNote(at) : ""}${lsStyle !== "preach" ? " Choose Preaching to hear it in full." : ""}` : "Claude didn't return directions. Try again.";
+    lsRestart();
+  } catch (e) { st.textContent = { not_granted: "Claude was not allowed for this page.", rate_limited: "Too many requests right now. Try again in a minute." }[e && e.code] || "That did not finish. Try again."; }
+  btn.disabled = false;
+};
 function deleteSlideAt(idx) {
   if (!S.slides[idx]) return;
   snapshot();
@@ -5900,7 +6465,7 @@ function openPicker(src, edit) {
   });
   $("#mk-step1").hidden = false; $("#mk-step2").hidden = true;
   mkModal.hidden = false; selPop.hidden = true;
-  (grid.querySelector(".last:not([disabled])") || grid.querySelector("button:not([disabled])")).focus();
+  (grid.querySelector(".last:not([disabled])") || grid.querySelector("button:not([disabled])")).focus({ preventScroll: true });
 }
 function closePicker() { mkModal.hidden = true; mk = null; }
 $("#mk-cancel").onclick = closePicker; $("#mk-cancel2").onclick = closePicker;
@@ -6282,6 +6847,7 @@ $("#mk-add").onclick = () => {
   const slides = draftSlides(); if (!slides.length) return;
   if (mk.edit) { const { idx, count } = mk.edit; closePicker(); replaceSlides(idx, count, slides); return; }
   const s = mk.src; let target = s.target, snapped = false;
+  const at = (() => { try { const r = s.range || null, e = r ? r.getClientRects()[0] : target && target.getBoundingClientRect(); return e ? e.top : null; } catch { return null; } })();   // where the words sit on screen now
   if (s.kind === "text" && s.range) {   // the slide appears when you reach the highlighted words, so the paragraph splits there
     const b = topBlock(s.range.startContainer);
     if (b && b.isConnected && /^(P|BLOCKQUOTE)$/.test(b.tagName)) {
@@ -6294,6 +6860,11 @@ $("#mk-add").onclick = () => {
   }
   closePicker();
   insertMadeSlides(target, slides, { noSnap: snapped });
+  if (target && target.isConnected && ed.contains(target)) {
+    try { setCaret(target, 0); } catch {}   // keep writing where you were; the dialog hands focus back here without scrolling
+    const d = at == null ? 0 : target.getBoundingClientRect().top - at;   // the new cue line pushes the words down; follow them so they stay put on screen
+    if (Math.abs(d) > 2) window.scrollBy({ top: d, behavior: "instant" });
+  }
 };
 
 /* ---- editing a slide already in the deck, or making it a different kind ----
@@ -6369,7 +6940,7 @@ function replaceSlides(idx, count, newSlides) {
   for (const [k, v] of Object.entries(S.manual)) if (v != null) S.manual[k] = map(v);
   S.slides.splice(idx, count, ...newSlides);
   deckEdited();
-  toast((n === 1 ? `Slide ${idx + 1} saved` : `Slides ${idx + 1}–${idx + n} saved`) + ". Undo brings the old one back.");
+  toast((n === 1 ? `Slide ${idx + 1} saved` : `Slides ${idx + 1}–${idx + n} saved`) + ". Your manuscript wording is unchanged. Undo brings the old slide back.");
 }
 
 /* entry points */
@@ -6974,7 +7545,7 @@ function renderMediaPanel() {
 }
 $("#rec-link").addEventListener("input", () => { media().link = $("#rec-link").value.trim(); save(); renderMediaPanel(); });
 let recT = null;
-$("#rec-preached").addEventListener("input", () => { media().preached = $("#rec-preached").value; clearTimeout(recT); recT = setTimeout(() => { save(); renderMediaPanel(); }, 400); });
+$("#rec-preached").addEventListener("input", () => { media().preached = $("#rec-preached").value; clearTimeout(recT); recT = setTimeout(() => { recT = null; save(); renderMediaPanel(); }, 400); });
 $("#rec-drop").onclick = () => $("#rec-input").click();
 $("#rec-drop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#rec-input").click(); } };
 $("#rec-drop").ondragover = e => { e.preventDefault(); $("#rec-drop").classList.add("over"); };
@@ -7032,7 +7603,7 @@ $("#btn-copy-ch").onclick = () => { const ch = chapters(); if (ch.length < 3) { 
    Text parts are chunked into documents; slide images, PDF pages and small recordings
    go to the page's file storage and are referenced by id. */
 let cdb = null, cassets = null, userId = null, cloudMetas = new Map(), cloudReady = false, unsubCur = null, lastEditAt = 0, cloudT = null, pushing = Promise.resolve();
-const pushed = {};
+const TAB = uid() + uid();   // this open page; tells its own writes from another tab's or device's
 const DEVICE = (() => { try { let d = localStorage.getItem("pb-device"); if (!d) { d = uid() + uid(); localStorage.setItem("pb-device", d); } return d; } catch { return uid() + uid(); } })();
 const CHUNK = 60000, MAX_ASSET = 20 * 1048576;
 const sermonPath = id => `data/users/${userId}/${id}`;   // data/users/<you> is your private collection; each sermon is one document in it
@@ -7045,8 +7616,8 @@ if (HOSTED) Object.assign(window.claude.hosted, {
 function setSync(state, detail) {
   const p = $("#sync"); if (!p) return;
   p.dataset.state = state;
-  p.textContent = { off: "Saved on this device", saving: "Saving…", synced: "Saved and synced", error: "Sync paused", loading: "Syncing…" }[state] || state;
-  p.title = detail || { off: "Sermons are saved in this browser. Open this page in Claude while signed in to sync across devices.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and will sync when the connection returns.", loading: "Checking your account for sermons" }[state] || "";
+  p.textContent = { off: "Saved on this device", saving: "Saving…", synced: "Saved and synced", error: "Not synced yet", loading: "Syncing…" }[state] || state;
+  p.title = detail || { off: "This sermon is saved as you type, on this device, in this browser. Open Pulpit Binder in Claude while signed in to keep your sermons on every device.", saving: "Saving to your account", synced: `Saved to your account${detail ? "" : " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`, error: "Changes are kept on this device and are being sent to your account again. Nothing is lost.", loading: "Checking your account for sermons" }[state] || "";
 }
 /* Files go up once. Each upload is remembered by the file's content on this device, so reopening the page, or a
    change elsewhere in the deck, never sends the same picture again. */
@@ -7068,52 +7639,86 @@ async function upBlob(b) {
   if (!p) { p = uploadOnce(b); blobUp.set(b, p); p.catch(() => blobUp.delete(b)); }
   const id = await p; return id ? { asset: id } : null;
 }
-async function deepUp(v) {
-  if (v instanceof Blob) return upBlob(v);
-  if (Array.isArray(v)) { const out = []; for (const x of v) out.push(await deepUp(x)); return out; }
-  if (v && typeof v === "object") { if (v.asset) return v; const o = {}; for (const [k, x] of Object.entries(v)) o[k] = await deepUp(x); return o; }
+async function deepUp(v, up = upBlob) {
+  if (v instanceof Blob) return up(v);
+  if (Array.isArray(v)) { const out = []; for (const x of v) out.push(await deepUp(x, up)); return out; }
+  if (v && typeof v === "object") { if (v.asset) return v; const o = {}; for (const [k, x] of Object.entries(v)) o[k] = await deepUp(x, up); return o; }
   return v;
 }
 const runPool = async (tasks, n = 4) => { const q = tasks.slice(); await Promise.all(Array.from({ length: Math.min(n, q.length) }, async () => { while (q.length) await q.shift()(); })); };   // a few at a time: the store limits concurrent writes
 const partHash = str => keyOf(str) + ":" + str.length;
 /* What is already in the account is recorded in the sermon's own document (hashes of each part), so a new session, or
    another device, sends only the parts that changed. */
+/* A copy on this device is unsent when it changed after it last matched the account. syncedAt is the account's
+   updatedAt that it last matched, set after each push and pull. */
+const unsent = r => !!r && !r.example && (!!r.picsPending || r.syncedAt == null || (r.updatedAt || 0) > r.syncedAt);
 async function pushRecord(rec) {
-  if (!cdb || !userId || rec.example) return;
-  const base = sermonPath(rec.id);
-  const last = (pushed[rec.id] = pushed[rec.id] || {});
-  const prevMeta = cloudMetas.get(rec.id);
-  const chunks = { ...((prevMeta && prevMeta.chunks) || {}), ...(last.chunks || {}) };
-  const hashes = { ...((prevMeta && prevMeta.hashes) || {}), ...(last.hashes || {}) };
+  if (!cdb || !userId || rec.example || gone.has(rec.id)) return;
+  const base = sermonPath(rec.id), at = rec.updatedAt || Date.now();
+  // the account's copy is read fresh first, so a change made on another device is never written over; if it can't be
+  // read, nothing is written and the push is tried again later
+  const readLive = async () => { const ms = await dbWrite(() => cdb.doc(base).get()); return ms.exists ? ms.data() : null; };
+  let live = await readLive();
+  if (live && live.tab !== TAB && (rec.syncedAt != null ? live.updatedAt !== rec.syncedAt : live.updatedAt > at + 1000)) {
+    await keepTheirs(rec.id); live = await readLive();   // their version is now its own sermon; this one takes the place
+  }
+  const prevMeta = live;
+  // what the account holds now decides which parts need sending
+  const chunks = { ...((prevMeta && prevMeta.chunks) || {}) };
+  const hashes = { ...((prevMeta && prevMeta.hashes) || {}) };
+  let picsMissing = null;
+  const up = b => upBlob(b).catch(e => { picsMissing = e || { code: "unavailable" }; return null; });   // a picture that won't upload never holds back the text
   const md = rec.media || {};
   let fileRef = null, fileLocal = false;
-  if (md.file && md.file.blob) { fileRef = await upBlob(md.file.blob); fileLocal = !fileRef; }
+  if (md.file && md.file.blob) { fileRef = await up(md.file.blob); fileLocal = !fileRef; }
   const core = JSON.stringify({ manual: rec.manual || {}, ai: rec.ai || null, suggestions: rec.suggestions || [], dismissed: rec.dismissed || [], study: rec.study || null, mat: rec.mat || null, media: { link: md.link || "", file: fileRef ? { name: md.file.name, type: md.file.type, duration: md.file.duration || null, blob: fileRef } : null } });
   const parts = [["core", core], ["html", rec.html || ""], ["preached", md.preached || ""]];
   const slideCount = (rec.slides || []).length, oldCount = prevMeta ? prevMeta.slideCount || 0 : 0, trims = [];
-  if (!prevMeta || (prevMeta.deckVer || 0) !== (rec.deckVer || 0) || oldCount !== slideCount) {
+  if (!prevMeta || prevMeta.picsPending || (prevMeta.deckVer || 0) !== (rec.deckVer || 0) || oldCount !== slideCount) {
     const strs = new Array(slideCount);
-    await runPool(rec.slides.map((sl, i) => async () => { strs[i] = JSON.stringify(await deepUp(sl)); }), 3);
+    await runPool(rec.slides.map((sl, i) => async () => { strs[i] = JSON.stringify(await deepUp(sl, up)); }), 3);
     strs.forEach((t, i) => parts.push(["s" + i, t]));
-    parts.push(["pdf", JSON.stringify(await deepUp(rec.pdfPages || null))]);
+    parts.push(["pdf", JSON.stringify(await deepUp(rec.pdfPages || null, up))]);
     for (let i = slideCount; i < oldCount; i++) { for (let k = 0; k < (chunks["s" + i] || 1); k++) trims.push(`${base}/parts/s${i}.${k}`); delete chunks["s" + i]; delete hashes["s" + i]; }
   }
   const writes = [];
   for (const [name, str] of parts) {
     const h = partHash(str); if (hashes[name] === h && chunks[name] != null) continue;
     const n = Math.max(1, Math.ceil(str.length / CHUNK));
-    for (let k = 0; k < n; k++) writes.push(() => cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) }));
+    for (let k = 0; k < n; k++) writes.push(() => dbWrite(() => cdb.doc(`${base}/parts/${name}.${k}`).set({ s: str.slice(k * CHUNK, (k + 1) * CHUNK) })));
     for (let k = n; k < (chunks[name] || 0); k++) trims.push(`${base}/parts/${name}.${k}`);
     chunks[name] = n; hashes[name] = h;
   }
   await runPool(writes);
+  const meta = { id: rec.id, updatedAt: at, device: DEVICE, tab: TAB, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, hashes, fileLocal, picsPending: !!picsMissing, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
+  await dbWrite(() => cdb.doc(base).set(meta));
+  // leftover pieces go only after the sermon's own document points past them
   await runPool(trims.map(p => () => cdb.doc(p).delete().catch(() => {})));
-  const meta = { id: rec.id, updatedAt: rec.updatedAt || Date.now(), device: DEVICE, title: rec.meta.title || "", when: rec.meta.when || "", meta: rec.meta, pptxName: rec.pptxName || "", pdfName: rec.pdfName || "", pdfNote: rec.pdfNote || "", pdfAspect: rec.pdfAspect || null, aspect: rec.aspect || null, slidesFromPdf: !!rec.slidesFromPdf, deckVer: rec.deckVer || 0, slideCount, chunks, hashes, fileLocal, dash: (() => { try { return dashSummary(rec); } catch { return null; } })() };
-  await cdb.doc(base).set(meta);
-  last.chunks = chunks; last.hashes = hashes;
   cloudMetas.set(rec.id, meta);
+  markSynced(rec, at, !!picsMissing);
+  if (picsMissing) { const e = new Error("pictures"); e.code = picsMissing.code === "quota_or_state" || picsMissing.code === "quota_exceeded" ? "quota_or_state" : "pictures"; throw e; }
 }
-async function pullRecord(id) {
+/* What went up is recorded on each copy of that version, here and on this device; a newer version stays unsent. */
+function markSynced(rec, at, pics) {
+  const mark = r => { if ((r.updatedAt || 0) !== at) return false; r.syncedAt = at; r.picsPending = pics; };
+  mark(rec); if (S && S !== rec && S.id === rec.id) mark(S);
+  return store.patch(rec.id, mark);
+}
+/* One retry after a short pause for a passing hiccup, as the store asks. */
+const dbWrite = async fn => { try { return await fn(); } catch (e) { if (!e || !["unavailable", "resource_exhausted"].includes(e.code)) throw e; await new Promise(r => setTimeout(r, 800 + Math.random() * 1200)); return fn(); } };
+/* The same sermon changed here and on another device since they last matched: neither is lost. The other device's
+   version is saved as a separate sermon, and the one on this device keeps its place. */
+async function keepTheirs(id) {
+  const theirs = await pullRecord(id, true); if (!theirs) return;
+  const stamp = new Date(theirs.updatedAt || Date.now()).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const copy = { ...theirs, id: uid(), syncedAt: undefined, picsPending: false, meta: { ...theirs.meta, title: `${theirs.meta.title || "Untitled sermon"} (other device, ${stamp})` } };
+  await store.put(copy);
+  // kept on this device first; if it can't go up yet it waits with the other unsent sermons, and this one still goes ahead
+  try { await pushRecord(copy); } catch (e) { pushFailed(copy, e); }
+  toast(`"${theirs.meta.title || "Untitled sermon"}" was also changed on another device. Both versions are kept; the other one is in your library marked "other device".`);
+  refreshLibrary();
+}
+async function pullRecord(id, readOnly) {
   const base = sermonPath(id);
   const ms = await cdb.doc(base).get(); if (!ms.exists) return null;
   const m = ms.data();
@@ -7124,40 +7729,90 @@ async function pullRecord(id) {
   const core = parseJ(coreT, {});
   const local = (await store.all()).find(r => r.id === id);
   const rec = {
-    id, updatedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
+    id, updatedAt: m.updatedAt, syncedAt: m.updatedAt, example: false, meta: { ...blank().meta, ...(m.meta || {}) }, html, transcript: "",
     slides: slidesT.map(t => parseJ(t, { title: "", body: [], notes: "" })), pptxName: m.pptxName, pdfName: m.pdfName, pdfNote: m.pdfNote, pdfAspect: m.pdfAspect, aspect: m.aspect, slidesFromPdf: m.slidesFromPdf, deckVer: m.deckVer || 0,
     pdfPages: parseJ(pdfT, null), manual: core.manual || {}, ai: core.ai || null, study: core.study || null, mat: core.mat || null, suggestions: core.suggestions || [], dismissed: core.dismissed || [],
     media: { link: (core.media && core.media.link) || "", preached, file: (core.media && core.media.file) || (local && local.media && local.media.file && m.fileLocal ? local.media.file : null) }
   };
   rec.transcript = plainFromHtml(rec.html);
-  pushed[id] = { chunks: { ...(m.chunks || {}) }, hashes: { ...(m.hashes || {}), html: partHash(html), preached: partHash(preached) } };
+  if (readOnly) return rec;
+  cloudMetas.set(id, m);
   await store.put(rec);
   return rec;
 }
-/* A short pause after typing stops gathers a burst of edits into one push; steady typing still goes up every few seconds. */
-let cloudFirst = 0;
-function queueCloud() {
-  if (!cdb || !S || S.example) return;
+/* Sermons changed here wait in an outbox until the account confirms them. A short pause after typing stops gathers
+   a burst of edits into one push; steady typing still goes up every few seconds. A push that fails stays in the
+   outbox and is tried again, sooner for a passing hiccup, and right away when the connection or the page comes back. */
+const outbox = new Map(), failing = new Map(), sending = new Set(), gone = new Set();
+let cloudFirst = 0, retryT = 0, retryN = 0;
+function queueCloud(rec = S) {
+  if (!cdb || !rec || rec.example || gone.has(rec.id)) return;
+  outbox.set(rec.id, rec); failing.delete(rec.id);
   clearTimeout(cloudT);
   setSync("saving");
   const now = Date.now(); if (!cloudFirst) cloudFirst = now;
-  cloudT = setTimeout(() => {
-    cloudFirst = 0;
-    const rec = S;
-    pushing = pushing.then(() => pushRecord(rec)).then(() => setSync("synced")).catch(e => { console.warn("sync", e); setSync("error", e && e.code === "quota_or_state" ? "Your page's file storage is full. Text still syncs; remove old sermons' slides or recordings to make room." : null); });
-  }, Math.max(0, Math.min(600, cloudFirst + 4000 - now)));
+  cloudT = setTimeout(flushCloud, Math.max(0, Math.min(600, cloudFirst + 4000 - now)));
 }
+function flushCloud() {
+  clearTimeout(cloudT); cloudT = null; cloudFirst = 0;
+  if (!cdb || !outbox.size) return pushing;
+  const recs = [...outbox.values()]; outbox.clear();
+  for (const rec of recs) { sending.add(rec); pushing = pushing.then(() => pushRecord(rec)).then(() => { sending.delete(rec); pushDone(rec); }, e => { sending.delete(rec); pushFailed(rec, e); }); }
+  return pushing;
+}
+function pushDone(rec) {
+  failing.delete(rec.id);
+  if (!failing.size) { retryN = 0; clearTimeout(retryT); retryT = 0; }
+  if (!outbox.size && !failing.size && !sending.size && !cloudT) setSync("synced");
+}
+const SYNC_DEAD = ["revoked", "not_granted", "capability_disabled", "capability_removed"];
+function pushFailed(rec, e) {
+  console.warn("sync", rec.id, e);
+  if (gone.has(rec.id)) return;
+  failing.set(rec.id, rec);
+  const code = e && e.code;
+  if (SYNC_DEAD.includes(code)) { setSync("error", "Your account can't be reached from this page right now. Changes are kept on this device and go up the next time you open Pulpit Binder."); return; }
+  const stuck = ["quota_exceeded", "quota_or_state", "invalid_argument", "transform_error"].includes(code);
+  setSync("error", code === "quota_or_state" ? "Your page's file storage is full. The text is saved to your account; slide pictures and recordings will go up once you remove old sermons' slides or recordings." : code === "pictures" ? "The text is saved to your account. Some slide pictures have not gone up yet; trying again." : code === "quota_exceeded" ? "Your account's sermon storage is full. Changes are kept on this device; remove old sermons to make room." : null);
+  const wait = stuck ? 600000 : Math.min(60000, 2000 * 2 ** retryN) * (0.75 + Math.random() / 2);
+  retryN++; clearTimeout(retryT); retryT = setTimeout(retrySync, wait);
+}
+function retrySync() {
+  clearTimeout(retryT); retryT = 0;
+  if (!cdb || !failing.size) return;
+  for (const [id, r] of failing) outbox.set(id, S && S.id === id ? S : r);
+  failing.clear(); setSync("saving"); flushCloud();
+}
+const editsWaiting = () => !!(saveT || edT || mdT || recT || thT);
+/* Everything waiting on a timer is written now: before another sermon opens, and when the page is hidden or closed. */
+function flushPending() {
+  if (!S) return;
+  if (edT) onEdit(true);
+  if (mdT) { clearTimeout(mdT); mdT = 0; mdApply(false); }
+  if (recT || thT) { clearTimeout(recT); clearTimeout(thT); recT = null; thT = 0; save(); }
+  if (saveT) { clearTimeout(saveT); commitSave(); }
+  if (cloudT) flushCloud();
+}
+addEventListener("pagehide", flushPending);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushPending(); else if (failing.size) retrySync(); });
+addEventListener("online", () => { if (failing.size) retrySync(); });
 function watchCurrent() {
   if (unsubCur) { try { unsubCur(); } catch {} unsubCur = null; }
   if (!cdb || !userId || !S) return;
   const id = S.id;
-  unsubCur = cdb.doc(sermonPath(id)).onSnapshot(async snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites || !S || S.id !== id) return;
-    const d = snap.data(); cloudMetas.set(id, d);
-    if (d.device !== DEVICE && d.updatedAt > (S.updatedAt || 0) + 500 && Date.now() - lastEditAt > 4000 && document.activeElement !== ed) {
-      const rec = await pullRecord(id); if (rec && S.id === id) { const v = view, c = cur; openRec(rec, true); cur = c; setView(v); toast("Updated from another device"); }
-    }
-  }, () => {});
+  // A newer copy from another tab or device replaces this one only when nothing here is unsent (that is settled when
+  // it pushes) and the preacher isn't mid-sentence; otherwise it is looked at again shortly, so it is never missed.
+  let later = 0, unsub = null;
+  const consider = async d => {
+    clearTimeout(later); later = 0;
+    if ((unsub && unsubCur !== unsub) || !S || S.id !== id || d.tab === TAB || unsent(S) || d.updatedAt === S.syncedAt) return;
+    if (editsWaiting() || Date.now() - lastEditAt < 4000 || document.activeElement === ed) { later = setTimeout(() => consider(cloudMetas.get(id) || d), 2500); return; }
+    const rec = await pullRecord(id); if (rec && S.id === id && !unsent(S)) { const v = view, c = cur; openRec(rec, true); cur = c; setView(v); toast("Updated from another device"); }
+  };
+  unsub = unsubCur = cdb.doc(sermonPath(id)).onSnapshot(snap => {
+    if (!snap.exists || (snap.metadata && snap.metadata.hasPendingWrites) || !S || S.id !== id) return;
+    const d = snap.data(); cloudMetas.set(id, d); consider(d);
+  }, e => { if (unsubCur === unsub && !(e && SYNC_DEAD.concat("invalid_argument").includes(e.code))) setTimeout(() => { if (unsubCur === unsub && S && S.id === id) watchCurrent(); }, 5000); });
 }
 let syncKnown; const syncSettled = new Promise(r => { syncKnown = r; });   // resolves once we know whether the account is reachable
 async function startSync() { try { await startSyncInner(); } finally { syncKnown(); } }
@@ -7168,30 +7823,46 @@ async function startSyncInner() {
   try { userId = await user.id(); } catch { userId = null; }
   if (!userId) { setSync("off"); return; }
   cdb = db; cassets = assets; setSync("loading");
-  let first = true;
+  watchLibrary();
+}
+let libSeen = false;
+function watchLibrary() {
   cdb.collection(`data/users/${userId}`).onSnapshot(async snap => {
     for (const ch of snap.docChanges()) {
       if (ch.doc.id.startsWith("_")) { if (ch.doc.id === "_prefs" && ch.type !== "removed") applySettings(ch.doc.data(), true); if (ch.doc.id === "_dash" && ch.type !== "removed") applyDashAI(ch.doc.data(), true); continue; }
       if (ch.type === "removed") cloudMetas.delete(ch.doc.id); else cloudMetas.set(ch.doc.id, ch.doc.data());
     }
-    if (first) {
-      first = false; cloudReady = true;
+    if (!libSeen) {
+      libSeen = true; cloudReady = true;
       const locals = await store.all();
-      // a newer copy in the cloud wins for the sermon on screen
-      const cm = cloudMetas.get(S.id);
       if (S.example && cloudMetas.size && !locals.some(r => !r.example)) {
         const newest = [...cloudMetas.values()].sort((a, b) => b.updatedAt - a.updatedAt)[0];
         const exId = S.id; const rec = await pullRecord(newest.id); if (rec) { await store.del(exId); openRec(rec); }
-      } else if (cm && cm.updatedAt > (S.updatedAt || 0) + 1000) {
-        const rec = await pullRecord(S.id); if (rec) { const v = view; openRec(rec); setView(v); }
+      } else {
+        for (const l of locals) {
+          const r = l.id === S.id ? S : l, c = cloudMetas.get(r.id);
+          if (r.example || r.syncedAt != null || !c) continue;
+          // copies saved before this check existed: matched by time, as before
+          const was = r.updatedAt || 0;
+          if (Math.abs(was - c.updatedAt) <= 1000) r.syncedAt = c.updatedAt;
+          else if (c.updatedAt > was) r.syncedAt = was;
+          else continue;
+          const syncedAt = r.syncedAt; store.patch(r.id, x => (x.updatedAt || 0) === was && x.syncedAt == null ? (x.syncedAt = syncedAt, true) : false);
+        }
+        // a newer copy in the account replaces the sermon on screen only when nothing here is waiting to go up
+        const cm = cloudMetas.get(S.id);
+        if (cm && !unsent(S) && cm.updatedAt !== S.syncedAt && !editsWaiting()) { const rec = await pullRecord(S.id); if (rec && !unsent(S)) { const v = view; openRec(rec); setView(v); } }
       }
-      // anything only on this device, or newer here, goes up
-      for (const r of locals) { const c = cloudMetas.get(r.id); if (!r.example && (!c || (r.updatedAt || 0) > c.updatedAt + 1000)) pushing = pushing.then(() => pushRecord(r)).catch(e => console.warn("sync", e)); }
-      pushing.then(() => setSync("synced"), () => setSync("error"));
+      // anything only on this device, or changed here since it last matched, goes up
+      for (const l of locals) { const r = S && l.id === S.id ? S : l; if (unsent(r)) outbox.set(r.id, r); }
+      if (outbox.size) { setSync("saving"); flushCloud(); } else if (!failing.size) setSync("synced");
       watchCurrent();
     }
     refreshLibrary();
-  }, () => setSync("error"));
+  }, e => {
+    setSync("error");
+    if (!(e && SYNC_DEAD.concat("invalid_argument").includes(e.code))) setTimeout(watchLibrary, 5000);   // the listener ended; only a fresh one recovers
+  });
 }
 
 /* ---------------- Dashboard: every sermon at once ---------------- */
@@ -7335,7 +8006,7 @@ function drawDash() {
   const books = bookN.filter(Boolean).length;
   const grades = rows.map(r => r.grade).filter(g => g != null);
   const kpi = $("#dash-kpi"); kpi.replaceChildren();
-  [[rows.length, "sermons"], ...(multi ? [[dels.length, "times preached"]] : []), [(mins / 60).toFixed(mins >= 600 ? 0 : 1), "hours of preaching"], [counted.length ? Math.round(counted.reduce((a, r) => a + r.minutes, 0) / counted.length) + " min" : "–", "average length"], [passages.size, "passages cited"], [`${books} of 66`, "books of the Bible"], [`${analyzed.length} of ${rows.length}`, "analyzed by Claude"], [grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1) : "–", "average reading grade"]]
+  [[rows.length, rows.length === 1 ? "sermon" : "sermons"], ...(multi ? [[dels.length, "times preached"]] : []), mins < 60 ? [`${Math.round(mins)} min`, "of preaching"] : [(mins / 60).toFixed(mins >= 600 ? 0 : 1), "hours of preaching"], [counted.length ? Math.round(counted.reduce((a, r) => a + r.minutes, 0) / counted.length) + " min" : "–", "average length"], [passages.size, "passages cited"], [`${books} of 66`, "books of the Bible"], [`${analyzed.length} of ${rows.length}`, "analyzed by Claude"], [grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1) : "–", "average reading grade"]]
     .forEach(([v, k]) => kpi.append(el("div", { class: "stat" }, el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k }))));
 
   drawMonths(dels.filter(r => r.when).sort((a, b) => a.when - b.when), multi);
@@ -7359,7 +8030,7 @@ function drawDash() {
 
   const top = tally(rows, r => r.refs).slice(0, 10); const tl = $("#dash-passages"); tl.replaceChildren();
   if (!top.length) tl.append(el("div", { class: "hint", text: "No references found yet." }));
-  top.forEach(x => tl.append(el("li", {}, el("a", { href: bgLink(x.label), target: "_blank", rel: "noopener", text: x.label }), el("span", { class: "c", "data-tip": tipList(x.titles), text: `${x.n} sermon${x.n === 1 ? "" : "s"}` }))));
+  top.forEach(x => tl.append(el("li", {}, el("a", { href: bgLink(x.label), target: "_blank", rel: "noopener", text: x.label }), logosA(x.label, { class: "lg-link" }), el("span", { class: "c", "data-tip": tipList(x.titles), text: `${x.n} sermon${x.n === 1 ? "" : "s"}` }))));
 
   const vw = rows.filter(r => r.words > 200), per = k => vw.length ? (vw.reduce((a, r) => a + r[k] / r.words * 1000, 0) / vw.length).toFixed(1) : "–";
   const voice = $("#dash-voice"); voice.replaceChildren();
@@ -7547,7 +8218,7 @@ function drawDashAI(rows) {
   if (a.ideas && a.ideas.length) {
     out.append(el("h3", { class: "sub", text: "Ideas for upcoming sermons" }));
     const g = el("div", { class: "dash-ideas" });
-    a.ideas.forEach(i => g.append(el("div", { class: "idea" }, el("b", { text: i.title || "" }), i.text ? el("a", { class: "mono", href: bgLink(i.text), target: "_blank", rel: "noopener", text: i.text }) : null, el("span", { class: "hint", text: i.why || "" }))));
+    a.ideas.forEach(i => g.append(el("div", { class: "idea" }, el("b", { text: i.title || "" }), i.text ? el("span", { class: "idea-ref" }, el("a", { class: "mono", href: bgLink(i.text), target: "_blank", rel: "noopener", text: i.text }), logosA(i.text, { class: "lg-link" })) : null, el("span", { class: "hint", text: i.why || "" }))));
     out.append(g);
   }
   out.append(el("div", { class: "hint", text: `Read ${a.count || "?"} sermon${a.count === 1 ? "" : "s"}${a.scope ? " (" + a.scope + ")" : ""} on ${new Date(a.at).toLocaleString()}` }));
@@ -7945,7 +8616,7 @@ function stRenderXref() {
     const d = el("details", { class: "st-xr", open: x.key === open ? "" : null }, el("summary", {}, el("b", { text: `Verse ${x.v}` }), el("span", { class: "hint", text: ` · ${items.length} reference${items.length === 1 ? "" : "s"}${r.src === "claude" ? " · suggested by Claude" : ""}` })));
     if (r.err) d.append(el("div", { class: "hint", style: "color:var(--warn)", text: r.err }));
     items.forEach(i => d.append(el("div", { class: "st-xi" }, el("div", { class: "st-xh" }, el("button", { type: "button", class: "link-btn st-xref-go", style: "margin:0;font-weight:600", text: i.ref, title: "Study this passage", onclick: () => stStudyRef(i.ref) }),
-      el("a", { class: "link-btn", style: "margin-left:8px", href: bgLink(i.ref), target: "_blank", rel: "noopener", text: "Read ↗" }),
+      el("a", { class: "link-btn", style: "margin-left:8px", href: bgLink(i.ref), target: "_blank", rel: "noopener", text: "Read ↗" }), logosA(i.ref, { class: "link-btn", style: "margin-left:8px" }, "Logos ↗"),
       el("button", { type: "button", class: "link-btn", text: "Add to notes", onclick: () => stAddNote(`${i.ref} (cross reference to ${stVRef(x, study().ref)})`) })), i.text ? el("div", { class: "st-xt", text: i.text }) : null)));
     p.append(d);
   });
@@ -8661,16 +9332,22 @@ function matWhenAuto() {
 }
 /* ---- files: PNG, a one-page PDF, and a zip ---- */
 const canvasBlob = (c, type = "image/png", q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), type, q));
-async function canvasPdf(c, wIn, hIn) {
-  const jpg = new Uint8Array(await (await canvasBlob(c, "image/jpeg", 0.93)).arrayBuffer()), enc = new TextEncoder(), pw = (wIn * 72).toFixed(2), ph = (hIn * 72).toFixed(2);
+async function canvasPdf(c, wIn, hIn) { return jpegPdf([await canvasJpeg(c)], wIn, hIn); }
+const canvasJpeg = async (c, q = 0.93) => ({ bytes: new Uint8Array(await (await canvasBlob(c, "image/jpeg", q)).arrayBuffer()), w: c.width, h: c.height });
+/* a PDF of whole-page pictures, one page per JPEG, each page wIn by hIn inches */
+function jpegPdf(pages, wIn, hIn) {
+  const enc = new TextEncoder(), pw = (wIn * 72).toFixed(2), ph = (hIn * 72).toFixed(2), n = pages.length, size = 3 + 3 * n;
   const parts = [], offs = []; let len = 0; const push = d => { const b = typeof d === "string" ? enc.encode(d) : d; parts.push(b); len += b.length; };
   push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-  const obj = (n, body) => { offs[n] = len; push(`${n} 0 obj\n${body}\nendobj\n`); };
-  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
-  obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
-  offs[4] = len; push(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${c.width} /Height ${c.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`); push(jpg); push("\nendstream\nendobj\n");
-  const content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(5, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
-  const xr = len; push(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map(n => String(offs[n]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
+  const obj = (k, body) => { offs[k] = len; push(`${k} 0 obj\n${body}\nendobj\n`); };
+  const pg = i => 3 + 3 * i;   // page i is object pg(i), its picture pg(i)+1, its drawing pg(i)+2
+  obj(1, "<< /Type /Catalog /Pages 2 0 R >>"); obj(2, `<< /Type /Pages /Kids [${pages.map((_, i) => pg(i) + " 0 R").join(" ")}] /Count ${n} >>`);
+  pages.forEach((im, i) => {
+    obj(pg(i), `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 ${pg(i) + 1} 0 R >> >> /Contents ${pg(i) + 2} 0 R >>`);
+    offs[pg(i) + 1] = len; push(`${pg(i) + 1} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`); push(im.bytes); push("\nendstream\nendobj\n");
+    const content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`; obj(pg(i) + 2, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  });
+  const xr = len; push(`xref\n0 ${size}\n0000000000 65535 f \n${Array.from({ length: size - 1 }, (_, k) => String(offs[k + 1]).padStart(10, "0") + " 00000 n \n").join("")}trailer\n<< /Size ${size} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
   const out = new Uint8Array(len); let p = 0; for (const b of parts) { out.set(b, p); p += b.length; } return new Blob([out], { type: "application/pdf" });
 }
 async function matSave(name, data) {
@@ -9115,7 +9792,7 @@ function thFullSize(th) {
   canvaFullSize(media).then(url => { if (th.media === media) { th.hdUrl = url; thChanged(false); } }).catch(e => { if (thHd.media === media) thHd.err = hdErrText(e); })
     .finally(() => { if (thHd.media === media) thHd.busy = false; redraw(); });
 }
-function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
+function thChanged(redraw) { const m = thM(), th = curTheme(); if (m.slideTheme && th && m.slideTheme.id === th.id) m.slideTheme = { ...th }; clearTimeout(thT); thT = setTimeout(() => { thT = 0; save(); if (redraw) renderThemePanel(); }, redraw ? 60 : 400); }
 async function thAsk() {
   if (!sample) return;
   const m = S.meta, ai = S.ai && !S.ai.error ? S.ai : null, heads = (() => { try { return outlineModel().items.map(i => `${i.num || ""} ${i.text}`.trim()); } catch { return []; } })();
@@ -9481,6 +10158,117 @@ async function deckPptx(onStep) {
   media.forEach(([name, blob]) => z.file("ppt/media/" + name, blob));
   return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation", compression: "DEFLATE" });
 }
+/* ---- the sermon as a PDF: manuscript on letter pages, each slide small in the margin beside the words that bring it up ----
+   Pages are laid out as HTML off screen, then drawn with html2canvas, like the live view's slides. A section that runs past the
+   bottom of a page is cut between words and carries on at the top of the next; its slides stay with its first part. */
+const PDFP = { w: 816, h: 1056, foot: 70 };   // 8.5 x 11 inches at 96 pixels an inch; room kept for the footer
+function pdfSecBody(sec) {
+  const b = el("div", { class: "pdfp-txt" });
+  if (sec.html) {
+    b.innerHTML = sanitize(sec.html);
+    b.querySelectorAll(".pb-slide").forEach(x => x.remove());
+    b.querySelectorAll(".pb-scripture").forEach(x => {
+      const d = readSc(x), t = d.texts[d.ver], box = el("div", { class: "pdfp-sc" }, el("div", { class: "pdfp-sc-h", text: `${d.ref} · ${d.ver}` }));
+      const body = el("div"); body.innerHTML = t ? scBodyHtml(t.t) : ""; box.append(body); x.replaceWith(box);
+    });
+  } else sec.text.split(/\n+/).forEach(p => b.append(el("p", { text: p })));
+  return b;
+}
+/* slides that come up at each section, in order, as Present marks them */
+function pdfSlidesBySec() {
+  const st = buildSteps(), out = sections.map(() => []);
+  st.forEach((s, k) => { if (s.sec == null || s.slide == null || (k > 0 && st[k - 1].slide === s.slide)) return; if (!out[s.sec].includes(s.slide)) out[s.sec].push(s.slide); });
+  return out;
+}
+/* cut a laid-out block where its text passes maxH pixels; the block keeps the first part and the rest comes back */
+function pdfCut(txt, maxH) {
+  const top = txt.getBoundingClientRect().top, w = document.createTreeWalker(txt, NodeFilter.SHOW_TEXT), r = document.createRange(); let cut = null, any = false;
+  const below = n => { let px = 0; for (let e = n.parentElement; e && e !== txt; e = e.parentElement) { const cs = getComputedStyle(e); px += parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth); } return px; };   // a box around the words closes below them
+  for (let n; !cut && (n = w.nextNode());) {
+    const re = /\S+/g; let m; const pad = below(n);
+    while ((m = re.exec(n.data))) {
+      r.setStart(n, m.index); r.setEnd(n, m.index + m[0].length); const rs = r.getClientRects(), last = rs[rs.length - 1];
+      if (last && last.bottom + pad - top > maxH) { cut = [n, m.index]; break; }
+      any = true;
+    }
+  }
+  if (!cut || !any) return null;
+  const rest = document.createRange(), prev = cut[0].previousSibling; rest.setStart(cut[0], cut[1]); rest.setEndAfter(txt.lastChild);
+  if (!cut[0].data.slice(0, cut[1]).trim() && prev && prev.classList && prev.classList.contains("vn")) rest.setStartBefore(prev);   // a verse number goes with its verse
+  const frag = rest.extractContents(), out = el("div", { class: "pdfp-txt" }); out.append(frag);
+  const prune = node => { for (const c of [...node.childNodes]) { if (c.nodeType === 1) { prune(c); if (!c.textContent.trim() && !/^(BR)$/.test(c.tagName)) c.remove(); } } };
+  prune(txt); prune(out);
+  return out.textContent.trim() ? out : null;
+}
+async function sermonPdf(onStep) {
+  rebuild();
+  if (!sections.length) throw new Error("There is no manuscript yet. Write or open it under Edit manuscript first.");
+  const bySec = pdfSlidesBySec(), need = [...new Set(bySec.flat())], pics = new Map();
+  for (let k = 0; k < need.length; k++) {   // each slide once, as a small picture
+    onStep(`Drawing slide ${k + 1} of ${need.length}…`);
+    try { const c = await slideCanvas(need[k], 640); pics.set(need[k], c.toDataURL("image/jpeg", 0.9)); } catch (e) { console.warn(e); }
+  }
+  const h2c = await loadH2c();
+  const host = el("div"); host.style.cssText = `position:fixed;left:-99999px;top:0;width:${PDFP.w}px;pointer-events:none`; document.body.append(host);
+  const pages = [], m = S.meta;
+  const newPage = () => {
+    const pg = el("div", { class: "pdfp" }), flow = el("div");
+    if (!pages.length) {
+      const sub = [m.text, fmtWhen(m.when), m.service, m.place, m.speaker].filter(Boolean).join(" · ");
+      pg.append(el("div", { class: "pdfp-head" }, el("h1", { class: "pdfp-title", text: m.title || "Untitled sermon" }), sub ? el("div", { class: "pdfp-sub", text: sub }) : null));
+    }
+    pg.append(flow); host.append(pg); pages.push(pg);
+    return { flow, limit: PDFP.h - PDFP.foot - flow.offsetTop };
+  };
+  const row = (txt, slides) => {
+    const r = el("div", { class: "pdfp-row" + (/^H[1-4]$/.test((txt.firstElementChild || {}).tagName || "") ? " hd" : "") }, txt);
+    r.append(el("div", { class: "pdfp-side" }, ...slides.map(i => el("figure", {}, pics.has(i) ? el("img", { src: pics.get(i), alt: "" }) : null, el("figcaption", { text: `SLIDE ${i + 1}` })))));
+    return r;
+  };
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    let cur = newPage();
+    const used = () => { const l = cur.flow.lastElementChild; return l ? l.offsetTop + l.offsetHeight - cur.flow.offsetTop : 0; };
+    for (let i = 0; i < sections.length; i++) {
+      onStep(`Laying out page ${pages.length}…`);
+      let r = row(pdfSecBody(sections[i]), bySec[i]);
+      for (let guard = 0; r && guard < 200; guard++) {
+        const before = used(); cur.flow.append(r);
+        await Promise.all([...r.querySelectorAll("img")].map(im => im.decode ? im.decode().catch(() => {}) : null));
+        if (used() <= cur.limit) break;
+        const room = cur.limit - (r.offsetTop - cur.flow.offsetTop), side = r.querySelector(".pdfp-side");
+        const fresh = before === 0;
+        let rest = null;
+        if (side.offsetHeight <= room || fresh) rest = room > 40 ? pdfCut(r.firstElementChild, room) : null;
+        if (rest) { cur = newPage(); r = row(rest, []); continue; }
+        if (fresh) break;   // too tall even for an empty page and cannot be cut: let it run off rather than loop
+        r.remove(); cur = newPage();
+      }
+    }
+    const title = m.title || "Sermon", out = [];
+    pages.forEach((pg, k) => pg.append(el("div", { class: "pdfp-foot" }, el("span", { text: title }), el("span", { text: `Page ${k + 1} of ${pages.length}` }))));
+    for (let k = 0; k < pages.length; k++) {
+      onStep(`Drawing page ${k + 1} of ${pages.length}…`);
+      const c = await h2c(pages[k], { backgroundColor: "#ffffff", scale: 2, logging: false, width: PDFP.w, height: PDFP.h });
+      out.push(await canvasJpeg(c, 0.9));
+    }
+    return jpegPdf(out, 8.5, 11);
+  } finally { host.remove(); }
+}
+let spdfBusy = false;
+async function saveSermonPdf(btn) {
+  if (spdfBusy) return;
+  if (!downloads) { toast("Saving files is not available in this view."); return; }
+  spdfBusy = true; const label = btn ? btn.textContent : ""; if (btn) btn.disabled = true;
+  try {
+    const blob = await sermonPdf(t => { if (btn) btn.textContent = t; });
+    if (btn) btn.textContent = label;
+    try { await downloads.save({ filename: `${matSlug()}-with-slides.pdf`, data: blob }); toast("Sermon PDF saved"); }
+    catch (e) { if (e && e.code !== "declined") toast("The PDF could not be saved here."); }
+  } catch (e) { console.error(e); toast("Couldn't build the PDF: " + ((e && e.message) || e)); }
+  if (btn) { btn.textContent = label; btn.disabled = false; }
+  spdfBusy = false;
+}
 let pptxBusy = false;
 async function savePptx(btn) {
   if (pptxBusy) return;
@@ -9528,12 +10316,12 @@ function thBindOnce() {
 /* ---------------- views ---------------- */
 /* Build holds three sections: Details, Edit manuscript (the editor, still its own view inside), and Bindings */
 let buildSub = "details"; try { buildSub = localStorage.getItem("pb-build-sub") || "details"; } catch {}
-if (!["details", "edit", "series", "bindings"].includes(buildSub)) buildSub = "details";
+if (!["details", "edit", "slides", "listen", "series", "bindings"].includes(buildSub)) buildSub = "details";
 function goBuild(sub) { buildSub = sub; try { localStorage.setItem("pb-build-sub", sub); } catch {} setView(sub === "edit" ? "edit" : "build"); }
 function setView(v) {
   const was = view;
   if (!$("#settings").hidden) closeSettings();
-  if (v === "bindings" || v === "series") { buildSub = v; v = "build"; }
+  if (v === "bindings" || v === "series" || v === "slides" || v === "listen") { buildSub = v; v = "build"; }
   if (buildSub === "series" && !(S && tagsOf(S.meta).length)) buildSub = "details";
   if (v === "build" && buildSub === "edit") buildSub = "details";
   if (v === "edit") buildSub = "edit";
@@ -9544,8 +10332,10 @@ function setView(v) {
   for (const id of ["dash", "build", "study", "edit", "present", "materials", "analysis"]) $("#view-" + id).hidden = id !== v;
   $("#subtabs").hidden = top !== "build";
   for (const b of document.querySelectorAll("#subtabs .subtab")) { const on = b.dataset.sub === buildSub; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; }
-  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series";
+  $("#build-details").hidden = buildSub !== "details"; $("#build-bind").hidden = buildSub !== "bindings"; $("#build-series").hidden = buildSub !== "series"; $("#build-slides").hidden = buildSub !== "slides"; $("#build-listen").hidden = buildSub !== "listen";
   if (v === "build" && buildSub === "series") renderSeries();
+  if (v === "build" && buildSub === "slides") renderSlidesTab();
+  if (v === "build" && buildSub === "listen") renderListen();
   if (v === "dash") renderDash(true);
   if (v === "build") renderBindings();
   if (v === "study") { placeStudy("view"); renderStudy(); }
@@ -9599,7 +10389,7 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
     const vis = () => [...m.querySelectorAll(FOCUSABLE)].filter(e => e.offsetParent !== null);
     new MutationObserver(() => {
       if (!m.hidden) { back = lastOut; const card = m.querySelector(".modal-card"); if (card && !card.hasAttribute("tabindex")) card.tabIndex = -1; setTimeout(() => { if (!m.contains(document.activeElement)) (vis()[0] || card).focus(); }, 0); }
-      else if (back) { const t = document.contains(back) && back.offsetParent !== null ? back : $("#btn-sermon"); try { t.focus(); } catch {} back = null; }
+      else if (back) { const t = document.contains(back) && back.offsetParent !== null ? back : $("#btn-sermon"); try { t.focus({ preventScroll: true }); } catch {} back = null; }   // never scroll: the editor would jump to wherever its caret landed
     }).observe(m, { attributes: true, attributeFilter: ["hidden"] });
     m.addEventListener("keydown", e => {
       if (e.key !== "Tab") return; const f = vis(); if (!f.length) return;
@@ -9617,12 +10407,13 @@ $("#skip-link").addEventListener("click", e => { e.preventDefault(); $("#main").
   S = all[0] || exampleRec();
   if (!all.length) await store.put(S);
   openRec(S); await refreshLibrary(); startSync();
-  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
+  if (!idb) syncSettled.then(() => { if (!cdb) toast("This browser is not keeping sermons between visits. Open Pulpit Binder in Claude while signed in so they are saved to your account."); });
+  const h = (location.hash || "").slice(1); if (h === "build" || !h) goBuild(buildSub); else setView(["dash", "study", "edit", "slides", "listen", "bindings", "series", "present", "materials", "analysis"].includes(h) ? h : "build");
 })();
 if (window.claude && window.claude.use) {
   claude.use("sample").then(s => { sample = s; if (!s) { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; } renderSuggestions(); matSaveState(); }).catch(() => { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; });
   claude.use("mcp").then(m => { mcpNs = m; }).catch(() => {});
-  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; matSaveState(); }).catch(() => {});
+  claude.use("downloads").then(d => { downloads = d; $("#btn-export").hidden = !d; $("#btn-save-pptx").hidden = !d; $("#btn-save-spdf").hidden = !d; matSaveState(); }).catch(() => {});
 } else { $("#btn-ai").hidden = true; $("#btn-suggest").hidden = true; $("#btn-ao").hidden = true; }
 const setCollapsed = c => { document.body.classList.toggle("sb-collapsed", c); const b = $("#btn-collapse"); b.setAttribute("aria-expanded", String(!c)); b.title = b.ariaLabel = c ? "Show sermon details" : "Hide sermon details"; b.setAttribute("aria-label", b.title); try { localStorage.setItem("pb-hdr", c ? "1" : "0"); } catch {} setTimeout(() => { measureHeader(); queueGutter(); }, 0); };
 $("#btn-collapse").onclick = () => setCollapsed(!document.body.classList.contains("sb-collapsed"));

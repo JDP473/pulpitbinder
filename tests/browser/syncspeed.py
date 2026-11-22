@@ -84,7 +84,8 @@ async def main():
             await page.click("#editor p >> nth=3"); await page.keyboard.press("End"); await page.keyboard.type(" amen")
             t = await until_synced(page, started=True)
             c = await page.evaluate(COUNTS); print(f"{label}: typed a word, synced after {t:.1f}s  sets, deletes, gets, uploads = {c}")
-            check(f"{label}: only the text and the sermon's record are written", c, [2, 0, 0, 0])
+            # one read: the account's record is checked first, so a change made on another device is never written over
+            check(f"{label}: only the text and the sermon's record are written", c, [2, 0, 1, 0])
             check(f"{label}: under 3 seconds", t < 3, True)
             await page.evaluate(RESET)
             await page.click("#editor p >> nth=5"); await page.keyboard.press("End"); await page.keyboard.type(" again")

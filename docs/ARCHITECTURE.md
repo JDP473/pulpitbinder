@@ -7,7 +7,7 @@ Everything lives in `pulpit-binder.html`: CSS tokens and styles at the top, the 
 | Tab | Section id | Render entry |
 |---|---|---|
 | Dashboard | `#view-dash` | `renderDash()` gathers every sermon, `drawDash()` draws |
-| Build: Details, Bindings | `#view-build` (`#build-details`, `#build-bind`) | `renderBindings()`, `renderMediaPanel()` |
+| Build: Details, Slides, Listen, Bindings | `#view-build` (`#build-details`, `#build-slides`, `#build-listen`, `#build-bind`) | `renderBindings()`, `renderSlidesTab()`, `renderListen()`, `renderMediaPanel()` |
 | Build: Edit manuscript | `#view-edit` | `renderGutter()`, `renderSuggestions()`, `renderOutline()` |
 | Present | `#view-present` | `renderPresent()` |
 | Analysis | `#view-analysis` | `renderAnalysis()`, `renderAI()` |
@@ -38,6 +38,14 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - The sermon document records `hashes` of each part. A push compares against them and writes only parts that changed, so a new session or another device does not resend everything. Slides are sent only when `deckVer` or the slide count differs from the account's copy.
 - Each uploaded file is remembered on the device by its SHA-256 (`kv` key `asset-<hash>`), so the same picture is never uploaded twice.
 - Writes go a few at a time. A save waits 0.5 s after typing stops, then about 0.6 s more before pushing (at most 4 s during steady typing).
+- Nothing is dropped on the way (`tests/browser/syncsafe.py`):
+  - `flushPending()` writes every waiting timer (editor text, Markdown source, recording text, theme, the save itself, the push) before another sermon opens (`openRec`) and on `pagehide` or when the page is hidden.
+  - Sermons waiting to go up sit in `outbox`. A push that fails moves to `failing` and is retried with backoff (2 s doubling to 60 s; 10 min for a full store), and at once on `online` or when the page is shown again. A full store or a revoked grant gets its own status text. The pill reads "Synced" only when nothing is queued, sending, or failing.
+  - Each record carries `syncedAt`, the account's `updatedAt` it last matched; `unsent(r)` is true when it changed since. A copy with unsent changes is never replaced by a pull (on start, on opening from the library, or from `watchCurrent`).
+  - Before writing, `pushRecord` reads the account's record fresh; if that read fails, nothing is written and the push is retried. If another tab or device changed it since `syncedAt` (`tab` identifies the open page), `keepTheirs` saves that version as a separate sermon marked "other device" and this one keeps its place. Older copies without `syncedAt` are matched by time on the first snapshot.
+  - Leftover chunks are deleted only after the sermon's own document points past them. A picture that won't upload leaves the text to go up anyway; `picsPending` on the record and its account document sends the slides again on the next push.
+  - Each write is retried once after a short pause on `unavailable` or `resource_exhausted`. Listeners that end are opened again.
+  - `store.put` waits for IndexedDB to confirm and says so (`localTrouble`) when the browser refuses.
 - `data/users/<userId>/_prefs`: settings (default translation, favorites).
 - `data/users/<userId>/_dash`: the latest Claude read across all sermons.
 - Ids starting with `_` are not sermons and are skipped in the library.
@@ -52,10 +60,13 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 
 `rebuild()` splits the manuscript into sections, treats cues and pins as fixed points, and aligns the rest with a dynamic-programming match on words between them. `buildSteps()` produces the Present sequence so every slide is shown, including slides with no matching text.
 
+A change to the deck (`deckEdited`) updates the manuscript, its cues, and the slide column at once; the Details slide list and Bindings, out of sight while writing, redraw when the browser is idle (`deckViewsSoon`). Dialogs hand focus back with `preventScroll`, and adding a slide puts the caret at the paragraph it came from and keeps those words where they were on screen.
+
 ## Slides
 
 - PowerPoint: parsed with JSZip into a model (boxes, images, lines, tables, placeholders inherited from layout and master, theme colors) and drawn as HTML.
 - PDF export: rendered page images via pdf.js, for exact appearance.
+- Reordering (Slides tab, `moveSlide(from, to)`): thumbnails in deck order, moved by mouse drag, a held-then-dragged finger, the arrow buttons, or Alt with an arrow key. Numbered slide cues and pins follow their slide; a cue spanning several slides grows to cover the run they now sit in; "next slide" cues stay relative. One undo step per move.
 - Made slides: `made` is quote, scripture, keyverse, statement, points, point, blanks, question, art, or photo, styled from `deckTheme()`.
 
 ## Integrations
@@ -67,7 +78,13 @@ Kept in IndexedDB (`pulpit-binder` / `sermons`) and synced to the account.
 - AI services: `AI_SERVICES` lists every provider with its kind and where it runs. `settings.aiTier` (fast, balanced, careful) adjusts the tier `askJson` sends; `settings.imgService` (canva, claude-draw, none) decides who paints Illustration slides and theme header pictures. Claude drawing asks for an SVG (`DRAW_ASK`), cleans it with `cleanSvg`, and turns it into a PNG for header pictures.
 - Scripture formatting: bold, italic, underline, and four highlight colors are applied from a floating toolbar (`#sc-fmt`) over a selection in a Scripture section. They are stored in the section's text as invisible private-use marks (U+E001 to U+E014) around runs of words, never across a verse number or line break (`scPieces`, `scFromPieces`); `scPlainText` strips them. A slide made from a section keeps `sc: {id, a, z}` (section id and first and last verse) and `syncScSlides` rewrites its text whenever the section changes; older slides link themselves by matching their words the first time their section is touched.
 - PowerPoint export (`deckPptx`, "Save slides as PowerPoint" in Details): writes the .pptx by hand with JSZip (blank layout, plain theme, notes master). Made slides are the theme background as a picture plus one editable text box; slides read from a .pptx are rebuilt from the parsed model; PDF pages go in as pictures. Notes hold the slide's own notes, then the manuscript paragraphs that bring it up, so Presenter View shows the manuscript. Saved through `downloads` (pptx is on its allowlist). Checked with python-pptx, not yet opened in PowerPoint itself.
+- Sermon PDF (`sermonPdf`, "Save sermon PDF with slides beside" in Details): the manuscript on letter pages with each slide small in a right-hand column beside the section that brings it up (the same slides Present marks with SLIDE cues). Pages are laid out as HTML off screen (`.pdfp`, always light), sections that run past a page are cut between words by `pdfCut` (a verse number stays with its verse; a section's slides stay with its first part), then each page is drawn with html2canvas and written as a picture page by `jpegPdf`.
+- Copy a slide (`copySlidePic`): clicking a slide picture in Bindings or in the editor's slide popup (or its "Copy picture" button) draws the slide at 1920 pixels wide with `slideCanvas` and writes a PNG to the clipboard, ready to paste into PowerPoint. Where the clipboard refuses pictures, the PNG is saved through `downloads` instead. Present is left alone, since clicking there moves through the sermon.
 - Full-size pictures: the page can't download from Canva, so it places the media on the one 1920 x 1080 page of a design in the viewer's Canva titled "Pulpit Binder full-size pictures" (`read-design` with a transaction, `edit-design` `update_fill` on the page background, then commit) and exports that page with `export-design` as a PNG. The export link is signed and expires within about a day; the viewer opens it, saves the file, and chooses it to swap in. The design is found with `search-designs` (its id cached in `localStorage` as `pb-canva-holder`) or made once with `create-design` and `get-create-design-async-job`. Exports run one at a time because they share that page. Slides and themes keep `media`, `hdUrl`, and `canva`; a saved slide's popup exports again once the link has expired.
+
+## Listen
+
+The manuscript read aloud through the browser's own voices (`speechSynthesis`; the page can't reach a voice service). `listenChunks()` splits it by heading (or by paragraph when there are none); choosing a point takes its sub-points with it. `listenBuild()` makes one queue item per sentence or silence, each with a rate, pitch, volume, and the pause after it: questions lift, bold or highlighted sentences slow and land, a short line after a long one gets a beat, repeated openings build, Scripture is slower with its reference read as words ("Psalm 119, verses 105 through 106"), headings are announced, PAUSE cues are 1.4 s of silence, and the last paragraph softens. Delivery: Preaching, Teaching, or Plain scales those changes. "Direct the delivery with Claude" asks for a tone and pause per line (`LS_TONES`), cached like every `askJson` answer. Pause cancels and resumes at the same sentence; a watchdog moves on if a browser drops a sentence's end. The read-along box marks the sentence being read and scrolls itself, never the page.
 
 ## Dashboard
 
